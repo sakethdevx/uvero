@@ -42,14 +42,17 @@ import PasswordGenerator from './utility/password-generator/PasswordGenerator';
 import passwordGeneratorSEO from './utility/password-generator/seo.json';
 import WordToPDF from './pdf/word-to-pdf/WordToPDF';
 import wordToPDFSEO from './pdf/word-to-pdf/seo.json';
+import HTMLToPDF from './pdf/html-to-pdf/HTMLToPDF';
+import htmlToPDFSEO from './pdf/html-to-pdf/seo.json';
+import ExcelToPDF from './pdf/excel-to-pdf/ExcelToPDF';
+import excelToPDFSEO from './pdf/excel-to-pdf/seo.json';
+import PDFToPDFA from './pdf/pdf-to-pdfa/PDFToPDFA';
+import pdfToPDFASEO from './pdf/pdf-to-pdfa/seo.json';
 import ComingSoon from '../components/ComingSoon';
 import powerpointToPDFSEO from './pdf/powerpoint-to-pdf/seo.json';
-import excelToPDFSEO from './pdf/excel-to-pdf/seo.json';
-import htmlToPDFSEO from './pdf/html-to-pdf/seo.json';
 import pdfToWordSEO from './pdf/pdf-to-word/seo.json';
 import pdfToPowerpointSEO from './pdf/pdf-to-powerpoint/seo.json';
 import pdfToExcelSEO from './pdf/pdf-to-excel/seo.json';
-import pdfToPDFASEO from './pdf/pdf-to-pdfa/seo.json';
 
 export const tools = {
     'compress-image': {
@@ -274,23 +277,21 @@ export const tools = {
         id: 'excel-to-pdf',
         name: 'Excel to PDF',
         description: 'Convert Microsoft Excel spreadsheets to PDF format',
-        component: () => ComingSoon({ toolName: 'Excel to PDF', icon: '📈' }),
+        component: ExcelToPDF,
         category: 'pdf',
         seo: excelToPDFSEO,
         icon: '📈',
-        modes: ['online'],
-        upcoming: true
+        modes: ['offline', 'online']
     },
     'html-to-pdf': {
         id: 'html-to-pdf',
         name: 'HTML to PDF',
         description: 'Convert HTML files and web pages to PDF format',
-        component: () => ComingSoon({ toolName: 'HTML to PDF', icon: '🌐' }),
+        component: HTMLToPDF,
         category: 'pdf',
         seo: htmlToPDFSEO,
         icon: '🌐',
-        modes: ['online'],
-        upcoming: true
+        modes: ['offline', 'online']
     },
     'pdf-to-word': {
         id: 'pdf-to-word',
@@ -331,33 +332,32 @@ export const tools = {
         description: 'Convert PDF to PDF/A archival format for long-term preservation',
         component: () => ComingSoon({ toolName: 'PDF to PDF/A', icon: '📦' }),
         category: 'pdf',
+        seo: pdfToPPDFToPDFA,
+        category: 'pdf',
         seo: pdfToPDFASEO,
         icon: '📦',
-        modes: ['online'],
-        upcoming: true
-    }
-};
+        modes: ['offline', 'online']
 
 /**
  * Get all tools
  */
 export const getAllTools = () => Object.values(tools);
 
-/**
- * Get tool by ID
- */
-export const getToolById = (id) => tools[id];
+        /**
+         * Get tool by ID
+         */
+        export const getToolById = (id) => tools[id];
 
-/**
- * Get tools by category
- */
-export const getToolsByCategory = (category) => {
-    return Object.values(tools).filter(tool => tool.category === category);
-};
+        /**
+         * Get tools by category
+         */
+        export const getToolsByCategory = (category) => {
+            return Object.values(tools).filter(tool => tool.category === category);
+        };
 
-/**
- * Get popular tools
- */
-export const getPopularTools = () => {
-    return Object.values(tools).filter(tool => tool.popular);
-};
+        /**
+         * Get popular tools
+         */
+        export const getPopularTools = () => {
+            return Object.values(tools).filter(tool => tool.popular);
+        };
