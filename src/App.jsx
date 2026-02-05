@@ -107,7 +107,8 @@ function AppContent() {
                 {/* Dropdown Menu */}
                 {isToolsDropdownOpen && (
                   <div
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[600px] max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-gray-100 p-6 z-50"
+                    className="absolute top-full left-0 mt-2 w-[600px] max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-gray-100 p-6 z-50"
+                    style={{ transform: 'translateX(max(calc(-50% + 50px), calc(-100vw + 100% + 1rem)))' }}
                     onMouseLeave={() => setIsToolsDropdownOpen(false)}
                   >
                     <div className="grid grid-cols-2 gap-6">
