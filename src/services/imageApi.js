@@ -39,11 +39,14 @@ export async function compressImageOnline(file, quality) {
         await new Promise(resolve => setTimeout(resolve, 500));
 
         // Use browser-native image compression (still client-side but efficient)
+        // Note: browser-image-compression uses initialQuality for precise control
         const options = {
-            maxSizeMB: 10,
+            maxSizeMB: 50, // Set high to not interfere with quality setting
             maxWidthOrHeight: 4096,
             useWebWorker: true,
-            quality: quality / 100
+            initialQuality: quality / 100, // 0-1 range, this controls the actual compression
+            alwaysKeepResolution: true, // Don't resize, just compress
+            fileType: file.type // Preserve original format
         };
 
         // Dynamic import of compression library
