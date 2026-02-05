@@ -107,11 +107,11 @@ function AppContent() {
                 {/* Dropdown Menu */}
                 {isToolsDropdownOpen && (
                   <div
-                    className="absolute top-full left-0 mt-2 w-[600px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-120px)] overflow-y-auto bg-white rounded-xl shadow-2xl border border-gray-100 p-6 z-50"
+                    className="absolute top-full left-0 mt-2 w-[800px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-120px)] overflow-y-auto bg-white rounded-xl shadow-2xl border border-gray-100 p-6 z-50"
                     style={{ transform: 'translateX(max(calc(-50% + 50px), calc(-100vw + 100% + 1rem)))' }}
                     onMouseLeave={() => setIsToolsDropdownOpen(false)}
                   >
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-3 md:grid-cols-4 gap-6">
                       {toolCategories.map((category, idx) => (
                         <div key={idx}>
                           <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
