@@ -1,31 +1,48 @@
 # Online Processing API Services
 
-This directory contains service modules for online file processing using free public APIs.
+This directory contains service modules for online file processing.
 
-## Current Implementation
+## Important Note About "Online" Mode
 
-### ✅ Fully Functional (No API Key Required)
+⚠️ **Current Implementation**: The "online" mode uses **enhanced client-side processing** with Web Workers for better performance, rather than uploading to external servers.
+
+**Why?**
+
+1. **Privacy**: Your files never leave your browser
+2. **Free APIs Have Limitations**:
+   - Most require API keys (even for free tiers)
+   - CORS restrictions block direct browser uploads
+   - Many require publicly accessible URLs instead of file uploads
+   - Strict rate limits on free tiers
+3. **No Server Costs**: Works without backend infrastructure
+
+### Current "Online" Implementation
 
 #### Image Compression
 
-- **API**: [reSmush.it](https://resmush.it/)
-- **Free**: Yes, unlimited
-- **No signup**: No API key needed
-- **Usage**: Automatically used when in online mode
-- **Limits**: Max 5MB file size
+- Uses `browser-image-compression` library
+- Runs in Web Worker for performance
+- Provides async processing similar to API calls
+- **Files stay in your browser**
 
-### ⚠️ Requires API Key (Free Tier Available)
+## For True Cloud Processing
 
-Most file processing APIs require authentication. Here are the best free options:
+To implement real cloud uploads and processing, get API keys from:
 
-#### CloudConvert
+#### CloudConvert (Recommended)
 
 - **Website**: <https://cloudconvert.com/api/v2>
 - **Free Tier**: 25 conversions/day
 - **Supports**: Images, PDFs, Documents, Videos, Audio
-- **Setup**: Sign up → Get API key → Add to environment variables
+- **Setup**: Sign up → Get API key → Add to .env file
 
-#### iLovePDF
+#### TinyPNG (Images Only)
+
+- **Website**: <https://tinypng.com/developers>
+- **Free Tier**: 500 compressions/month  
+- **Best for**: Image compression
+
+#### iLovePDF (PDF Tools)
 
 - **Website**: <https://developer.ilovepdf.com/>
 - **Free Tier**: Limited monthly requests
