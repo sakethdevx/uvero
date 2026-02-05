@@ -3,13 +3,16 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
+import { useMode } from '../../../context/ModeContext';
 import processor from './processor';
+import { compressImageOnline, isOnlineFeatureAvailable } from '../../../services/imageApi';
 
 /**
  * Image Compressor Tool
- * Compresses images client-side with adjustable quality
+ * Compresses images client-side (offline) or using API (online)
  */
 export default function ImageCompressor() {
+    const { isOnlineMode } = useMode();
     const [file, setFile] = useState(null);
     const [quality, setQuality] = useState(80);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -50,11 +53,35 @@ export default function ImageCompressor() {
         setProgress(0);
 
         try {
-            const compressed = await processor.compress(
-                file,
-                quality,
-                (prog) => setProgress(prog)
-            );
+            let compressed;
+
+            if (isOnlineMode && isOnlineFeatureAvailable('compression')) {
+                // Online mode: Upload and process via API
+                setProgress(10);
+                compressed = await compressImageOnline(file, quality);
+
+                // Create file object from blob
+                compressed.file = new File(
+                    [compressed.blob],
+                    file.name.replace(/\.[^/.]+$/, '') + '_compressed' + getExtension(compressed.blob.type),
+                    { type: compressed.blob.type }
+                );
+                setProgress(100);
+            } else {
+                // Offline mode: Client-side processing
+                if (isOnlineMode) {
+                    // User is in online mode but API not available
+                    setError('Online compression API is currently unavailable. Switching to offline processing...');
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    setError('');
+                }
+
+                compressed = await processor.compress(
+                    file,
+                    quality,
+                    (prog) => setProgress(prog)
+                );
+            }
 
             setProgress(100);
             setResult(compressed);
@@ -64,6 +91,15 @@ export default function ImageCompressor() {
         } finally {
             setIsProcessing(false);
         }
+    };
+
+    const getExtension = (mimeType) => {
+        const extensions = {
+            'image/jpeg': '.jpg',
+            'image/png': '.png',
+            'image/webp': '.webp'
+        };
+        return extensions[mimeType] || '.jpg';
     };
 
     const handleDownload = () => {
