@@ -330,34 +330,34 @@ export const tools = {
         id: 'pdf-to-pdfa',
         name: 'PDF to PDF/A',
         description: 'Convert PDF to PDF/A archival format for long-term preservation',
-        component: () => ComingSoon({ toolName: 'PDF to PDF/A', icon: '📦' }),
-        category: 'pdf',
-        seo: pdfToPPDFToPDFA,
+        component: PDFToPDFA,
         category: 'pdf',
         seo: pdfToPDFASEO,
         icon: '📦',
         modes: ['offline', 'online']
+    }
+};
 
 /**
  * Get all tools
  */
 export const getAllTools = () => Object.values(tools);
 
-        /**
-         * Get tool by ID
-         */
-        export const getToolById = (id) => tools[id];
+/**
+ * Get tool by ID
+ */
+export const getToolById = (id) => tools[id];
 
-        /**
-         * Get tools by category
-         */
-        export const getToolsByCategory = (category) => {
-            return Object.values(tools).filter(tool => tool.category === category);
-        };
+/**
+ * Get tools by category
+ */
+export const getToolsByCategory = (category) => {
+    return Object.values(tools).filter(tool => tool.category === category);
+};
 
-        /**
-         * Get popular tools
-         */
-        export const getPopularTools = () => {
-            return Object.values(tools).filter(tool => tool.popular);
-        };
+/**
+ * Get popular tools
+ */
+export const getPopularTools = () => {
+    return Object.values(tools).filter(tool => tool.popular);
+};
