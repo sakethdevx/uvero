@@ -20,52 +20,45 @@ const API_CONFIG = {
 };
 
 /**
- * Compress image using CompressJPEG API (free, no API key needed)
- * Note: Most free compression APIs require the image to be publicly accessible
- * For true online processing, users should set up their own backend or use paid APIs
+ * Compress image using server-side API
+ * Uploads to /api/compress endpoint for processing with Sharp
  */
 export async function compressImageOnline(file, quality) {
     try {
-        // Since most free APIs have CORS restrictions or require URLs,
-        // we'll demonstrate with a working approach using browser-image-compression
-        // This still runs client-side but simulates an async API call
+        // Create FormData for file upload
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('quality', quality.toString());
 
-        // For production, recommend:
-        // 1. TinyPNG API (500 free/month, requires key): https://tinypng.com/developers
-        // 2. CloudConvert API (25 free/day, requires key): https://cloudconvert.com/api/v2
-        // 3. Build your own backend with Sharp/ImageMagick
+        // Upload to our serverless API
+        const response = await fetch('/api/compress', {
+            method: 'POST',
+            body: formData,
+        });
 
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 500));
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Server compression failed');
+        }
 
-        // Use browser-native image compression (still client-side but efficient)
-        // Note: browser-image-compression uses initialQuality for precise control
-        const options = {
-            maxSizeMB: 50, // Set high to not interfere with quality setting
-            maxWidthOrHeight: 4096,
-            useWebWorker: true,
-            initialQuality: quality / 100, // 0-1 range, this controls the actual compression
-            alwaysKeepResolution: true, // Don't resize, just compress
-            fileType: file.type // Preserve original format
-        };
+        // Get compression stats from headers
+        const originalSize = parseInt(response.headers.get('X-Original-Size') || file.size);
+        const compressedSize = parseInt(response.headers.get('X-Compressed-Size') || 0);
+        const reduction = parseInt(response.headers.get('X-Reduction') || 0);
 
-        // Dynamic import of compression library
-        const imageCompression = (await import('browser-image-compression')).default;
-        const compressedFile = await imageCompression(file, options);
-
-        // Convert to blob
-        const blob = new Blob([compressedFile], { type: compressedFile.type });
+        // Get the compressed image as blob
+        const blob = await response.blob();
 
         return {
             blob,
-            originalSize: file.size,
-            compressedSize: blob.size,
-            reduction: Math.round(((file.size - blob.size) / file.size) * 100)
+            originalSize,
+            compressedSize,
+            reduction
         };
     } catch (error) {
         console.error('Online compression failed:', error);
-        // Fallback to offline mode
-        throw new Error('Online compression unavailable. Switching to offline mode.');
+        // Fallback to offline mode will be handled by the component
+        throw new Error('Server compression unavailable. ' + error.message);
     }
 }
 

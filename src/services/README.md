@@ -2,32 +2,39 @@
 
 This directory contains service modules for online file processing.
 
-## Important Note About "Online" Mode
+## ✅ Server-Side Processing Enabled
 
-⚠️ **Current Implementation**: The "online" mode uses **enhanced client-side processing** with Web Workers for better performance, rather than uploading to external servers.
+**Online mode now uses TRUE server-side processing!**
 
-**Why?**
+### Image Compression
 
-1. **Privacy**: Your files never leave your browser
-2. **Free APIs Have Limitations**:
-   - Most require API keys (even for free tiers)
-   - CORS restrictions block direct browser uploads
-   - Many require publicly accessible URLs instead of file uploads
-   - Strict rate limits on free tiers
-3. **No Server Costs**: Works without backend infrastructure
+#### Online Mode (Server-Side)
 
-### Current "Online" Implementation
+- **Backend**: Node.js serverless function at `/api/compress`
+- **Library**: Sharp (professional-grade image processing)
+- **Deployment**: Vercel serverless functions
+- **Process**:
+  1. File uploads to server
+  2. Sharp processes image on server
+  3. Compressed image returns to browser
+- **Benefits**: Better compression, supports more formats, uses mozjpeg
 
-#### Image Compression
+#### Offline Mode (Client-Side)
 
-- Uses `browser-image-compression` library
-- Runs in Web Worker for performance
-- Provides async processing similar to API calls
-- **Files stay in your browser**
+- **Library**: Canvas API
+- **Process**: All compression happens in browser
+- **Benefits**: Complete privacy, works offline, no upload needed
 
-## For True Cloud Processing
+## Vercel Serverless Functions
 
-To implement real cloud uploads and processing, get API keys from:
+The `/api` folder contains serverless functions deployed with your app:
+
+- **`/api/compress.js`**: Image compression using Sharp
+- **Limits**: 50MB max file, 10s timeout (Hobby plan)
+- **Scaling**: Automatic on-demand scaling
+- **No extra setup**: Deployed automatically with frontend
+
+## Additional Cloud APIs (Optional)
 
 #### CloudConvert (Recommended)
 
