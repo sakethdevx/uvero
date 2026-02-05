@@ -107,29 +107,29 @@ function AppContent() {
                 {/* Dropdown Menu */}
                 {isToolsDropdownOpen && (
                   <div
-                    className="absolute top-full left-0 mt-2 w-[800px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-120px)] overflow-y-auto bg-white rounded-xl shadow-2xl border border-gray-100 p-6 z-50"
+                    className="absolute top-full left-0 mt-2 w-[800px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-120px)] overflow-y-auto bg-white rounded-xl shadow-2xl border border-gray-100 p-4 z-50"
                     style={{ transform: 'translateX(max(calc(-50% + 50px), calc(-100vw + 100% + 1rem)))' }}
                     onMouseLeave={() => setIsToolsDropdownOpen(false)}
                   >
-                    <div className="grid grid-cols-3 md:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
                       {toolCategories.map((category, idx) => (
                         <div key={idx}>
-                          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
-                            <span className="text-xl">{category.icon}</span>
-                            <h3 className="font-semibold text-gray-900">{category.name}</h3>
+                          <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b border-gray-100">
+                            <span className="text-lg">{category.icon}</span>
+                            <h3 className="font-semibold text-sm text-gray-900">{category.name}</h3>
                           </div>
-                          <ul className="space-y-2">
+                          <ul className="space-y-1">
                             {category.tools.map((tool, toolIdx) => (
                               <li key={toolIdx}>
                                 <Link
                                   to={tool.path}
-                                  className="block text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 px-3 py-2 rounded-lg transition-all"
+                                  className="block text-xs text-gray-600 hover:text-primary-600 hover:bg-primary-50 px-2 py-1.5 rounded-lg transition-all"
                                   onClick={() => setIsToolsDropdownOpen(false)}
                                 >
-                                  <span className="flex items-center justify-between">
-                                    <span>{tool.name}</span>
+                                  <span className="flex items-center justify-between gap-1">
+                                    <span className="truncate">{tool.name}</span>
                                     {tool.upcoming && (
-                                      <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-600 rounded-full font-semibold">
+                                      <span className="text-[10px] px-1.5 py-0.5 bg-purple-100 text-purple-600 rounded-full font-semibold whitespace-nowrap">
                                         Soon
                                       </span>
                                     )}
