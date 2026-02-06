@@ -24,7 +24,6 @@ export default function VideoToMP3() {
     // Cleanup on unmount
     useEffect(() => {
         return () => {
-            processor.terminate();
             if (previewUrl) URL.revokeObjectURL(previewUrl);
         };
     }, [previewUrl]);
