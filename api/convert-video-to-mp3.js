@@ -91,7 +91,7 @@ export default async function handler(req, res) {
         // Get bitrate parameter (default 192 kbps)
         const bitrate = parseInt(fields.bitrate?.[0] || fields.bitrate || 192);
 
-        tempVideo Path = videoFile.filepath;
+        tempVideoPath = videoFile.filepath;
 
         // Get video duration
         const duration = await getVideoDuration(tempVideoPath);
