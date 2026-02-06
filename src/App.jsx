@@ -26,7 +26,10 @@ function AppContent() {
         { name: 'GIF Maker', path: '/gif-maker' },
         { name: 'Add Watermark', path: '/watermark' },
         { name: 'Image Cropper', path: '/crop-image' },
-        { name: 'Background Remover', path: '/remove-background' }
+        { name: 'Background Remover', path: '/remove-background' },
+        { name: 'JPG to PDF', path: '/jpg-to-pdf', upcoming: true },
+        { name: 'PDF to JPG', path: '/pdf-to-jpg', upcoming: true },
+        { name: 'HEIC to JPG', path: '/heic-to-jpg', upcoming: true }
       ]
     },
     {
@@ -52,7 +55,10 @@ function AppContent() {
       icon: '🎵',
       tools: [
         { name: 'Audio Compressor', path: '/compress-audio' },
-        { name: 'Audio Converter', path: '/convert-audio' }
+        { name: 'Audio Converter', path: '/convert-audio' },
+        { name: 'MP3 Converter', path: '/mp3-converter', upcoming: true },
+        { name: 'MP4 to MP3', path: '/mp4-to-mp3', upcoming: true },
+        { name: 'Video to MP3', path: '/video-to-mp3', upcoming: true }
       ]
     },
     {
@@ -60,7 +66,46 @@ function AppContent() {
       icon: '🎬',
       tools: [
         { name: 'Video Compressor', path: '/compress-video' },
-        { name: 'Video Converter', path: '/convert-video' }
+        { name: 'Video Converter', path: '/convert-video' },
+        { name: 'MP4 Converter', path: '/mp4-converter', upcoming: true },
+        { name: 'Video to GIF', path: '/video-to-gif', upcoming: true },
+        { name: 'MOV to MP4', path: '/mov-to-mp4', upcoming: true }
+      ]
+    },
+    {
+      name: 'Document & Ebook',
+      icon: '📚',
+      tools: [
+        { name: 'EPUB to PDF', path: '/epub-to-pdf', upcoming: true },
+        { name: 'EPUB to MOBI', path: '/epub-to-mobi', upcoming: true },
+        { name: 'Document Converter', path: '/document-converter', upcoming: true }
+      ]
+    },
+    {
+      name: 'Archive Tools',
+      icon: '🗜️',
+      tools: [
+        { name: 'RAR to Zip', path: '/rar-to-zip', upcoming: true },
+        { name: 'Archive Converter', path: '/archive-converter', upcoming: true }
+      ]
+    },
+    {
+      name: 'Time Zone',
+      icon: '🌍',
+      tools: [
+        { name: 'PST to EST', path: '/pst-to-est', upcoming: true },
+        { name: 'CST to EST', path: '/cst-to-est', upcoming: true },
+        { name: 'Time Zone Converter', path: '/timezone-converter', upcoming: true }
+      ]
+    },
+    {
+      name: 'Unit Converter',
+      icon: '📏',
+      tools: [
+        { name: 'Lbs to Kg', path: '/lbs-to-kg', upcoming: true },
+        { name: 'Kg to Lbs', path: '/kg-to-lbs', upcoming: true },
+        { name: 'Feet to Meters', path: '/feet-to-meters', upcoming: true },
+        { name: 'Unit Converter', path: '/unit-converter', upcoming: true }
       ]
     },
     {
