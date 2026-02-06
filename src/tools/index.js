@@ -28,6 +28,8 @@ import AudioCompressor from './audio/audio-compressor/AudioCompressor';
 import audioCompressorSEO from './audio/audio-compressor/seo.json';
 import AudioConverter from './audio/audio-converter/AudioConverter';
 import audioConverterSEO from './audio/audio-converter/seo.json';
+import VideoToMP3 from './audio/video-to-mp3/VideoToMP3';
+import videoToMP3SEO from './audio/video-to-mp3/seo.json';
 import PDFMerger from './pdf/pdf-merger/PDFMerger';
 import pdfMergerSEO from './pdf/pdf-merger/seo.json';
 import PDFSplitter from './pdf/pdf-splitter/PDFSplitter';
@@ -182,6 +184,17 @@ export const tools = {
         category: 'audio',
         seo: audioConverterSEO,
         icon: '🎵',
+        popular: true,
+        modes: ['offline', 'online']
+    },
+    'video-to-mp3': {
+        id: 'video-to-mp3',
+        name: 'Video to MP3',
+        description: 'Extract audio from videos and convert to MP3',
+        component: VideoToMP3,
+        category: 'audio',
+        seo: videoToMP3SEO,
+        icon: '🎬',
         popular: true,
         modes: ['offline', 'online']
     },

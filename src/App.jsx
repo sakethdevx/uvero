@@ -56,9 +56,9 @@ function AppContent() {
       tools: [
         { name: 'Audio Compressor', path: '/compress-audio' },
         { name: 'Audio Converter', path: '/convert-audio' },
+        { name: 'Video to MP3', path: '/video-to-mp3' },
         { name: 'MP3 Converter', path: '/mp3-converter', upcoming: true },
-        { name: 'MP4 to MP3', path: '/mp4-to-mp3', upcoming: true },
-        { name: 'Video to MP3', path: '/video-to-mp3', upcoming: true }
+        { name: 'MP4 to MP3', path: '/mp4-to-mp3', upcoming: true }
       ]
     },
     {
