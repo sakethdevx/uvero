@@ -8,7 +8,8 @@ export default function Button({
     disabled = false,
     fullWidth = false,
     icon = null,
-    loading = false
+    loading = false,
+    className = ''
 }) {
     const baseClasses = 'font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed';
 
@@ -27,6 +28,7 @@ export default function Button({
         ${baseClasses}
         ${variants[variant]}
         ${fullWidth ? 'w-full' : ''}
+        ${className}
       `}
         >
             {loading && (
