@@ -186,7 +186,7 @@ const PDFToWord = () => {
                                 <div className="mb-6">
                                     <div className="flex items-center justify-between mb-2">
                                         <span className="text-sm font-medium text-gray-700">Converting...</span>
-                                        <span className="text-sm font-medium text-gray-700">{progress}%</span>
+                                        <span className="text-sm font-medium text-gray-700">{Math.round(progress)}%</span>
                                     </div>
                                     <div className="w-full bg-gray-200 rounded-full h-2">
                                         <div
@@ -314,7 +314,7 @@ const PDFToWord = () => {
                         <div>
                             <h3 className="font-semibold text-gray-900 mb-2">What Word format is produced?</h3>
                             <p className="text-gray-600 text-sm">
-                                The converter produces DOCX format, which is compatible with Microsoft Word 2007 and later versions, as well as other word processors like Google Docs and LibreOffice.
+                                The converter produces a Word-compatible HTML document that can be opened and edited in Microsoft Word, Google Docs, and LibreOffice. The file can be saved as DOCX format from within Word if needed.
                             </p>
                         </div>
                     </div>

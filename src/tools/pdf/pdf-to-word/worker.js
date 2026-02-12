@@ -4,7 +4,6 @@
  */
 
 import * as pdfjsLib from 'pdfjs-dist';
-import { PDFDocument } from 'pdf-lib';
 
 // Configure PDF.js for worker environment
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -73,15 +72,15 @@ self.addEventListener('message', async (e) => {
         self.postMessage({ type: 'progress', progress: 70 });
 
         // Create a Word-compatible HTML document
-        // Modern versions of Word can open HTML files with .docx extension
+        // This produces HTML that can be imported by Microsoft Word and other processors
         const htmlContent = createWordHTML(textContent);
         
         self.postMessage({ type: 'progress', progress: 80 });
 
-        // Create blob with proper DOCX MIME type
-        // Using a simple approach: Word-compatible HTML wrapped in proper format
+        // Create blob as HTML that Word can import
+        // Note: This is HTML format that Word can open, not a true DOCX ZIP archive
         const wordBlob = new Blob([htmlContent], {
-            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            type: 'application/msword'
         });
 
         self.postMessage({ type: 'progress', progress: 100 });
