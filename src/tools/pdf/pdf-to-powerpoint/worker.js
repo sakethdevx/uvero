@@ -32,6 +32,9 @@ self.addEventListener('message', async (e) => {
         // Extract text from all pages
         const textContent = [];
         
+        // Threshold for detecting line breaks based on Y-coordinate difference
+        const LINE_BREAK_THRESHOLD = 5;
+        
         for (let pageNum = 1; pageNum <= numPages; pageNum++) {
             const page = await pdf.getPage(pageNum);
             const content = await page.getTextContent();
@@ -43,7 +46,7 @@ self.addEventListener('message', async (e) => {
             
             for (const item of content.items) {
                 // Check if this is a new line (based on Y coordinate)
-                if (lastY !== null && Math.abs(item.transform[5] - lastY) > 5) {
+                if (lastY !== null && Math.abs(item.transform[5] - lastY) > LINE_BREAK_THRESHOLD) {
                     if (currentLine.trim()) {
                         pageText.push(currentLine.trim());
                     }

@@ -54,7 +54,7 @@ class PDFToPowerPointProcessor {
                 // Send conversion request to worker
                 worker.postMessage({
                     type: 'convert',
-                    arrayBuffer: arrayBuffer
+                    arrayBuffer
                 });
             };
 
