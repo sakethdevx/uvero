@@ -92,30 +92,30 @@ const PDFMerger = () => {
     const totalSize = files.reduce((sum, f) => sum + f.file.size, 0);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 py-8 sm:py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                <div className="text-center mb-8 sm:mb-12">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
                         PDF Merger
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-base sm:text-lg text-gray-600 px-2">
                         Combine multiple PDF files into a single document
                     </p>
                 </div>
 
                 {/* Main Content */}
-                <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
                     {!mergedPDF ? (
                         <>
                             {/* File List */}
                             {files.length > 0 && (
                                 <div className="mb-6">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <h3 className="font-semibold text-gray-900">
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                                        <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
                                             Selected PDFs ({files.length}/20)
                                         </h3>
-                                        <span className="text-sm text-gray-600">
+                                        <span className="text-xs sm:text-sm text-gray-600">
                                             Total: {formatSize(totalSize)}
                                         </span>
                                     </div>
