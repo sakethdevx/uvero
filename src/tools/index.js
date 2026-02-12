@@ -54,7 +54,7 @@ import PowerPointToPDF from './pdf/powerpoint-to-pdf/PowerPointToPDF';
 import powerpointToPDFSEO from './pdf/powerpoint-to-pdf/seo.json';
 import PDFToWord from './pdf/pdf-to-word/PDFToWord';
 import PDFToExcel from './pdf/pdf-to-excel/PDFToExcel';
-import ComingSoon from '../components/ComingSoon';
+import PDFToPowerPoint from './pdf/pdf-to-powerpoint/PDFToPowerPoint';
 import pdfToWordSEO from './pdf/pdf-to-word/seo.json';
 import pdfToPowerpointSEO from './pdf/pdf-to-powerpoint/seo.json';
 import pdfToExcelSEO from './pdf/pdf-to-excel/seo.json';
@@ -324,12 +324,12 @@ export const tools = {
         id: 'pdf-to-powerpoint',
         name: 'PDF to PowerPoint',
         description: 'Convert PDF documents to PowerPoint presentations',
-        component: () => ComingSoon({ toolName: 'PDF to PowerPoint', icon: '📊' }),
+        component: PDFToPowerPoint,
         category: 'pdf',
         seo: pdfToPowerpointSEO,
         icon: '📊',
-        modes: ['online'],
-        upcoming: true
+        modes: ['offline', 'online'],
+        popular: true
     },
     'pdf-to-excel': {
         id: 'pdf-to-excel',
