@@ -50,8 +50,9 @@ import ExcelToPDF from './pdf/excel-to-pdf/ExcelToPDF';
 import excelToPDFSEO from './pdf/excel-to-pdf/seo.json';
 import PDFToPDFA from './pdf/pdf-to-pdfa/PDFToPDFA';
 import pdfToPDFASEO from './pdf/pdf-to-pdfa/seo.json';
-import ComingSoon from '../components/ComingSoon';
+import PowerPointToPDF from './pdf/powerpoint-to-pdf/PowerPointToPDF';
 import powerpointToPDFSEO from './pdf/powerpoint-to-pdf/seo.json';
+import ComingSoon from '../components/ComingSoon';
 import pdfToWordSEO from './pdf/pdf-to-word/seo.json';
 import pdfToPowerpointSEO from './pdf/pdf-to-powerpoint/seo.json';
 import pdfToExcelSEO from './pdf/pdf-to-excel/seo.json';
@@ -279,12 +280,12 @@ export const tools = {
         id: 'powerpoint-to-pdf',
         name: 'PowerPoint to PDF',
         description: 'Convert Microsoft PowerPoint presentations to PDF format',
-        component: () => ComingSoon({ toolName: 'PowerPoint to PDF', icon: '📊' }),
+        component: PowerPointToPDF,
         category: 'pdf',
         seo: powerpointToPDFSEO,
         icon: '📊',
-        modes: ['online'],
-        upcoming: true
+        popular: true,
+        modes: ['offline', 'online']
     },
     'excel-to-pdf': {
         id: 'excel-to-pdf',
