@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { useState } from 'react';
-import { ModeProvider, useMode } from './context/ModeContext';
+import { ModeProvider } from './context/ModeContext';
 import ModeToggle from './components/ModeToggle';
 import Home from './pages/Home';
 import ToolPage from './pages/ToolPage';
