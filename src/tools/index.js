@@ -53,6 +53,7 @@ import pdfToPDFASEO from './pdf/pdf-to-pdfa/seo.json';
 import PowerPointToPDF from './pdf/powerpoint-to-pdf/PowerPointToPDF';
 import powerpointToPDFSEO from './pdf/powerpoint-to-pdf/seo.json';
 import PDFToWord from './pdf/pdf-to-word/PDFToWord';
+import PDFToExcel from './pdf/pdf-to-excel/PDFToExcel';
 import ComingSoon from '../components/ComingSoon';
 import pdfToWordSEO from './pdf/pdf-to-word/seo.json';
 import pdfToPowerpointSEO from './pdf/pdf-to-powerpoint/seo.json';
@@ -334,12 +335,12 @@ export const tools = {
         id: 'pdf-to-excel',
         name: 'PDF to Excel',
         description: 'Convert PDF documents to Excel spreadsheets',
-        component: () => ComingSoon({ toolName: 'PDF to Excel', icon: '📈' }),
+        component: PDFToExcel,
         category: 'pdf',
         seo: pdfToExcelSEO,
         icon: '📈',
-        modes: ['online'],
-        upcoming: true
+        modes: ['offline', 'online'],
+        popular: true
     },
     'pdf-to-pdfa': {
         id: 'pdf-to-pdfa',
