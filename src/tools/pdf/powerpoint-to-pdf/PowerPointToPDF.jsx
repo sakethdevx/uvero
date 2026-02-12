@@ -35,13 +35,12 @@ const PowerPointToPDF = () => {
         const droppedFile = e.dataTransfer.files[0];
         if (droppedFile) {
             const validTypes = [
-                'application/vnd.ms-powerpoint',
                 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
             ];
 
             if (!validTypes.includes(droppedFile.type) &&
-                !droppedFile.name.match(/\.(ppt|pptx)$/i)) {
-                setError('Please drop a valid PowerPoint presentation (.ppt or .pptx)');
+                !droppedFile.name.match(/\.pptx$/i)) {
+                setError('Please drop a valid PowerPoint presentation (.pptx only). Legacy .ppt format is not supported.');
                 return;
             }
 
@@ -132,8 +131,9 @@ const PowerPointToPDF = () => {
 
             setProgress(70);
 
-            // Add placeholder pages for each slide
-            for (let i = 1; i <= Math.min(slideCount, 10); i++) {
+            // Add placeholder pages for each slide (limit to 10 for demo purposes)
+            const MAX_PLACEHOLDER_SLIDES = 10;
+            for (let i = 1; i <= Math.min(slideCount, MAX_PLACEHOLDER_SLIDES); i++) {
                 pdf.addPage();
                 pdf.setFontSize(24);
                 pdf.text(`Slide ${i}`, pageWidth / 2, pageHeight / 2, { align: 'center' });
