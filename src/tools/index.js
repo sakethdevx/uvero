@@ -316,6 +316,7 @@ export const tools = {
         category: 'pdf',
         seo: pdfToWordSEO,
         icon: '📝',
+        popular: true,
         modes: ['offline', 'online']
     },
     'pdf-to-powerpoint': {
