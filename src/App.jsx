@@ -152,11 +152,10 @@ function AppContent() {
                 {/* Dropdown Menu */}
                 {isToolsDropdownOpen && (
                   <div
-                    className="absolute top-full left-0 mt-2 w-[800px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-120px)] overflow-y-auto bg-white rounded-xl shadow-2xl border border-gray-100 p-4 z-50"
-                    style={{ transform: 'translateX(max(calc(-50% + 50px), calc(-100vw + 100% + 1rem)))' }}
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[800px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-120px)] overflow-y-auto bg-white rounded-xl shadow-2xl border border-gray-100 p-4 z-50"
                     onMouseLeave={() => setIsToolsDropdownOpen(false)}
                   >
-                    <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                       {toolCategories.map((category, idx) => (
                         <div key={idx}>
                           <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b border-gray-100">
@@ -224,15 +223,15 @@ function AppContent() {
 
           {/* Mobile Menu */}
           {isMenuOpen && (
-            <div className="md:hidden py-4 border-t border-gray-200">
-              <div className="space-y-4">
+            <div className="md:hidden py-4 border-t border-gray-200 max-h-[calc(100vh-64px)] overflow-y-auto">
+              <div className="space-y-4 pb-4">
                 {/* Mode Toggle for Mobile */}
                 <div className="px-4 pb-4 border-b border-gray-200">
                   <ModeToggle />
                 </div>
 
                 {toolCategories.map((category, idx) => (
-                  <div key={idx}>
+                  <div key={idx} className="px-4">
                     <div className="flex items-center gap-2 mb-2 font-semibold text-gray-900">
                       <span>{category.icon}</span>
                       <span className="text-sm">{category.name}</span>
@@ -252,7 +251,7 @@ function AppContent() {
                     </ul>
                   </div>
                 ))}
-                <div className="pt-4 border-t border-gray-200">
+                <div className="pt-4 border-t border-gray-200 px-4">
                   <Link
                     to="/privacy"
                     className="block text-gray-600 hover:text-primary-600 font-medium py-2"
