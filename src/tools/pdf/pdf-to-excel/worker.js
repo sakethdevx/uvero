@@ -12,6 +12,15 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
     import.meta.url
 ).href;
 
+// Constants for cell and column processing
+const CELL_BOUNDARY_THRESHOLD = 20; // X-coordinate difference to determine new cell
+// Note: Using approximate character width for text. This is a simplification that may not
+// accurately represent variable-width fonts. For more accurate results, PDF.js text item
+// width properties could be used if available in future versions.
+const APPROX_CHAR_WIDTH = 5; // Approximate width per character for text
+const COLUMN_PADDING = 2; // Extra padding for column width
+const MAX_COLUMN_WIDTH = 50; // Maximum column width to prevent overly wide columns
+
 self.addEventListener('message', async (e) => {
     const { type, arrayBuffer } = e.data;
 
@@ -69,7 +78,7 @@ self.addEventListener('message', async (e) => {
                 for (const item of items) {
                     if (item.text) {
                         // If this item is far from the last one, it's a new cell
-                        if (item.x - lastX > 20) {
+                        if (item.x - lastX > CELL_BOUNDARY_THRESHOLD) {
                             if (currentCell.trim()) {
                                 cells.push(currentCell.trim());
                             }
@@ -78,7 +87,7 @@ self.addEventListener('message', async (e) => {
                             // Add space if needed
                             currentCell += (currentCell ? ' ' : '') + item.text;
                         }
-                        lastX = item.x + (item.text.length * 5); // Approximate width
+                        lastX = item.x + (item.text.length * APPROX_CHAR_WIDTH); // Approximate width
                     }
                 }
                 
@@ -132,7 +141,7 @@ self.addEventListener('message', async (e) => {
             const maxWidth = Math.max(
                 ...paddedRows.map(row => (row[i] || '').toString().length)
             );
-            colWidths.push({ wch: Math.min(maxWidth + 2, 50) }); // Max width of 50
+            colWidths.push({ wch: Math.min(maxWidth + COLUMN_PADDING, MAX_COLUMN_WIDTH) });
         }
         worksheet['!cols'] = colWidths;
         
@@ -144,8 +153,7 @@ self.addEventListener('message', async (e) => {
         // Generate Excel file
         const excelBuffer = XLSX.write(workbook, { 
             bookType: 'xlsx', 
-            type: 'array',
-            cellStyles: true
+            type: 'array'
         });
         
         const excelBlob = new Blob([excelBuffer], {
