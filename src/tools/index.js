@@ -52,6 +52,7 @@ import PDFToPDFA from './pdf/pdf-to-pdfa/PDFToPDFA';
 import pdfToPDFASEO from './pdf/pdf-to-pdfa/seo.json';
 import PowerPointToPDF from './pdf/powerpoint-to-pdf/PowerPointToPDF';
 import powerpointToPDFSEO from './pdf/powerpoint-to-pdf/seo.json';
+import PDFToWord from './pdf/pdf-to-word/PDFToWord';
 import ComingSoon from '../components/ComingSoon';
 import pdfToWordSEO from './pdf/pdf-to-word/seo.json';
 import pdfToPowerpointSEO from './pdf/pdf-to-powerpoint/seo.json';
@@ -311,12 +312,11 @@ export const tools = {
         id: 'pdf-to-word',
         name: 'PDF to Word',
         description: 'Convert PDF documents to Microsoft Word format',
-        component: () => ComingSoon({ toolName: 'PDF to Word', icon: '📝' }),
+        component: PDFToWord,
         category: 'pdf',
         seo: pdfToWordSEO,
         icon: '📝',
-        modes: ['online'],
-        upcoming: true
+        modes: ['offline', 'online']
     },
     'pdf-to-powerpoint': {
         id: 'pdf-to-powerpoint',
