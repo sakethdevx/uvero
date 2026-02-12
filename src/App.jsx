@@ -285,19 +285,19 @@ function AppContent() {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Brand */}
-            <div className="md:col-span-2">
+            <div className="sm:col-span-2 lg:col-span-2">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-blue-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-xl">F</span>
                 </div>
-                <span className="text-2xl font-bold text-white">
+                <span className="text-xl sm:text-2xl font-bold text-white">
                   File<span className="text-primary-400">Next</span>
                 </span>
               </div>
-              <p className="text-gray-400 max-w-md mb-4">
+              <p className="text-gray-400 max-w-md mb-4 text-sm sm:text-base">
                 Professional file processing tools that run entirely in your browser.
                 No uploads, no data collection, completely free.
               </p>
@@ -311,8 +311,8 @@ function AppContent() {
 
             {/* Tools */}
             <div>
-              <h3 className="text-white font-semibold mb-4">Tools</h3>
-              <ul className="space-y-2">
+              <h3 className="text-white font-semibold mb-4 text-base sm:text-lg">Tools</h3>
+              <ul className="space-y-2 text-sm">
                 <li>
                   <Link to="/compress-image" className="hover:text-primary-400 transition-colors">
                     Image Compressor
@@ -353,57 +353,57 @@ function AppContent() {
                     Background Remover
                   </Link>
                 </li>
-                <li>
+                <li className="hidden sm:block">
                   <Link to="/compress-pdf" className="hover:text-primary-400 transition-colors">
                     PDF Compressor
                   </Link>
                 </li>
-                <li>
+                <li className="hidden sm:block">
                   <Link to="/convert-pdf" className="hover:text-primary-400 transition-colors">
                     PDF to Image
                   </Link>
                 </li>
-                <li>
+                <li className="hidden sm:block">
                   <Link to="/merge-pdf" className="hover:text-primary-400 transition-colors">
                     PDF Merger
                   </Link>
                 </li>
-                <li>
+                <li className="hidden sm:block">
                   <Link to="/split-pdf" className="hover:text-primary-400 transition-colors">
                     PDF Splitter
                   </Link>
                 </li>
-                <li>
+                <li className="hidden sm:block">
                   <Link to="/word-to-pdf" className="hover:text-primary-400 transition-colors">
                     Word to PDF
                   </Link>
                 </li>
-                <li>
+                <li className="hidden sm:block">
                   <Link to="/compress-audio" className="hover:text-primary-400 transition-colors">
                     Audio Compressor
                   </Link>
                 </li>
-                <li>
+                <li className="hidden sm:block">
                   <Link to="/convert-audio" className="hover:text-primary-400 transition-colors">
                     Audio Converter
                   </Link>
                 </li>
-                <li>
+                <li className="hidden sm:block">
                   <Link to="/compress-video" className="hover:text-primary-400 transition-colors">
                     Video Compressor
                   </Link>
                 </li>
-                <li>
+                <li className="hidden sm:block">
                   <Link to="/convert-video" className="hover:text-primary-400 transition-colors">
                     Video Converter
                   </Link>
                 </li>
-                <li>
+                <li className="hidden sm:block">
                   <Link to="/qr-generator" className="hover:text-primary-400 transition-colors">
                     QR Code Generator
                   </Link>
                 </li>
-                <li>
+                <li className="hidden sm:block">
                   <Link to="/password-generator" className="hover:text-primary-400 transition-colors">
                     Password Generator
                   </Link>
@@ -413,8 +413,8 @@ function AppContent() {
 
             {/* Legal */}
             <div>
-              <h3 className="text-white font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2">
+              <h3 className="text-white font-semibold mb-4 text-base sm:text-lg">Legal</h3>
+              <ul className="space-y-2 text-sm">
                 <li>
                   <Link to="/privacy" className="hover:text-primary-400 transition-colors">
                     Privacy Policy
@@ -431,7 +431,7 @@ function AppContent() {
 
           {/* Bottom Bar */}
           <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400 text-xs sm:text-sm text-center sm:text-left">
               © 2026 FileNext. All rights reserved. Built with ❤️ for privacy.
             </p>
             <div className="flex gap-4">

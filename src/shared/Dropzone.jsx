@@ -97,7 +97,7 @@ export default function Dropzone({ accept, onFileSelect, maxSize = 100 * 1024 * 
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={`
-          relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200
+          relative border-2 border-dashed rounded-xl p-6 sm:p-8 md:p-12 text-center transition-all duration-200
           ${isDragging
                         ? 'border-primary-500 bg-primary-50 scale-105'
                         : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
@@ -114,7 +114,7 @@ export default function Dropzone({ accept, onFileSelect, maxSize = 100 * 1024 * 
 
                 <div className="pointer-events-none">
                     <svg
-                        className="mx-auto h-16 w-16 text-gray-400 mb-4"
+                        className="mx-auto h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 text-gray-400 mb-3 sm:mb-4"
                         stroke="currentColor"
                         fill="none"
                         viewBox="0 0 48 48"
@@ -127,7 +127,7 @@ export default function Dropzone({ accept, onFileSelect, maxSize = 100 * 1024 * 
                         />
                     </svg>
 
-                    <p className="text-xl font-semibold text-gray-700 mb-2">
+                    <p className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">
                         {label || 'Drop your file here'}
                     </p>
                     <p className="text-sm text-gray-500 mb-4">

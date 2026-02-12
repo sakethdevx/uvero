@@ -57,14 +57,14 @@ export default function Home() {
 
                 <div className="relative max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
                     <div className="text-center">
-                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-6">
+                        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-6 leading-tight">
                             File Processing,
                             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-blue-600">
                                 Made Simple
                             </span>
                         </h1>
 
-                        <p className="max-w-3xl mx-auto text-xl md:text-2xl text-gray-600 mb-8">
+                        <p className="max-w-3xl mx-auto text-lg sm:text-xl md:text-2xl text-gray-600 mb-8 px-4">
                             26 powerful tools to convert, compress, and process your files right in your browser.
                             <span className="block mt-2 font-semibold text-primary-700">
                                 No uploads. No data collection. 100% private.
@@ -72,7 +72,7 @@ export default function Home() {
                         </p>
 
                         {/* Key Features */}
-                        <div className="flex flex-wrap justify-center gap-4 mt-12">
+                        <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-12 px-4">
                             {[
                                 { icon: '🔒', text: 'Privacy First' },
                                 { icon: '⚡', text: 'Lightning Fast' },
@@ -81,10 +81,10 @@ export default function Home() {
                             ].map((feature, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex items-center gap-2 px-5 py-3 bg-white rounded-full shadow-md border border-gray-200"
+                                    className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-white rounded-full shadow-md border border-gray-200"
                                 >
-                                    <span className="text-2xl">{feature.icon}</span>
-                                    <span className="font-semibold text-gray-800">{feature.text}</span>
+                                    <span className="text-xl sm:text-2xl">{feature.icon}</span>
+                                    <span className="font-semibold text-sm sm:text-base text-gray-800">{feature.text}</span>
                                 </div>
                             ))}
                         </div>
@@ -167,17 +167,17 @@ export default function Home() {
                     Browse by Category
                 </h2>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                     {categories.map((category, idx) => (
                         <div
                             key={idx}
-                            className="relative p-6 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 cursor-pointer transition-all duration-200"
+                            className="relative p-5 sm:p-6 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 cursor-pointer transition-all duration-200"
                         >
                             <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-10`} />
 
                             <div className="relative">
-                                <div className="text-5xl mb-4">{category.icon}</div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">{category.icon}</div>
+                                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
                                     {category.name}
                                 </h3>
                                 <p className="text-gray-600 text-sm mb-3">
@@ -252,20 +252,20 @@ export default function Home() {
             </div>
 
             {/* CTA Section */}
-            <div className="max-w-4xl mx-auto px-4 py-20 sm:px-6 lg:px-8 text-center">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <div className="max-w-4xl mx-auto px-4 py-16 sm:py-20 sm:px-6 lg:px-8 text-center">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
                     Ready to Get Started?
                 </h2>
-                <p className="text-xl text-gray-600 mb-8">
+                <p className="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8">
                     Choose a tool above and start processing your files instantly
                 </p>
                 <div className="inline-flex gap-4">
                     <Link
                         to="/compress-image"
-                        className="btn-primary inline-flex items-center gap-2"
+                        className="btn-primary inline-flex items-center gap-2 text-sm sm:text-base"
                     >
                         Try Image Compressor
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                         </svg>
                     </Link>

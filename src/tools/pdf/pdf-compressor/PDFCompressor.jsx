@@ -97,31 +97,31 @@ export default function PDFCompressor() {
         <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50">
             {/* Hero Section */}
             <div className="bg-white border-b">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
                     <div className="text-center max-w-3xl mx-auto">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl mb-6 shadow-lg">
-                            <span className="text-3xl">📄</span>
+                        <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl mb-4 sm:mb-6 shadow-lg">
+                            <span className="text-2xl sm:text-3xl">📄</span>
                         </div>
-                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
                             PDF Compressor
                         </h1>
-                        <p className="text-xl text-gray-600 mb-6">
+                        <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-4 sm:mb-6 px-2">
                             Reduce PDF file size while maintaining quality. Fast, secure, and completely free.
                         </p>
-                        <div className="flex flex-wrap gap-3 justify-center text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap gap-2 sm:gap-3 justify-center text-xs sm:text-sm text-gray-600">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
                                 <span className="text-green-500">✓</span>
                                 <span>100% Client-side</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
                                 <span className="text-green-500">✓</span>
                                 <span>No Upload Required</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
                                 <span className="text-green-500">✓</span>
                                 <span>Privacy First</span>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
                                 <span className="text-green-500">✓</span>
                                 <span>Unlimited Use</span>
                             </div>
@@ -131,9 +131,9 @@ export default function PDFCompressor() {
             </div>
 
             {/* Main Tool Section */}
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
                 <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                    <div className="p-8">
+                    <div className="p-4 sm:p-6 md:p-8">
                         {/* Dropzone */}
                         {!file && (
                             <Dropzone
