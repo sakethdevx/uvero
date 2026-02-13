@@ -58,6 +58,8 @@ import PDFToPowerPoint from './pdf/pdf-to-powerpoint/PDFToPowerPoint';
 import pdfToWordSEO from './pdf/pdf-to-word/seo.json';
 import pdfToPowerpointSEO from './pdf/pdf-to-powerpoint/seo.json';
 import pdfToExcelSEO from './pdf/pdf-to-excel/seo.json';
+import UnitConverter from './utility/unit-converter/UnitConverter';
+import unitConverterSEO from './utility/unit-converter/seo.json';
 
 export const tools = {
     'compress-image': {
@@ -350,6 +352,17 @@ export const tools = {
         category: 'pdf',
         seo: pdfToPDFASEO,
         icon: '📦',
+        modes: ['offline', 'online']
+    },
+    'unit-converter': {
+        id: 'unit-converter',
+        name: 'Unit Converter',
+        description: 'Convert between weight, length, temperature, volume, area, speed, and time units',
+        component: UnitConverter,
+        category: 'utility',
+        seo: unitConverterSEO,
+        icon: '📏',
+        popular: true,
         modes: ['offline', 'online']
     }
 };
