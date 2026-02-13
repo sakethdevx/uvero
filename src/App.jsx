@@ -105,7 +105,7 @@ function AppContent() {
         { name: 'Lbs to Kg', path: '/lbs-to-kg', upcoming: true },
         { name: 'Kg to Lbs', path: '/kg-to-lbs', upcoming: true },
         { name: 'Feet to Meters', path: '/feet-to-meters', upcoming: true },
-        { name: 'Unit Converter', path: '/unit-converter', upcoming: true }
+        { name: 'Unit Converter', path: '/unit-converter' }
       ]
     },
     {
@@ -113,7 +113,8 @@ function AppContent() {
       icon: '🛠️',
       tools: [
         { name: 'QR Code Generator', path: '/qr-generator' },
-        { name: 'Password Generator', path: '/password-generator' }
+        { name: 'Password Generator', path: '/password-generator' },
+        { name: 'Unit Converter', path: '/unit-converter' }
       ]
     }
   ];
@@ -405,6 +406,11 @@ function AppContent() {
                 <li>
                   <Link to="/password-generator" className="hover:text-primary-400 transition-colors">
                     Password Generator
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/unit-converter" className="hover:text-primary-400 transition-colors">
+                    Unit Converter
                   </Link>
                 </li>
               </ul>
