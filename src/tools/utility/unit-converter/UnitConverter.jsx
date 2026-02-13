@@ -91,8 +91,8 @@ const UnitConverter = () => {
                 hr: { name: 'Hour (hr)', toBase: 3600 },
                 day: { name: 'Day (day)', toBase: 86400 },
                 week: { name: 'Week (week)', toBase: 604800 },
-                month: { name: 'Month (month)', toBase: 2592000 },
-                year: { name: 'Year (year)', toBase: 31536000 }
+                month: { name: 'Month (month)', toBase: 2629746 }, // Average month (365.25 days / 12)
+                year: { name: 'Year (year)', toBase: 31557600 } // Average year (365.25 days)
             }
         }
     };
@@ -150,7 +150,9 @@ const UnitConverter = () => {
     useEffect(() => {
         if (inputValue && !isNaN(inputValue)) {
             const converted = convert(inputValue, fromUnit, toUnit, category);
-            setResult(converted.toFixed(6).replace(/\.?0+$/, ''));
+            // Format the result: remove unnecessary trailing zeros but keep significant digits
+            const formatted = converted.toFixed(6).replace(/(\.\d*?[1-9])0+$|\.0+$/, '$1');
+            setResult(formatted);
         } else {
             setResult('');
         }
