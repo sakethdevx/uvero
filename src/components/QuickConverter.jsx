@@ -219,13 +219,20 @@ export default function QuickConverter() {
                 const result = {
                     file: new File([mergeBlob], mergeResult.filename, { type: 'application/pdf' }),
                     originalSize: files.reduce((sum, f) => sum + f.size, 0),
-                    convertedSize: mergeResult.size
+                    convertedSize: mergeResult.size,
+                    note: `Merged ${files.length} PDF files`
                 };
                 
+                // For merged PDFs, create a pseudo-original that represents all input files
+                const mergedOriginal = new File([], `${files.length} PDF files`, { type: 'application/pdf' });
+                Object.defineProperty(mergedOriginal, 'size', { value: result.originalSize });
+                
                 processedResults.push({
-                    original: files[0],
+                    original: mergedOriginal,
                     result: result,
-                    index: 0
+                    index: 0,
+                    isMerged: true,
+                    sourceFiles: files.map(f => f.name)
                 });
                 
                 setProgress(100);
