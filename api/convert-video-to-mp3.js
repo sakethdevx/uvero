@@ -135,10 +135,18 @@ export default async function handler(req, res) {
 
         // Clean up temporary files on error
         if (tempVideoPath && fs.existsSync(tempVideoPath)) {
-            try { fs.unlinkSync(tempVideoPath); } catch { /* ignore cleanup errors */ }
+            try {
+                fs.unlinkSync(tempVideoPath);
+            } catch {
+                /* ignore cleanup errors */
+            }
         }
         if (tempAudioPath && fs.existsSync(tempAudioPath)) {
-            try { fs.unlinkSync(tempAudioPath); } catch { /* ignore cleanup errors */ }
+            try {
+                fs.unlinkSync(tempAudioPath);
+            } catch {
+                /* ignore cleanup errors */
+            }
         }
 
         return res.status(500).json({
