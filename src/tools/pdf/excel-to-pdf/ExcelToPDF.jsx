@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import Button from '../../../shared/Button';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-republish';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 

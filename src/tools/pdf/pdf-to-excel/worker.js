@@ -4,7 +4,7 @@
  */
 
 import * as pdfjsLib from 'pdfjs-dist';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-republish';
 
 // Configure PDF.js for worker environment
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
