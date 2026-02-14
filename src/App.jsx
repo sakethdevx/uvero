@@ -27,9 +27,9 @@ function AppContent() {
         { name: 'Add Watermark', path: '/watermark' },
         { name: 'Image Cropper', path: '/crop-image' },
         { name: 'Background Remover', path: '/remove-background' },
-        { name: 'JPG to PDF', path: '/jpg-to-pdf', upcoming: true },
-        { name: 'PDF to JPG', path: '/pdf-to-jpg', upcoming: true },
-        { name: 'HEIC to JPG', path: '/heic-to-jpg', upcoming: true }
+        { name: 'JPG to PDF', path: '/jpg-to-pdf' },
+        { name: 'PDF to JPG', path: '/pdf-to-jpg' },
+        { name: 'HEIC to JPG', path: '/heic-to-jpg' }
       ]
     },
     {
@@ -41,13 +41,13 @@ function AppContent() {
         { name: 'PDF Merger', path: '/merge-pdf' },
         { name: 'PDF Splitter', path: '/split-pdf' },
         { name: 'Word to PDF', path: '/word-to-pdf' },
-        { name: 'PowerPoint to PDF', path: '/powerpoint-to-pdf', upcoming: true },
-        { name: 'Excel to PDF', path: '/excel-to-pdf', upcoming: true },
-        { name: 'HTML to PDF', path: '/html-to-pdf', upcoming: true },
-        { name: 'PDF to Word', path: '/pdf-to-word', upcoming: true },
-        { name: 'PDF to PowerPoint', path: '/pdf-to-powerpoint', upcoming: true },
-        { name: 'PDF to Excel', path: '/pdf-to-excel', upcoming: true },
-        { name: 'PDF to PDF/A', path: '/pdf-to-pdfa', upcoming: true }
+        { name: 'PowerPoint to PDF', path: '/powerpoint-to-pdf' },
+        { name: 'Excel to PDF', path: '/excel-to-pdf' },
+        { name: 'HTML to PDF', path: '/html-to-pdf' },
+        { name: 'PDF to Word', path: '/pdf-to-word' },
+        { name: 'PDF to PowerPoint', path: '/pdf-to-powerpoint' },
+        { name: 'PDF to Excel', path: '/pdf-to-excel' },
+        { name: 'PDF to PDF/A', path: '/pdf-to-pdfa' }
       ]
     },
     {
@@ -57,8 +57,8 @@ function AppContent() {
         { name: 'Audio Compressor', path: '/compress-audio' },
         { name: 'Audio Converter', path: '/convert-audio' },
         { name: 'Video to MP3', path: '/video-to-mp3' },
-        { name: 'MP3 Converter', path: '/mp3-converter', upcoming: true },
-        { name: 'MP4 to MP3', path: '/mp4-to-mp3', upcoming: true }
+        { name: 'MP3 Converter', path: '/mp3-converter' },
+        { name: 'MP4 to MP3', path: '/mp4-to-mp3' }
       ]
     },
     {
@@ -67,9 +67,9 @@ function AppContent() {
       tools: [
         { name: 'Video Compressor', path: '/compress-video' },
         { name: 'Video Converter', path: '/convert-video' },
-        { name: 'MP4 Converter', path: '/mp4-converter', upcoming: true },
-        { name: 'Video to GIF', path: '/video-to-gif', upcoming: true },
-        { name: 'MOV to MP4', path: '/mov-to-mp4', upcoming: true }
+        { name: 'MP4 Converter', path: '/mp4-converter' },
+        { name: 'Video to GIF', path: '/video-to-gif' },
+        { name: 'MOV to MP4', path: '/mov-to-mp4' }
       ]
     },
     {

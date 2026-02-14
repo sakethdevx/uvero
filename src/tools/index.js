@@ -62,6 +62,22 @@ import UnitConverter from './utility/unit-converter/UnitConverter';
 import unitConverterSEO from './utility/unit-converter/seo.json';
 import HashGenerator from './utility/hash-generator/HashGenerator';
 import hashGeneratorSEO from './utility/hash-generator/seo.json';
+import JPGToPDF from './image/jpg-to-pdf/JPGToPDF';
+import jpgToPDFSEO from './image/jpg-to-pdf/seo.json';
+import PDFToJPG from './image/pdf-to-jpg/PDFToJPG';
+import pdfToJPGSEO from './image/pdf-to-jpg/seo.json';
+import HEICToJPG from './image/heic-to-jpg/HEICToJPG';
+import heicToJPGSEO from './image/heic-to-jpg/seo.json';
+import MP3Converter from './audio/mp3-converter/MP3Converter';
+import mp3ConverterSEO from './audio/mp3-converter/seo.json';
+import MP4ToMP3 from './audio/mp4-to-mp3/MP4ToMP3';
+import mp4ToMP3SEO from './audio/mp4-to-mp3/seo.json';
+import MP4Converter from './video/mp4-converter/MP4Converter';
+import mp4ConverterSEO from './video/mp4-converter/seo.json';
+import VideoToGIF from './video/video-to-gif/VideoToGIF';
+import videoToGIFSEO from './video/video-to-gif/seo.json';
+import MOVToMP4 from './video/mov-to-mp4/MOVToMP4';
+import movToMP4SEO from './video/mov-to-mp4/seo.json';
 
 export const tools = {
     'compress-image': {
@@ -376,6 +392,86 @@ export const tools = {
         seo: hashGeneratorSEO,
         icon: '🔐',
         popular: true,
+        modes: ['offline', 'online']
+    },
+    'jpg-to-pdf': {
+        id: 'jpg-to-pdf',
+        name: 'JPG to PDF',
+        description: 'Convert JPG/JPEG images to PDF documents',
+        component: JPGToPDF,
+        category: 'image',
+        seo: jpgToPDFSEO,
+        icon: '📄',
+        modes: ['offline', 'online']
+    },
+    'pdf-to-jpg': {
+        id: 'pdf-to-jpg',
+        name: 'PDF to JPG',
+        description: 'Convert PDF pages to JPG/JPEG images',
+        component: PDFToJPG,
+        category: 'image',
+        seo: pdfToJPGSEO,
+        icon: '🖼️',
+        modes: ['offline', 'online']
+    },
+    'heic-to-jpg': {
+        id: 'heic-to-jpg',
+        name: 'HEIC to JPG',
+        description: 'Convert Apple HEIC/HEIF images to JPG format',
+        component: HEICToJPG,
+        category: 'image',
+        seo: heicToJPGSEO,
+        icon: '📱',
+        modes: ['offline', 'online']
+    },
+    'mp3-converter': {
+        id: 'mp3-converter',
+        name: 'MP3 Converter',
+        description: 'Convert any audio file to MP3 format',
+        component: MP3Converter,
+        category: 'audio',
+        seo: mp3ConverterSEO,
+        icon: '🎵',
+        modes: ['offline', 'online']
+    },
+    'mp4-to-mp3': {
+        id: 'mp4-to-mp3',
+        name: 'MP4 to MP3',
+        description: 'Extract audio from MP4 videos and convert to MP3',
+        component: MP4ToMP3,
+        category: 'audio',
+        seo: mp4ToMP3SEO,
+        icon: '🎬',
+        modes: ['offline', 'online']
+    },
+    'mp4-converter': {
+        id: 'mp4-converter',
+        name: 'MP4 Converter',
+        description: 'Convert any video format to MP4',
+        component: MP4Converter,
+        category: 'video',
+        seo: mp4ConverterSEO,
+        icon: '🎬',
+        modes: ['offline', 'online']
+    },
+    'video-to-gif': {
+        id: 'video-to-gif',
+        name: 'Video to GIF',
+        description: 'Convert videos to animated GIF images',
+        component: VideoToGIF,
+        category: 'video',
+        seo: videoToGIFSEO,
+        icon: '🎞️',
+        modes: ['offline', 'online']
+    },
+    'mov-to-mp4': {
+        id: 'mov-to-mp4',
+        name: 'MOV to MP4',
+        description: 'Convert Apple QuickTime MOV to MP4 format',
+        component: MOVToMP4,
+        category: 'video',
+        seo: movToMP4SEO,
+        icon: '🎥',
         modes: ['offline', 'online']
     }
 };
