@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Dropzone from '../shared/Dropzone';
 import Button from '../shared/Button';
+import ProgressBar from '../shared/ProgressBar';
 import { useMode } from '../context/ModeContext';
+import imageCompressorProcessor from '../tools/image/image-compressor/processor';
+import imageConverterProcessor from '../tools/image/image-converter/processor';
 
 /**
  * Quick Converter Component
@@ -10,11 +12,20 @@ import { useMode } from '../context/ModeContext';
  * without navigating to specific tool pages
  */
 export default function QuickConverter() {
-    const navigate = useNavigate();
     const { isOnlineMode: _isOnlineMode } = useMode(); // Reserved for future mode-based filtering
     const [files, setFiles] = useState([]);
     const [selectedOperation, setSelectedOperation] = useState('');
     const [error, setError] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [results, setResults] = useState([]);
+    const [showOptions, setShowOptions] = useState(false);
+    
+    // Tool-specific options
+    const [quality, setQuality] = useState(80); // For image compression
+    const [outputFormat, setOutputFormat] = useState('png'); // For image conversion
+    const [width, setWidth] = useState('');
+    const [height, setHeight] = useState('');
 
     // Detect file type and suggest operations
     const getOperationsForFile = (file) => {
@@ -105,30 +116,101 @@ export default function QuickConverter() {
         setFiles(prevFiles => [...prevFiles, file]);
         setError('');
         setSelectedOperation('');
+        setShowOptions(false);
+        setResults([]);
     };
 
     const handleRemoveFile = (index) => {
         setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
         if (files.length === 1) {
             setSelectedOperation('');
+            setShowOptions(false);
+            setResults([]);
         }
     };
 
     const handleOperationSelect = (operationId) => {
         setSelectedOperation(operationId);
+        setShowOptions(true);
         setError('');
+        setResults([]);
     };
 
-    const handleProcess = () => {
+    const handleProcess = async () => {
         if (!selectedOperation || files.length === 0) return;
 
-        // Navigate to the tool page with files passed via state
-        // Files are passed as File objects through React Router state
-        navigate(`/${selectedOperation}`, { 
-            state: { 
-                files: files,
-                fromQuickConverter: true 
-            } 
+        setIsProcessing(true);
+        setError('');
+        setProgress(0);
+        const processedResults = [];
+
+        try {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                let result;
+
+                // Update progress
+                setProgress(Math.round((i / files.length) * 100));
+
+                switch (selectedOperation) {
+                    case 'compress-image':
+                        result = await imageCompressorProcessor.compress(
+                            file,
+                            quality,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        break;
+
+                    case 'convert-image':
+                        const widthNum = width ? parseInt(width) : null;
+                        const heightNum = height ? parseInt(height) : null;
+                        result = await imageConverterProcessor.convert(
+                            file,
+                            outputFormat,
+                            widthNum,
+                            heightNum,
+                            true, // maintain aspect ratio
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        break;
+
+                    default:
+                        throw new Error(`Operation ${selectedOperation} is not yet supported in Quick Converter. Please use the dedicated tool page.`);
+                }
+
+                processedResults.push({
+                    original: file,
+                    result: result,
+                    index: i
+                });
+            }
+
+            setProgress(100);
+            setResults(processedResults);
+        } catch (err) {
+            setError(err.message || 'Processing failed. Please try again.');
+            console.error('Processing error:', err);
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleDownload = (result) => {
+        if (!result || !result.file) return;
+
+        const url = URL.createObjectURL(result.file);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = result.file.name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleDownloadAll = () => {
+        results.forEach(({ result }) => {
+            handleDownload(result);
         });
     };
 
@@ -175,6 +257,8 @@ export default function QuickConverter() {
                                     onClick={() => {
                                         setFiles([]);
                                         setSelectedOperation('');
+                                        setShowOptions(false);
+                                        setResults([]);
                                     }}
                                 >
                                     Clear All
@@ -235,7 +319,7 @@ export default function QuickConverter() {
                         </div>
 
                         {/* Operation Selector */}
-                        {availableOperations.length > 0 && (
+                        {availableOperations.length > 0 && !showOptions && !results.length && (
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-3">
                                     Choose an Operation
@@ -261,15 +345,186 @@ export default function QuickConverter() {
                             </div>
                         )}
 
-                        {/* Process Button */}
-                        {selectedOperation && (
-                            <div className="flex justify-center pt-4">
-                                <Button
-                                    onClick={handleProcess}
-                                    className="px-8 py-3 text-lg"
-                                >
-                                    Start Conversion
-                                </Button>
+                        {/* Tool Options */}
+                        {showOptions && !isProcessing && !results.length && (
+                            <div className="border-t pt-4">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-lg font-semibold text-gray-900">
+                                        Settings
+                                    </h3>
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => {
+                                            setShowOptions(false);
+                                            setSelectedOperation('');
+                                        }}
+                                    >
+                                        Back
+                                    </Button>
+                                </div>
+
+                                {/* Image Compression Options */}
+                                {selectedOperation === 'compress-image' && (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Quality: {quality}%
+                                            </label>
+                                            <input
+                                                type="range"
+                                                min="10"
+                                                max="100"
+                                                value={quality}
+                                                onChange={(e) => setQuality(parseInt(e.target.value))}
+                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                            />
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                Lower quality = smaller file size
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Image Conversion Options */}
+                                {selectedOperation === 'convert-image' && (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Output Format
+                                            </label>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                {['png', 'jpg', 'webp'].map((format) => (
+                                                    <button
+                                                        key={format}
+                                                        onClick={() => setOutputFormat(format)}
+                                                        className={`p-3 rounded-lg border-2 transition-all uppercase font-semibold ${
+                                                            outputFormat === format
+                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
+                                                                : 'border-gray-200 hover:border-primary-300'
+                                                        }`}
+                                                    >
+                                                        {format}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Width (optional)
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={width}
+                                                    onChange={(e) => setWidth(e.target.value)}
+                                                    placeholder="Auto"
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Height (optional)
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={height}
+                                                    onChange={(e) => setHeight(e.target.value)}
+                                                    placeholder="Auto"
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                />
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-gray-500">
+                                            Leave empty to keep original dimensions. Aspect ratio will be maintained.
+                                        </p>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-center pt-4">
+                                    <Button
+                                        onClick={handleProcess}
+                                        disabled={isProcessing}
+                                        className="px-8 py-3 text-lg"
+                                    >
+                                        {isProcessing ? 'Processing...' : 'Start Conversion'}
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Progress Bar */}
+                        {isProcessing && (
+                            <div className="space-y-3">
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    Processing...
+                                </h3>
+                                <ProgressBar progress={progress} />
+                                <p className="text-sm text-gray-600 text-center">
+                                    Processing {files.length} file{files.length > 1 ? 's' : ''}...
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Results */}
+                        {results.length > 0 && (
+                            <div className="space-y-4 border-t pt-4">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-lg font-semibold text-gray-900">
+                                        ✅ Conversion Complete!
+                                    </h3>
+                                    {results.length > 1 && (
+                                        <Button
+                                            onClick={handleDownloadAll}
+                                            variant="secondary"
+                                        >
+                                            Download All
+                                        </Button>
+                                    )}
+                                </div>
+
+                                <div className="space-y-3">
+                                    {results.map(({ original, result }, index) => (
+                                        <div
+                                            key={index}
+                                            className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200"
+                                        >
+                                            <div className="flex-1">
+                                                <p className="font-medium text-gray-900">
+                                                    {result.file.name}
+                                                </p>
+                                                <p className="text-sm text-gray-600">
+                                                    {formatFileSize(original.size)} → {formatFileSize(result.file.size)}
+                                                    {result.originalSize && result.convertedSize && (
+                                                        <span className="ml-2 text-green-600 font-semibold">
+                                                            ({Math.round((1 - result.convertedSize / result.originalSize) * 100)}% smaller)
+                                                        </span>
+                                                    )}
+                                                </p>
+                                            </div>
+                                            <Button
+                                                onClick={() => handleDownload(result)}
+                                                className="ml-4"
+                                            >
+                                                Download
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="flex justify-center pt-4">
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => {
+                                            setFiles([]);
+                                            setSelectedOperation('');
+                                            setShowOptions(false);
+                                            setResults([]);
+                                        }}
+                                    >
+                                        Convert More Files
+                                    </Button>
+                                </div>
                             </div>
                         )}
 
@@ -294,7 +549,7 @@ export default function QuickConverter() {
                     </span>
                 </p>
                 <p>
-                    After selecting an operation, you'll be taken to the tool page where you can customize settings and download results
+                    Select files, choose an operation, customize settings, and download - all without leaving this page!
                 </p>
             </div>
         </div>
