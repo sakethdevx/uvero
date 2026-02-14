@@ -1,0 +1,18 @@
+{
+  "title": "Document Converter - Convert Between Document Formats",
+  "description": "Convert documents between PDF, Word, Excel, PowerPoint, and more. Free online document converter with 100% privacy.",
+  "keywords": "document converter, file converter, PDF converter, Word Excel PowerPoint, format converter",
+  "ogTitle": "Document Converter - Free Online File Conversion",
+  "ogDescription": "Convert between PDF, Word, Excel, PowerPoint, and more formats.",
+  "structuredData": {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Document Converter",
+    "description": "Convert between various document formats",
+    "applicationCategory": "UtilityApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0"
+    }
+  }
+}

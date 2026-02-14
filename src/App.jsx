@@ -76,35 +76,35 @@ function AppContent() {
       name: 'Document & Ebook',
       icon: '📚',
       tools: [
-        { name: 'EPUB to PDF', path: '/epub-to-pdf', upcoming: true },
-        { name: 'EPUB to MOBI', path: '/epub-to-mobi', upcoming: true },
-        { name: 'Document Converter', path: '/document-converter', upcoming: true }
+        { name: 'EPUB to PDF', path: '/epub-to-pdf' },
+        { name: 'EPUB to MOBI', path: '/epub-to-mobi' },
+        { name: 'Document Converter', path: '/document-converter' }
       ]
     },
     {
       name: 'Archive Tools',
       icon: '🗜️',
       tools: [
-        { name: 'RAR to Zip', path: '/rar-to-zip', upcoming: true },
-        { name: 'Archive Converter', path: '/archive-converter', upcoming: true }
+        { name: 'RAR to Zip', path: '/rar-to-zip' },
+        { name: 'Archive Converter', path: '/archive-converter' }
       ]
     },
     {
       name: 'Time Zone',
       icon: '🌍',
       tools: [
-        { name: 'PST to EST', path: '/pst-to-est', upcoming: true },
-        { name: 'CST to EST', path: '/cst-to-est', upcoming: true },
-        { name: 'Time Zone Converter', path: '/timezone-converter', upcoming: true }
+        { name: 'PST to EST', path: '/pst-to-est' },
+        { name: 'CST to EST', path: '/cst-to-est' },
+        { name: 'Time Zone Converter', path: '/timezone-converter' }
       ]
     },
     {
       name: 'Unit Converter',
       icon: '📏',
       tools: [
-        { name: 'Lbs to Kg', path: '/lbs-to-kg', upcoming: true },
-        { name: 'Kg to Lbs', path: '/kg-to-lbs', upcoming: true },
-        { name: 'Feet to Meters', path: '/feet-to-meters', upcoming: true },
+        { name: 'Lbs to Kg', path: '/lbs-to-kg' },
+        { name: 'Kg to Lbs', path: '/kg-to-lbs' },
+        { name: 'Feet to Meters', path: '/feet-to-meters' },
         { name: 'Unit Converter', path: '/unit-converter' }
       ]
     },

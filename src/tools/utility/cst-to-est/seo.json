@@ -1,0 +1,18 @@
+{
+  "title": "CST to EST Converter - Convert Central to Eastern Time",
+  "description": "Convert Central Standard Time (CST) to Eastern Standard Time (EST) instantly. Free timezone converter with live clock display.",
+  "keywords": "CST to EST, central to eastern time, timezone converter, CST EST conversion, time zone calculator",
+  "ogTitle": "CST to EST Converter - Central to Eastern Time",
+  "ogDescription": "Free online CST to EST timezone converter with live clocks.",
+  "structuredData": {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "CST to EST Converter",
+    "description": "Convert Central Standard Time to Eastern Standard Time",
+    "applicationCategory": "UtilityApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0"
+    }
+  }
+}

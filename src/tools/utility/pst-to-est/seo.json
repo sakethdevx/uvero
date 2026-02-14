@@ -1,0 +1,18 @@
+{
+  "title": "PST to EST Converter - Convert Pacific to Eastern Time",
+  "description": "Convert Pacific Standard Time (PST) to Eastern Standard Time (EST) instantly. Free timezone converter with live clock display.",
+  "keywords": "PST to EST, pacific to eastern time, timezone converter, PST EST conversion, time zone calculator",
+  "ogTitle": "PST to EST Converter - Pacific to Eastern Time",
+  "ogDescription": "Free online PST to EST timezone converter with live clocks.",
+  "structuredData": {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "PST to EST Converter",
+    "description": "Convert Pacific Standard Time to Eastern Standard Time",
+    "applicationCategory": "UtilityApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0"
+    }
+  }
+}

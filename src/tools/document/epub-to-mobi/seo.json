@@ -1,0 +1,18 @@
+{
+  "title": "EPUB to MOBI Converter - Convert Ebooks for Kindle",
+  "description": "Convert EPUB ebooks to MOBI format for Amazon Kindle devices. Free ebook converter for Kindle-compatible files.",
+  "keywords": "EPUB to MOBI, Kindle converter, ebook converter, EPUB MOBI conversion, Kindle ebook",
+  "ogTitle": "EPUB to MOBI Converter - Free Kindle Ebook Converter",
+  "ogDescription": "Convert EPUB ebooks to MOBI format for Kindle devices.",
+  "structuredData": {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "EPUB to MOBI Converter",
+    "description": "Convert EPUB ebooks to MOBI format for Kindle",
+    "applicationCategory": "UtilityApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0"
+    }
+  }
+}

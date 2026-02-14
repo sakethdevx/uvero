@@ -1,0 +1,18 @@
+{
+  "title": "Kg to Lbs Converter - Free Kilograms to Pounds Calculator",
+  "description": "Convert kilograms (kg) to pounds (lbs) instantly. Fast, accurate, and free kg to lbs weight converter with quick reference table.",
+  "keywords": "kg to lbs, kilograms to pounds, weight converter, kg lb conversion, kilograms pounds calculator",
+  "ogTitle": "Kg to Lbs Converter - Convert Kilograms to Pounds",
+  "ogDescription": "Free online kilograms to pounds converter. Quick, accurate, and easy to use.",
+  "structuredData": {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Kg to Lbs Converter",
+    "description": "Convert kilograms (kg) to pounds (lbs)",
+    "applicationCategory": "UtilityApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0"
+    }
+  }
+}
