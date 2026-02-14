@@ -93,7 +93,7 @@ export default function TimeZoneConverter() {
         
         // Auto-convert as user types
         if (time && time.includes(':')) {
-            setTimeout(() => handleConvert(), 0);
+            handleConvert();
         }
     };
 

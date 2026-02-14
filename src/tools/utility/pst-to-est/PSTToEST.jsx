@@ -189,6 +189,10 @@ export default function PSTToEST() {
                                 <span className="text-primary-600 mt-0.5">•</span>
                                 <span>During daylight saving time, PDT (UTC-7) and EDT (UTC-4) are used</span>
                             </li>
+                            <li className="flex items-start gap-2">
+                                <span className="text-orange-600 mt-0.5">⚠</span>
+                                <span className="text-orange-600">Note: This uses a fixed 3-hour offset. For DST-aware conversion, use the Time Zone Converter tool.</span>
+                            </li>
                         </ul>
                     </div>
                 </div>
