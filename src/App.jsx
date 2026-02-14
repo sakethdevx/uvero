@@ -41,13 +41,13 @@ function AppContent() {
         { name: 'PDF Merger', path: '/merge-pdf' },
         { name: 'PDF Splitter', path: '/split-pdf' },
         { name: 'Word to PDF', path: '/word-to-pdf' },
-        { name: 'PowerPoint to PDF', path: '/powerpoint-to-pdf', upcoming: true },
-        { name: 'Excel to PDF', path: '/excel-to-pdf', upcoming: true },
-        { name: 'HTML to PDF', path: '/html-to-pdf', upcoming: true },
-        { name: 'PDF to Word', path: '/pdf-to-word', upcoming: true },
-        { name: 'PDF to PowerPoint', path: '/pdf-to-powerpoint', upcoming: true },
-        { name: 'PDF to Excel', path: '/pdf-to-excel', upcoming: true },
-        { name: 'PDF to PDF/A', path: '/pdf-to-pdfa', upcoming: true }
+        { name: 'PowerPoint to PDF', path: '/powerpoint-to-pdf' },
+        { name: 'Excel to PDF', path: '/excel-to-pdf' },
+        { name: 'HTML to PDF', path: '/html-to-pdf' },
+        { name: 'PDF to Word', path: '/pdf-to-word' },
+        { name: 'PDF to PowerPoint', path: '/pdf-to-powerpoint' },
+        { name: 'PDF to Excel', path: '/pdf-to-excel' },
+        { name: 'PDF to PDF/A', path: '/pdf-to-pdfa' }
       ]
     },
     {
