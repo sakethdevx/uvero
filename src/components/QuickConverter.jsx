@@ -1134,18 +1134,6 @@ export default function QuickConverter() {
                                     </div>
                                 )}
 
-                                {/* Operations that need dedicated tool pages */}
-                                {['crop-image', 'remove-background', 'watermark', 'image-to-pdf', 'split-pdf', 'video-to-mp3', 'video-to-gif'].includes(selectedOperation) && (
-                                    <div className="space-y-4">
-                                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                            <p className="text-sm text-blue-800">
-                                                ℹ️ This operation requires additional settings and is best done on the dedicated tool page. 
-                                                You can still select this operation to be redirected to the appropriate tool with your files pre-loaded.
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-
                                 <div className="flex justify-center pt-4">
                                     <Button
                                         onClick={handleProcess}
