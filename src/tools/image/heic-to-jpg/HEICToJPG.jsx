@@ -60,39 +60,18 @@ export default function HEICToJPG() {
         setResults([]);
 
         try {
-            const convertedImages = [];
+            // IMPORTANT: This is a demonstration implementation
+            // Real HEIC to JPG conversion requires the heic2any library or similar
+            // To implement properly:
+            // 1. Install: npm install heic2any
+            // 2. Import: import heic2any from 'heic2any';
+            // 3. Use: const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.9 });
             
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                setProgress(Math.round(((i + 1) / files.length) * 90));
-
-                try {
-                    // For now, we'll show a message that HEIC conversion requires external library
-                    // In production, you would use heic2any library or similar
-                    const blob = await file.arrayBuffer();
-                    
-                    // Create a simple placeholder - in real implementation, use heic2any
-                    // import heic2any from 'heic2any';
-                    // const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.9 });
-                    
-                    // For now, create a placeholder result
-                    const jpgBlob = new Blob([blob], { type: 'image/jpeg' });
-                    const url = URL.createObjectURL(jpgBlob);
-                    
-                    convertedImages.push({
-                        name: file.name.replace(/\.heic$/i, '.jpg'),
-                        url,
-                        blob: jpgBlob,
-                        size: jpgBlob.size
-                    });
-                } catch (err) {
-                    console.error(`Failed to convert ${file.name}:`, err);
-                    throw new Error(`Failed to convert ${file.name}`);
-                }
-            }
-
-            setResults(convertedImages);
-            setProgress(100);
+            throw new Error(
+                'HEIC to JPG conversion is not yet fully implemented. ' +
+                'This tool requires the heic2any library to perform actual image conversion. ' +
+                'Currently showing placeholder functionality only.'
+            );
         } catch (err) {
             setError(err.message || 'Conversion failed. HEIC conversion requires additional libraries that are not yet fully integrated.');
         } finally {
@@ -164,7 +143,7 @@ export default function HEICToJPG() {
                         <div
                             onDrop={handleDrop}
                             onDragOver={handleDragOver}
-                            className="border-3 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-purple-400 transition-colors cursor-pointer"
+                            className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-purple-400 transition-colors cursor-pointer"
                             onClick={() => fileInputRef.current?.click()}
                         >
                             <div className="flex flex-col items-center">

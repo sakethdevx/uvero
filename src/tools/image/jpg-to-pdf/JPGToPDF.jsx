@@ -157,7 +157,7 @@ export default function JPGToPDF() {
                         <div
                             onDrop={handleDrop}
                             onDragOver={handleDragOver}
-                            className="border-3 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-blue-400 transition-colors cursor-pointer"
+                            className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-blue-400 transition-colors cursor-pointer"
                             onClick={() => fileInputRef.current?.click()}
                         >
                             <div className="flex flex-col items-center">
