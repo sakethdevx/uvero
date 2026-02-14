@@ -5,6 +5,13 @@ import ProgressBar from '../shared/ProgressBar';
 import { useMode } from '../context/ModeContext';
 import imageCompressorProcessor from '../tools/image/image-compressor/processor';
 import imageConverterProcessor from '../tools/image/image-converter/processor';
+import { processor as imageResizerProcessor } from '../tools/image/image-resizer/processor';
+import { processor as pdfCompressorProcessor } from '../tools/pdf/pdf-compressor/processor';
+import { processor as pdfConverterProcessor } from '../tools/pdf/pdf-converter/processor';
+import { processor as audioCompressorProcessor } from '../tools/audio/audio-compressor/processor';
+import { processor as audioConverterProcessor } from '../tools/audio/audio-converter/processor';
+import { processor as videoCompressorProcessor } from '../tools/video/video-compressor/processor';
+import { processor as videoConverterProcessor } from '../tools/video/video-converter/processor';
 
 /**
  * Quick Converter Component
@@ -22,10 +29,14 @@ export default function QuickConverter() {
     const [showOptions, setShowOptions] = useState(false);
     
     // Tool-specific options
-    const [quality, setQuality] = useState(80); // For image compression
-    const [outputFormat, setOutputFormat] = useState('png'); // For image conversion
+    const [quality, setQuality] = useState(80); // For image/video compression
+    const [outputFormat, setOutputFormat] = useState('png'); // For image/pdf/audio/video conversion
     const [width, setWidth] = useState('');
     const [height, setHeight] = useState('');
+    const [pdfCompressionLevel, setPdfCompressionLevel] = useState('balanced'); // For PDF compression: low, balanced, high
+    const [pageRange, setPageRange] = useState('all'); // For PDF conversion: all, first
+    const [audioBitrate, setAudioBitrate] = useState('192'); // For audio compression
+    const [videoQuality, setVideoQuality] = useState('medium'); // For video compression: low, medium, high
 
     // Detect file type and suggest operations
     const getOperationsForFile = (file) => {
@@ -134,6 +145,15 @@ export default function QuickConverter() {
         setShowOptions(true);
         setError('');
         setResults([]);
+        
+        // Set default output formats based on operation
+        if (operationId === 'convert-image' || operationId === 'convert-pdf') {
+            setOutputFormat('png');
+        } else if (operationId === 'convert-audio') {
+            setOutputFormat('mp3');
+        } else if (operationId === 'video-converter') {
+            setOutputFormat('mp4');
+        }
     };
 
     const handleProcess = async () => {
@@ -172,6 +192,109 @@ export default function QuickConverter() {
                             true, // maintain aspect ratio
                             (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
                         );
+                        break;
+
+                    case 'resize-image':
+                        const resizeWidth = width ? parseInt(width) : 800;
+                        const resizeHeight = height ? parseInt(height) : 600;
+                        const resizeResult = await imageResizerProcessor.resize(
+                            file,
+                            resizeWidth,
+                            resizeHeight,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        // Convert to expected format
+                        result = {
+                            file: new File([await fetch(resizeResult.url).then(r => r.blob())], resizeResult.filename, { type: file.type }),
+                            originalSize: file.size,
+                            convertedSize: resizeResult.size
+                        };
+                        break;
+
+                    case 'compress-pdf':
+                        const pdfBlob = await pdfCompressorProcessor.compress(
+                            file,
+                            pdfCompressionLevel,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([pdfBlob], file.name.replace(/\.pdf$/i, '_compressed.pdf'), { type: 'application/pdf' }),
+                            originalSize: file.size,
+                            convertedSize: pdfBlob.size
+                        };
+                        break;
+
+                    case 'convert-pdf':
+                        const pdfImages = await pdfConverterProcessor.convert(
+                            file,
+                            outputFormat,
+                            pageRange,
+                            '',
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        // For PDF conversion, we get multiple images, so we'll process the first one
+                        // and add a note about multiple pages
+                        if (pdfImages.length > 0) {
+                            const firstImage = pdfImages[0];
+                            result = {
+                                file: new File([firstImage.blob], `${file.name.replace(/\.pdf$/i, '')}_page1.${outputFormat}`, { type: firstImage.blob.type }),
+                                originalSize: file.size,
+                                convertedSize: firstImage.blob.size,
+                                note: pdfImages.length > 1 ? `Converted ${pdfImages.length} pages (showing first page)` : null
+                            };
+                        }
+                        break;
+
+                    case 'compress-audio':
+                        const audioBlob = await audioCompressorProcessor.compress(
+                            file,
+                            parseInt(audioBitrate),
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([audioBlob], file.name.replace(/\.[^.]+$/, '.mp3'), { type: 'audio/mpeg' }),
+                            originalSize: file.size,
+                            convertedSize: audioBlob.size
+                        };
+                        break;
+
+                    case 'convert-audio':
+                        const convertedAudio = await audioConverterProcessor.convert(
+                            file,
+                            outputFormat,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([convertedAudio.blob], convertedAudio.filename, { type: convertedAudio.blob.type }),
+                            originalSize: file.size,
+                            convertedSize: convertedAudio.blob.size
+                        };
+                        break;
+
+                    case 'compress-video':
+                        const videoBlob = await videoCompressorProcessor.compress(
+                            file,
+                            videoQuality,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([videoBlob], file.name.replace(/\.[^.]+$/, '_compressed.mp4'), { type: 'video/mp4' }),
+                            originalSize: file.size,
+                            convertedSize: videoBlob.size
+                        };
+                        break;
+
+                    case 'video-converter':
+                        const convertedVideo = await videoConverterProcessor.convert(
+                            file,
+                            outputFormat,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([convertedVideo.blob], convertedVideo.filename, { type: convertedVideo.blob.type }),
+                            originalSize: file.size,
+                            convertedSize: convertedVideo.blob.size
+                        };
                         break;
 
                     default:
@@ -438,6 +561,241 @@ export default function QuickConverter() {
                                         <p className="text-xs text-gray-500">
                                             Leave empty to keep original dimensions. Aspect ratio will be maintained.
                                         </p>
+                                    </div>
+                                )}
+
+                                {/* Image Resizing Options */}
+                                {selectedOperation === 'resize-image' && (
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Width (pixels)
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={width}
+                                                    onChange={(e) => setWidth(e.target.value)}
+                                                    placeholder="800"
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Height (pixels)
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={height}
+                                                    onChange={(e) => setHeight(e.target.value)}
+                                                    placeholder="600"
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                />
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-gray-500">
+                                            Specify target dimensions. Defaults to 800x600 if not specified.
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* PDF Compression Options */}
+                                {selectedOperation === 'compress-pdf' && (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Compression Level
+                                            </label>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                {['low', 'balanced', 'high'].map((level) => (
+                                                    <button
+                                                        key={level}
+                                                        onClick={() => setPdfCompressionLevel(level)}
+                                                        className={`p-3 rounded-lg border-2 transition-all capitalize font-semibold ${
+                                                            pdfCompressionLevel === level
+                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
+                                                                : 'border-gray-200 hover:border-primary-300'
+                                                        }`}
+                                                    >
+                                                        {level}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-2">
+                                                Higher compression = smaller file size but may reduce quality
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* PDF Conversion Options */}
+                                {selectedOperation === 'convert-pdf' && (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Output Format
+                                            </label>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {['png', 'jpg'].map((format) => (
+                                                    <button
+                                                        key={format}
+                                                        onClick={() => setOutputFormat(format)}
+                                                        className={`p-3 rounded-lg border-2 transition-all uppercase font-semibold ${
+                                                            outputFormat === format
+                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
+                                                                : 'border-gray-200 hover:border-primary-300'
+                                                        }`}
+                                                    >
+                                                        {format}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Pages to Convert
+                                            </label>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {[
+                                                    { id: 'all', label: 'All Pages' },
+                                                    { id: 'first', label: 'First Page' }
+                                                ].map((option) => (
+                                                    <button
+                                                        key={option.id}
+                                                        onClick={() => setPageRange(option.id)}
+                                                        className={`p-3 rounded-lg border-2 transition-all font-semibold ${
+                                                            pageRange === option.id
+                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
+                                                                : 'border-gray-200 hover:border-primary-300'
+                                                        }`}
+                                                    >
+                                                        {option.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Audio Compression Options */}
+                                {selectedOperation === 'compress-audio' && (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Bitrate: {audioBitrate} kbps
+                                            </label>
+                                            <div className="grid grid-cols-4 gap-3">
+                                                {['128', '192', '256', '320'].map((bitrate) => (
+                                                    <button
+                                                        key={bitrate}
+                                                        onClick={() => setAudioBitrate(bitrate)}
+                                                        className={`p-3 rounded-lg border-2 transition-all font-semibold ${
+                                                            audioBitrate === bitrate
+                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
+                                                                : 'border-gray-200 hover:border-primary-300'
+                                                        }`}
+                                                    >
+                                                        {bitrate}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-2">
+                                                Lower bitrate = smaller file size but may reduce audio quality
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Audio Conversion Options */}
+                                {selectedOperation === 'convert-audio' && (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Output Format
+                                            </label>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                {['mp3', 'wav', 'ogg'].map((format) => (
+                                                    <button
+                                                        key={format}
+                                                        onClick={() => setOutputFormat(format)}
+                                                        className={`p-3 rounded-lg border-2 transition-all uppercase font-semibold ${
+                                                            outputFormat === format
+                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
+                                                                : 'border-gray-200 hover:border-primary-300'
+                                                        }`}
+                                                    >
+                                                        {format}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Video Compression Options */}
+                                {selectedOperation === 'compress-video' && (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Quality Level
+                                            </label>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                {['low', 'medium', 'high'].map((level) => (
+                                                    <button
+                                                        key={level}
+                                                        onClick={() => setVideoQuality(level)}
+                                                        className={`p-3 rounded-lg border-2 transition-all capitalize font-semibold ${
+                                                            videoQuality === level
+                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
+                                                                : 'border-gray-200 hover:border-primary-300'
+                                                        }`}
+                                                    >
+                                                        {level}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-2">
+                                                Lower quality = smaller file size
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Video Conversion Options */}
+                                {selectedOperation === 'video-converter' && (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Output Format
+                                            </label>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                {['mp4', 'webm', 'avi'].map((format) => (
+                                                    <button
+                                                        key={format}
+                                                        onClick={() => setOutputFormat(format)}
+                                                        className={`p-3 rounded-lg border-2 transition-all uppercase font-semibold ${
+                                                            outputFormat === format
+                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
+                                                                : 'border-gray-200 hover:border-primary-300'
+                                                        }`}
+                                                    >
+                                                        {format}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Operations that need dedicated tool pages */}
+                                {['crop-image', 'remove-background', 'watermark', 'image-to-pdf', 'split-pdf', 'video-to-mp3', 'video-to-gif'].includes(selectedOperation) && (
+                                    <div className="space-y-4">
+                                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                            <p className="text-sm text-blue-800">
+                                                ℹ️ This operation requires additional settings and is best done on the dedicated tool page. 
+                                                You can still select this operation to be redirected to the appropriate tool with your files pre-loaded.
+                                            </p>
+                                        </div>
                                     </div>
                                 )}
 
