@@ -56,22 +56,10 @@ export default function TimeZoneConverter() {
         }
 
         try {
-            // Parse the input time
-            const [hours, minutes] = inputTime.split(':').map(Number);
-            
-            // Create date string in ISO format for the from timezone
             const dateTimeString = `${inputDate}T${inputTime}:00`;
             
-            // Create a date in the source timezone
+            // Create date in the source timezone
             const sourceDate = new Date(dateTimeString);
-            
-            // Get the time in the source timezone
-            const sourceTimeString = sourceDate.toLocaleString('en-US', { 
-                timeZone: fromZone,
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-            });
             
             // Calculate the offset difference
             const sourceOffset = getTimezoneOffset(sourceDate, fromZone);

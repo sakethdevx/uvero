@@ -50,8 +50,9 @@ export default function PSTToEST() {
             const estMinutes = String(estDate.getMinutes()).padStart(2, '0');
             
             setResult(`${estHours}:${estMinutes}`);
-        } catch (error) {
+        } catch (err) {
             setResult('Invalid time format');
+            console.error('Conversion error:', err);
         }
     };
 
@@ -71,8 +72,9 @@ export default function PSTToEST() {
                     const estMinutes = String(estDate.getMinutes()).padStart(2, '0');
                     setResult(`${estHours}:${estMinutes}`);
                 }
-            } catch (error) {
+            } catch (err) {
                 setResult('');
+                console.error('Conversion error:', err);
             }
         }
     };

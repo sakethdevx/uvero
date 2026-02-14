@@ -12,7 +12,6 @@ import { useMode } from '../../../context/ModeContext';
  */
 export default function ArchiveConverter() {
     const [file, setFile] = useState(null);
-    const [outputFormat, setOutputFormat] = useState('zip');
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress, setProgress] = useState(0);
     const [result, setResult] = useState(null);
@@ -118,7 +117,6 @@ export default function ArchiveConverter() {
         setResult(null);
         setError('');
         setProgress(0);
-        setOutputFormat('zip');
     };
 
     return (

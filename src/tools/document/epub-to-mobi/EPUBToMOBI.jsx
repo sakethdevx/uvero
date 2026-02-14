@@ -10,16 +10,13 @@ import FileInfo from '../../../shared/FileInfo';
  */
 export default function EPUBToMOBI() {
     const [file, setFile] = useState(null);
-    const [error, setError] = useState('');
 
     const handleFileSelect = (selectedFile) => {
         setFile(selectedFile);
-        setError('');
     };
 
     const handleReset = () => {
         setFile(null);
-        setError('');
     };
 
     return (

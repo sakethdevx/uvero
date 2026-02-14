@@ -146,7 +146,6 @@ class EPUBToPDFProcessor {
             author: epubData.metadata.author
         });
 
-        let isFirstPage = true;
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
         const margin = 15;
