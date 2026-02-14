@@ -9,6 +9,9 @@ import { processor as imageResizerProcessor } from '../tools/image/image-resizer
 import { processor as pdfCompressorProcessor } from '../tools/pdf/pdf-compressor/processor';
 import { processor as pdfConverterProcessor } from '../tools/pdf/pdf-converter/processor';
 import { processor as pdfSplitterProcessor } from '../tools/pdf/pdf-splitter/processor';
+import { processor as pdfToWordProcessor } from '../tools/pdf/pdf-to-word/processor';
+import { processor as pdfToExcelProcessor } from '../tools/pdf/pdf-to-excel/processor';
+import { processor as pdfToPowerPointProcessor } from '../tools/pdf/pdf-to-powerpoint/processor';
 import { processor as audioCompressorProcessor } from '../tools/audio/audio-compressor/processor';
 import { processor as audioConverterProcessor } from '../tools/audio/audio-converter/processor';
 import { processor as videoCompressorProcessor } from '../tools/video/video-compressor/processor';
@@ -71,7 +74,10 @@ export default function QuickConverter() {
             operations.push(
                 { id: 'compress-pdf', name: 'Compress PDF', icon: '📄' },
                 { id: 'convert-pdf', name: 'PDF to Image', icon: '🖼️' },
-                { id: 'split-pdf', name: 'Split PDF', icon: '✂️' }
+                { id: 'split-pdf', name: 'Split PDF', icon: '✂️' },
+                { id: 'pdf-to-word', name: 'PDF to Word', icon: '📝' },
+                { id: 'pdf-to-excel', name: 'PDF to Excel', icon: '📊' },
+                { id: 'pdf-to-powerpoint', name: 'PDF to PowerPoint', icon: '📽️' }
             );
         }
 
@@ -377,6 +383,42 @@ export default function QuickConverter() {
                             files: splitResult.files,
                             originalSize: file.size,
                             isSplit: true
+                        };
+                        break;
+
+                    case 'pdf-to-word':
+                        const wordResult = await pdfToWordProcessor.convert(
+                            file,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([wordResult.blob], file.name.replace(/\.pdf$/i, '.docx'), { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }),
+                            originalSize: file.size,
+                            convertedSize: wordResult.blob.size
+                        };
+                        break;
+
+                    case 'pdf-to-excel':
+                        const excelResult = await pdfToExcelProcessor.convert(
+                            file,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([excelResult.blob], file.name.replace(/\.pdf$/i, '.xlsx'), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+                            originalSize: file.size,
+                            convertedSize: excelResult.blob.size
+                        };
+                        break;
+
+                    case 'pdf-to-powerpoint':
+                        const pptResult = await pdfToPowerPointProcessor.convert(
+                            file,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([pptResult.blob], file.name.replace(/\.pdf$/i, '.pptx'), { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' }),
+                            originalSize: file.size,
+                            convertedSize: pptResult.blob.size
                         };
                         break;
 
