@@ -285,7 +285,7 @@ function AppContent() {
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 mt-auto">
         <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-3 gap-8">
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-2 mb-4">
@@ -306,113 +306,6 @@ function AppContent() {
                 </svg>
                 <span className="text-green-400 font-semibold">100% Private & Secure</span>
               </div>
-            </div>
-
-            {/* Tools */}
-            <div>
-              <h3 className="text-white font-semibold mb-4">Tools</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link to="/compress-image" className="hover:text-primary-400 transition-colors">
-                    Image Compressor
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/convert-image" className="hover:text-primary-400 transition-colors">
-                    Image Converter
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/image-to-pdf" className="hover:text-primary-400 transition-colors">
-                    Image to PDF
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/resize-image" className="hover:text-primary-400 transition-colors">
-                    Image Resizer
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/gif-maker" className="hover:text-primary-400 transition-colors">
-                    GIF Maker
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/watermark" className="hover:text-primary-400 transition-colors">
-                    Add Watermark
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/crop-image" className="hover:text-primary-400 transition-colors">
-                    Image Cropper
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/remove-background" className="hover:text-primary-400 transition-colors">
-                    Background Remover
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/compress-pdf" className="hover:text-primary-400 transition-colors">
-                    PDF Compressor
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/convert-pdf" className="hover:text-primary-400 transition-colors">
-                    PDF to Image
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/merge-pdf" className="hover:text-primary-400 transition-colors">
-                    PDF Merger
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/split-pdf" className="hover:text-primary-400 transition-colors">
-                    PDF Splitter
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/word-to-pdf" className="hover:text-primary-400 transition-colors">
-                    Word to PDF
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/compress-audio" className="hover:text-primary-400 transition-colors">
-                    Audio Compressor
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/convert-audio" className="hover:text-primary-400 transition-colors">
-                    Audio Converter
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/compress-video" className="hover:text-primary-400 transition-colors">
-                    Video Compressor
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/convert-video" className="hover:text-primary-400 transition-colors">
-                    Video Converter
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/qr-generator" className="hover:text-primary-400 transition-colors">
-                    QR Code Generator
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/password-generator" className="hover:text-primary-400 transition-colors">
-                    Password Generator
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/unit-converter" className="hover:text-primary-400 transition-colors">
-                    Unit Converter
-                  </Link>
-                </li>
-              </ul>
             </div>
 
             {/* Legal */}
