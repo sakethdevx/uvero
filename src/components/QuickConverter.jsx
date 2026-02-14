@@ -8,6 +8,7 @@ import imageConverterProcessor from '../tools/image/image-converter/processor';
 import { processor as imageResizerProcessor } from '../tools/image/image-resizer/processor';
 import { processor as pdfCompressorProcessor } from '../tools/pdf/pdf-compressor/processor';
 import { processor as pdfConverterProcessor } from '../tools/pdf/pdf-converter/processor';
+import { processor as pdfSplitterProcessor } from '../tools/pdf/pdf-splitter/processor';
 import { processor as audioCompressorProcessor } from '../tools/audio/audio-compressor/processor';
 import { processor as audioConverterProcessor } from '../tools/audio/audio-converter/processor';
 import { processor as videoCompressorProcessor } from '../tools/video/video-compressor/processor';
@@ -41,6 +42,9 @@ export default function QuickConverter() {
     const [pageRange, setPageRange] = useState('all'); // For PDF conversion: all, first
     const [audioBitrate, setAudioBitrate] = useState('192'); // For audio compression
     const [videoQuality, setVideoQuality] = useState('medium'); // For video compression: low, medium, high
+    const [pdfSplitMode, setPdfSplitMode] = useState('all'); // For PDF split: all, pages, ranges
+    const [pdfTotalPages, setPdfTotalPages] = useState(0); // Total pages in PDF
+    const [pdfPageSpec, setPdfPageSpec] = useState(''); // Pages or ranges specification
 
     // Detect file type and suggest operations
     const getOperationsForFile = (file) => {
@@ -144,7 +148,7 @@ export default function QuickConverter() {
         }
     };
 
-    const handleOperationSelect = (operationId) => {
+    const handleOperationSelect = async (operationId) => {
         setSelectedOperation(operationId);
         setShowOptions(true);
         setError('');
@@ -157,6 +161,16 @@ export default function QuickConverter() {
             setOutputFormat('mp3');
         } else if (operationId === 'video-converter') {
             setOutputFormat('mp4');
+        }
+        
+        // For PDF split, get page info
+        if (operationId === 'split-pdf' && files.length > 0) {
+            try {
+                const pageInfo = await pdfSplitterProcessor.getPageInfo(files[0]);
+                setPdfTotalPages(pageInfo.totalPages);
+            } catch (err) {
+                setError('Failed to read PDF information: ' + err.message);
+            }
         }
     };
 
@@ -346,6 +360,23 @@ export default function QuickConverter() {
                             file: new File([epubPdfBlob], file.name.replace(/\.epub$/i, '.pdf'), { type: 'application/pdf' }),
                             originalSize: file.size,
                             convertedSize: epubPdfBlob.size
+                        };
+                        break;
+
+                    case 'split-pdf':
+                        const splitResult = await pdfSplitterProcessor.split(
+                            file,
+                            pdfSplitMode,
+                            pdfPageSpec,
+                            pdfTotalPages,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        // For split PDF, we get multiple files
+                        // We'll return them all in a special format
+                        result = {
+                            files: splitResult.files,
+                            originalSize: file.size,
+                            isSplit: true
                         };
                         break;
 
@@ -729,6 +760,64 @@ export default function QuickConverter() {
                                     </div>
                                 )}
 
+                                {/* PDF Split Options */}
+                                {selectedOperation === 'split-pdf' && (
+                                    <div className="space-y-4">
+                                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                            <p className="text-sm text-blue-800">
+                                                PDF has {pdfTotalPages} {pdfTotalPages === 1 ? 'page' : 'pages'}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Split Mode
+                                            </label>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                {[
+                                                    { id: 'all', label: 'All Pages', desc: 'Each page as separate PDF' },
+                                                    { id: 'pages', label: 'Specific Pages', desc: 'Select pages to extract' },
+                                                    { id: 'ranges', label: 'Page Ranges', desc: 'Split by ranges' }
+                                                ].map((mode) => (
+                                                    <button
+                                                        key={mode.id}
+                                                        onClick={() => {
+                                                            setPdfSplitMode(mode.id);
+                                                            setPdfPageSpec('');
+                                                        }}
+                                                        className={`p-3 rounded-lg border-2 transition-all font-semibold text-left ${
+                                                            pdfSplitMode === mode.id
+                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
+                                                                : 'border-gray-200 hover:border-primary-300'
+                                                        }`}
+                                                    >
+                                                        <div className="text-sm">{mode.label}</div>
+                                                        <div className="text-xs opacity-70 mt-1">{mode.desc}</div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        {(pdfSplitMode === 'pages' || pdfSplitMode === 'ranges') && (
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    {pdfSplitMode === 'pages' ? 'Page Numbers' : 'Page Ranges'}
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={pdfPageSpec}
+                                                    onChange={(e) => setPdfPageSpec(e.target.value)}
+                                                    placeholder={pdfSplitMode === 'pages' ? 'e.g., 1,3,5' : 'e.g., 1-3,5-7'}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                />
+                                                <p className="text-xs text-gray-500 mt-1">
+                                                    {pdfSplitMode === 'pages' 
+                                                        ? 'Enter page numbers separated by commas (e.g., 1,3,5)'
+                                                        : 'Enter page ranges separated by commas (e.g., 1-3,5-7)'}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
                                 {/* Audio Compression Options */}
                                 {selectedOperation === 'compress-audio' && (
                                     <div className="space-y-4">
@@ -895,29 +984,74 @@ export default function QuickConverter() {
 
                                 <div className="space-y-3">
                                     {results.map(({ original, result }, index) => (
-                                        <div
-                                            key={index}
-                                            className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200"
-                                        >
-                                            <div className="flex-1">
-                                                <p className="font-medium text-gray-900">
-                                                    {result.file.name}
-                                                </p>
-                                                <p className="text-sm text-gray-600">
-                                                    {formatFileSize(original.size)} → {formatFileSize(result.file.size)}
-                                                    {result.originalSize && result.convertedSize && (
-                                                        <span className="ml-2 text-green-600 font-semibold">
-                                                            ({Math.round((1 - result.convertedSize / result.originalSize) * 100)}% smaller)
-                                                        </span>
-                                                    )}
-                                                </p>
-                                            </div>
-                                            <Button
-                                                onClick={() => handleDownload(result)}
-                                                className="ml-4"
-                                            >
-                                                Download
-                                            </Button>
+                                        <div key={index}>
+                                            {result.isSplit ? (
+                                                // Split PDF results - show multiple files
+                                                <div className="space-y-2">
+                                                    <p className="font-medium text-gray-900 mb-2">
+                                                        Split {original.name} into {result.files.length} {result.files.length === 1 ? 'file' : 'files'}
+                                                    </p>
+                                                    {result.files.map((splitFile, idx) => (
+                                                        <div
+                                                            key={idx}
+                                                            className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200"
+                                                        >
+                                                            <div className="flex-1">
+                                                                <p className="font-medium text-gray-900 text-sm">
+                                                                    {splitFile.filename}
+                                                                </p>
+                                                                <p className="text-xs text-gray-600">
+                                                                    {formatFileSize(splitFile.size)} • {splitFile.pages} {splitFile.pages === 1 ? 'page' : 'pages'}
+                                                                </p>
+                                                            </div>
+                                                            <Button
+                                                                onClick={() => {
+                                                                    const a = document.createElement('a');
+                                                                    a.href = splitFile.url;
+                                                                    a.download = splitFile.filename;
+                                                                    document.body.appendChild(a);
+                                                                    a.click();
+                                                                    document.body.removeChild(a);
+                                                                }}
+                                                                className="ml-4"
+                                                                size="sm"
+                                                            >
+                                                                Download
+                                                            </Button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                // Regular results - single file
+                                                <div
+                                                    className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200"
+                                                >
+                                                    <div className="flex-1">
+                                                        <p className="font-medium text-gray-900">
+                                                            {result.file.name}
+                                                        </p>
+                                                        <p className="text-sm text-gray-600">
+                                                            {formatFileSize(original.size)} → {formatFileSize(result.file.size)}
+                                                            {result.originalSize && result.convertedSize && (
+                                                                <span className="ml-2 text-green-600 font-semibold">
+                                                                    ({Math.round((1 - result.convertedSize / result.originalSize) * 100)}% smaller)
+                                                                </span>
+                                                            )}
+                                                        </p>
+                                                        {result.note && (
+                                                            <p className="text-xs text-blue-600 mt-1">
+                                                                ℹ️ {result.note}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    <Button
+                                                        onClick={() => handleDownload(result)}
+                                                        className="ml-4"
+                                                    >
+                                                        Download
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
