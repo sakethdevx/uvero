@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from '../video-to-mp3/processor';
+import processor from '../video-to-mp3/processor';
 
 const MP4ToMP3 = () => {
     const [file, setFile] = useState(null);
