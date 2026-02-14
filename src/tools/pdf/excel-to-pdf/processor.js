@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 /**
  * Excel to PDF Processor
@@ -58,7 +58,7 @@ const convert = async (file, onProgress = () => {}) => {
             );
 
             // Create table
-            pdf.autoTable({
+            autoTable(pdf, {
                 startY: 25,
                 head: tableData.length > 0 ? [tableData[0]] : [],
                 body: tableData.slice(1),
