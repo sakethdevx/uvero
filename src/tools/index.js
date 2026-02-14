@@ -60,6 +60,8 @@ import pdfToPowerpointSEO from './pdf/pdf-to-powerpoint/seo.json';
 import pdfToExcelSEO from './pdf/pdf-to-excel/seo.json';
 import UnitConverter from './utility/unit-converter/UnitConverter';
 import unitConverterSEO from './utility/unit-converter/seo.json';
+import HashGenerator from './utility/hash-generator/HashGenerator';
+import hashGeneratorSEO from './utility/hash-generator/seo.json';
 
 export const tools = {
     'compress-image': {
@@ -362,6 +364,17 @@ export const tools = {
         category: 'utility',
         seo: unitConverterSEO,
         icon: '📏',
+        popular: true,
+        modes: ['offline', 'online']
+    },
+    'hash-generator': {
+        id: 'hash-generator',
+        name: 'Hash Generator',
+        description: 'Generate cryptographic hashes using MD5, SHA-256, SHA-512 and more',
+        component: HashGenerator,
+        category: 'utility',
+        seo: hashGeneratorSEO,
+        icon: '🔐',
         popular: true,
         modes: ['offline', 'online']
     }
