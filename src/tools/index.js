@@ -78,6 +78,28 @@ import VideoToGIF from './video/video-to-gif/VideoToGIF';
 import videoToGIFSEO from './video/video-to-gif/seo.json';
 import MOVToMP4 from './video/mov-to-mp4/MOVToMP4';
 import movToMP4SEO from './video/mov-to-mp4/seo.json';
+import LbsToKg from './utility/lbs-to-kg/LbsToKg';
+import lbsToKgSEO from './utility/lbs-to-kg/seo.json';
+import KgToLbs from './utility/kg-to-lbs/KgToLbs';
+import kgToLbsSEO from './utility/kg-to-lbs/seo.json';
+import FeetToMeters from './utility/feet-to-meters/FeetToMeters';
+import feetToMetersSEO from './utility/feet-to-meters/seo.json';
+import PSTToEST from './utility/pst-to-est/PSTToEST';
+import pstToEstSEO from './utility/pst-to-est/seo.json';
+import CSTToEST from './utility/cst-to-est/CSTToEST';
+import cstToEstSEO from './utility/cst-to-est/seo.json';
+import TimeZoneConverter from './utility/timezone-converter/TimeZoneConverter';
+import timezoneConverterSEO from './utility/timezone-converter/seo.json';
+import EPUBToPDF from './document/epub-to-pdf/EPUBToPDF';
+import epubToPdfSEO from './document/epub-to-pdf/seo.json';
+import EPUBToMOBI from './document/epub-to-mobi/EPUBToMOBI';
+import epubToMobiSEO from './document/epub-to-mobi/seo.json';
+import DocumentConverter from './document/document-converter/DocumentConverter';
+import documentConverterSEO from './document/document-converter/seo.json';
+import RARToZip from './archive/rar-to-zip/RARToZip';
+import rarToZipSEO from './archive/rar-to-zip/seo.json';
+import ArchiveConverter from './archive/archive-converter/ArchiveConverter';
+import archiveConverterSEO from './archive/archive-converter/seo.json';
 
 export const tools = {
     'compress-image': {
@@ -472,6 +494,116 @@ export const tools = {
         category: 'video',
         seo: movToMP4SEO,
         icon: '🎥',
+        modes: ['offline', 'online']
+    },
+    'lbs-to-kg': {
+        id: 'lbs-to-kg',
+        name: 'Lbs to Kg',
+        description: 'Convert pounds to kilograms instantly',
+        component: LbsToKg,
+        category: 'utility',
+        seo: lbsToKgSEO,
+        icon: '⚖️',
+        modes: ['offline']
+    },
+    'kg-to-lbs': {
+        id: 'kg-to-lbs',
+        name: 'Kg to Lbs',
+        description: 'Convert kilograms to pounds instantly',
+        component: KgToLbs,
+        category: 'utility',
+        seo: kgToLbsSEO,
+        icon: '⚖️',
+        modes: ['offline']
+    },
+    'feet-to-meters': {
+        id: 'feet-to-meters',
+        name: 'Feet to Meters',
+        description: 'Convert feet to meters instantly',
+        component: FeetToMeters,
+        category: 'utility',
+        seo: feetToMetersSEO,
+        icon: '📏',
+        modes: ['offline']
+    },
+    'pst-to-est': {
+        id: 'pst-to-est',
+        name: 'PST to EST',
+        description: 'Convert Pacific Time to Eastern Time',
+        component: PSTToEST,
+        category: 'utility',
+        seo: pstToEstSEO,
+        icon: '🌍',
+        modes: ['offline']
+    },
+    'cst-to-est': {
+        id: 'cst-to-est',
+        name: 'CST to EST',
+        description: 'Convert Central Time to Eastern Time',
+        component: CSTToEST,
+        category: 'utility',
+        seo: cstToEstSEO,
+        icon: '🌍',
+        modes: ['offline']
+    },
+    'timezone-converter': {
+        id: 'timezone-converter',
+        name: 'Time Zone Converter',
+        description: 'Convert time between different time zones worldwide',
+        component: TimeZoneConverter,
+        category: 'utility',
+        seo: timezoneConverterSEO,
+        icon: '🌍',
+        modes: ['offline']
+    },
+    'epub-to-pdf': {
+        id: 'epub-to-pdf',
+        name: 'EPUB to PDF',
+        description: 'Convert EPUB ebooks to PDF format',
+        component: EPUBToPDF,
+        category: 'document',
+        seo: epubToPdfSEO,
+        icon: '📚',
+        modes: ['offline', 'online']
+    },
+    'epub-to-mobi': {
+        id: 'epub-to-mobi',
+        name: 'EPUB to MOBI',
+        description: 'Convert EPUB ebooks to MOBI format for Kindle',
+        component: EPUBToMOBI,
+        category: 'document',
+        seo: epubToMobiSEO,
+        icon: '📚',
+        modes: ['online']
+    },
+    'document-converter': {
+        id: 'document-converter',
+        name: 'Document Converter',
+        description: 'Convert between various document formats',
+        component: DocumentConverter,
+        category: 'document',
+        seo: documentConverterSEO,
+        icon: '📄',
+        modes: ['offline', 'online']
+    },
+    'rar-to-zip': {
+        id: 'rar-to-zip',
+        name: 'RAR to ZIP',
+        description: 'Convert RAR archives to ZIP format',
+        component: RARToZip,
+        category: 'archive',
+        seo: rarToZipSEO,
+        icon: '🗜️',
+        modes: ['online']
+    },
+    'archive-converter': {
+        id: 'archive-converter',
+        name: 'Archive Converter',
+        description: 'Convert and optimize archive files',
+        component: ArchiveConverter,
+        category: 'archive',
+        seo: archiveConverterSEO,
+        icon: '🗜️',
         modes: ['offline', 'online']
     }
 };

@@ -1,0 +1,18 @@
+{
+  "title": "EPUB to PDF Converter - Convert Ebooks to PDF Online",
+  "description": "Convert EPUB ebooks to PDF format for free. Fast, secure, and private EPUB to PDF converter that works in your browser.",
+  "keywords": "EPUB to PDF, ebook converter, EPUB converter, convert ebook to PDF, EPUB PDF conversion",
+  "ogTitle": "EPUB to PDF Converter - Free Online Ebook Converter",
+  "ogDescription": "Convert EPUB ebooks to PDF format instantly. 100% free and secure.",
+  "structuredData": {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "EPUB to PDF Converter",
+    "description": "Convert EPUB ebooks to PDF format",
+    "applicationCategory": "UtilityApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0"
+    }
+  }
+}
