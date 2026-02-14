@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import Button from '../../../shared/Button';
-import { useMode } from '../../../context/ModeContext';
 import mammoth from 'mammoth';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -12,7 +11,6 @@ const WordToPDF = () => {
     const [error, setError] = useState('');
     const [progress, setProgress] = useState(0);
     const fileInputRef = useRef(null);
-    const { isOnlineMode } = useMode();
 
     const handleFileSelect = (e) => {
         const selectedFile = e.target.files[0];

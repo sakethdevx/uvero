@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
@@ -120,9 +120,9 @@ const ImageCropper = () => {
         if (cropArea && imageDimensions) {
             drawCropOverlay();
         }
-    }, [cropArea, imageDimensions]);
+    }, [cropArea, imageDimensions, drawCropOverlay]);
 
-    const drawCropOverlay = () => {
+    const drawCropOverlay = useCallback(() => {
         if (!canvasRef.current || !imageUrl || !cropArea) return;
 
         const canvas = canvasRef.current;
@@ -171,7 +171,7 @@ const ImageCropper = () => {
             });
         };
         img.src = imageUrl;
-    };
+    }, [imageUrl, cropArea, imageDimensions]);
 
     const handleMouseDown = (e) => {
         if (!cropArea || !canvasRef.current) return;

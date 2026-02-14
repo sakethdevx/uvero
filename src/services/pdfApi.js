@@ -19,28 +19,28 @@ const API_CONFIG = {
  * Compress PDF using online API
  * Note: Most free PDF APIs require API keys
  */
-export async function compressPDFOnline(file, compressionLevel) {
+export async function compressPDFOnline() {
     throw new Error('Online PDF compression requires API key. Use offline mode for free compression.');
 }
 
 /**
  * Convert HTML to PDF using PDFShift (requires API key)
  */
-export async function htmlToPDFOnline(htmlContent) {
+export async function htmlToPDFOnline() {
     throw new Error('Online HTML to PDF requires API key. Use offline mode for free conversion.');
 }
 
 /**
  * Merge PDFs using online API
  */
-export async function mergePDFsOnline(files) {
+export async function mergePDFsOnline() {
     throw new Error('Online PDF merge requires API key. Use offline mode for free merging.');
 }
 
 /**
  * Split PDF using online API
  */
-export async function splitPDFOnline(file, pages) {
+export async function splitPDFOnline() {
     throw new Error('Online PDF split requires API key. Use offline mode for free splitting.');
 }
 
@@ -48,14 +48,14 @@ export async function splitPDFOnline(file, pages) {
  * Convert Word to PDF using online API
  * CloudConvert offers free tier with API key
  */
-export async function wordToPDFOnline(file) {
+export async function wordToPDFOnline() {
     throw new Error('Online Word to PDF requires API key. Use offline mode for DOCX conversion.');
 }
 
 /**
  * Check if online processing is available for a feature
  */
-export function isOnlineFeatureAvailable(feature) {
+export function isOnlineFeatureAvailable() {
     // Most PDF processing APIs require authentication
     return false;
 }

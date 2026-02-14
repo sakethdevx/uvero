@@ -32,7 +32,7 @@ const PDFSplitter = () => {
         try {
             const info = await processor.getPageInfo(selectedFile);
             setPageInfo(info);
-        } catch (err) {
+        } catch {
             setError('Failed to read PDF information');
         }
     };

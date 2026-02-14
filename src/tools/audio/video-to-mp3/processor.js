@@ -16,118 +16,116 @@ class VideoToMP3Processor {
      * @returns {Promise} Converted file result
      */
     async convert(file, bitrate, onProgress) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                if (onProgress) onProgress(10);
+        try {
+            if (onProgress) onProgress(10);
 
-                // Create object URL for video
-                const videoUrl = URL.createObjectURL(file);
+            // Create object URL for video
+            const videoUrl = URL.createObjectURL(file);
 
-                // Create video element
-                const video = document.createElement('video');
-                video.src = videoUrl;
-                video.muted = true;
+            // Create video element
+            const video = document.createElement('video');
+            video.src = videoUrl;
+            video.muted = true;
 
-                // Wait for video metadata to load
-                await new Promise((resolveLoad, rejectLoad) => {
-                    video.onloadedmetadata = resolveLoad;
-                    video.onerror = rejectLoad;
-                    video.load();
-                });
+            // Wait for video metadata to load
+            await new Promise((resolveLoad, rejectLoad) => {
+                video.onloadedmetadata = resolveLoad;
+                video.onerror = rejectLoad;
+                video.load();
+            });
 
-                if (onProgress) onProgress(20);
+            if (onProgress) onProgress(20);
 
-                const duration = video.duration;
+            const duration = video.duration;
 
-                // Create AudioContext for processing
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)({
-                    sampleRate: bitrate >= 192 ? 48000 : 44100
-                });
+            // Create AudioContext for processing
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                sampleRate: bitrate >= 192 ? 48000 : 44100
+            });
 
-                // Create media element source
-                const source = audioContext.createMediaElementSource(video);
-                const destination = audioContext.createMediaStreamDestination();
-                source.connect(destination);
+            // Create media element source
+            const source = audioContext.createMediaElementSource(video);
+            const destination = audioContext.createMediaStreamDestination();
+            source.connect(destination);
 
-                if (onProgress) onProgress(30);
+            if (onProgress) onProgress(30);
 
-                // Create MediaRecorder for audio encoding
-                const mediaRecorder = new MediaRecorder(destination.stream, {
-                    mimeType: 'audio/webm', // Browser will encode to WebM/Opus
-                    audioBitsPerSecond: bitrate * 1000
-                });
+            // Create MediaRecorder for audio encoding
+            const mediaRecorder = new MediaRecorder(destination.stream, {
+                mimeType: 'audio/webm', // Browser will encode to WebM/Opus
+                audioBitsPerSecond: bitrate * 1000
+            });
 
-                const chunks = [];
+            const chunks = [];
 
-                mediaRecorder.ondataavailable = (event) => {
-                    if (event.data.size > 0) {
-                        chunks.push(event.data);
-                    }
-                };
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    chunks.push(event.data);
+                }
+            };
 
-                if (onProgress) onProgress(40);
+            if (onProgress) onProgress(40);
 
-                // Start recording and playing video
-                mediaRecorder.start();
-                video.play();
+            // Start recording and playing video
+            mediaRecorder.start();
+            video.play();
 
-                if (onProgress) onProgress(50);
+            if (onProgress) onProgress(50);
 
-                // Update progress during playback
-                const progressInterval = setInterval(() => {
-                    if (video.currentTime > 0 && video.duration > 0) {
-                        const playbackProgress = (video.currentTime / video.duration) * 40; // 40% of progress
-                        if (onProgress) onProgress(50 + playbackProgress);
-                    }
-                }, 500);
+            // Update progress during playback
+            const progressInterval = setInterval(() => {
+                if (video.currentTime > 0 && video.duration > 0) {
+                    const playbackProgress = (video.currentTime / video.duration) * 40; // 40% of progress
+                    if (onProgress) onProgress(50 + playbackProgress);
+                }
+            }, 500);
 
-                // Wait for video to finish
-                await new Promise((resolveEnd) => {
-                    video.onended = resolveEnd;
-                });
+            // Wait for video to finish
+            await new Promise((resolveEnd) => {
+                video.onended = resolveEnd;
+            });
 
-                clearInterval(progressInterval);
-                if (onProgress) onProgress(90);
+            clearInterval(progressInterval);
+            if (onProgress) onProgress(90);
 
-                // Stop recording
-                mediaRecorder.stop();
+            // Stop recording
+            mediaRecorder.stop();
 
-                // Wait for final data
-                await new Promise((resolveStop) => {
-                    mediaRecorder.onstop = resolveStop;
-                });
+            // Wait for final data
+            await new Promise((resolveStop) => {
+                mediaRecorder.onstop = resolveStop;
+            });
 
-                // Create blob from chunks
-                const audioBlob = new Blob(chunks, { type: 'audio/mpeg' });
+            // Create blob from chunks
+            const audioBlob = new Blob(chunks, { type: 'audio/mpeg' });
 
-                // Clean up
-                URL.revokeObjectURL(videoUrl);
-                await audioContext.close();
+            // Clean up
+            URL.revokeObjectURL(videoUrl);
+            await audioContext.close();
 
-                if (onProgress) onProgress(100);
+            if (onProgress) onProgress(100);
 
-                // Create a new File object from the blob
-                const baseName = file.name.replace(/\.[^/.]+$/, '');
-                const newFileName = `${baseName}.mp3`;
-                const convertedFile = new File([audioBlob], newFileName, { type: 'audio/mpeg' });
+            // Create a new File object from the blob
+            const baseName = file.name.replace(/\.[^/.]+$/, '');
+            const newFileName = `${baseName}.mp3`;
+            const convertedFile = new File([audioBlob], newFileName, { type: 'audio/mpeg' });
 
-                // Format duration
-                const mins = Math.floor(duration / 60);
-                const secs = Math.floor(duration % 60);
-                const formattedDuration = `${mins}:${secs.toString().padStart(2, '0')}`;
+            // Format duration
+            const mins = Math.floor(duration / 60);
+            const secs = Math.floor(duration % 60);
+            const formattedDuration = `${mins}:${secs.toString().padStart(2, '0')}`;
 
-                resolve({
-                    file: convertedFile,
-                    blob: audioBlob,
-                    size: audioBlob.size,
-                    duration: formattedDuration
-                });
+            return {
+                file: convertedFile,
+                blob: audioBlob,
+                size: audioBlob.size,
+                duration: formattedDuration
+            };
 
-            } catch (error) {
-                console.error('Offline conversion error:', error);
-                reject(new Error(error.message || 'Failed to extract audio from video'));
-            }
-        });
+        } catch (error) {
+            console.error('Offline conversion error:', error);
+            throw new Error(error.message || 'Failed to extract audio from video');
+        }
     }
 
     /**

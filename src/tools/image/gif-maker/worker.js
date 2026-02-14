@@ -105,7 +105,7 @@ async function createGIFFromVideo(videoBuffer, fileName, options) {
 
     self.postMessage({ type: 'progress', progress: 15 });
 
-    const { quality, width, loop } = options;
+    const { width, loop } = options;
 
     // Get input file extension
     const ext = fileName ? fileName.split('.').pop().toLowerCase() : 'mp4';
