@@ -79,7 +79,7 @@ const split = (file, mode, spec, totalPages, onProgress = () => { }) => {
                 worker.removeEventListener('error', handleError);
 
                 const originalName = file.name.replace(/\.pdf$/i, '');
-                const files = data.pdfs.map((pdfData, index) => {
+                const files = data.pdfs.map((pdfData) => {
                     const url = URL.createObjectURL(pdfData.blob);
                     let filename;
 

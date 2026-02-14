@@ -27,7 +27,7 @@ export default function ImageConverter() {
             processor.terminate();
             if (previewUrl) URL.revokeObjectURL(previewUrl);
         };
-    }, []);
+    }, [previewUrl]);
 
     // Create preview URL when file is selected
     useEffect(() => {

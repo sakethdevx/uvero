@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';

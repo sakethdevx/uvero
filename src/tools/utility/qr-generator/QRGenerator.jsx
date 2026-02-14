@@ -36,12 +36,14 @@ const QRGenerator = () => {
                 return `mailto:${data}`;
             case 'phone':
                 return `tel:${data}`;
-            case 'sms':
+            case 'sms': {
                 const [phone, message] = data.split(':');
                 return `sms:${phone}${message ? `?body=${encodeURIComponent(message)}` : ''}`;
-            case 'wifi':
+            }
+            case 'wifi': {
                 const [ssid, password, security = 'WPA'] = data.split(':');
                 return `WIFI:T:${security};S:${ssid};P:${password};;`;
+            }
             default:
                 return data;
         }
@@ -112,7 +114,7 @@ const QRGenerator = () => {
             link.click();
 
             URL.revokeObjectURL(url);
-        } catch (err) {
+        } catch {
             setError('Failed to generate SVG. Please check your input.');
         }
     };

@@ -66,7 +66,7 @@ export async function compressImageOnline(file, quality) {
  * Convert image format using online API
  * Note: Most free APIs have rate limits
  */
-export async function convertImageOnline(file, targetFormat) {
+export async function convertImageOnline() {
     // For now, fallback to client-side for conversion
     // Free conversion APIs typically require API keys
     throw new Error('Online image conversion requires API key. Use offline mode for free conversion.');
@@ -75,7 +75,7 @@ export async function convertImageOnline(file, targetFormat) {
 /**
  * Resize image using online API
  */
-export async function resizeImageOnline(file, width, height) {
+export async function resizeImageOnline() {
     // Most free resize APIs require signup
     // For true free processing, client-side is better
     throw new Error('Online image resizing requires API key. Use offline mode for free resizing.');
@@ -84,7 +84,7 @@ export async function resizeImageOnline(file, width, height) {
 /**
  * Remove background using online API
  */
-export async function removeBackgroundOnline(file) {
+export async function removeBackgroundOnline() {
     // Remove.bg API (free tier: 50 images/month with API key)
     // For true free processing, use offline mode
     throw new Error('Online background removal requires API key. Use offline mode with AI model.');

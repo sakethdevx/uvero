@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Button from '../../../shared/Button';
 
 const UnitConverter = () => {
@@ -8,7 +9,7 @@ const UnitConverter = () => {
     const [inputValue, setInputValue] = useState('');
     const [result, setResult] = useState('');
 
-    const conversionData = {
+    const conversionData = useMemo(() => ({
         weight: {
             name: 'Weight',
             icon: '⚖️',
@@ -95,7 +96,7 @@ const UnitConverter = () => {
                 year: { name: 'Year (year)', toBase: 31557600 } // Average year (365.25 days)
             }
         }
-    };
+    }), []);
 
     const convertTemperature = (value, from, to) => {
         let celsius;
@@ -128,7 +129,7 @@ const UnitConverter = () => {
         }
     };
 
-    const convert = (value, from, to, cat) => {
+    const convert = useCallback((value, from, to, cat) => {
         if (!value || isNaN(value)) return '';
 
         const numValue = parseFloat(value);
@@ -145,7 +146,7 @@ const UnitConverter = () => {
         const convertedValue = baseValue / toFactor;
 
         return convertedValue;
-    };
+    }, [conversionData]);
 
     useEffect(() => {
         if (inputValue && !isNaN(inputValue)) {
@@ -156,7 +157,7 @@ const UnitConverter = () => {
         } else {
             setResult('');
         }
-    }, [inputValue, fromUnit, toUnit, category]);
+    }, [inputValue, fromUnit, toUnit, category, convert]);
 
     const handleCategoryChange = (newCategory) => {
         setCategory(newCategory);

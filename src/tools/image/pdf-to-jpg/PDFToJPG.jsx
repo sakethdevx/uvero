@@ -86,14 +86,6 @@ export default function PDFToJPG() {
         }
     };
 
-    const formatFileSize = (bytes) => {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
-    };
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50">
             {/* Hero Section */}

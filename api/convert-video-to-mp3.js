@@ -50,7 +50,7 @@ const getVideoDuration = async (videoPath) => {
         const mins = Math.floor(duration / 60);
         const secs = Math.floor(duration % 60);
         return `${mins}:${secs.toString().padStart(2, '0')}`;
-    } catch (error) {
+    } catch {
         return 'N/A';
     }
 };
@@ -135,10 +135,10 @@ export default async function handler(req, res) {
 
         // Clean up temporary files on error
         if (tempVideoPath && fs.existsSync(tempVideoPath)) {
-            try { fs.unlinkSync(tempVideoPath); } catch (e) { }
+            try { fs.unlinkSync(tempVideoPath); } catch { /* ignore cleanup errors */ }
         }
         if (tempAudioPath && fs.existsSync(tempAudioPath)) {
-            try { fs.unlinkSync(tempAudioPath); } catch (e) { }
+            try { fs.unlinkSync(tempAudioPath); } catch { /* ignore cleanup errors */ }
         }
 
         return res.status(500).json({

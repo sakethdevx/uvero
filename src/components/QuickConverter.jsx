@@ -257,7 +257,7 @@ export default function QuickConverter() {
                         );
                         break;
 
-                    case 'convert-image':
+                    case 'convert-image': {
                         const widthNum = width ? parseInt(width) : null;
                         const heightNum = height ? parseInt(height) : null;
                         result = await imageConverterProcessor.convert(
@@ -269,8 +269,9 @@ export default function QuickConverter() {
                             (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
                         );
                         break;
+                    }
 
-                    case 'resize-image':
+                    case 'resize-image': {
                         const resizeWidth = width ? parseInt(width) : 800;
                         const resizeHeight = height ? parseInt(height) : 600;
                         const resizeResult = await imageResizerProcessor.resize(
@@ -286,8 +287,9 @@ export default function QuickConverter() {
                             convertedSize: resizeResult.size
                         };
                         break;
+                    }
 
-                    case 'crop-image':
+                    case 'crop-image': {
                         // Auto-crop to center 80% of image
                         const cropImg = new Image();
                         const cropUrl = URL.createObjectURL(file);
@@ -315,8 +317,9 @@ export default function QuickConverter() {
                             convertedSize: cropResult.size
                         };
                         break;
+                    }
 
-                    case 'remove-background':
+                    case 'remove-background': {
                         const bgRemoveResult = await backgroundRemoverProcessor.removeBackground(
                             file,
                             'medium',
@@ -328,8 +331,9 @@ export default function QuickConverter() {
                             convertedSize: bgRemoveResult.blob.size
                         };
                         break;
+                    }
 
-                    case 'watermark':
+                    case 'watermark': {
                         // Add default text watermark
                         const watermarkResult = await watermarkProcessor.addWatermark(
                             file,
@@ -351,8 +355,9 @@ export default function QuickConverter() {
                             convertedSize: watermarkResult.size
                         };
                         break;
+                    }
 
-                    case 'image-to-pdf':
+                    case 'image-to-pdf': {
                         const pdfFromImageBlob = await imageToPdfProcessor.convert(
                             [file],
                             'fit',
@@ -364,8 +369,9 @@ export default function QuickConverter() {
                             convertedSize: pdfFromImageBlob.size
                         };
                         break;
+                    }
 
-                    case 'compress-pdf':
+                    case 'compress-pdf': {
                         const pdfBlob = await pdfCompressorProcessor.compress(
                             file,
                             pdfCompressionLevel,
@@ -377,8 +383,9 @@ export default function QuickConverter() {
                             convertedSize: pdfBlob.size
                         };
                         break;
+                    }
 
-                    case 'convert-pdf':
+                    case 'convert-pdf': {
                         const pdfImages = await pdfConverterProcessor.convert(
                             file,
                             outputFormat,
@@ -398,8 +405,9 @@ export default function QuickConverter() {
                             };
                         }
                         break;
+                    }
 
-                    case 'compress-audio':
+                    case 'compress-audio': {
                         const audioBlob = await audioCompressorProcessor.compress(
                             file,
                             parseInt(audioBitrate),
@@ -411,8 +419,9 @@ export default function QuickConverter() {
                             convertedSize: audioBlob.size
                         };
                         break;
+                    }
 
-                    case 'convert-audio':
+                    case 'convert-audio': {
                         const convertedAudio = await audioConverterProcessor.convert(
                             file,
                             outputFormat,
@@ -424,8 +433,9 @@ export default function QuickConverter() {
                             convertedSize: convertedAudio.blob.size
                         };
                         break;
+                    }
 
-                    case 'compress-video':
+                    case 'compress-video': {
                         const videoBlob = await videoCompressorProcessor.compress(
                             file,
                             videoQuality,
@@ -437,8 +447,9 @@ export default function QuickConverter() {
                             convertedSize: videoBlob.size
                         };
                         break;
+                    }
 
-                    case 'video-converter':
+                    case 'video-converter': {
                         const convertedVideo = await videoConverterProcessor.convert(
                             file,
                             outputFormat,
@@ -450,8 +461,9 @@ export default function QuickConverter() {
                             convertedSize: convertedVideo.blob.size
                         };
                         break;
+                    }
 
-                    case 'video-to-mp3':
+                    case 'video-to-mp3': {
                         const mp3Result = await videoToMp3Processor.convert(
                             file,
                             parseInt(audioBitrate) || 192,
@@ -463,8 +475,9 @@ export default function QuickConverter() {
                             convertedSize: mp3Result.blob.size
                         };
                         break;
+                    }
 
-                    case 'video-to-gif':
+                    case 'video-to-gif': {
                         const gifResult = await gifMakerProcessor.createGIF(
                             [file],
                             'video',
@@ -484,8 +497,9 @@ export default function QuickConverter() {
                             convertedSize: gifResult.size
                         };
                         break;
+                    }
 
-                    case 'word-to-pdf':
+                    case 'word-to-pdf': {
                         const wordPdfBlob = await wordToPdfProcessor.convert(
                             file,
                             (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
@@ -496,8 +510,9 @@ export default function QuickConverter() {
                             convertedSize: wordPdfBlob.size
                         };
                         break;
+                    }
 
-                    case 'excel-to-pdf':
+                    case 'excel-to-pdf': {
                         const excelPdfBlob = await excelToPdfProcessor.convert(
                             file,
                             (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
@@ -508,8 +523,9 @@ export default function QuickConverter() {
                             convertedSize: excelPdfBlob.size
                         };
                         break;
+                    }
 
-                    case 'powerpoint-to-pdf':
+                    case 'powerpoint-to-pdf': {
                         const pptPdfBlob = await powerpointToPdfProcessor.convert(
                             file,
                             (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
@@ -520,8 +536,9 @@ export default function QuickConverter() {
                             convertedSize: pptPdfBlob.size
                         };
                         break;
+                    }
 
-                    case 'epub-to-pdf':
+                    case 'epub-to-pdf': {
                         const epubPdfBlob = await epubToPdfProcessor.convert(
                             file,
                             (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
@@ -532,8 +549,9 @@ export default function QuickConverter() {
                             convertedSize: epubPdfBlob.size
                         };
                         break;
+                    }
 
-                    case 'split-pdf':
+                    case 'split-pdf': {
                         const splitResult = await pdfSplitterProcessor.split(
                             file,
                             pdfSplitMode,
@@ -549,8 +567,9 @@ export default function QuickConverter() {
                             isSplit: true
                         };
                         break;
+                    }
 
-                    case 'pdf-to-word':
+                    case 'pdf-to-word': {
                         const wordResult = await pdfToWordProcessor.convert(
                             file,
                             (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
@@ -561,8 +580,9 @@ export default function QuickConverter() {
                             convertedSize: wordResult.blob.size
                         };
                         break;
+                    }
 
-                    case 'pdf-to-excel':
+                    case 'pdf-to-excel': {
                         const excelResult = await pdfToExcelProcessor.convert(
                             file,
                             (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
@@ -573,8 +593,9 @@ export default function QuickConverter() {
                             convertedSize: excelResult.blob.size
                         };
                         break;
+                    }
 
-                    case 'pdf-to-powerpoint':
+                    case 'pdf-to-powerpoint': {
                         const pptResult = await pdfToPowerPointProcessor.convert(
                             file,
                             (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
@@ -585,6 +606,7 @@ export default function QuickConverter() {
                             convertedSize: pptResult.blob.size
                         };
                         break;
+                    }
 
                     default:
                         throw new Error(`Operation ${selectedOperation} is not yet supported in Quick Converter. Please use the dedicated tool page.`);

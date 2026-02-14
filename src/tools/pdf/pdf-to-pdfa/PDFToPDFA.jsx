@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import Button from '../../../shared/Button';
-import { useMode } from '../../../context/ModeContext';
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { PDFDocument, StandardFonts } from 'pdf-lib';
 
 const PDFToPDFA = () => {
     const [file, setFile] = useState(null);
@@ -10,7 +9,6 @@ const PDFToPDFA = () => {
     const [error, setError] = useState('');
     const [progress, setProgress] = useState(0);
     const fileInputRef = useRef(null);
-    const { isOnlineMode } = useMode();
 
     const handleFileSelect = (e) => {
         const selectedFile = e.target.files[0];
@@ -83,10 +81,6 @@ const PDFToPDFA = () => {
             // 4. XMP metadata with PDF/A identifier
             // This is a simplified conversion that adds metadata
             // For full PDF/A compliance, server-side processing would be needed
-
-            // Embed standard fonts (helps with PDF/A compliance)
-            const pages = pdfDoc.getPages();
-            const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
             setProgress(85);
 

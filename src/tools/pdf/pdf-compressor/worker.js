@@ -91,14 +91,14 @@ async function optimizePDF(pdfDoc, settings) {
 
         // Embed and subset fonts (helps reduce size)
         const form = pdfDoc.getForm();
-        const fields = form.getFields();
+        form.getFields();
 
         // Process all pages
         const pages = pdfDoc.getPages();
         for (const page of pages) {
             // Get page content - this helps optimize the page structure
             try {
-                const { width, height } = page.getSize();
+                page.getSize();
                 // Just accessing page properties helps pdf-lib optimize
                 page.getRotation();
             } catch (err) {

@@ -4,7 +4,7 @@
  */
 
 import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { toBlobURL, fetchFile } from '@ffmpeg/util';
+import { toBlobURL } from '@ffmpeg/util';
 
 let ffmpeg = null;
 let isLoaded = false;
@@ -31,7 +31,7 @@ async function initFFmpeg(onProgress) {
         });
 
         // Track progress
-        ffmpeg.on('progress', ({ progress, time }) => {
+        ffmpeg.on('progress', ({ progress }) => {
             if (onProgress) {
                 // FFmpeg progress is 0-1, convert to percentage
                 onProgress(Math.round(progress * 100));

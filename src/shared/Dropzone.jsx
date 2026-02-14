@@ -18,7 +18,7 @@ export default function Dropzone({ accept, onFileSelect, maxSize = 100 * 1024 * 
         setIsDragging(false);
     }, []);
 
-    const validateFile = (file) => {
+    const validateFile = useCallback((file) => {
         setError('');
 
         // Check file size
@@ -47,7 +47,7 @@ export default function Dropzone({ accept, onFileSelect, maxSize = 100 * 1024 * 
         }
 
         return true;
-    };
+    }, [accept, maxSize]);
 
     const handleDrop = useCallback((e) => {
         e.preventDefault();
@@ -68,7 +68,7 @@ export default function Dropzone({ accept, onFileSelect, maxSize = 100 * 1024 * 
                 }
             }
         }
-    }, [onFileSelect, accept, maxSize, multiple]);
+    }, [onFileSelect, multiple, validateFile]);
 
     const handleFileInput = (e) => {
         const files = Array.from(e.target.files);

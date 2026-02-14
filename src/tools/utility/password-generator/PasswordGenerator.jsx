@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useState, useEffect, useCallback } from 'react';
 import Button from '../../../shared/Button';
 
 const PasswordGenerator = () => {
@@ -11,7 +12,6 @@ const PasswordGenerator = () => {
     const [excludeSimilar, setExcludeSimilar] = useState(false);
     const [excludeAmbiguous, setExcludeAmbiguous] = useState(false);
     const [copied, setCopied] = useState(false);
-    const [strength, setStrength] = useState({ score: 0, label: '', color: '' });
 
     const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const lowercase = 'abcdefghijklmnopqrstuvwxyz';
@@ -20,7 +20,7 @@ const PasswordGenerator = () => {
     const similarChars = 'il1Lo0O';
     const ambiguousChars = '{}[]()/\\\'"`~,;:.<>';
 
-    const generatePassword = () => {
+    const generatePassword = useCallback(() => {
         let charset = '';
         let newPassword = '';
 
@@ -51,7 +51,7 @@ const PasswordGenerator = () => {
 
         setPassword(newPassword);
         setCopied(false);
-    };
+    }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludeAmbiguous]);
 
     const calculateStrength = (pwd) => {
         if (!pwd) return { score: 0, label: 'None', color: 'gray' };
@@ -79,11 +79,10 @@ const PasswordGenerator = () => {
 
     useEffect(() => {
         generatePassword();
-    }, [length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludeAmbiguous]);
+    }, [generatePassword]);
 
-    useEffect(() => {
-        setStrength(calculateStrength(password));
-    }, [password]);
+    // Calculate strength whenever password changes (derived state)
+    const strength = calculateStrength(password);
 
     const handleCopy = async () => {
         try {
