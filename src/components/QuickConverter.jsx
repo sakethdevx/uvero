@@ -6,13 +6,22 @@ import { useMode } from '../context/ModeContext';
 import imageCompressorProcessor from '../tools/image/image-compressor/processor';
 import imageConverterProcessor from '../tools/image/image-converter/processor';
 import { processor as imageResizerProcessor } from '../tools/image/image-resizer/processor';
+import { processor as imageCropperProcessor } from '../tools/image/image-cropper/processor';
+import { processor as backgroundRemoverProcessor } from '../tools/image/background-remover/processor';
+import { processor as watermarkProcessor } from '../tools/image/watermark/processor';
+import { processor as imageToPdfProcessor } from '../tools/image/image-to-pdf/processor';
+import { processor as gifMakerProcessor } from '../tools/image/gif-maker/processor';
 import { processor as pdfCompressorProcessor } from '../tools/pdf/pdf-compressor/processor';
 import { processor as pdfConverterProcessor } from '../tools/pdf/pdf-converter/processor';
 import { processor as pdfSplitterProcessor } from '../tools/pdf/pdf-splitter/processor';
+import { processor as pdfToWordProcessor } from '../tools/pdf/pdf-to-word/processor';
+import { processor as pdfToExcelProcessor } from '../tools/pdf/pdf-to-excel/processor';
+import { processor as pdfToPowerPointProcessor } from '../tools/pdf/pdf-to-powerpoint/processor';
 import { processor as audioCompressorProcessor } from '../tools/audio/audio-compressor/processor';
 import { processor as audioConverterProcessor } from '../tools/audio/audio-converter/processor';
 import { processor as videoCompressorProcessor } from '../tools/video/video-compressor/processor';
 import { processor as videoConverterProcessor } from '../tools/video/video-converter/processor';
+import videoToMp3Processor from '../tools/audio/video-to-mp3/processor';
 import wordToPdfProcessor from '../tools/pdf/word-to-pdf/processor';
 import excelToPdfProcessor from '../tools/pdf/excel-to-pdf/processor';
 import powerpointToPdfProcessor from '../tools/pdf/powerpoint-to-pdf/processor';
@@ -71,7 +80,10 @@ export default function QuickConverter() {
             operations.push(
                 { id: 'compress-pdf', name: 'Compress PDF', icon: '📄' },
                 { id: 'convert-pdf', name: 'PDF to Image', icon: '🖼️' },
-                { id: 'split-pdf', name: 'Split PDF', icon: '✂️' }
+                { id: 'split-pdf', name: 'Split PDF', icon: '✂️' },
+                { id: 'pdf-to-word', name: 'PDF to Word', icon: '📝' },
+                { id: 'pdf-to-excel', name: 'PDF to Excel', icon: '📊' },
+                { id: 'pdf-to-powerpoint', name: 'PDF to PowerPoint', icon: '📽️' }
             );
         }
 
@@ -229,6 +241,84 @@ export default function QuickConverter() {
                         };
                         break;
 
+                    case 'crop-image':
+                        // Auto-crop to center 80% of image
+                        const cropImg = new Image();
+                        const cropUrl = URL.createObjectURL(file);
+                        await new Promise((resolve, reject) => {
+                            cropImg.onload = resolve;
+                            cropImg.onerror = reject;
+                            cropImg.src = cropUrl;
+                        });
+                        const cropWidth = Math.floor(cropImg.width * 0.8);
+                        const cropHeight = Math.floor(cropImg.height * 0.8);
+                        const cropX = Math.floor(cropImg.width * 0.1);
+                        const cropY = Math.floor(cropImg.height * 0.1);
+                        URL.revokeObjectURL(cropUrl);
+                        
+                        const cropResult = await imageCropperProcessor.cropImage(
+                            file,
+                            { x: cropX, y: cropY, width: cropWidth, height: cropHeight },
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        const cropBlob = await fetch(cropResult.url).then(r => r.blob());
+                        URL.revokeObjectURL(cropResult.url);
+                        result = {
+                            file: new File([cropBlob], cropResult.filename, { type: 'image/png' }),
+                            originalSize: file.size,
+                            convertedSize: cropResult.size
+                        };
+                        break;
+
+                    case 'remove-background':
+                        const bgRemoveResult = await backgroundRemoverProcessor.removeBackground(
+                            file,
+                            'medium',
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([bgRemoveResult.blob], bgRemoveResult.filename, { type: 'image/png' }),
+                            originalSize: file.size,
+                            convertedSize: bgRemoveResult.blob.size
+                        };
+                        break;
+
+                    case 'watermark':
+                        // Add default text watermark
+                        const watermarkResult = await watermarkProcessor.addWatermark(
+                            file,
+                            {
+                                type: 'text',
+                                text: 'FileNext',
+                                fontSize: 48,
+                                opacity: 0.5,
+                                position: 'bottom-right',
+                                color: '#ffffff'
+                            },
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        const watermarkBlob = await fetch(watermarkResult.url).then(r => r.blob());
+                        URL.revokeObjectURL(watermarkResult.url);
+                        result = {
+                            file: new File([watermarkBlob], watermarkResult.filename, { type: 'image/png' }),
+                            originalSize: file.size,
+                            convertedSize: watermarkResult.size
+                        };
+                        break;
+
+                    case 'image-to-pdf':
+                        const pdfFromImageBlob = await imageToPdfProcessor.convert(
+                            [file],
+                            'fit',
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([pdfFromImageBlob], file.name.replace(/\.[^/.]+$/, '.pdf'), { type: 'application/pdf' }),
+                            originalSize: file.size,
+                            convertedSize: pdfFromImageBlob.size
+                        };
+                        break;
+
                     case 'compress-pdf':
                         const pdfBlob = await pdfCompressorProcessor.compress(
                             file,
@@ -315,6 +405,40 @@ export default function QuickConverter() {
                         };
                         break;
 
+                    case 'video-to-mp3':
+                        const mp3Result = await videoToMp3Processor.convert(
+                            file,
+                            parseInt(audioBitrate) || 192,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([mp3Result.blob], mp3Result.filename, { type: 'audio/mpeg' }),
+                            originalSize: file.size,
+                            convertedSize: mp3Result.blob.size
+                        };
+                        break;
+
+                    case 'video-to-gif':
+                        const gifResult = await gifMakerProcessor.createGIF(
+                            [file],
+                            'video',
+                            {
+                                frameDelay: 100,
+                                quality: 10,
+                                width: 480,
+                                loop: 0
+                            },
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        const gifBlob = await fetch(gifResult.url).then(r => r.blob());
+                        URL.revokeObjectURL(gifResult.url);
+                        result = {
+                            file: new File([gifBlob], gifResult.filename, { type: 'image/gif' }),
+                            originalSize: file.size,
+                            convertedSize: gifResult.size
+                        };
+                        break;
+
                     case 'word-to-pdf':
                         const wordPdfBlob = await wordToPdfProcessor.convert(
                             file,
@@ -377,6 +501,42 @@ export default function QuickConverter() {
                             files: splitResult.files,
                             originalSize: file.size,
                             isSplit: true
+                        };
+                        break;
+
+                    case 'pdf-to-word':
+                        const wordResult = await pdfToWordProcessor.convert(
+                            file,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([wordResult.blob], file.name.replace(/\.pdf$/i, '.docx'), { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }),
+                            originalSize: file.size,
+                            convertedSize: wordResult.blob.size
+                        };
+                        break;
+
+                    case 'pdf-to-excel':
+                        const excelResult = await pdfToExcelProcessor.convert(
+                            file,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([excelResult.blob], file.name.replace(/\.pdf$/i, '.xlsx'), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+                            originalSize: file.size,
+                            convertedSize: excelResult.blob.size
+                        };
+                        break;
+
+                    case 'pdf-to-powerpoint':
+                        const pptResult = await pdfToPowerPointProcessor.convert(
+                            file,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([pptResult.blob], file.name.replace(/\.pdf$/i, '.pptx'), { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' }),
+                            originalSize: file.size,
+                            convertedSize: pptResult.blob.size
                         };
                         break;
 
