@@ -113,8 +113,7 @@ function AppContent() {
       icon: '🛠️',
       tools: [
         { name: 'QR Code Generator', path: '/qr-generator' },
-        { name: 'Password Generator', path: '/password-generator' },
-        { name: 'Unit Converter', path: '/unit-converter' }
+        { name: 'Password Generator', path: '/password-generator' }
       ]
     }
   ];

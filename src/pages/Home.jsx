@@ -55,24 +55,24 @@ export default function Home() {
             <div className="relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-transparent to-blue-50 opacity-70" />
 
-                <div className="relative max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
+                <div className="relative max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
                     <div className="text-center">
-                        <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-6">
+                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-3">
                             File Processing,
                             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-blue-600">
                                 Made Simple
                             </span>
                         </h1>
 
-                        <p className="max-w-3xl mx-auto text-xl md:text-2xl text-gray-600 mb-8">
+                        <p className="max-w-3xl mx-auto text-base md:text-lg text-gray-600 mb-4">
                             26 powerful tools to convert, compress, and process your files right in your browser.
-                            <span className="block mt-2 font-semibold text-primary-700">
+                            <span className="block mt-1 font-semibold text-primary-700">
                                 No uploads. No data collection. 100% private.
                             </span>
                         </p>
 
                         {/* Key Features */}
-                        <div className="flex flex-wrap justify-center gap-4 mt-12">
+                        <div className="flex flex-wrap justify-center gap-2 mt-4">
                             {[
                                 { icon: '🔒', text: 'Privacy First' },
                                 { icon: '⚡', text: 'Lightning Fast' },
@@ -81,10 +81,10 @@ export default function Home() {
                             ].map((feature, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex items-center gap-2 px-5 py-3 bg-white rounded-full shadow-md border border-gray-200"
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full shadow-sm border border-gray-200"
                                 >
-                                    <span className="text-2xl">{feature.icon}</span>
-                                    <span className="font-semibold text-gray-800">{feature.text}</span>
+                                    <span className="text-lg">{feature.icon}</span>
+                                    <span className="font-semibold text-gray-800 text-xs">{feature.text}</span>
                                 </div>
                             ))}
                         </div>
@@ -93,7 +93,7 @@ export default function Home() {
             </div>
 
             {/* Quick Converter Section */}
-            <div className="bg-gradient-to-b from-gray-50 to-white py-16">
+            <div className="bg-gradient-to-b from-gray-50 to-white py-4">
                 <QuickConverter />
             </div>
 
