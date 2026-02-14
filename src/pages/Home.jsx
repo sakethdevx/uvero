@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { getAllTools, getPopularTools } from '../tools';
+import { getPopularTools } from '../tools';
 import { useMode } from '../context/ModeContext';
+import QuickConverter from '../components/QuickConverter';
 
 /**
  * Home Page
@@ -8,7 +9,6 @@ import { useMode } from '../context/ModeContext';
  */
 export default function Home() {
     const popularTools = getPopularTools();
-    const allTools = getAllTools();
     const { isOnlineMode } = useMode();
 
     const categories = [
@@ -90,6 +90,11 @@ export default function Home() {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Quick Converter Section */}
+            <div className="bg-gradient-to-b from-gray-50 to-white py-16">
+                <QuickConverter />
             </div>
 
             {/* Popular Tools Section */}
