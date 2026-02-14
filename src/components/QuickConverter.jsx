@@ -14,6 +14,7 @@ import { processor as gifMakerProcessor } from '../tools/image/gif-maker/process
 import { processor as pdfCompressorProcessor } from '../tools/pdf/pdf-compressor/processor';
 import { processor as pdfConverterProcessor } from '../tools/pdf/pdf-converter/processor';
 import { processor as pdfSplitterProcessor } from '../tools/pdf/pdf-splitter/processor';
+import { processor as pdfMergerProcessor } from '../tools/pdf/pdf-merger/processor';
 import { processor as pdfToWordProcessor } from '../tools/pdf/pdf-to-word/processor';
 import { processor as pdfToExcelProcessor } from '../tools/pdf/pdf-to-excel/processor';
 import { processor as pdfToPowerPointProcessor } from '../tools/pdf/pdf-to-powerpoint/processor';
@@ -81,6 +82,7 @@ export default function QuickConverter() {
                 { id: 'compress-pdf', name: 'Compress PDF', icon: '📄' },
                 { id: 'convert-pdf', name: 'PDF to Image', icon: '🖼️' },
                 { id: 'split-pdf', name: 'Split PDF', icon: '✂️' },
+                { id: 'merge-pdf', name: 'Merge PDFs', icon: '📑' },
                 { id: 'pdf-to-word', name: 'PDF to Word', icon: '📝' },
                 { id: 'pdf-to-excel', name: 'PDF to Excel', icon: '📊' },
                 { id: 'pdf-to-powerpoint', name: 'PDF to PowerPoint', icon: '📽️' }
@@ -195,6 +197,50 @@ export default function QuickConverter() {
         const processedResults = [];
 
         try {
+            // Special handling for merge-pdf - operates on all files at once
+            if (selectedOperation === 'merge-pdf') {
+                // Validate all files are PDFs
+                const allPdfs = files.every(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+                if (!allPdfs) {
+                    throw new Error('All files must be PDF files for merging');
+                }
+                if (files.length < 2) {
+                    throw new Error('Please select at least 2 PDF files to merge');
+                }
+
+                const mergeResult = await pdfMergerProcessor.merge(
+                    files,
+                    (prog) => setProgress(prog)
+                );
+                
+                const mergeBlob = await fetch(mergeResult.url).then(r => r.blob());
+                URL.revokeObjectURL(mergeResult.url);
+                
+                const result = {
+                    file: new File([mergeBlob], mergeResult.filename, { type: 'application/pdf' }),
+                    originalSize: files.reduce((sum, f) => sum + f.size, 0),
+                    convertedSize: mergeResult.size,
+                    note: `Merged ${files.length} PDF files`
+                };
+                
+                // For merged PDFs, create a pseudo-original that represents all input files
+                const mergedOriginal = new File([], `${files.length} PDF files`, { type: 'application/pdf' });
+                Object.defineProperty(mergedOriginal, 'size', { value: result.originalSize });
+                
+                processedResults.push({
+                    original: mergedOriginal,
+                    result: result,
+                    index: 0,
+                    isMerged: true,
+                    sourceFiles: files.map(f => f.name)
+                });
+                
+                setProgress(100);
+                setResults(processedResults);
+                setIsProcessing(false);
+                return;
+            }
+
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 let result;
