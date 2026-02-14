@@ -11,13 +11,10 @@ import { useMode } from '../context/ModeContext';
  */
 export default function QuickConverter() {
     const navigate = useNavigate();
-    const { isOnlineMode } = useMode();
+    const { isOnlineMode: _isOnlineMode } = useMode(); // Reserved for future mode-based filtering
     const [files, setFiles] = useState([]);
     const [selectedOperation, setSelectedOperation] = useState('');
     const [error, setError] = useState('');
-
-    // Avoid unused variable warnings
-    console.log(isOnlineMode); // Mode may affect available operations in future
 
     // Detect file type and suggest operations
     const getOperationsForFile = (file) => {
@@ -125,18 +122,8 @@ export default function QuickConverter() {
     const handleProcess = () => {
         if (!selectedOperation || files.length === 0) return;
 
-        // Navigate to the tool page with files
-        // Store files in sessionStorage for the tool to access
-        sessionStorage.setItem('quickConverterFiles', JSON.stringify(
-            files.map(f => ({
-                name: f.name,
-                type: f.type,
-                size: f.size
-            }))
-        ));
-
-        // Store actual file objects in a way that can be retrieved
-        // We'll pass the File objects directly via state
+        // Navigate to the tool page with files passed via state
+        // Files are passed as File objects through React Router state
         navigate(`/${selectedOperation}`, { 
             state: { 
                 files: files,
