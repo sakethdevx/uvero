@@ -12,6 +12,10 @@ import { processor as audioCompressorProcessor } from '../tools/audio/audio-comp
 import { processor as audioConverterProcessor } from '../tools/audio/audio-converter/processor';
 import { processor as videoCompressorProcessor } from '../tools/video/video-compressor/processor';
 import { processor as videoConverterProcessor } from '../tools/video/video-converter/processor';
+import wordToPdfProcessor from '../tools/pdf/word-to-pdf/processor';
+import excelToPdfProcessor from '../tools/pdf/excel-to-pdf/processor';
+import powerpointToPdfProcessor from '../tools/pdf/powerpoint-to-pdf/processor';
+import epubToPdfProcessor from '../tools/document/epub-to-pdf/processor';
 
 /**
  * Quick Converter Component
@@ -294,6 +298,54 @@ export default function QuickConverter() {
                             file: new File([convertedVideo.blob], convertedVideo.filename, { type: convertedVideo.blob.type }),
                             originalSize: file.size,
                             convertedSize: convertedVideo.blob.size
+                        };
+                        break;
+
+                    case 'word-to-pdf':
+                        const wordPdfBlob = await wordToPdfProcessor.convert(
+                            file,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([wordPdfBlob], file.name.replace(/\.(doc|docx)$/i, '.pdf'), { type: 'application/pdf' }),
+                            originalSize: file.size,
+                            convertedSize: wordPdfBlob.size
+                        };
+                        break;
+
+                    case 'excel-to-pdf':
+                        const excelPdfBlob = await excelToPdfProcessor.convert(
+                            file,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([excelPdfBlob], file.name.replace(/\.(xls|xlsx)$/i, '.pdf'), { type: 'application/pdf' }),
+                            originalSize: file.size,
+                            convertedSize: excelPdfBlob.size
+                        };
+                        break;
+
+                    case 'powerpoint-to-pdf':
+                        const pptPdfBlob = await powerpointToPdfProcessor.convert(
+                            file,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([pptPdfBlob], file.name.replace(/\.(ppt|pptx)$/i, '.pdf'), { type: 'application/pdf' }),
+                            originalSize: file.size,
+                            convertedSize: pptPdfBlob.size
+                        };
+                        break;
+
+                    case 'epub-to-pdf':
+                        const epubPdfBlob = await epubToPdfProcessor.convert(
+                            file,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([epubPdfBlob], file.name.replace(/\.epub$/i, '.pdf'), { type: 'application/pdf' }),
+                            originalSize: file.size,
+                            convertedSize: epubPdfBlob.size
                         };
                         break;
 
