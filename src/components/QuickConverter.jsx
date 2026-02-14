@@ -261,8 +261,10 @@ export default function QuickConverter() {
                             { x: cropX, y: cropY, width: cropWidth, height: cropHeight },
                             (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
                         );
+                        const cropBlob = await fetch(cropResult.url).then(r => r.blob());
+                        URL.revokeObjectURL(cropResult.url);
                         result = {
-                            file: new File([await fetch(cropResult.url).then(r => r.blob())], cropResult.filename, { type: 'image/png' }),
+                            file: new File([cropBlob], cropResult.filename, { type: 'image/png' }),
                             originalSize: file.size,
                             convertedSize: cropResult.size
                         };
@@ -295,8 +297,10 @@ export default function QuickConverter() {
                             },
                             (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
                         );
+                        const watermarkBlob = await fetch(watermarkResult.url).then(r => r.blob());
+                        URL.revokeObjectURL(watermarkResult.url);
                         result = {
-                            file: new File([await fetch(watermarkResult.url).then(r => r.blob())], watermarkResult.filename, { type: 'image/png' }),
+                            file: new File([watermarkBlob], watermarkResult.filename, { type: 'image/png' }),
                             originalSize: file.size,
                             convertedSize: watermarkResult.size
                         };
@@ -426,8 +430,10 @@ export default function QuickConverter() {
                             },
                             (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
                         );
+                        const gifBlob = await fetch(gifResult.url).then(r => r.blob());
+                        URL.revokeObjectURL(gifResult.url);
                         result = {
-                            file: new File([await fetch(gifResult.url).then(r => r.blob())], gifResult.filename, { type: 'image/gif' }),
+                            file: new File([gifBlob], gifResult.filename, { type: 'image/gif' }),
                             originalSize: file.size,
                             convertedSize: gifResult.size
                         };
