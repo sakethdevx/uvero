@@ -13,7 +13,6 @@ const HashGenerator = () => {
     const [copiedHash, setCopiedHash] = useState('');
 
     const algorithms = [
-        { id: 'MD5', name: 'MD5', description: '128-bit (Legacy, not secure)' },
         { id: 'SHA-1', name: 'SHA-1', description: '160-bit (Legacy)' },
         { id: 'SHA-256', name: 'SHA-256', description: '256-bit (Recommended)' },
         { id: 'SHA-384', name: 'SHA-384', description: '384-bit' },
@@ -75,11 +74,6 @@ const HashGenerator = () => {
             }
 
             for (const algorithm of selectedAlgorithms) {
-                // MD5 is not supported by Web Crypto API, skip it
-                if (algorithm === 'MD5') {
-                    newHashes[algorithm] = 'MD5 not supported in browser - use SHA-256 instead';
-                    continue;
-                }
                 const hash = await generateHash(data, algorithm);
                 newHashes[algorithm] = hash;
             }
@@ -124,7 +118,8 @@ const HashGenerator = () => {
         const k = 1024;
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        const divisor = Math.pow(k, i);
+        return Math.round(bytes / divisor * 100) / 100 + ' ' + sizes[i];
     };
 
     return (
@@ -386,7 +381,7 @@ const HashGenerator = () => {
                         <div>
                             <h3 className="font-semibold text-gray-900 mb-2">Which algorithm should I use?</h3>
                             <p className="text-gray-600">
-                                For most modern applications, SHA-256 is recommended as it provides excellent security with good performance. SHA-512 offers even higher security. MD5 and SHA-1 are legacy algorithms and should only be used for compatibility with older systems.
+                                For most modern applications, SHA-256 is recommended as it provides excellent security with good performance. SHA-512 offers even higher security for maximum protection. SHA-1 is a legacy algorithm and should only be used for compatibility with older systems.
                             </p>
                         </div>
 

@@ -1,9 +1,8 @@
 {
-    "title": "Hash Generator - Free Online MD5, SHA-256, SHA-512 Hash Tool",
-    "description": "Generate cryptographic hashes for text or files using MD5, SHA-1, SHA-256, SHA-384, SHA-512. Free, secure, and privacy-focused hash generator that works entirely in your browser.",
+    "title": "Hash Generator - Free Online SHA-256, SHA-512 Hash Tool",
+    "description": "Generate cryptographic hashes for text or files using SHA-1, SHA-256, SHA-384, SHA-512. Free, secure, and privacy-focused hash generator that works entirely in your browser.",
     "keywords": [
         "hash generator",
-        "MD5 generator",
         "SHA-256 generator",
         "SHA-512 generator",
         "checksum generator",
