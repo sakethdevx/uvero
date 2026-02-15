@@ -143,12 +143,12 @@ export default function Home() {
 
                         {/* CTA Buttons */}
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                            <Link to="/compress-image" className="btn-primary inline-flex items-center gap-2 text-base">
+                            <a href="#quick-convert" className="btn-primary inline-flex items-center gap-2 text-base">
                                 Start Converting
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                                 </svg>
-                            </Link>
+                            </a>
                             <a href="#tools" className="btn-secondary inline-flex items-center gap-2 text-base">
                                 Browse All Tools
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -179,7 +179,7 @@ export default function Home() {
             </section>
 
             {/* Quick Converter Section */}
-            <section className="py-4 sm:py-6">
+            <section id="quick-convert" className="py-4 sm:py-6 scroll-mt-20">
                 <QuickConverter />
             </section>
 
@@ -354,21 +354,21 @@ export default function Home() {
                         Pick a tool and start processing your files instantly. No sign-up required.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <Link
-                            to="/compress-image"
+                        <a
+                            href="#tools"
                             className="inline-flex items-center gap-2 bg-white text-primary-700 font-semibold py-3.5 px-7 rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-xl shadow-black/10 hover:-translate-y-0.5"
                         >
-                            Try Image Compressor
+                            Browse All Tools
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                             </svg>
-                        </Link>
-                        <Link
-                            to="/compress-pdf"
+                        </a>
+                        <a
+                            href="#quick-convert"
                             className="inline-flex items-center gap-2 bg-white/10 text-white font-semibold py-3.5 px-7 rounded-xl hover:bg-white/20 transition-all duration-300 border border-white/20 hover:-translate-y-0.5"
                         >
-                            Try PDF Compressor
-                        </Link>
+                            Try Quick Converter
+                        </a>
                     </div>
                 </div>
             </section>

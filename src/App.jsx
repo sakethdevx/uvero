@@ -224,12 +224,12 @@ function AppContent() {
               >
                 Privacy
               </Link>
-              <Link
-                to="/compress-image"
+              <a
+                href="/#tools"
                 className="btn-primary text-sm !py-2.5 !px-5"
               >
                 Get Started
-              </Link>
+              </a>
             </div>
 
             {/* Mobile Menu Button */}
@@ -285,13 +285,13 @@ function AppContent() {
                   >
                     Privacy
                   </Link>
-                  <Link
-                    to="/compress-image"
+                  <a
+                    href="/#tools"
                     className="btn-primary text-sm w-full text-center block"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Get Started
-                  </Link>
+                  </a>
                 </div>
               </div>
             </div>
