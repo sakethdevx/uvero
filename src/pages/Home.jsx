@@ -238,7 +238,7 @@ export default function Home() {
                         </div>
 
                         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                            {popularTools.slice(0, 12).map((tool) => {
+                            {popularTools.slice(0, 9).map((tool) => {
                                 const isAvailable = tool.modes.includes(isOnlineMode ? 'online' : 'offline');
                                 const isOfflineOnly = tool.modes.length === 1 && tool.modes[0] === 'offline';
                                 const isOnlineOnly = tool.modes.length === 1 && tool.modes[0] === 'online';
@@ -297,6 +297,17 @@ export default function Home() {
                                 );
                             })}
                         </div>
+
+                        {popularTools.length > 9 && (
+                            <div className="text-center mt-8">
+                                <a href="#tools" className="btn-secondary inline-flex items-center gap-2 text-sm">
+                                    View All {popularTools.length}+ Tools
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </a>
+                            </div>
+                        )}
                     </div>
                 </section>
             )}
