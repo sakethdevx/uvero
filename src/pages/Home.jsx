@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getPopularTools } from '../tools';
+import { getPopularTools, getToolsByCategory } from '../tools';
 import { useMode } from '../context/ModeContext';
 import QuickConverter from '../components/QuickConverter';
 
@@ -10,6 +11,7 @@ import QuickConverter from '../components/QuickConverter';
 export default function Home() {
     const popularTools = getPopularTools();
     const { isOnlineMode } = useMode();
+    const [expandedCategory, setExpandedCategory] = useState(null);
 
     const categories = [
         {
@@ -18,7 +20,7 @@ export default function Home() {
             description: 'Compress, convert, resize, crop, and optimize images',
             gradient: 'from-sky-500 to-blue-600',
             bg: 'bg-sky-50',
-            link: '/compress-image',
+            categoryId: 'image',
             count: 11
         },
         {
@@ -27,7 +29,7 @@ export default function Home() {
             description: 'Merge, split, compress, and convert PDF files',
             gradient: 'from-rose-500 to-pink-600',
             bg: 'bg-rose-50',
-            link: '/compress-pdf',
+            categoryId: 'pdf',
             count: 12
         },
         {
@@ -36,7 +38,7 @@ export default function Home() {
             description: 'Convert and compress audio files',
             gradient: 'from-violet-500 to-purple-600',
             bg: 'bg-violet-50',
-            link: '/compress-audio',
+            categoryId: 'audio',
             count: 5
         },
         {
@@ -45,7 +47,7 @@ export default function Home() {
             description: 'Compress and convert video files',
             gradient: 'from-emerald-500 to-green-600',
             bg: 'bg-emerald-50',
-            link: '/compress-video',
+            categoryId: 'video',
             count: 5
         },
         {
@@ -54,7 +56,7 @@ export default function Home() {
             description: 'Convert documents and ebooks between formats',
             gradient: 'from-amber-500 to-orange-600',
             bg: 'bg-amber-50',
-            link: '/epub-to-pdf',
+            categoryId: 'document',
             count: 3
         },
         {
@@ -63,7 +65,7 @@ export default function Home() {
             description: 'QR codes, passwords, converters, and more',
             gradient: 'from-cyan-500 to-teal-600',
             bg: 'bg-cyan-50',
-            link: '/qr-generator',
+            categoryId: 'utility',
             count: 8
         }
     ];
@@ -191,38 +193,62 @@ export default function Home() {
                 </div>
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {categories.map((category, idx) => (
-                        <Link
-                            key={idx}
-                            to={category.link}
-                            className="group relative p-6 rounded-2xl bg-white border border-gray-100 hover:border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-                        >
-                            {/* Hover gradient background */}
-                            <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-300`} />
+                    {categories.map((category, idx) => {
+                        const isExpanded = expandedCategory === category.categoryId;
+                        const categoryTools = isExpanded ? getToolsByCategory(category.categoryId) : [];
 
-                            <div className="relative flex items-start gap-4">
-                                <div className={`flex-shrink-0 w-14 h-14 ${category.bg} rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300`}>
-                                    {category.icon}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1.5">
-                                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary-600 transition-colors">
-                                            {category.name}
-                                        </h3>
-                                        <span className="text-xs font-semibold px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors">
-                                            {category.count}
-                                        </span>
+                        return (
+                            <div key={idx} className="flex flex-col">
+                                <button
+                                    onClick={() => setExpandedCategory(isExpanded ? null : category.categoryId)}
+                                    className="group relative p-6 rounded-2xl bg-white border border-gray-100 hover:border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden text-left w-full"
+                                >
+                                    {/* Hover gradient background */}
+                                    <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-0 group-hover:opacity-[0.03] transition-opacity duration-300`} />
+
+                                    <div className="relative flex items-start gap-4">
+                                        <div className={`flex-shrink-0 w-14 h-14 ${category.bg} rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300`}>
+                                            {category.icon}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1.5">
+                                                <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary-600 transition-colors">
+                                                    {category.name}
+                                                </h3>
+                                                <span className="text-xs font-semibold px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors">
+                                                    {category.count}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-gray-500 leading-relaxed">
+                                                {category.description}
+                                            </p>
+                                        </div>
+                                        <svg className={`w-5 h-5 text-gray-300 group-hover:text-primary-500 transition-all flex-shrink-0 mt-1 ${isExpanded ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                        </svg>
                                     </div>
-                                    <p className="text-sm text-gray-500 leading-relaxed">
-                                        {category.description}
-                                    </p>
-                                </div>
-                                <svg className="w-5 h-5 text-gray-300 group-hover:text-primary-500 group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                                </svg>
+                                </button>
+
+                                {/* Expanded tools list */}
+                                {isExpanded && categoryTools.length > 0 && (
+                                    <div className="mt-2 p-4 bg-white border border-gray-100 rounded-2xl shadow-sm animate-fade-in-down">
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {categoryTools.map((tool) => (
+                                                <Link
+                                                    key={tool.id}
+                                                    to={`/${tool.id}`}
+                                                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-sm text-gray-700 hover:text-primary-600 transition-colors"
+                                                >
+                                                    <span className="text-base">{tool.icon}</span>
+                                                    <span className="truncate font-medium">{tool.name}</span>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        </Link>
-                    ))}
+                        );
+                    })}
                 </div>
             </section>
 
