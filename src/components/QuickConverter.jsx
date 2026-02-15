@@ -27,6 +27,14 @@ import wordToPdfProcessor from '../tools/pdf/word-to-pdf/processor';
 import excelToPdfProcessor from '../tools/pdf/excel-to-pdf/processor';
 import powerpointToPdfProcessor from '../tools/pdf/powerpoint-to-pdf/processor';
 import epubToPdfProcessor from '../tools/document/epub-to-pdf/processor';
+import { processor as rotatePdfProcessor } from '../tools/pdf/rotate-pdf/processor';
+import { processor as repairPdfProcessor } from '../tools/pdf/repair-pdf/processor';
+import { processor as cropPdfProcessor } from '../tools/pdf/crop-pdf/processor';
+import { processor as pageNumbersProcessor } from '../tools/pdf/page-numbers/processor';
+import { processor as watermarkPdfProcessor } from '../tools/pdf/watermark-pdf/processor';
+import { processor as ocrPdfProcessor } from '../tools/pdf/ocr-pdf/processor';
+import { processor as unlockPdfProcessor } from '../tools/pdf/unlock-pdf/processor';
+import { processor as protectPdfProcessor } from '../tools/pdf/protect-pdf/processor';
 
 /**
  * Quick Converter Component
@@ -85,7 +93,21 @@ export default function QuickConverter() {
                 { id: 'merge-pdf', name: 'Merge PDFs', icon: '📑' },
                 { id: 'pdf-to-word', name: 'PDF to Word', icon: '📝' },
                 { id: 'pdf-to-excel', name: 'PDF to Excel', icon: '📊' },
-                { id: 'pdf-to-powerpoint', name: 'PDF to PowerPoint', icon: '📽️' }
+                { id: 'pdf-to-powerpoint', name: 'PDF to PowerPoint', icon: '📽️' },
+                { id: 'edit-pdf', name: 'Edit PDF', icon: '✏️' },
+                { id: 'sign-pdf', name: 'Sign PDF', icon: '✍️' },
+                { id: 'rotate-pdf', name: 'Rotate PDF', icon: '🔄' },
+                { id: 'watermark-pdf', name: 'Watermark PDF', icon: '💧' },
+                { id: 'protect-pdf', name: 'Protect PDF', icon: '🔒' },
+                { id: 'unlock-pdf', name: 'Unlock PDF', icon: '🔓' },
+                { id: 'organize-pdf', name: 'Organize PDF', icon: '📋' },
+                { id: 'page-numbers', name: 'Page Numbers', icon: '#️⃣' },
+                { id: 'repair-pdf', name: 'Repair PDF', icon: '🔧' },
+                { id: 'crop-pdf', name: 'Crop PDF', icon: '✂️' },
+                { id: 'redact-pdf', name: 'Redact PDF', icon: '🔏' },
+                { id: 'ocr-pdf', name: 'OCR PDF', icon: '👁️' },
+                { id: 'compare-pdf', name: 'Compare PDF', icon: '🔍' },
+                { id: 'translate-pdf', name: 'Translate PDF', icon: '🌐' }
             );
         }
 
@@ -607,6 +629,135 @@ export default function QuickConverter() {
                         };
                         break;
                     }
+
+                    case 'rotate-pdf': {
+                        const rotatedBlob = await rotatePdfProcessor.rotate(
+                            file,
+                            90,
+                            'all',
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([rotatedBlob], `rotated_${file.name}`, { type: 'application/pdf' }),
+                            originalSize: file.size,
+                            convertedSize: rotatedBlob.size,
+                            note: 'Rotated 90° clockwise'
+                        };
+                        break;
+                    }
+
+                    case 'repair-pdf': {
+                        const repairResult = await repairPdfProcessor.repair(
+                            file,
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([repairResult.blob], `repaired_${file.name}`, { type: 'application/pdf' }),
+                            originalSize: file.size,
+                            convertedSize: repairResult.blob.size,
+                            note: `Recovered ${repairResult.pagesRecovered} pages`
+                        };
+                        break;
+                    }
+
+                    case 'crop-pdf': {
+                        const croppedBlob = await cropPdfProcessor.crop(
+                            file,
+                            { top: 20, right: 20, bottom: 20, left: 20, allPages: true },
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([croppedBlob], `cropped_${file.name}`, { type: 'application/pdf' }),
+                            originalSize: file.size,
+                            convertedSize: croppedBlob.size,
+                            note: 'Cropped with 20pt margins'
+                        };
+                        break;
+                    }
+
+                    case 'page-numbers': {
+                        const numberedBlob = await pageNumbersProcessor.addPageNumbers(
+                            file,
+                            { position: 'bottom-center', startNumber: 1, fontSize: 12, format: 'plain', color: '#000000', margin: 30 },
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([numberedBlob], `numbered_${file.name}`, { type: 'application/pdf' }),
+                            originalSize: file.size,
+                            convertedSize: numberedBlob.size,
+                            note: 'Added page numbers (bottom center)'
+                        };
+                        break;
+                    }
+
+                    case 'watermark-pdf': {
+                        const watermarkedBlob = await watermarkPdfProcessor.addWatermark(
+                            file,
+                            { type: 'text', text: 'CONFIDENTIAL', fontSize: 48, color: '#ff0000', opacity: 0.3, rotation: -45, position: 'center' },
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([watermarkedBlob], `watermarked_${file.name}`, { type: 'application/pdf' }),
+                            originalSize: file.size,
+                            convertedSize: watermarkedBlob.size,
+                            note: 'Added "CONFIDENTIAL" watermark'
+                        };
+                        break;
+                    }
+
+                    case 'ocr-pdf': {
+                        const ocrResult = await ocrPdfProcessor.processOCR(
+                            file,
+                            'eng',
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        const ocrBlob = ocrResult.blob;
+                        result = {
+                            file: new File([ocrBlob], ocrResult.filename, { type: 'application/pdf' }),
+                            originalSize: file.size,
+                            convertedSize: ocrBlob.size,
+                            note: `Extracted text from ${ocrResult.totalPages} pages`
+                        };
+                        break;
+                    }
+
+                    case 'unlock-pdf': {
+                        const unlockedBlob = await unlockPdfProcessor.unlock(
+                            file,
+                            '',
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([unlockedBlob], `unlocked_${file.name}`, { type: 'application/pdf' }),
+                            originalSize: file.size,
+                            convertedSize: unlockedBlob.size
+                        };
+                        break;
+                    }
+
+                    case 'protect-pdf': {
+                        const protectedBlob = await protectPdfProcessor.protect(
+                            file,
+                            'password',
+                            { allowPrinting: true, allowCopying: false },
+                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
+                        );
+                        result = {
+                            file: new File([protectedBlob], `protected_${file.name}`, { type: 'application/pdf' }),
+                            originalSize: file.size,
+                            convertedSize: protectedBlob.size,
+                            note: 'Protected with password'
+                        };
+                        break;
+                    }
+
+                    case 'edit-pdf':
+                    case 'sign-pdf':
+                    case 'organize-pdf':
+                    case 'redact-pdf':
+                    case 'compare-pdf':
+                    case 'translate-pdf':
+                        throw new Error(`"${selectedOperation}" requires the full tool interface. Please visit the dedicated tool page at /${selectedOperation} for this operation.`);
 
                     default:
                         throw new Error(`Operation ${selectedOperation} is not yet supported in Quick Converter. Please use the dedicated tool page.`);

@@ -100,6 +100,36 @@ import RARToZip from './archive/rar-to-zip/RARToZip';
 import rarToZipSEO from './archive/rar-to-zip/seo.json';
 import ArchiveConverter from './archive/archive-converter/ArchiveConverter';
 import archiveConverterSEO from './archive/archive-converter/seo.json';
+import RotatePdf from './pdf/rotate-pdf/RotatePdf';
+import rotatePdfSEO from './pdf/rotate-pdf/seo.json';
+import WatermarkPdf from './pdf/watermark-pdf/WatermarkPdf';
+import watermarkPdfSEO from './pdf/watermark-pdf/seo.json';
+import ProtectPdf from './pdf/protect-pdf/ProtectPdf';
+import protectPdfSEO from './pdf/protect-pdf/seo.json';
+import UnlockPdf from './pdf/unlock-pdf/UnlockPdf';
+import unlockPdfSEO from './pdf/unlock-pdf/seo.json';
+import PageNumbers from './pdf/page-numbers/PageNumbers';
+import pageNumbersSEO from './pdf/page-numbers/seo.json';
+import OrganizePdf from './pdf/organize-pdf/OrganizePdf';
+import organizePdfSEO from './pdf/organize-pdf/seo.json';
+import RepairPdf from './pdf/repair-pdf/RepairPdf';
+import repairPdfSEO from './pdf/repair-pdf/seo.json';
+import CropPdf from './pdf/crop-pdf/CropPdf';
+import cropPdfSEO from './pdf/crop-pdf/seo.json';
+import EditPdf from './pdf/edit-pdf/EditPdf';
+import editPdfSEO from './pdf/edit-pdf/seo.json';
+import SignPdf from './pdf/sign-pdf/SignPdf';
+import signPdfSEO from './pdf/sign-pdf/seo.json';
+import RedactPdf from './pdf/redact-pdf/RedactPdf';
+import redactPdfSEO from './pdf/redact-pdf/seo.json';
+import OcrPdf from './pdf/ocr-pdf/OcrPdf';
+import ocrPdfSEO from './pdf/ocr-pdf/seo.json';
+import ComparePdf from './pdf/compare-pdf/ComparePdf';
+import comparePdfSEO from './pdf/compare-pdf/seo.json';
+import ScanToPdf from './pdf/scan-to-pdf/ScanToPdf';
+import scanToPdfSEO from './pdf/scan-to-pdf/seo.json';
+import TranslatePdf from './pdf/translate-pdf/TranslatePdf';
+import translatePdfSEO from './pdf/translate-pdf/seo.json';
 
 export const tools = {
     'compress-image': {
@@ -604,6 +634,156 @@ export const tools = {
         category: 'archive',
         seo: archiveConverterSEO,
         icon: '🗜️',
+        modes: ['offline', 'online']
+    },
+    'rotate-pdf': {
+        id: 'rotate-pdf',
+        name: 'Rotate PDF',
+        description: 'Rotate PDF pages by 90°, 180°, or 270° clockwise',
+        component: RotatePdf,
+        category: 'pdf',
+        seo: rotatePdfSEO,
+        icon: '🔄',
+        modes: ['offline', 'online']
+    },
+    'watermark-pdf': {
+        id: 'watermark-pdf',
+        name: 'Watermark PDF',
+        description: 'Stamp an image or text over your PDF in seconds',
+        component: WatermarkPdf,
+        category: 'pdf',
+        seo: watermarkPdfSEO,
+        icon: '💧',
+        modes: ['offline', 'online']
+    },
+    'protect-pdf': {
+        id: 'protect-pdf',
+        name: 'Protect PDF',
+        description: 'Protect PDF files with a password and encrypt documents',
+        component: ProtectPdf,
+        category: 'pdf',
+        seo: protectPdfSEO,
+        icon: '🔒',
+        modes: ['offline', 'online']
+    },
+    'unlock-pdf': {
+        id: 'unlock-pdf',
+        name: 'Unlock PDF',
+        description: 'Remove PDF password security and unlock protected PDFs',
+        component: UnlockPdf,
+        category: 'pdf',
+        seo: unlockPdfSEO,
+        icon: '🔓',
+        modes: ['offline', 'online']
+    },
+    'page-numbers': {
+        id: 'page-numbers',
+        name: 'Page Numbers',
+        description: 'Add page numbers into PDFs with customizable positions and typography',
+        component: PageNumbers,
+        category: 'pdf',
+        seo: pageNumbersSEO,
+        icon: '#️⃣',
+        modes: ['offline', 'online']
+    },
+    'organize-pdf': {
+        id: 'organize-pdf',
+        name: 'Organize PDF',
+        description: 'Sort, reorder, and delete PDF pages at your convenience',
+        component: OrganizePdf,
+        category: 'pdf',
+        seo: organizePdfSEO,
+        icon: '📋',
+        modes: ['offline', 'online']
+    },
+    'repair-pdf': {
+        id: 'repair-pdf',
+        name: 'Repair PDF',
+        description: 'Repair damaged PDFs and recover data from corrupt files',
+        component: RepairPdf,
+        category: 'pdf',
+        seo: repairPdfSEO,
+        icon: '🔧',
+        modes: ['offline', 'online']
+    },
+    'crop-pdf': {
+        id: 'crop-pdf',
+        name: 'Crop PDF',
+        description: 'Crop margins and select specific areas of PDF pages',
+        component: CropPdf,
+        category: 'pdf',
+        seo: cropPdfSEO,
+        icon: '✂️',
+        modes: ['offline', 'online']
+    },
+    'edit-pdf': {
+        id: 'edit-pdf',
+        name: 'Edit PDF',
+        description: 'Add text, images, shapes or annotations to PDF documents',
+        component: EditPdf,
+        category: 'pdf',
+        seo: editPdfSEO,
+        icon: '✏️',
+        modes: ['offline', 'online']
+    },
+    'sign-pdf': {
+        id: 'sign-pdf',
+        name: 'Sign PDF',
+        description: 'Sign PDF documents with drawn or typed signatures',
+        component: SignPdf,
+        category: 'pdf',
+        seo: signPdfSEO,
+        icon: '✍️',
+        modes: ['offline', 'online']
+    },
+    'redact-pdf': {
+        id: 'redact-pdf',
+        name: 'Redact PDF',
+        description: 'Permanently remove sensitive information from PDFs',
+        component: RedactPdf,
+        category: 'pdf',
+        seo: redactPdfSEO,
+        icon: '🔏',
+        modes: ['offline', 'online']
+    },
+    'ocr-pdf': {
+        id: 'ocr-pdf',
+        name: 'OCR PDF',
+        description: 'Convert scanned PDFs into searchable and selectable documents',
+        component: OcrPdf,
+        category: 'pdf',
+        seo: ocrPdfSEO,
+        icon: '👁️',
+        modes: ['offline', 'online']
+    },
+    'compare-pdf': {
+        id: 'compare-pdf',
+        name: 'Compare PDF',
+        description: 'Show side-by-side comparison and spot changes between PDF versions',
+        component: ComparePdf,
+        category: 'pdf',
+        seo: comparePdfSEO,
+        icon: '🔍',
+        modes: ['offline', 'online']
+    },
+    'scan-to-pdf': {
+        id: 'scan-to-pdf',
+        name: 'Scan to PDF',
+        description: 'Capture document scans and convert images to PDF',
+        component: ScanToPdf,
+        category: 'pdf',
+        seo: scanToPdfSEO,
+        icon: '📷',
+        modes: ['offline', 'online']
+    },
+    'translate-pdf': {
+        id: 'translate-pdf',
+        name: 'Translate PDF',
+        description: 'Translate PDF documents while preserving layout and formatting',
+        component: TranslatePdf,
+        category: 'pdf',
+        seo: translatePdfSEO,
+        icon: '🌐',
         modes: ['offline', 'online']
     }
 };
