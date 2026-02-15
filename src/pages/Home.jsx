@@ -342,7 +342,7 @@ export default function Home() {
             <section className="py-16 sm:py-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-14">
-                        <h2 className="section-heading">Why Choose FileNext?</h2>
+                        <h2 className="section-heading">Why Choose Uvero?</h2>
                         <p className="section-subheading">Built with privacy, performance, and simplicity in mind</p>
                     </div>
 
@@ -363,6 +363,68 @@ export default function Home() {
                                 </p>
                             </div>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* About Uvero Section */}
+            <section className="bg-gradient-to-br from-gray-50 to-blue-50/30 py-16 sm:py-20">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-12">
+                        <h2 className="section-heading">What Does Uvero Mean?</h2>
+                        <p className="section-subheading">The story behind our name</p>
+                    </div>
+
+                    <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-12 border border-gray-100">
+                        <div className="prose prose-lg max-w-none">
+                            <p className="text-gray-700 text-lg leading-relaxed mb-8 text-center">
+                                <strong className="text-primary-600">Uvero</strong> is a coined brand name formed from three core ideas that define our platform:
+                            </p>
+
+                            <div className="grid md:grid-cols-3 gap-8 mb-8">
+                                {/* U - Universal */}
+                                <div className="text-center">
+                                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-100 text-blue-600 text-3xl font-bold mb-4">
+                                        U
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2">Universal</h3>
+                                    <p className="text-gray-600 text-sm leading-relaxed">
+                                        Represents a wide collection of useful digital tools — an all-in-one platform for everyday tasks like file converters, QR tools, and productivity utilities.
+                                    </p>
+                                </div>
+
+                                {/* ver - Versatile */}
+                                <div className="text-center">
+                                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-purple-100 text-purple-600 text-2xl font-bold mb-4">
+                                        ver
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2">Versatile</h3>
+                                    <p className="text-gray-600 text-sm leading-relaxed">
+                                        Symbolizes multiple functions in one place, the ability to transform files and data, and reliable digital processing done quickly and correctly.
+                                    </p>
+                                </div>
+
+                                {/* o - Zero effort */}
+                                <div className="text-center">
+                                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-600 text-3xl font-bold mb-4">
+                                        o
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2">Zero Effort</h3>
+                                    <p className="text-gray-600 text-sm leading-relaxed">
+                                        Represents instant results, minimal user effort, and a smooth, finished experience. Our promise: complete digital tasks with almost zero effort.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="text-center pt-6 border-t border-gray-200">
+                                <p className="text-xl font-semibold text-gray-900 mb-2">
+                                    Uvero = <span className="gradient-text">Universal, versatile digital tools designed for zero-effort productivity</span>
+                                </p>
+                                <p className="text-gray-600">
+                                    Everything you need to process files, convert formats, and boost your productivity — all in one place.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

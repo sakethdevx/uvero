@@ -370,7 +370,7 @@ export default function QuickConverter() {
                             file,
                             {
                                 type: 'text',
-                                text: 'FileNext',
+                                text: 'Uvero',
                                 fontSize: 48,
                                 opacity: 0.5,
                                 position: 'bottom-right',

@@ -179,10 +179,10 @@ function AppContent() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2.5 group">
               <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/25 group-hover:shadow-primary-500/40 transition-all duration-300 group-hover:scale-105">
-                <span className="text-white font-bold text-xl">F</span>
+                <span className="text-white font-bold text-xl">U</span>
               </div>
               <span className="text-2xl font-bold text-gray-900">
-                File<span className="gradient-text">Next</span>
+                Uve<span className="gradient-text">ro</span>
               </span>
             </Link>
 
@@ -334,10 +334,10 @@ function AppContent() {
             <div className="md:col-span-2">
               <div className="flex items-center gap-2.5 mb-5">
                 <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
-                  <span className="text-white font-bold text-xl">F</span>
+                  <span className="text-white font-bold text-xl">U</span>
                 </div>
                 <span className="text-2xl font-bold text-white">
-                  File<span className="text-primary-400">Next</span>
+                  Uve<span className="text-primary-400">ro</span>
                 </span>
               </div>
               <p className="text-gray-400 max-w-md mb-6 leading-relaxed">
@@ -393,7 +393,7 @@ function AppContent() {
           {/* Bottom Bar */}
           <div className="border-t border-gray-800/60 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-gray-500 text-sm">
-              © 2026 FileNext. All rights reserved. Built with ❤️ for privacy.
+              © 2026 Uvero. All rights reserved. Built with ❤️ for privacy.
             </p>
             <div className="flex gap-4">
               <a

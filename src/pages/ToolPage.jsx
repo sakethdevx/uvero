@@ -52,7 +52,7 @@ export default function ToolPage() {
 
         // Cleanup
         return () => {
-            document.title = 'FileNext - Free Online File Tools';
+            document.title = 'Uvero - Free Online File Tools';
         };
     }, [tool]);
 

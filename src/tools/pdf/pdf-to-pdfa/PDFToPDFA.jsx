@@ -64,11 +64,11 @@ const PDFToPDFA = () => {
             // Add PDF/A metadata
             // PDF/A-1b requires specific metadata
             pdfDoc.setTitle(file.name.replace('.pdf', ''));
-            pdfDoc.setAuthor('FileNext Converter');
+            pdfDoc.setAuthor('Uvero Converter');
             pdfDoc.setSubject('PDF/A Converted Document');
             pdfDoc.setKeywords(['PDF/A', 'archival', 'long-term preservation']);
-            pdfDoc.setProducer('FileNext PDF to PDF/A Converter');
-            pdfDoc.setCreator('FileNext');
+            pdfDoc.setProducer('Uvero PDF to PDF/A Converter');
+            pdfDoc.setCreator('Uvero');
             pdfDoc.setCreationDate(new Date());
             pdfDoc.setModificationDate(new Date());
 
