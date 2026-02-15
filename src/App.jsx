@@ -159,7 +159,7 @@ function AppContent() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'glass shadow-lg shadow-gray-200/50' : 'bg-white/95 backdrop-blur-sm border-b border-gray-100'}`}>
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2.5 group">
@@ -174,7 +174,7 @@ function AppContent() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-5">
               {/* Tools Dropdown */}
-              <div className="relative" ref={dropdownRef} onMouseEnter={handleDropdownEnter} onMouseLeave={handleDropdownLeave}>
+              <div className="static" ref={dropdownRef} onMouseEnter={handleDropdownEnter} onMouseLeave={handleDropdownLeave}>
                 <button
                   onClick={() => setIsToolsDropdownOpen(!isToolsDropdownOpen)}
                   className="flex items-center gap-1.5 text-gray-600 hover:text-primary-600 font-medium transition-colors py-2 px-3 rounded-lg hover:bg-primary-50/50"
@@ -187,7 +187,7 @@ function AppContent() {
 
                 {/* Mega Menu Dropdown */}
                 {isToolsDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-[800px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-120px)] overflow-y-auto bg-white rounded-2xl shadow-2xl shadow-gray-200/60 border border-gray-100 p-5 z-50 animate-fade-in-down">
+                  <div className="absolute top-full left-0 right-0 mt-1 max-h-[calc(100vh-120px)] overflow-y-auto bg-white rounded-2xl shadow-2xl shadow-gray-200/60 border border-gray-100 p-5 z-50 animate-fade-in-down">
                     <div className="grid grid-cols-3 lg:grid-cols-4 gap-5">
                       {toolCategories.map((category, idx) => (
                         <div key={idx}>
