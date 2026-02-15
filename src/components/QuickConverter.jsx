@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Dropzone from '../shared/Dropzone';
 import Button from '../shared/Button';
 import ProgressBar from '../shared/ProgressBar';
@@ -36,6 +36,9 @@ import { processor as ocrPdfProcessor } from '../tools/pdf/ocr-pdf/processor';
 import { processor as unlockPdfProcessor } from '../tools/pdf/unlock-pdf/processor';
 import { processor as protectPdfProcessor } from '../tools/pdf/protect-pdf/processor';
 
+// Constants
+const MIN_PASSWORD_LENGTH = 4;
+
 /**
  * Quick Converter Component
  * Allows users to drop files on the landing page and perform operations
@@ -50,9 +53,6 @@ export default function QuickConverter() {
     const [progress, setProgress] = useState(0);
     const [results, setResults] = useState([]);
     const [showOptions, setShowOptions] = useState(false);
-    
-    // Constants
-    const MIN_PASSWORD_LENGTH = 4;
     
     // Tool-specific options
     const [quality, setQuality] = useState(80); // For image/video compression
@@ -71,7 +71,7 @@ export default function QuickConverter() {
     const [showPdfPassword, setShowPdfPassword] = useState(false); // For password visibility toggle
 
     // Helper function to validate PDF password
-    const validatePdfPassword = () => {
+    const validatePdfPassword = useCallback(() => {
         if (!pdfPassword) {
             return 'Password is required to protect PDF';
         }
@@ -82,7 +82,7 @@ export default function QuickConverter() {
             return 'Passwords do not match';
         }
         return null; // No error
-    };
+    }, [pdfPassword, pdfPasswordConfirm]);
 
     // Detect file type and suggest operations
     const getOperationsForFile = (file) => {
