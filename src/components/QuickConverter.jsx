@@ -51,6 +51,9 @@ export default function QuickConverter() {
     const [results, setResults] = useState([]);
     const [showOptions, setShowOptions] = useState(false);
     
+    // Constants
+    const MIN_PASSWORD_LENGTH = 4;
+    
     // Tool-specific options
     const [quality, setQuality] = useState(80); // For image/video compression
     const [outputFormat, setOutputFormat] = useState('png'); // For image/pdf/audio/video conversion
@@ -66,6 +69,20 @@ export default function QuickConverter() {
     const [pdfPassword, setPdfPassword] = useState(''); // For PDF protection
     const [pdfPasswordConfirm, setPdfPasswordConfirm] = useState(''); // For PDF protection confirmation
     const [showPdfPassword, setShowPdfPassword] = useState(false); // For password visibility toggle
+
+    // Helper function to validate PDF password
+    const validatePdfPassword = () => {
+        if (!pdfPassword) {
+            return 'Password is required to protect PDF';
+        }
+        if (pdfPassword.length < MIN_PASSWORD_LENGTH) {
+            return `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`;
+        }
+        if (pdfPassword !== pdfPasswordConfirm) {
+            return 'Passwords do not match';
+        }
+        return null; // No error
+    };
 
     // Detect file type and suggest operations
     const getOperationsForFile = (file) => {
@@ -739,14 +756,9 @@ export default function QuickConverter() {
                     }
 
                     case 'protect-pdf': {
-                        if (!pdfPassword) {
-                            throw new Error('Password is required to protect PDF');
-                        }
-                        if (pdfPassword !== pdfPasswordConfirm) {
-                            throw new Error('Passwords do not match');
-                        }
-                        if (pdfPassword.length < 4) {
-                            throw new Error('Password must be at least 4 characters long');
+                        const validationError = validatePdfPassword();
+                        if (validationError) {
+                            throw new Error(validationError);
                         }
                         const protectedBlob = await protectPdfProcessor.protect(
                             file,
@@ -1331,7 +1343,7 @@ export default function QuickConverter() {
                                                     type={showPdfPassword ? 'text' : 'password'}
                                                     value={pdfPassword}
                                                     onChange={(e) => setPdfPassword(e.target.value)}
-                                                    placeholder="Enter password (min. 4 characters)"
+                                                    placeholder={`Enter password (min. ${MIN_PASSWORD_LENGTH} characters)`}
                                                     className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                                                 />
                                                 <button
@@ -1376,10 +1388,10 @@ export default function QuickConverter() {
                                                 </p>
                                             </div>
                                         )}
-                                        {pdfPassword && pdfPassword.length < 4 && (
+                                        {pdfPassword && pdfPassword.length < MIN_PASSWORD_LENGTH && (
                                             <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                                                 <p className="text-sm text-red-800">
-                                                    Password must be at least 4 characters long
+                                                    Password must be at least {MIN_PASSWORD_LENGTH} characters long
                                                 </p>
                                             </div>
                                         )}
