@@ -1,6 +1,6 @@
 {
     "route": "/compress-pdf",
-    "title": "Free Online PDF Compressor - Reduce PDF Size | FileNext",
+    "title": "Free Online PDF Compressor - Reduce PDF Size | Uvero",
     "description": "Compress PDF files online for free. Reduce PDF file size up to 80% while maintaining quality. Fast, secure, and works offline in your browser. No upload required.",
     "keywords": [
         "pdf compressor",
@@ -22,5 +22,5 @@
         "browser pdf compressor"
     ],
     "ogImage": "/og-pdf-compressor.png",
-    "canonical": "https://filenext.com/compress-pdf"
+    "canonical": "https://uvero.com/compress-pdf"
 }

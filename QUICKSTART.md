@@ -1,4 +1,4 @@
-# 🚀 Quick Start Guide - FileNext
+# 🚀 Quick Start Guide - Uvero
 
 ## What's Been Built
 

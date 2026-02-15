@@ -1,6 +1,6 @@
 {
     "route": "/compare-pdf",
-    "title": "Free Online PDF Comparison - Compare PDF Files | FileNext",
+    "title": "Free Online PDF Comparison - Compare PDF Files | Uvero",
     "description": "Compare two PDF files side by side online for free. Find differences between document versions. Works in your browser.",
     "keywords": [
         "compare pdf",
@@ -11,5 +11,5 @@
         "document comparison"
     ],
     "ogImage": "/og-compare-pdf.png",
-    "canonical": "https://filenext.com/compare-pdf"
+    "canonical": "https://uvero.com/compare-pdf"
 }

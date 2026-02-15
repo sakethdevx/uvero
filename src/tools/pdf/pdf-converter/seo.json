@@ -1,6 +1,6 @@
 {
     "route": "/convert-pdf",
-    "title": "Free PDF to Image Converter - PNG & JPG | FileNext",
+    "title": "Free PDF to Image Converter - PNG & JPG | Uvero",
     "description": "Convert PDF pages to high-quality PNG or JPG images online. Extract all pages or specific ones. Fast, secure, works offline in your browser. No upload required.",
     "keywords": [
         "pdf to image",
@@ -21,5 +21,5 @@
         "browser pdf to image"
     ],
     "ogImage": "/og-pdf-converter.png",
-    "canonical": "https://filenext.com/convert-pdf"
+    "canonical": "https://uvero.com/convert-pdf"
 }

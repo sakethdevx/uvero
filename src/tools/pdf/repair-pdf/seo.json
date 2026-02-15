@@ -1,6 +1,6 @@
 {
     "route": "/repair-pdf",
-    "title": "Free Online PDF Repair Tool - Fix Damaged PDFs | FileNext",
+    "title": "Free Online PDF Repair Tool - Fix Damaged PDFs | Uvero",
     "description": "Repair damaged or corrupt PDF files online for free. Recover data from broken PDFs. Works offline in your browser.",
     "keywords": [
         "repair pdf",
@@ -11,5 +11,5 @@
         "pdf repair tool"
     ],
     "ogImage": "/og-repair-pdf.png",
-    "canonical": "https://filenext.com/repair-pdf"
+    "canonical": "https://uvero.com/repair-pdf"
 }

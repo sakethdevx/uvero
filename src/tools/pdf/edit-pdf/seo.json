@@ -1,6 +1,6 @@
 {
     "route": "/edit-pdf",
-    "title": "Free Online PDF Editor - Edit PDF Files | FileNext",
+    "title": "Free Online PDF Editor - Edit PDF Files | Uvero",
     "description": "Edit PDF files online for free. Add text, annotations, and more to your PDFs. Works offline in your browser.",
     "keywords": [
         "edit pdf",
@@ -11,5 +11,5 @@
         "pdf annotation tool"
     ],
     "ogImage": "/og-edit-pdf.png",
-    "canonical": "https://filenext.com/edit-pdf"
+    "canonical": "https://uvero.com/edit-pdf"
 }

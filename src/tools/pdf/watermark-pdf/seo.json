@@ -1,6 +1,6 @@
 {
     "route": "/watermark-pdf",
-    "title": "Free Online PDF Watermark - Add Watermark to PDF | FileNext",
+    "title": "Free Online PDF Watermark - Add Watermark to PDF | Uvero",
     "description": "Add text or image watermarks to PDF files online for free. Customize position, opacity, font, and color. Works offline in your browser.",
     "keywords": [
         "watermark pdf",
@@ -22,5 +22,5 @@
         "browser pdf watermark"
     ],
     "ogImage": "/og-watermark-pdf.png",
-    "canonical": "https://filenext.com/watermark-pdf"
+    "canonical": "https://uvero.com/watermark-pdf"
 }

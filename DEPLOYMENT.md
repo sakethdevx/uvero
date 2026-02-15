@@ -1,4 +1,4 @@
-# 🚀 Deployment Guide - FileNext
+# 🚀 Deployment Guide - Uvero
 
 ## Quick Deploy Options
 
@@ -13,7 +13,7 @@ npm install -g vercel
 1. Deploy:
 
 ```bash
-cd filenext
+cd uvero
 vercel
 ```
 
@@ -67,7 +67,7 @@ npm install -D gh-pages
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
-  "homepage": "https://yourusername.github.io/filenext"
+  "homepage": "https://yourusername.github.io/uvero"
 }
 ```
 
@@ -75,7 +75,7 @@ npm install -D gh-pages
 
 ```javascript
 export default defineConfig({
-  base: '/filenext/', // Your repo name
+  base: '/uvero/', // Your repo name
   plugins: [react()],
 })
 ```
@@ -108,7 +108,7 @@ npm run build
 ### ✅ Must Do Before Deploying
 
 1. **Update URLs in index.html**:
-   - Change `https://filenext.app/` to your actual domain
+   - Change `https://uvero.app/` to your actual domain
    - Update Open Graph URLs
    - Update Twitter card URLs
 

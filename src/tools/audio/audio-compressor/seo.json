@@ -1,6 +1,6 @@
 {
     "route": "/compress-audio",
-    "title": "Free Online Audio Compressor - MP3 Converter | FileNext",
+    "title": "Free Online Audio Compressor - MP3 Converter | Uvero",
     "description": "Compress audio files online for free. Convert WAV, MP3, OGG to compressed MP3. Choose bitrate from 64-320 kbps. Fast, secure, works offline in your browser.",
     "keywords": [
         "audio compressor",
@@ -22,5 +22,5 @@
         "browser audio compressor"
     ],
     "ogImage": "/og-audio-compressor.png",
-    "canonical": "https://filenext.com/compress-audio"
+    "canonical": "https://uvero.com/compress-audio"
 }

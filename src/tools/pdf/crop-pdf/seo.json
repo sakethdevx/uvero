@@ -1,6 +1,6 @@
 {
     "route": "/crop-pdf",
-    "title": "Free Online PDF Cropper - Crop PDF Pages | FileNext",
+    "title": "Free Online PDF Cropper - Crop PDF Pages | Uvero",
     "description": "Crop PDF pages online for free. Trim margins and resize PDF pages. Apply to single or all pages. Works offline.",
     "keywords": [
         "crop pdf",
@@ -11,5 +11,5 @@
         "pdf margin trimmer"
     ],
     "ogImage": "/og-crop-pdf.png",
-    "canonical": "https://filenext.com/crop-pdf"
+    "canonical": "https://uvero.com/crop-pdf"
 }

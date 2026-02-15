@@ -1,6 +1,6 @@
 {
     "route": "/rotate-pdf",
-    "title": "Free Online PDF Rotator - Rotate PDF Pages | FileNext",
+    "title": "Free Online PDF Rotator - Rotate PDF Pages | Uvero",
     "description": "Rotate PDF pages online for free. Rotate single or multiple pages by 90°, 180°, or 270°. Works offline in your browser.",
     "keywords": [
         "rotate pdf",
@@ -19,5 +19,5 @@
         "client-side pdf rotation"
     ],
     "ogImage": "/og-rotate-pdf.png",
-    "canonical": "https://filenext.com/rotate-pdf"
+    "canonical": "https://uvero.com/rotate-pdf"
 }

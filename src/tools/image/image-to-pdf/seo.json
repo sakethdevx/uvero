@@ -1,6 +1,6 @@
 {
     "route": "/image-to-pdf",
-    "title": "Free Image to PDF Converter - Combine Images | FileNext",
+    "title": "Free Image to PDF Converter - Combine Images | Uvero",
     "description": "Convert multiple images to PDF online for free. Combine JPG, PNG, WebP into a single PDF. Reorder pages, choose page size. Fast, secure, works offline.",
     "keywords": [
         "image to pdf",
@@ -20,5 +20,5 @@
         "browser image to pdf"
     ],
     "ogImage": "/og-image-to-pdf.png",
-    "canonical": "https://filenext.com/image-to-pdf"
+    "canonical": "https://uvero.com/image-to-pdf"
 }

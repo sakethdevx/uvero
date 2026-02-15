@@ -1,6 +1,6 @@
 {
     "route": "/ocr-pdf",
-    "title": "Free Online OCR PDF - Make PDFs Searchable | FileNext",
+    "title": "Free Online OCR PDF - Make PDFs Searchable | Uvero",
     "description": "Convert scanned PDFs into searchable and selectable documents online for free. Extract text from PDF files. Works in your browser.",
     "keywords": [
         "ocr pdf",
@@ -11,5 +11,5 @@
         "pdf ocr free"
     ],
     "ogImage": "/og-ocr-pdf.png",
-    "canonical": "https://filenext.com/ocr-pdf"
+    "canonical": "https://uvero.com/ocr-pdf"
 }

@@ -1,10 +1,10 @@
-# FileNext - Professional File Processing Platform
+# Uvero - Professional File Processing Platform
 
 > 🚀 A production-ready, privacy-first file processing web application that runs entirely in the browser
 
 ## 🎯 Project Overview
 
-FileNext is a FreeConvert-like platform built with modern web technologies. All file processing happens **client-side** - no uploads, no servers, completely private.
+Uvero is a FreeConvert-like platform built with modern web technologies. All file processing happens **client-side** - no uploads, no servers, completely private.
 
 ### ✨ Key Features
 
@@ -29,7 +29,7 @@ FileNext is a FreeConvert-like platform built with modern web technologies. All 
 ## 📁 Project Structure
 
 ```
-filenext/
+uvero/
 ├── src/
 │   ├── tools/                      # All tool modules
 │   │   ├── image/
@@ -72,7 +72,7 @@ filenext/
 
 ```bash
 # Navigate to project directory
-cd filenext
+cd uvero
 
 # Install dependencies
 npm install
