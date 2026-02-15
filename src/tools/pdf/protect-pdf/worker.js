@@ -5,6 +5,7 @@
  */
 
 import createQPDFModule from '@neslinesli93/qpdf-wasm';
+import wasmUrl from '@neslinesli93/qpdf-wasm/dist/qpdf.wasm?url';
 
 let qpdfInstance = null;
 
@@ -12,7 +13,8 @@ let qpdfInstance = null;
 async function initQPDF() {
     if (!qpdfInstance) {
         qpdfInstance = await createQPDFModule({
-            locateFile: () => new URL('@neslinesli93/qpdf-wasm/dist/qpdf.wasm', import.meta.url).href,
+            // Vite will handle the WASM file URL
+            locateFile: () => wasmUrl,
             noInitialRun: true,
         });
     }
@@ -40,10 +42,14 @@ self.addEventListener('message', async (e) => {
 
         // Build encryption command
         // QPDF encryption: qpdf --encrypt user-password owner-password key-length [options] -- input.pdf output.pdf
+        // Note: Using same password for user and owner for simplicity. 
+        // In production, consider using different passwords:
+        // - User password: required to open the document
+        // - Owner password: required to change permissions/decrypt
         const args = [
             '--encrypt',
             password,           // User password (required to open)
-            password,           // Owner password (required to modify - using same password)
+            password,           // Owner password (using same for simplicity)
             '256',              // AES 256-bit encryption
         ];
 
@@ -67,7 +73,7 @@ self.addEventListener('message', async (e) => {
             qpdf.callMain(args);
         } catch (qpdfError) {
             console.error('QPDF execution error:', qpdfError);
-            throw new Error('Failed to encrypt PDF. Please check your password and try again.');
+            throw new Error('Failed to encrypt PDF. The file may be corrupted, password-protected already, or in an unsupported format.');
         }
 
         // Read the encrypted PDF
