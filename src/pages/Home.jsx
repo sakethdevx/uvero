@@ -26,11 +26,11 @@ export default function Home() {
         {
             name: 'PDF Tools',
             icon: '📄',
-            description: 'Merge, split, compress, and convert PDF files',
+            description: 'Merge, split, compress, convert, edit, sign, protect, and more',
             gradient: 'from-rose-500 to-pink-600',
             bg: 'bg-rose-50',
             categoryId: 'pdf',
-            count: 12
+            count: 27
         },
         {
             name: 'Audio Tools',
@@ -139,7 +139,7 @@ export default function Home() {
                         </h1>
 
                         <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-600 mb-8 animate-fade-in-up leading-relaxed" style={{ animationDelay: '0.1s' }}>
-                            40+ powerful tools to convert, compress, and process your files.
+                            55+ powerful tools to convert, compress, and process your files.
                             Everything runs in your browser — completely private and free.
                         </p>
 

@@ -85,7 +85,21 @@ export default function QuickConverter() {
                 { id: 'merge-pdf', name: 'Merge PDFs', icon: '📑' },
                 { id: 'pdf-to-word', name: 'PDF to Word', icon: '📝' },
                 { id: 'pdf-to-excel', name: 'PDF to Excel', icon: '📊' },
-                { id: 'pdf-to-powerpoint', name: 'PDF to PowerPoint', icon: '📽️' }
+                { id: 'pdf-to-powerpoint', name: 'PDF to PowerPoint', icon: '📽️' },
+                { id: 'edit-pdf', name: 'Edit PDF', icon: '✏️' },
+                { id: 'sign-pdf', name: 'Sign PDF', icon: '✍️' },
+                { id: 'rotate-pdf', name: 'Rotate PDF', icon: '🔄' },
+                { id: 'watermark-pdf', name: 'Watermark PDF', icon: '💧' },
+                { id: 'protect-pdf', name: 'Protect PDF', icon: '🔒' },
+                { id: 'unlock-pdf', name: 'Unlock PDF', icon: '🔓' },
+                { id: 'organize-pdf', name: 'Organize PDF', icon: '📋' },
+                { id: 'page-numbers', name: 'Page Numbers', icon: '#️⃣' },
+                { id: 'repair-pdf', name: 'Repair PDF', icon: '🔧' },
+                { id: 'crop-pdf', name: 'Crop PDF', icon: '✂️' },
+                { id: 'redact-pdf', name: 'Redact PDF', icon: '🔏' },
+                { id: 'ocr-pdf', name: 'OCR PDF', icon: '👁️' },
+                { id: 'compare-pdf', name: 'Compare PDF', icon: '🔍' },
+                { id: 'translate-pdf', name: 'Translate PDF', icon: '🌐' }
             );
         }
 
