@@ -79,8 +79,8 @@ self.addEventListener('message', async (e) => {
         const pptx = new pptxgen();
         
         // Set presentation properties
-        pptx.author = 'FileNext PDF Converter';
-        pptx.company = 'FileNext';
+        pptx.author = 'Uvero PDF Converter';
+        pptx.company = 'Uvero';
         pptx.subject = 'PDF to PowerPoint Conversion';
         pptx.title = 'Converted Presentation';
 
