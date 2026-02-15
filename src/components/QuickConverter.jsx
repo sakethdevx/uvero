@@ -35,9 +35,7 @@ import { processor as watermarkPdfProcessor } from '../tools/pdf/watermark-pdf/p
 import { processor as ocrPdfProcessor } from '../tools/pdf/ocr-pdf/processor';
 import { processor as unlockPdfProcessor } from '../tools/pdf/unlock-pdf/processor';
 import { processor as protectPdfProcessor } from '../tools/pdf/protect-pdf/processor';
-
-// Constants
-const MIN_PASSWORD_LENGTH = 4;
+import { validatePdfPassword as validatePassword, MIN_PASSWORD_LENGTH } from '../utils/passwordValidation';
 
 /**
  * Quick Converter Component
@@ -70,18 +68,9 @@ export default function QuickConverter() {
     const [pdfPasswordConfirm, setPdfPasswordConfirm] = useState(''); // For PDF protection confirmation
     const [showPdfPassword, setShowPdfPassword] = useState(false); // For password visibility toggle
 
-    // Helper function to validate PDF password
+    // Helper function to validate PDF password (uses shared utility)
     const validatePdfPassword = useCallback(() => {
-        if (!pdfPassword) {
-            return 'Password is required to protect PDF';
-        }
-        if (pdfPassword.length < MIN_PASSWORD_LENGTH) {
-            return `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`;
-        }
-        if (pdfPassword !== pdfPasswordConfirm) {
-            return 'Passwords do not match';
-        }
-        return null; // No error
+        return validatePassword(pdfPassword, pdfPasswordConfirm);
     }, [pdfPassword, pdfPasswordConfirm]);
 
     // Detect file type and suggest operations

@@ -69,7 +69,9 @@ const protect = (file, password, permissions = {}, onProgress = () => { }) => {
         reader.onload = () => {
             worker.postMessage({
                 type: 'protect',
-                arrayBuffer: reader.result
+                arrayBuffer: reader.result,
+                password: password,
+                permissions: permissions
             });
         };
         reader.onerror = () => {
