@@ -34,7 +34,7 @@ self.addEventListener('message', async (e) => {
         if (author) newPdf.setAuthor(author);
         if (subject) newPdf.setSubject(subject);
 
-        newPdf.setProducer('FileNext - Unlocked PDF');
+        newPdf.setProducer('Uvero - Unlocked PDF');
 
         const pdfBytes = await newPdf.save({
             useObjectStreams: true,
