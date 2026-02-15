@@ -100,6 +100,8 @@ import RARToZip from './archive/rar-to-zip/RARToZip';
 import rarToZipSEO from './archive/rar-to-zip/seo.json';
 import ArchiveConverter from './archive/archive-converter/ArchiveConverter';
 import archiveConverterSEO from './archive/archive-converter/seo.json';
+import RotatePdf from './pdf/rotate-pdf/RotatePdf';
+import rotatePdfSEO from './pdf/rotate-pdf/seo.json';
 
 export const tools = {
     'compress-image': {
@@ -604,6 +606,16 @@ export const tools = {
         category: 'archive',
         seo: archiveConverterSEO,
         icon: '🗜️',
+        modes: ['offline', 'online']
+    },
+    'rotate-pdf': {
+        id: 'rotate-pdf',
+        name: 'Rotate PDF',
+        description: 'Rotate PDF pages by 90°, 180°, or 270° clockwise',
+        component: RotatePdf,
+        category: 'pdf',
+        seo: rotatePdfSEO,
+        icon: '🔄',
         modes: ['offline', 'online']
     }
 };
