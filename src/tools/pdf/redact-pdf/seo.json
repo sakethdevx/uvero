@@ -1,6 +1,6 @@
 {
     "route": "/redact-pdf",
-    "title": "Free Online PDF Redaction Tool - Redact PDF Content | FileNext",
+    "title": "Free Online PDF Redaction Tool - Redact PDF Content | Uvero",
     "description": "Redact sensitive information from PDF files online for free. Permanently remove text and graphics. Works offline in your browser.",
     "keywords": [
         "redact pdf",
@@ -11,5 +11,5 @@
         "pdf privacy"
     ],
     "ogImage": "/og-redact-pdf.png",
-    "canonical": "https://filenext.com/redact-pdf"
+    "canonical": "https://uvero.com/redact-pdf"
 }

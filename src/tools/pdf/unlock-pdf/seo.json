@@ -1,6 +1,6 @@
 {
     "route": "/unlock-pdf",
-    "title": "Free Online PDF Unlocker - Remove PDF Password | FileNext",
+    "title": "Free Online PDF Unlocker - Remove PDF Password | Uvero",
     "description": "Remove password protection from PDF files online for free. Unlock secured PDFs instantly. Works offline in your browser.",
     "keywords": [
         "unlock pdf",
@@ -17,5 +17,5 @@
         "browser pdf unlocker"
     ],
     "ogImage": "/og-unlock-pdf.png",
-    "canonical": "https://filenext.com/unlock-pdf"
+    "canonical": "https://uvero.com/unlock-pdf"
 }

@@ -1,6 +1,6 @@
 {
     "route": "/protect-pdf",
-    "title": "Free Online PDF Protector - Password Protect PDF | FileNext",
+    "title": "Free Online PDF Protector - Password Protect PDF | Uvero",
     "description": "Add password protection to PDF files online for free. Encrypt and secure your PDF documents. Works offline in your browser.",
     "keywords": [
         "protect pdf",
@@ -18,5 +18,5 @@
         "browser pdf protector"
     ],
     "ogImage": "/og-protect-pdf.png",
-    "canonical": "https://filenext.com/protect-pdf"
+    "canonical": "https://uvero.com/protect-pdf"
 }
