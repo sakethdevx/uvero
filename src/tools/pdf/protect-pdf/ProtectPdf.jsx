@@ -4,6 +4,7 @@ import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import { processor } from './processor';
+import { validatePdfPassword, MIN_PASSWORD_LENGTH } from '../../../utils/passwordValidation';
 
 export default function ProtectPdf() {
     const [file, setFile] = useState(null);
@@ -32,16 +33,9 @@ export default function ProtectPdf() {
     const handleProtect = async () => {
         if (!file) return;
 
-        if (!password) {
-            setError('Please enter a password');
-            return;
-        }
-        if (password.length < 4) {
-            setError('Password must be at least 4 characters');
-            return;
-        }
-        if (password !== confirmPassword) {
-            setError('Passwords do not match');
+        const validationError = validatePdfPassword(password, confirmPassword);
+        if (validationError) {
+            setError(validationError);
             return;
         }
 

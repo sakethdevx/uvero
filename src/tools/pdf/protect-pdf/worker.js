@@ -1,47 +1,94 @@
 /**
  * PDF Protection Worker
- * Handles PDF protection using pdf-lib
+ * Handles PDF password protection using qpdf-wasm
+ * Provides real PDF encryption with password protection
  */
 
-import { PDFDocument } from 'pdf-lib';
+import createQPDFModule from '@neslinesli93/qpdf-wasm';
+import wasmUrl from '@neslinesli93/qpdf-wasm/dist/qpdf.wasm?url';
+
+let qpdfInstance = null;
+
+// Initialize QPDF WASM
+async function initQPDF() {
+    if (!qpdfInstance) {
+        qpdfInstance = await createQPDFModule({
+            // Vite will handle the WASM file URL
+            locateFile: () => wasmUrl,
+            noInitialRun: true,
+        });
+    }
+    return qpdfInstance;
+}
 
 self.addEventListener('message', async (e) => {
-    const { type, arrayBuffer } = e.data;
+    const { type, arrayBuffer, password, permissions } = e.data;
 
     if (type !== 'protect') {
         return;
     }
 
     try {
-        // Load the original PDF
-        const pdfDoc = await PDFDocument.load(arrayBuffer);
+        // Initialize QPDF
+        const qpdf = await initQPDF();
 
-        // Create a new PDF and copy all pages
-        const newPdf = await PDFDocument.create();
-        const pages = await newPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
-        pages.forEach(page => newPdf.addPage(page));
+        // Convert ArrayBuffer to Uint8Array
+        const pdfBytes = new Uint8Array(arrayBuffer);
 
-        // Copy metadata
-        const title = pdfDoc.getTitle();
-        const author = pdfDoc.getAuthor();
-        const subject = pdfDoc.getSubject();
-        if (title) newPdf.setTitle(title);
-        if (author) newPdf.setAuthor(author);
-        if (subject) newPdf.setSubject(subject);
+        // Write input PDF to QPDF virtual filesystem
+        const inputPath = '/input.pdf';
+        const outputPath = '/output.pdf';
+        qpdf.FS.writeFile(inputPath, pdfBytes);
 
-        // Mark as protected
-        newPdf.setProducer('FileNext - Protected PDF');
-        newPdf.setCreator('FileNext PDF Protector');
+        // Build encryption command
+        // QPDF encryption: qpdf --encrypt user-password owner-password key-length [options] -- input.pdf output.pdf
+        // Note: Using same password for user and owner for simplicity. 
+        // In production, consider using different passwords:
+        // - User password: required to open the document
+        // - Owner password: required to change permissions/decrypt
+        const args = [
+            '--encrypt',
+            password,           // User password (required to open)
+            password,           // Owner password (using same for simplicity)
+            '256',              // AES 256-bit encryption
+        ];
 
-        // Save with object streams for optimization
-        const pdfBytes = await newPdf.save({
-            useObjectStreams: true,
-            addDefaultPage: false,
-            objectsPerTick: 50,
-            updateFieldAppearances: false
-        });
+        // Add permission flags if specified
+        if (permissions) {
+            if (permissions.allowPrinting === false) {
+                args.push('--print=none');
+            }
+            if (permissions.allowCopying === false) {
+                args.push('--extract=n');
+            }
+        }
 
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        // Complete the command
+        args.push('--');
+        args.push(inputPath);
+        args.push(outputPath);
+
+        // Execute QPDF encryption
+        try {
+            qpdf.callMain(args);
+        } catch (qpdfError) {
+            console.error('QPDF execution error:', qpdfError);
+            throw new Error('Failed to encrypt PDF. The file may be corrupted, password-protected already, or in an unsupported format.');
+        }
+
+        // Read the encrypted PDF
+        const encryptedPdf = qpdf.FS.readFile(outputPath);
+
+        // Clean up virtual filesystem
+        try {
+            qpdf.FS.unlink(inputPath);
+            qpdf.FS.unlink(outputPath);
+        } catch (cleanupError) {
+            console.warn('Cleanup error:', cleanupError);
+        }
+
+        // Create blob from encrypted PDF
+        const blob = new Blob([encryptedPdf], { type: 'application/pdf' });
 
         self.postMessage({
             type: 'success',
