@@ -187,7 +187,7 @@ function AppContent() {
 
                 {/* Mega Menu Dropdown */}
                 {isToolsDropdownOpen && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-[800px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-120px)] overflow-y-auto bg-white rounded-2xl shadow-2xl shadow-gray-200/60 border border-gray-100 p-5 z-50 animate-fade-in-down">
+                  <div className="absolute top-full left-0 mt-1 w-[800px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-120px)] overflow-y-auto bg-white rounded-2xl shadow-2xl shadow-gray-200/60 border border-gray-100 p-5 z-50 animate-fade-in-down">
                     <div className="grid grid-cols-3 lg:grid-cols-4 gap-5">
                       {toolCategories.map((category, idx) => (
                         <div key={idx}>
