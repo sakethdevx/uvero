@@ -70,6 +70,9 @@
     .logo-shine::before {
       animation: none;
     }
+    .animate-gradient-x {
+      animation: none;
+    }
   }
   
   /* Navigation Button Glass Effect */
@@ -144,13 +147,6 @@
   
   .section-subheading {
     @apply text-lg text-gray-600 max-w-2xl mx-auto;
-  }
-  
-  /* Logo hover accessibility */
-  @media (prefers-reduced-motion: reduce) {
-    .logo-shine {
-      transition: none !important;
-    }
   }
 }
 
