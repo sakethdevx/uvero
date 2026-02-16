@@ -173,36 +173,36 @@ function AppContent() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'glass shadow-lg shadow-gray-200/50' : 'bg-white/95 backdrop-blur-sm border-b border-gray-100'}`}>
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="flex justify-between items-center h-16">
+      <header className="sticky top-0 z-50 py-3 px-4 sm:px-6 lg:px-8">
+        <nav className={`max-w-7xl mx-auto transition-all duration-500 ${isScrolled ? 'floating-nav-scrolled' : 'floating-nav'}`}>
+          <div className="flex justify-between items-center h-16 px-4 sm:px-6">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/25 group-hover:shadow-primary-500/40 transition-all duration-300 group-hover:scale-105">
-                <span className="text-white font-bold text-xl">U</span>
+            <Link to="/" className="flex items-center gap-2.5 group relative z-10">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 via-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-primary-500/30 group-hover:shadow-primary-500/50 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 logo-shine relative overflow-hidden">
+                <span className="text-white font-bold text-xl relative z-10">U</span>
               </div>
               <span className="text-2xl font-bold text-gray-900">
-                Uve<span className="gradient-text">ro</span>
+                Uve<span className="gradient-text animate-gradient-x">ro</span>
               </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-5">
+            <div className="hidden md:flex items-center gap-3">
               {/* Tools Dropdown */}
               <div className="static" ref={dropdownRef} onMouseEnter={handleDropdownEnter} onMouseLeave={handleDropdownLeave}>
                 <button
                   onClick={() => setIsToolsDropdownOpen(!isToolsDropdownOpen)}
-                  className="flex items-center gap-1.5 text-gray-600 hover:text-primary-600 font-medium transition-colors py-2 px-3 rounded-lg hover:bg-primary-50/50"
+                  className="flex items-center gap-1.5 text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-white/80"
                 >
                   Tools
-                  <svg className={`w-4 h-4 transition-transform duration-200 ${isToolsDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-4 h-4 transition-transform duration-300 ${isToolsDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
 
                 {/* Mega Menu Dropdown */}
                 {isToolsDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-1 max-h-[calc(100vh-120px)] overflow-y-auto bg-white rounded-2xl shadow-2xl shadow-gray-200/60 border border-gray-100 p-5 z-50 animate-fade-in-down">
+                  <div className="absolute top-full left-0 right-0 mt-2 max-h-[calc(100vh-120px)] overflow-y-auto mega-menu-glass rounded-3xl shadow-2xl shadow-gray-300/40 border border-white/40 p-6 z-50 animate-fade-in-down">
                     <div className="grid grid-cols-3 lg:grid-cols-4 gap-5">
                       {toolCategories.map((category, idx) => (
                         <div key={idx}>
@@ -215,7 +215,7 @@ function AppContent() {
                               <li key={toolIdx}>
                                 <Link
                                   to={tool.path}
-                                  className="block text-xs text-gray-600 hover:text-primary-600 hover:bg-primary-50 px-2.5 py-1.5 rounded-lg transition-all duration-150"
+                                  className="block text-xs text-gray-600 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50/80 hover:to-blue-50/80 px-2.5 py-1.5 rounded-lg transition-all duration-200 hover:translate-x-1"
                                   onClick={() => setIsToolsDropdownOpen(false)}
                                 >
                                   {tool.name}
@@ -235,13 +235,13 @@ function AppContent() {
 
               <Link
                 to="/privacy"
-                className="text-gray-600 hover:text-primary-600 font-medium transition-colors py-2 px-3 rounded-lg hover:bg-primary-50/50"
+                className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-white/80"
               >
                 Privacy
               </Link>
               <a
                 href="/#tools"
-                className="btn-primary text-sm !py-2.5 !px-5"
+                className="btn-primary text-sm !py-2 !px-5"
               >
                 Get Started
               </a>
@@ -250,7 +250,7 @@ function AppContent() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 text-gray-600 hover:text-primary-600 rounded-lg hover:bg-gray-100 transition-colors"
+              className="md:hidden p-2.5 text-gray-700 hover:text-primary-600 rounded-xl hover:bg-white/60 backdrop-blur-sm hover:shadow-lg transition-all duration-300 nav-button-glass"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {isMenuOpen ? (
@@ -264,7 +264,7 @@ function AppContent() {
 
           {/* Mobile Menu */}
           {isMenuOpen && (
-            <div className="md:hidden py-4 border-t border-gray-100 max-h-[calc(100vh-64px)] overflow-y-auto animate-fade-in-down">
+            <div className="md:hidden py-4 border-t border-white/20 max-h-[calc(100vh-64px)] overflow-y-auto animate-fade-in-down mobile-menu-glass">
               <div className="space-y-4 pb-4">
                 {/* Mode Toggle for Mobile */}
                 <div className="px-4 pb-4 border-b border-gray-100">
