@@ -173,10 +173,9 @@ function AppContent() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className={`sticky top-0 z-50 transition-all duration-500 ${isScrolled ? 'glass-header-scrolled' : 'glass-header'}`}>
-        <div className="header-shape-wrapper">
-          <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div className="flex justify-between items-center h-16">
+      <header className="sticky top-0 z-50 py-3 px-4 sm:px-6 lg:px-8">
+        <nav className={`max-w-7xl mx-auto transition-all duration-500 ${isScrolled ? 'floating-nav-scrolled' : 'floating-nav'}`}>
+          <div className="flex justify-between items-center h-16 px-4 sm:px-6">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2.5 group relative z-10">
               <div className="w-10 h-10 bg-gradient-to-br from-primary-500 via-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-primary-500/30 group-hover:shadow-primary-500/50 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 logo-shine relative overflow-hidden">
@@ -188,12 +187,12 @@ function AppContent() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-3 nav-container-glass">
+            <div className="hidden md:flex items-center gap-3">
               {/* Tools Dropdown */}
               <div className="static" ref={dropdownRef} onMouseEnter={handleDropdownEnter} onMouseLeave={handleDropdownLeave}>
                 <button
                   onClick={() => setIsToolsDropdownOpen(!isToolsDropdownOpen)}
-                  className="flex items-center gap-1.5 text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 py-2 px-3 rounded-full hover:bg-white/80 nav-button-glass-pill"
+                  className="flex items-center gap-1.5 text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-white/80"
                 >
                   Tools
                   <svg className={`w-4 h-4 transition-transform duration-300 ${isToolsDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,13 +235,13 @@ function AppContent() {
 
               <Link
                 to="/privacy"
-                className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 py-2 px-3 rounded-full hover:bg-white/80 nav-button-glass-pill"
+                className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-white/80"
               >
                 Privacy
               </Link>
               <a
                 href="/#tools"
-                className="btn-primary text-sm !py-2 !px-5 !rounded-full !shadow-lg hover:!shadow-xl !shadow-primary-500/25 hover:!shadow-primary-500/35"
+                className="btn-primary text-sm !py-2 !px-5"
               >
                 Get Started
               </a>
@@ -313,7 +312,6 @@ function AppContent() {
             </div>
           )}
         </nav>
-        </div>
       </header>
 
       {/* Main Content */}

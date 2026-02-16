@@ -15,36 +15,23 @@
 }
 
 @layer components {
-  /* Enhanced Glass Header Styles */
-  .glass-header {
-    @apply bg-gradient-to-r from-white/80 via-white/70 to-white/80 backdrop-blur-2xl border-b border-white/40;
-    background-image: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(240,249,255,0.7) 50%, rgba(255,255,255,0.8) 100%);
-    box-shadow: 0 4px 30px rgba(14, 165, 233, 0.08), 0 1px 3px rgba(0,0,0,0.05);
+  /* Floating Navigation Bar */
+  .floating-nav {
+    @apply bg-white/80 backdrop-blur-2xl rounded-3xl border border-white/60;
+    box-shadow: 0 4px 24px rgba(14, 165, 233, 0.1), 
+                0 2px 8px rgba(0, 0, 0, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                inset 0 -1px 0 rgba(14, 165, 233, 0.1);
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(240,249,255,0.8) 50%, rgba(255,255,255,0.9) 100%);
   }
   
-  .glass-header-scrolled {
-    @apply bg-gradient-to-r from-white/85 via-white/75 to-white/85 backdrop-blur-3xl border-b border-white/50;
-    background-image: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(240,249,255,0.75) 50%, rgba(255,255,255,0.85) 100%);
-    box-shadow: 0 8px 40px rgba(14, 165, 233, 0.12), 0 2px 8px rgba(0,0,0,0.08), 0 0 0 1px rgba(14, 165, 233, 0.1) inset;
-  }
-  
-  /* Curved Bottom Edge Container */
-  .header-shape-wrapper {
-    position: relative;
-  }
-  
-  .header-shape-wrapper::after {
-    content: '';
-    position: absolute;
-    bottom: -20px;
-    left: 0;
-    right: 0;
-    height: 20px;
-    background: inherit;
-    backdrop-filter: inherit;
-    -webkit-backdrop-filter: inherit;
-    clip-path: ellipse(100% 100% at 50% 0%);
-    pointer-events: none;
+  .floating-nav-scrolled {
+    @apply bg-white/85 backdrop-blur-3xl rounded-3xl border border-white/70;
+    box-shadow: 0 8px 40px rgba(14, 165, 233, 0.15), 
+                0 4px 12px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 1),
+                inset 0 -1px 0 rgba(14, 165, 233, 0.15);
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,249,255,0.85) 50%, rgba(255,255,255,0.95) 100%);
   }
   
   /* Logo Shine Effect */
@@ -114,16 +101,6 @@
       radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.05) 0%, transparent 50%),
       radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
       linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,249,255,0.90) 100%);
-  }
-  
-  /* Navigation Container - Curved Glass Pill */
-  .nav-container-glass {
-    @apply bg-white/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/60;
-    box-shadow: 0 4px 16px rgba(14, 165, 233, 0.1), 
-                0 2px 8px rgba(0, 0, 0, 0.05),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8),
-                inset 0 -1px 0 rgba(14, 165, 233, 0.1);
-    background-image: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(240,249,255,0.5) 50%, rgba(255,255,255,0.7) 100%);
   }
   
   /* Mobile Menu Glass Effect */
