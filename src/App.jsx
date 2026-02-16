@@ -188,12 +188,12 @@ function AppContent() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-5">
+            <div className="hidden md:flex items-center gap-3 nav-container-glass">
               {/* Tools Dropdown */}
               <div className="static" ref={dropdownRef} onMouseEnter={handleDropdownEnter} onMouseLeave={handleDropdownLeave}>
                 <button
                   onClick={() => setIsToolsDropdownOpen(!isToolsDropdownOpen)}
-                  className="flex items-center gap-1.5 text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 py-2.5 px-4 rounded-xl hover:bg-white/60 backdrop-blur-sm hover:shadow-lg hover:shadow-primary-100/50 nav-button-glass"
+                  className="flex items-center gap-1.5 text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 py-2 px-3 rounded-full hover:bg-white/80 nav-button-glass-pill"
                 >
                   Tools
                   <svg className={`w-4 h-4 transition-transform duration-300 ${isToolsDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,13 +236,13 @@ function AppContent() {
 
               <Link
                 to="/privacy"
-                className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 py-2.5 px-4 rounded-xl hover:bg-white/60 backdrop-blur-sm hover:shadow-lg hover:shadow-primary-100/50 nav-button-glass"
+                className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 py-2 px-3 rounded-full hover:bg-white/80 nav-button-glass-pill"
               >
                 Privacy
               </Link>
               <a
                 href="/#tools"
-                className="btn-primary text-sm !py-2.5 !px-6 !rounded-2xl !shadow-xl hover:!shadow-2xl !shadow-primary-500/30 hover:!shadow-primary-500/40"
+                className="btn-primary text-sm !py-2 !px-5 !rounded-full !shadow-lg hover:!shadow-xl !shadow-primary-500/25 hover:!shadow-primary-500/35"
               >
                 Get Started
               </a>
