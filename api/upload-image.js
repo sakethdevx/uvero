@@ -42,7 +42,9 @@ export default async function handler(req, res) {
         if (buffer.length > MAX_BYTES) return res.status(400).json({ error: 'File too large (max 10MB)' })
 
         // upload to GitHub
+        console.log('[api/upload-image] upload request', { event_id, filename: safeName, size: buffer.length })
         const result = await uploadImage(event_id, safeName, buffer)
+        console.log('[api/upload-image] github upload result', { path: result.path, sha: result.sha })
 
         // insert into images table
         const { data, error } = await serverSupabase
@@ -50,10 +52,14 @@ export default async function handler(req, res) {
             .insert([{ event_id, uploaded_by: userData.user.id, github_path: result.path, filename: safeName }])
             .select()
 
-        if (error) return res.status(500).json({ error: error.message })
+        if (error) {
+            console.error('[api/upload-image] supabase insert error', { message: error.message })
+            return res.status(500).json({ error: error.message })
+        }
 
         return res.status(200).json({ data: data[0] })
     } catch (err) {
-        return res.status(500).json({ error: err.message || String(err) })
+        console.error('[api/upload-image] unexpected error', err?.message || String(err), err?.stack)
+        return res.status(500).json({ error: String(err) })
     }
 }
