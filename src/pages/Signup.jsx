@@ -6,6 +6,7 @@ export default function Signup() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState(null)
+    const [info, setInfo] = useState(null)
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
 
@@ -19,14 +20,21 @@ export default function Signup() {
             setError(error.message)
             return
         }
-        // After signup, Supabase may require email confirmation; navigate to home and rely on auth state
-        navigate('/', { replace: true })
+        // If Supabase returned a session the user is signed in immediately
+        if (data?.session) {
+            navigate('/', { replace: true })
+            return
+        }
+
+        // Otherwise an email confirmation is required — show a clear message instead of silently redirecting
+        setInfo(`A verification email has been sent to ${email}. Please check your inbox and verify your email before signing in.`)
     }
 
     return (
         <div className="max-w-md mx-auto p-6">
             <h1 className="text-2xl font-semibold mb-4">Create an account</h1>
             {error && <div className="text-red-600 mb-2">{error}</div>}
+            {info && <div className="text-green-600 mb-2">{info}</div>}
             <form onSubmit={handleSubmit} className="space-y-4">
                 <label className="block">
                     <span className="text-sm">Email</span>
