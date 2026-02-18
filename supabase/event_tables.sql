@@ -9,6 +9,13 @@ create table if not exists public.events (
   created_at timestamptz default now()
 );
 
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  email text,
+  full_name text,
+  updated_at timestamptz default now()
+);
+
 create table if not exists public.images (
   id uuid primary key default gen_random_uuid(),
   event_id uuid references public.events on delete cascade,
