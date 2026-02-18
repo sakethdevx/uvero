@@ -5,6 +5,8 @@ import ModeToggle from './components/ModeToggle';
 import Home from './pages/Home';
 import ToolPage from './pages/ToolPage';
 import Privacy from './pages/Privacy';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 
 /**
  * Main App Component
@@ -320,6 +322,8 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/:toolId" element={<ToolPage />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
         </Routes>
       </main>
 
