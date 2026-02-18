@@ -14,6 +14,7 @@
     "@ffmpeg/util": "^0.12.2",
     "@imgly/background-removal": "^1.7.0",
     "@neslinesli93/qpdf-wasm": "^0.3.0",
+    "@supabase/supabase-js": "^2.35.0",
     "browser-image-compression": "^2.0.2",
     "epubjs": "^0.3.93",
     "formidable": "^3.5.4",
@@ -32,7 +33,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0",
-    "@supabase/supabase-js": "^2.35.0",
+    "sanitize-filename": "^1.6.3",
     "sharp": "^0.34.5",
     "xlsx-republish": "^0.20.3"
   },
