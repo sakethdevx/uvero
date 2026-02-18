@@ -5,6 +5,8 @@ import ModeToggle from './components/ModeToggle';
 import Home from './pages/Home';
 import ToolPage from './pages/ToolPage';
 import Privacy from './pages/Privacy';
+import EventsPage from './pages/Events';
+import EventDetail from './pages/EventDetail';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ResetPassword from './pages/ResetPassword';
@@ -315,6 +317,8 @@ function AppContent() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/:toolId" element={<ToolPage />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/login" element={<Login />} />

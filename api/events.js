@@ -1,0 +1,64 @@
+// API endpoints for event creation and listing
+import { createClient } from '@supabase/supabase-js'
+
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
+const serverSupabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+
+export default async function handler(req, res) {
+    const { method } = req
+    if (!SUPABASE_SERVICE_KEY) return res.status(500).json({ error: 'Missing server supabase key' })
+
+    const authHeader = req.headers.authorization || ''
+    const token = authHeader.replace('Bearer ', '')
+    if (!token) return res.status(401).json({ error: 'Missing access token' })
+
+    const { data: userData, error: userError } = await serverSupabase.auth.getUser(token)
+    if (userError || !userData?.user) return res.status(401).json({ error: 'Invalid token' })
+    const user = userData.user
+
+    try {
+        if (method === 'POST') {
+            const payload = req.body
+            const { event_name, description, event_date } = payload || {}
+            if (!event_name) return res.status(400).json({ error: 'event_name required' })
+
+            const { data, error } = await serverSupabase
+                .from('events')
+                .insert([{ event_name, description, event_date, created_by: user.id }])
+                .select()
+
+            if (error) return res.status(500).json({ error: error.message })
+            return res.status(200).json({ data: data[0] })
+        }
+
+        if (method === 'GET') {
+            const { event_id } = req.query || {}
+            if (event_id) {
+                // return images for this event if user owns it
+                const { data, error } = await serverSupabase
+                    .from('images')
+                    .select('*')
+                    .eq('event_id', event_id)
+                    .order('uploaded_at', { ascending: false })
+
+                if (error) return res.status(500).json({ error: error.message })
+                return res.status(200).json({ data })
+            }
+
+            // list events for current user
+            const { data, error } = await serverSupabase
+                .from('events')
+                .select('*')
+                .eq('created_by', user.id)
+                .order('created_at', { ascending: false })
+
+            if (error) return res.status(500).json({ error: error.message })
+            return res.status(200).json({ data })
+        }
+
+        return res.status(405).json({ error: 'Method not allowed' })
+    } catch (err) {
+        return res.status(500).json({ error: err.message || String(err) })
+    }
+}
