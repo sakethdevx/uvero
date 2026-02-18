@@ -10,6 +10,7 @@ export default async function handler(req, res) {
     if (!SUPABASE_SERVICE_KEY) return res.status(500).json({ error: 'Missing server supabase key' })
 
     // Temporary debug logging (safe: do NOT print secret values)
+    let user = null
     try {
         console.log('[api/events] incoming', { method, url: req.url })
         const authHeader = req.headers.authorization || ''
@@ -26,7 +27,7 @@ export default async function handler(req, res) {
             console.log('[api/events] supabase getUser failed', { message: userError?.message })
             return res.status(401).json({ error: 'Invalid token' })
         }
-        const user = userData.user
+        user = userData.user
         console.log('[api/events] authenticated user id:', user?.id)
     } catch (dbgErr) {
         console.error('[api/events] debug logging error:', dbgErr?.message || String(dbgErr))
