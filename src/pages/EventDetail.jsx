@@ -27,48 +27,41 @@ export default function EventDetail() {
     async function handleFiles(files) {
         if (!files || !files.length) return
         for (const file of Array.from(files)) {
-            // request upload url
-            const gen = await fetch('/api/gen-upload-url', {
+            // read as base64
+            const dataUrl = await new Promise((resolve, reject) => {
+                const reader = new FileReader()
+                reader.onload = () => resolve(reader.result)
+                reader.onerror = reject
+                reader.readAsDataURL(file)
+            })
+            const base64 = dataUrl.split(',')[1]
+
+            const upload = await fetch('/api/upload-image', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
-                body: JSON.stringify({ filename: file.name, contentType: file.type, event_id: id })
+                body: JSON.stringify({ event_id: id, filename: file.name, content: base64 })
             }).then(r => r.json())
 
-            if (!gen.uploadUrl) { console.error('Failed to get upload URL', gen); continue }
+            if (!upload.data) { console.error('Upload failed', upload); continue }
+            setImages(prev => [upload.data, ...prev])
 
-            // upload to R2 via PUT
-            await fetch(gen.uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file })
-
-            // confirm to backend
-            const confirmed = await fetch('/api/confirm-upload', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
-                body: JSON.stringify({ event_id: id, key: gen.key, publicUrl: gen.publicUrl })
-            }).then(r => r.json())
-
-            if (confirmed.data) {
-                // push into images list
-                setImages(prev => [confirmed.data, ...prev])
-
-                // run face detection in browser if available
-                if (window.faceapi) {
-                    try {
-                        const imgBlob = file
-                        const img = await faceImageFromBlob(imgBlob)
-                        const detections = await window.faceapi.detectAllFaces(img).withFaceLandmarks().withFaceDescriptors()
-                        const descriptors = detections.map(d => Array.from(d.descriptor))
-                        if (descriptors.length) {
-                            await fetch('/api/process-faces', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
-                                body: JSON.stringify({ image_id: confirmed.data.id, event_id: id, descriptors })
-                            })
-                            // refresh persons
-                            const p = await fetch(`/api/persons?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } }).then(r => r.json())
-                            setPersons(p.data || [])
-                        }
-                    } catch (err) { console.warn('Face detection failed', err) }
-                }
+            // run face detection in browser if available
+            if (window.faceapi) {
+                try {
+                    const img = await faceImageFromBlob(file)
+                    const detections = await window.faceapi.detectAllFaces(img).withFaceLandmarks().withFaceDescriptors()
+                    const descriptors = detections.map(d => Array.from(d.descriptor))
+                    if (descriptors.length) {
+                        await fetch('/api/process-faces', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
+                            body: JSON.stringify({ image_id: upload.data.id, event_id: id, descriptors })
+                        })
+                        // refresh persons
+                        const p = await fetch(`/api/persons?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } }).then(r => r.json())
+                        setPersons(p.data || [])
+                    }
+                } catch (err) { console.warn('Face detection failed', err) }
             }
         }
     }
@@ -93,8 +86,11 @@ export default function EventDetail() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {images.map(img => (
                             <div key={img.id} className="border rounded overflow-hidden">
-                                <img src={img.r2_url} alt="uploaded" className="w-full h-40 object-cover" />
+                                <img src={`/api/images/${img.id}`} alt="uploaded" className="w-full h-40 object-cover" loading="lazy" />
                                 <div className="p-2 text-xs text-gray-600">{new Date(img.uploaded_at).toLocaleString()}</div>
+                                <div className="p-2">
+                                    <a href={`/api/images/${img.id}?download=1`} className="text-sm text-blue-600">Download</a>
+                                </div>
                             </div>
                         ))}
                     </div>

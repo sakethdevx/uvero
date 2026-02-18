@@ -13,8 +13,8 @@ create table if not exists public.images (
   id uuid primary key default gen_random_uuid(),
   event_id uuid references public.events on delete cascade,
   uploaded_by uuid references auth.users on delete cascade,
-  r2_url text not null,
-  r2_key text not null,
+  github_path text not null,
+  filename text not null,
   uploaded_at timestamptz default now()
 );
 

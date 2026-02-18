@@ -3,16 +3,17 @@ Event Photo Organizer — Implementation Notes and Setup
 Overview
 --------
 
-This module adds event creation, image uploads to Cloudflare R2, face detection via face-api.js (browser), grouping into persons, and ZIP downloads.
+This module adds event creation, image uploads to a private GitHub repository, face detection via face-api.js (browser), grouping into persons, and ZIP downloads.
 
 Server prerequisites
 --------------------
 
 - Add these environment variables to your deployment (Vercel / Node host):
   - `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` (service role key)
-  - `R2_ACCOUNT_ID` — your Cloudflare account id used in R2 endpoints
-  - `R2_BUCKET` — your R2 bucket name
-  - `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`
+  - `GITHUB_TOKEN` — a Personal Access Token with `repo` scope (keep it secret, server-only)
+  - `GITHUB_OWNER` — GitHub account or organization name
+  - `GITHUB_REPO` — private repository name where images will be stored
+  - `GITHUB_BRANCH` — branch to commit to (default: `main`)
 
 Install server dependencies
 ---------------------------
@@ -20,7 +21,7 @@ Install server dependencies
 On the server (project root), install these packages:
 
 ```bash
-npm install @aws-sdk/client-s3 @aws-sdk/s3-request-presigner archiver
+npm install mime sanitize-filename
 ```
 
 Client prerequisites (face detection)
@@ -52,24 +53,23 @@ API endpoints
 - `POST /api/events` — create event (requires Authorization Bearer token)
 - `GET /api/events` — list user's events
 - `GET /api/events?event_id=...` — list images for event
-- `POST /api/gen-upload-url` — returns presigned PUT URL for R2
-- `POST /api/confirm-upload` — create image row after upload
+- `POST /api/upload-image` — upload image (base64 payload). Backend saves to GitHub and inserts DB row
 - `POST /api/process-faces` — accept descriptors and map to persons
 - `GET /api/persons?event_id=...` — list persons for event
-- `POST /api/download-zip` — create ZIP and stream images (requires R2 creds)
+-- `POST /api/download-zip` — (removed in Phase-1) ZIP generation via R2 removed; can re-add GitHub-based ZIP later
 
 Security notes
 --------------
 
-- Keep `SUPABASE_SERVICE_KEY` and R2 keys secret — store them in your deployment environment only.
-- RLS policies in SQL ensure event access is limited to owners.
-- Presigned URLs expire quickly (10 minutes) and uploads are stored under `events/{event_id}/`.
+-- Keep `SUPABASE_SERVICE_KEY` and `GITHUB_TOKEN` secret — store them in your deployment environment only.
+-- RLS policies in SQL ensure event access is limited to owners.
+-- Images are stored in a private GitHub repo and served only through the backend proxy.
 
 Frontend usage
 --------------
 
 - Visit `/events` to create events and open an event.
-- On the event page you can upload images; the browser will call `/api/gen-upload-url`, PUT the file to R2, then call `/api/confirm-upload`.
+-- On the event page you can upload images; the browser will send a base64 payload to `/api/upload-image` and the backend will store the file in the private GitHub repo and insert a DB row.
 - If face-api is available and models are loaded, the client will compute face descriptors and call `/api/process-faces` to group into persons.
 
 Further improvements
