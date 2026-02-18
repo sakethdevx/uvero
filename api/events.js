@@ -9,13 +9,28 @@ export default async function handler(req, res) {
     const { method } = req
     if (!SUPABASE_SERVICE_KEY) return res.status(500).json({ error: 'Missing server supabase key' })
 
-    const authHeader = req.headers.authorization || ''
-    const token = authHeader.replace('Bearer ', '')
-    if (!token) return res.status(401).json({ error: 'Missing access token' })
+    // Temporary debug logging (safe: do NOT print secret values)
+    try {
+        console.log('[api/events] incoming', { method, url: req.url })
+        const authHeader = req.headers.authorization || ''
+        const token = authHeader.replace('Bearer ', '')
+        const tokenPresent = Boolean(token)
+        const masked = tokenPresent ? `${token.slice(0, 6)}...${token.slice(-4)}` : null
+        console.log('[api/events] auth header present:', tokenPresent, 'masked:', masked)
 
-    const { data: userData, error: userError } = await serverSupabase.auth.getUser(token)
-    if (userError || !userData?.user) return res.status(401).json({ error: 'Invalid token' })
-    const user = userData.user
+        if (!token) return res.status(401).json({ error: 'Missing access token' })
+
+        // Validate user with Supabase using the provided access token
+        const { data: userData, error: userError } = await serverSupabase.auth.getUser(token)
+        if (userError || !userData?.user) {
+            console.log('[api/events] supabase getUser failed', { message: userError?.message })
+            return res.status(401).json({ error: 'Invalid token' })
+        }
+        const user = userData.user
+        console.log('[api/events] authenticated user id:', user?.id)
+    } catch (dbgErr) {
+        console.error('[api/events] debug logging error:', dbgErr?.message || String(dbgErr))
+    }
 
     try {
         if (method === 'POST') {
