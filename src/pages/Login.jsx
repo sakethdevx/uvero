@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { signIn, signInWithProvider } from '../auth/authService'
+import { signIn } from '../auth/authService'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 
 export default function Login() {
@@ -7,6 +7,7 @@ export default function Login() {
     const [password, setPassword] = useState('')
     const [error, setError] = useState(null)
     const [loading, setLoading] = useState(false)
+    const [info, setInfo] = useState(null)
     const navigate = useNavigate()
     const location = useLocation()
 
@@ -29,6 +30,7 @@ export default function Login() {
         <div className="max-w-md mx-auto p-6">
             <h1 className="text-2xl font-semibold mb-4">Sign in to Uvero</h1>
             {error && <div className="text-red-600 mb-2">{error}</div>}
+            {info && <div className="text-gray-700 mb-2">{info}</div>}
             <form onSubmit={handleSubmit} className="space-y-4">
                 <label className="block">
                     <span className="text-sm">Email</span>
@@ -44,10 +46,10 @@ export default function Login() {
             </form>
             <p className="mt-4 text-sm">Need an account? <Link to="/signup" className="text-blue-600">Sign up</Link></p>
             <div className="mt-4">
-                <div className="text-sm text-gray-600 mb-2">Or continue with</div>
+                <div className="text-sm text-gray-600 mb-2">Or continue with (coming soon)</div>
                 <div className="flex gap-2">
-                    <button onClick={() => signInWithProvider('google')} className="flex-1 border rounded px-3 py-2">Google</button>
-                    <button onClick={() => signInWithProvider('github')} className="flex-1 border rounded px-3 py-2">GitHub</button>
+                    <button disabled onClick={() => setInfo('OAuth providers will be available soon')} className="flex-1 border rounded px-3 py-2 opacity-60 cursor-not-allowed">Google</button>
+                    <button disabled onClick={() => setInfo('OAuth providers will be available soon')} className="flex-1 border rounded px-3 py-2 opacity-60 cursor-not-allowed">GitHub</button>
                 </div>
             </div>
 

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { ModeProvider } from './context/ModeContext';
 import ModeToggle from './components/ModeToggle';
@@ -236,23 +236,19 @@ function AppContent() {
                 )}
               </div>
 
-              {/* Mode Toggle */}
-              <ModeToggle />
-              {/* Auth state */}
-              <AuthStatus />
+              <div className="flex items-center gap-4">
+                <Link
+                  to="/privacy"
+                  className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-white/80"
+                >
+                  Privacy
+                </Link>
 
-              <Link
-                to="/privacy"
-                className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-white/80"
-              >
-                Privacy
-              </Link>
-              <a
-                href="/#tools"
-                className="btn-primary text-sm !py-2 !px-5"
-              >
-                Get Started
-              </a>
+                <ModeToggle />
+
+                {/* Auth state */}
+                <AuthStatus />
+              </div>
             </div>
 
             {/* Mobile Menu Button */}
@@ -308,13 +304,6 @@ function AppContent() {
                   >
                     Privacy
                   </Link>
-                  <a
-                    href="/#tools"
-                    className="btn-primary text-sm w-full text-center block"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Get Started
-                  </a>
                 </div>
               </div>
             </div>
@@ -448,6 +437,23 @@ export default App;
 
 function AuthStatus() {
   const { user } = useAuth()
+  const navigate = useNavigate()
+  const [signingOut, setSigningOut] = useState(false)
+
+  async function handleSignOut() {
+    setSigningOut(true)
+    try {
+      const res = await signOut()
+      if (res?.error) throw res.error
+      // navigate home and show a brief message
+      navigate('/', { replace: true })
+      window.alert('Signed out successfully')
+    } catch (err) {
+      window.alert('Sign out failed: ' + (err?.message || err))
+    } finally {
+      setSigningOut(false)
+    }
+  }
 
   if (!user) {
     return (
@@ -461,7 +467,9 @@ function AuthStatus() {
   return (
     <div className="flex items-center gap-3">
       <Link to="/profile" className="text-sm text-gray-700 hover:text-primary-600">{user.email}</Link>
-      <button onClick={() => signOut()} className="text-sm text-gray-600 hover:text-gray-900">Sign out</button>
+      <button onClick={handleSignOut} disabled={signingOut} className="text-sm text-gray-600 hover:text-gray-900">
+        {signingOut ? 'Signing out...' : 'Sign out'}
+      </button>
     </div>
   )
 }
