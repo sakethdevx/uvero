@@ -7,6 +7,7 @@ import ToolPage from './pages/ToolPage';
 import Privacy from './pages/Privacy';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import { useAuth } from './auth/AuthProvider';
 import { signOut } from './auth/authService';
@@ -329,6 +330,7 @@ function AppContent() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>
       </main>

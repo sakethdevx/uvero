@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { signIn } from '../auth/authService'
+import { signIn, signInWithProvider } from '../auth/authService'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 
 export default function Login() {
@@ -43,6 +43,18 @@ export default function Login() {
                 </button>
             </form>
             <p className="mt-4 text-sm">Need an account? <Link to="/signup" className="text-blue-600">Sign up</Link></p>
+            <div className="mt-4">
+                <div className="text-sm text-gray-600 mb-2">Or continue with</div>
+                <div className="flex gap-2">
+                    <button onClick={() => signInWithProvider('google')} className="flex-1 border rounded px-3 py-2">Google</button>
+                    <button onClick={() => signInWithProvider('github')} className="flex-1 border rounded px-3 py-2">GitHub</button>
+                </div>
+            </div>
+
+            <div className="mt-4 flex justify-between items-center text-sm">
+                <Link to="/reset-password" className="text-blue-600">Forgot password?</Link>
+                <span>Need an account? <Link to="/signup" className="text-blue-600">Sign up</Link></span>
+            </div>
         </div>
     )
 }
