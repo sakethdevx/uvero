@@ -7,6 +7,9 @@ import ToolPage from './pages/ToolPage';
 import Privacy from './pages/Privacy';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Profile from './pages/Profile';
+import { useAuth } from './auth/AuthProvider';
+import { signOut } from './auth/authService';
 
 /**
  * Main App Component
@@ -234,6 +237,8 @@ function AppContent() {
 
               {/* Mode Toggle */}
               <ModeToggle />
+              {/* Auth state */}
+              <AuthStatus />
 
               <Link
                 to="/privacy"
@@ -324,6 +329,7 @@ function AppContent() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </main>
 
@@ -437,3 +443,23 @@ function App() {
 }
 
 export default App;
+
+function AuthStatus() {
+  const { user } = useAuth()
+
+  if (!user) {
+    return (
+      <div className="flex items-center gap-3">
+        <Link to="/login" className="text-sm text-gray-700 hover:text-primary-600">Sign in</Link>
+        <Link to="/signup" className="btn-primary text-sm">Sign up</Link>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <Link to="/profile" className="text-sm text-gray-700 hover:text-primary-600">{user.email}</Link>
+      <button onClick={() => signOut()} className="text-sm text-gray-600 hover:text-gray-900">Sign out</button>
+    </div>
+  )
+}
