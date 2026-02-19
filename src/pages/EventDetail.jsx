@@ -192,6 +192,25 @@ export default function EventDetail() {
                     }
                 } catch (err) { console.warn('Face detection failed', err) }
             }
+            else {
+                // If face-api not available, call server /api/detect which proxies HF inference
+                try {
+                    const resp = await fetch('/api/detect', {
+                        method: 'POST',
+                        headers: { 'Content-Type': uploadFile.type },
+                        body: uploadFile
+                    })
+                    if (!resp.ok) {
+                        console.warn('Remote detect failed', resp.status)
+                    } else {
+                        const json = await resp.json()
+                        console.debug('[remote detect] persons:', json.persons || [], 'raw:', json.raw)
+                        // Note: HF model returns bounding boxes/scores but not face descriptors.
+                        // This is useful for detection only; clustering into `persons` requires descriptors and
+                        // the existing `/api/process-faces` flow.
+                    }
+                } catch (err) { console.warn('Remote face detect failed', err) }
+            }
         }
     }
 
