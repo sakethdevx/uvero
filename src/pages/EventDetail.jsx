@@ -45,7 +45,7 @@ export default function EventDetail() {
         const auth = `Bearer ${user?.access_token || ''}`
         const results = await Promise.all(imgs.map(async (img) => {
             try {
-                const resp = await fetch(`/api/images/${img.id}`, { headers: { Authorization: auth }, cache: 'no-store' })
+                    const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}`, { headers: { Authorization: auth }, cache: 'no-store' })
                 console.debug('[preload] image', img.id, 'status=', resp.status)
                 if (!resp.ok) return img
                 const contentType = resp.headers.get('Content-Type')
@@ -87,13 +87,13 @@ export default function EventDetail() {
                 const reader = new FileReader()
                 reader.onload = () => resolve(reader.result)
                 reader.onerror = reject
-                reader.readAsDataURL(uploadFile)
+                    reader.readAsDataURL(uploadFile)
             })
             const base64 = dataUrl.split(',')[1]
 
             let upload
             try {
-                const resp = await fetch('/api/upload-image', {
+                    const resp = await fetch('/api/upload-image', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
                     body: JSON.stringify({ event_id: id, filename: file.name, content: base64 })
