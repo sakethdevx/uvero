@@ -3,7 +3,7 @@ import { getImageBuffer } from '../../services/githubStorage.js'
 import mime from 'mime'
 import path from 'path'
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
+const SUPABASE_URL = process.env.SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
 const serverSupabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
