@@ -17,7 +17,7 @@ function apiUrl(path) {
     return `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${encodeURI(path)}`
 }
 
-async function uploadImage(eventId, filename, buffer) {
+async function uploadImage(eventId, filename, buffer, branch = GITHUB_BRANCH) {
     if (!GITHUB_TOKEN) throw new Error('Missing GITHUB_TOKEN')
     const safePath = `event-images/${eventId}/${filename}`
     const content = Buffer.from(buffer).toString('base64')
@@ -25,7 +25,7 @@ async function uploadImage(eventId, filename, buffer) {
     const body = {
         message: `upload: ${eventId}/${filename}`,
         content,
-        branch: GITHUB_BRANCH
+        branch
     }
 
     const res = await fetch(apiUrl(safePath), {
@@ -124,4 +124,4 @@ async function deleteImage(path) {
     return true
 }
 
-export { uploadImage, getImageBuffer, deleteImage }
+export { uploadImage, getImageBuffer, deleteImage, createBranch }
