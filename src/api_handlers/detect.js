@@ -24,7 +24,31 @@ export default async function handler(req, res) {
             body
         })
 
-        const json = await hfRes.json()
+        // Inspect response -- sometimes HF returns HTML error pages (HTML begins with '<')
+        const respContentType = (hfRes.headers.get('content-type') || '').toLowerCase()
+        let json = null
+
+        if (!hfRes.ok) {
+            // Try to read text body for debugging
+            const text = await hfRes.text().catch(() => '')
+            console.error('[api/detect] HF responded with error', hfRes.status, text.slice(0, 200))
+            return res.status(502).json({ error: 'Hugging Face inference error', status: hfRes.status, body: text })
+        }
+
+        if (respContentType.includes('application/json')) {
+            try {
+                json = await hfRes.json()
+            } catch (err) {
+                const text = await hfRes.text().catch(() => '')
+                console.error('[api/detect] Failed to parse JSON from HF response', err, 'body:', text.slice(0, 200))
+                return res.status(502).json({ error: 'Invalid JSON from Hugging Face', body: text })
+            }
+        } else {
+            // Non-JSON (HTML or plain text) -- return body as text for diagnostics
+            const text = await hfRes.text().catch(() => '')
+            console.error('[api/detect] Unexpected HF content-type', respContentType, 'body-snippet:', text.slice(0, 200))
+            return res.status(502).json({ error: 'Unexpected Hugging Face response', contentType: respContentType, body: text.slice(0, 200) })
+        }
 
         // filter person detections and convert to centroid format
         const persons = (Array.isArray(json) ? json : [])
