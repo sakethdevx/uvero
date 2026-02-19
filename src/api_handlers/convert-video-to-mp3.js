@@ -8,6 +8,16 @@
 import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import { exec } from 'child_process';
+/**
+ * Vercel Serverless Function for Video to MP3 Conversion
+ * Endpoint: /api/convert-video-to-mp3
+ * Method: POST
+ * Body: multipart/form-data with 'video' field and 'bitrate' parameter
+ */
+
+import { IncomingForm } from 'formidable';
+import fs from 'fs';
+import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 import os from 'os';
@@ -100,6 +110,10 @@ export default async function handler(req, res) {
         tempAudioPath = path.join(os.tmpdir(), `audio_${Date.now()}.mp3`);
 
         // Convert video to MP3 using ffmpeg
+        // -vn: no video
+        // -ar: audio sample rate (44100 or 48000)
+        // -ab: audio bitrate
+        // -f: force format
         const sampleRate = bitrate >= 192 ? 48000 : 44100;
         await execAsync(
             `ffmpeg -i "${tempVideoPath}" -vn -ar ${sampleRate} -ab ${bitrate}k -f mp3 "${tempAudioPath}"`

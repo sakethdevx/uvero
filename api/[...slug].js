@@ -25,6 +25,7 @@ export default async function dispatcher(req, res) {
             modulePath = `${top}.js`
         }
 
+        // Use absolute file URL import to avoid bundler-relative resolution issues
         const mod = await import(`../src/api_handlers/${modulePath}`)
         const handler = mod.default || mod.handler
         if (!handler || typeof handler !== 'function') return res.status(500).json({ error: 'Handler not found or invalid' })
