@@ -55,6 +55,9 @@ create policy "Users can insert their own events" on public.events
 create policy "Users can select their own events" on public.events
   for select
   using (auth.uid() = created_by);
+create policy "Users can delete their own events" on public.events
+  for delete
+  using (auth.uid() = created_by);
 
 -- Images: only allow inserting with matching uploaded_by
 alter table public.images enable row level security;
