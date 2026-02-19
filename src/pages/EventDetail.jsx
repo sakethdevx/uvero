@@ -12,6 +12,7 @@ export default function EventDetail() {
     const [images, setImages] = useState([])
     const [persons, setPersons] = useState([])
     const fileRef = useRef()
+    const objectUrlsRef = useRef(new Set())
 
     useEffect(() => {
         if (!user) return
@@ -29,31 +30,33 @@ export default function EventDetail() {
             .then(d => setPersons(d.data || []))
     }, [id, user])
 
+    // Revoke all created object URLs only on component unmount
     useEffect(() => {
         return () => {
-            // revoke object URLs on unmount
-            images.forEach(i => { if (i && i._objectUrl) URL.revokeObjectURL(i._objectUrl) })
+            objectUrlsRef.current.forEach(url => {
+                try { URL.revokeObjectURL(url) } catch (e) { }
+            })
+            objectUrlsRef.current.clear()
         }
-    }, [images])
+    }, [])
 
     async function preloadImageUrls(imgs) {
         if (!imgs || !imgs.length || !user) return
         const auth = `Bearer ${user?.access_token || ''}`
-        await Promise.all(imgs.map(async (img) => {
+        const results = await Promise.all(imgs.map(async (img) => {
             try {
                 const resp = await fetch(`/api/images/${img.id}`, { headers: { Authorization: auth } })
-                if (!resp.ok) return
+                if (!resp.ok) return img
                 const blob = await resp.blob()
                 const url = URL.createObjectURL(blob)
-                img._objectUrl = url
+                objectUrlsRef.current.add(url)
+                return { ...img, _objectUrl: url }
             } catch (err) {
                 console.warn('Failed to preload image', img.id, err)
+                return img
             }
         }))
-        setImages(prev => prev.map(p => {
-            const found = imgs.find(x => x.id === p.id)
-            return found && found._objectUrl ? { ...p, _objectUrl: found._objectUrl } : p
-        }))
+        setImages(results)
     }
 
     async function handleFiles(files) {
@@ -124,6 +127,30 @@ export default function EventDetail() {
         handleFiles(files)
     }
 
+    async function downloadImage(img) {
+        try {
+            const token = user?.access_token || null
+            const headers = token ? { Authorization: `Bearer ${token}` } : {}
+            const resp = await fetch(`/api/images/${img.id}?download=1`, { headers })
+            if (!resp.ok) {
+                const txt = await resp.text()
+                console.error('Download failed', resp.status, txt)
+                return
+            }
+            const blob = await resp.blob()
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = img.filename || 'image'
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+            URL.revokeObjectURL(url)
+        } catch (err) {
+            console.error('Download error', err)
+        }
+    }
+
     return (
         <div className="max-w-5xl mx-auto p-6">
             <h1 className="text-2xl font-semibold mb-4">Event</h1>
@@ -174,27 +201,4 @@ async function faceImageFromBlob(blob) {
     })
 }
 
-async function downloadImage(img) {
-    try {
-        // Try to obtain auth token from window-injected session by AuthProvider or fallback to fetch that requires user to be logged in
-        const token = window.__SUPABASE_SESSION__?.access_token || null
-        const headers = token ? { Authorization: `Bearer ${token}` } : {}
-        const resp = await fetch(`/api/images/${img.id}?download=1`, { headers })
-        if (!resp.ok) {
-            const txt = await resp.text()
-            console.error('Download failed', resp.status, txt)
-            return
-        }
-        const blob = await resp.blob()
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = img.filename || 'image'
-        document.body.appendChild(a)
-        a.click()
-        a.remove()
-        URL.revokeObjectURL(url)
-    } catch (err) {
-        console.error('Download error', err)
-    }
-}
+
