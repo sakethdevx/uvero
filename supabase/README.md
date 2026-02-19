@@ -6,7 +6,7 @@ This folder contains guidance and SQL for creating the `profiles` table and RLS 
 
 - Go to <https://app.supabase.com/> and create a new project (free tier is sufficient).
 - Note the `Project URL` and `anon` public key from Project Settings -> API.
-- Add these to your local environment as `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+- Add these to your local environment as `SUPABASE_URL` and `SUPABASE_ANON_KEY`.
 
 1) Database schema
 
