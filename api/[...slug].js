@@ -1,37 +1,78 @@
-// Dispatcher catch-all to consolidate all API handlers into a single serverless function.
-// It routes incoming requests under /api/* to handlers located in `src/api_handlers/`.
+// Catch-all API router: dispatch based on full pathname (works for /api/*)
+export default async function handler(req, res) {
+    const { pathname } = new URL(req.url, `http://${req.headers.host}`)
 
-export default async function dispatcher(req, res) {
-    const slug = req.query?.slug || []
-    if (!Array.isArray(slug)) {
-        // when not using catch-all, normalize
-        return res.status(400).json({ error: 'Invalid API path' })
-    }
-
-    if (slug.length === 0) {
-        return res.status(404).json({ error: 'API root - handler not found' })
-    }
-
-    // Determine module path under src/api_handlers
-    let modulePath = null
-    const top = slug[0]
     try {
-        if (top === 'images') {
-            // images/:id  -> src/api_handlers/images/[id].js
-            if (slug[1]) modulePath = `images/[id].js`
-            else modulePath = `images/index.js`
-        } else {
-            // map other top-level files directly: e.g., /api/events -> src/api_handlers/events.js
-            modulePath = `${top}.js`
+        // exact matches
+        if (pathname === '/api/create-profile') {
+            const mod = await import('../src/api_handlers/create-profile.js')
+            return mod.default(req, res)
         }
 
-        // Use absolute file URL import to avoid bundler-relative resolution issues
-        const mod = await import(`../src/api_handlers/${modulePath}`)
-        const handler = mod.default || mod.handler
-        if (!handler || typeof handler !== 'function') return res.status(500).json({ error: 'Handler not found or invalid' })
-        return await handler(req, res)
-    } catch (err) {
-        console.error('[api/dispatcher] routing error', modulePath, err?.message || String(err))
+        if (pathname === '/api/events') {
+            const mod = await import('../src/api_handlers/events.js')
+            return mod.default(req, res)
+        }
+
+        if (pathname === '/api/compress') {
+            const mod = await import('../src/api_handlers/compress.js')
+            return mod.default(req, res)
+        }
+
+        if (pathname === '/api/convert-video-to-mp3') {
+            const mod = await import('../src/api_handlers/convert-video-to-mp3.js')
+            return mod.default(req, res)
+        }
+
+        if (pathname === '/api/delete-event') {
+            const mod = await import('../src/api_handlers/delete-event.js')
+            return mod.default(req, res)
+        }
+
+        if (pathname === '/api/delete-image') {
+            const mod = await import('../src/api_handlers/delete-image.js')
+            return mod.default(req, res)
+        }
+
+        if (pathname === '/api/join-event') {
+            const mod = await import('../src/api_handlers/join-event.js')
+            return mod.default(req, res)
+        }
+
+        if (pathname === '/api/persons') {
+            const mod = await import('../src/api_handlers/persons.js')
+            return mod.default(req, res)
+        }
+
+        if (pathname === '/api/process-faces') {
+            const mod = await import('../src/api_handlers/process-faces.js')
+            return mod.default(req, res)
+        }
+
+        if (pathname === '/api/upload-image') {
+            const mod = await import('../src/api_handlers/upload-image.js')
+            return mod.default(req, res)
+        }
+
+        // images collection
+        if (pathname === '/api/images') {
+            const mod = await import('../src/api_handlers/images/index.js')
+            return mod.default(req, res)
+        }
+
+        // single image: /api/images/:id
+        if (pathname.startsWith('/api/images/')) {
+            const parts = pathname.split('/')
+            const id = parts[parts.length - 1]
+            req.query = req.query || {}
+            req.query.id = id
+            const mod = await import('../src/api_handlers/images/[id].js')
+            return mod.default(req, res)
+        }
+
         return res.status(404).json({ error: 'Not found' })
+    } catch (err) {
+        console.error('[api/[...slug]] dispatch error', err)
+        return res.status(500).json({ error: String(err?.message || err) })
     }
 }
