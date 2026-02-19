@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import imageCompression from 'browser-image-compression'
 import QRCode from 'qrcode'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 
 // NOTE: face-api models must be loaded by the client; this component will attempt to load them from /models
@@ -18,6 +18,8 @@ export default function EventDetail() {
     const [shareQr, setShareQr] = useState(null)
     const fileRef = useRef()
     const objectUrlsRef = useRef(new Set())
+    const navigate = useNavigate()
+    const [deletingEvent, setDeletingEvent] = useState(false)
 
     useEffect(() => {
         if (!user) return
@@ -223,6 +225,27 @@ export default function EventDetail() {
         }
     }
 
+    async function handleDeleteEvent() {
+        if (!confirm('Delete this event and all its photos? This is permanent.')) return
+        try {
+            setDeletingEvent(true)
+            const token = user?.access_token || null
+            const headers = token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' }
+            const resp = await fetch('/api/delete-event', { method: 'POST', headers, body: JSON.stringify({ event_id: id }) })
+            if (!resp.ok) {
+                const txt = await resp.text()
+                console.error('Delete event failed', resp.status, txt)
+                setDeletingEvent(false)
+                return
+            }
+            // navigate back to events list
+            navigate('/events')
+        } catch (err) {
+            console.error('Delete event error', err)
+            setDeletingEvent(false)
+        }
+    }
+
     return (
         <div className="max-w-5xl mx-auto p-6">
             <h1 className="text-2xl font-semibold mb-4">Event</h1>
@@ -233,7 +256,10 @@ export default function EventDetail() {
                     <button onClick={handleJoinEvent} className="px-3 py-1 bg-blue-600 text-white rounded">Join Event</button>
                 )}
                 {isOwner && (
-                    <button onClick={handleShare} className="px-3 py-1 bg-green-600 text-white rounded">Copy link & QR</button>
+                    <>
+                        <button onClick={handleShare} className="px-3 py-1 bg-green-600 text-white rounded">Copy link & QR</button>
+                        <button disabled={deletingEvent} onClick={handleDeleteEvent} className="px-3 py-1 bg-red-600 text-white rounded">{deletingEvent ? 'Deleting...' : 'Delete Event'}</button>
+                    </>
                 )}
                 {shareQr && (
                     <img src={shareQr} alt="QR" className="h-28 w-28 border p-1" />
