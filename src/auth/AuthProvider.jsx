@@ -13,14 +13,20 @@ export function AuthProvider({ children }) {
         async function load() {
             const { data } = await supabase.auth.getSession()
             if (!mounted) return
-            setUser(data?.session?.user ?? null)
+            // Attach access_token to the user object so components can send it in Authorization header
+            const session = data?.session ?? null
+            if (session) {
+                setUser({ ...session.user, access_token: session.access_token })
+            } else {
+                setUser(null)
+            }
             setLoading(false)
         }
 
         load()
 
         const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
-            const currentUser = session?.user ?? null
+            const currentUser = session ? { ...session.user, access_token: session.access_token } : null
             setUser(currentUser)
 
             // When a user signs in, call server endpoint to ensure a profiles row exists.

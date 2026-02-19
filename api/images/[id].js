@@ -1,0 +1,48 @@
+import { createClient } from '@supabase/supabase-js'
+import { getImageBuffer } from '../../../src/services/githubStorage.js'
+import mime from 'mime'
+import path from 'path'
+
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
+const serverSupabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+
+export default async function handler(req, res) {
+    const { id } = req.query || {}
+    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
+    if (!SUPABASE_SERVICE_KEY) return res.status(500).json({ error: 'Missing server supabase key' })
+
+    try {
+        const authHeader = req.headers.authorization || ''
+        const token = authHeader.replace('Bearer ', '')
+        if (!token) return res.status(401).json({ error: 'Missing access token' })
+
+        const { data: userData, error: userError } = await serverSupabase.auth.getUser(token)
+        if (userError || !userData?.user) return res.status(401).json({ error: 'Invalid token' })
+
+        const { data: imgs, error } = await serverSupabase.from('images').select('*').eq('id', id).limit(1)
+        if (error) return res.status(500).json({ error: error.message })
+        const image = imgs && imgs[0]
+        if (!image) return res.status(404).json({ error: 'Image not found' })
+
+        // Ensure event owner matches requesting user (double-check)
+        const { data: ev } = await serverSupabase.from('events').select('created_by').eq('id', image.event_id).single()
+        if (!ev || ev.created_by !== userData.user.id) return res.status(403).json({ error: 'Forbidden' })
+
+        const buffer = await getImageBuffer(image.github_path)
+
+        const ext = path.extname(image.filename || image.github_path || '').replace('.', '')
+        const type = mime.getType(ext) || 'application/octet-stream'
+
+        res.setHeader('Content-Type', type)
+        res.setHeader('Cache-Control', 'public, max-age=300')
+
+        if (req.query.download) {
+            res.setHeader('Content-Disposition', `attachment; filename="${image.filename || 'image'}"`)
+        }
+
+        res.status(200).send(buffer)
+    } catch (err) {
+        return res.status(500).json({ error: err.message || String(err) })
+    }
+}
