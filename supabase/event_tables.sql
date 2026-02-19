@@ -32,6 +32,13 @@ create table if not exists public.persons (
   created_at timestamptz default now()
 );
 
+create table if not exists public.participants (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid references public.events on delete cascade,
+  user_id uuid references auth.users on delete cascade,
+  joined_at timestamptz default now()
+);
+
 create table if not exists public.face_embeddings (
   id uuid primary key default gen_random_uuid(),
   person_id uuid references public.persons on delete cascade,
@@ -56,7 +63,10 @@ create policy "Insert own images" on public.images
   with check (auth.uid() = uploaded_by);
 create policy "Select images for events user owns" on public.images
   for select
-  using (exists (select 1 from public.events e where e.id = event_id and e.created_by = auth.uid()));
+  using (
+    exists (select 1 from public.events e where e.id = event_id and e.created_by = auth.uid())
+    OR exists (select 1 from public.participants p where p.event_id = event_id and p.user_id = auth.uid())
+  );
 
 -- Persons and embeddings limited to event owners
 alter table public.persons enable row level security;
