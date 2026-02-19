@@ -1,7 +1,4 @@
-// Serverless endpoint to create/upsert a profile row using Supabase service role key.
-// Expects Authorization: Bearer <access_token> header from the client (user's access token).
-// Deploy this on Vercel / Node server. Ensure SUPABASE_SERVICE_KEY is set in environment (do NOT expose it).
-
+// Serverless handler (moved from /api/create-profile.js)
 import { createClient } from '@supabase/supabase-js'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
