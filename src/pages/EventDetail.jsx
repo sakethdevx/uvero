@@ -68,6 +68,30 @@ export default function EventDetail() {
         } catch (err) { console.error('Share error', err) }
     }
 
+    async function handleCopyLink() {
+        try {
+            const link = `${window.location.origin}/events/${id}`
+            await navigator.clipboard.writeText(link)
+            console.debug('Event link copied')
+        } catch (err) { console.error('Copy link error', err) }
+    }
+
+    async function handleDownloadQr() {
+        try {
+            const link = `${window.location.origin}/events/${id}`
+            const dataUrl = await QRCode.toDataURL(link)
+            // trigger download
+            const a = document.createElement('a')
+            a.href = dataUrl
+            a.download = `event-${id}-qr.png`
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+            // keep preview available
+            setShareQr(dataUrl)
+        } catch (err) { console.error('Download QR error', err) }
+    }
+
     // Revoke all created object URLs only on component unmount
     useEffect(() => {
         return () => {
@@ -257,7 +281,8 @@ export default function EventDetail() {
                 )}
                 {isOwner && (
                     <>
-                        <button onClick={handleShare} className="px-3 py-1 bg-green-600 text-white rounded">Copy link & QR</button>
+                        <button onClick={handleCopyLink} className="px-3 py-1 bg-blue-600 text-white rounded">Copy Link</button>
+                        <button onClick={handleDownloadQr} className="px-3 py-1 bg-green-600 text-white rounded">Download QR</button>
                         <button disabled={deletingEvent} onClick={handleDeleteEvent} className="px-3 py-1 bg-red-600 text-white rounded">{deletingEvent ? 'Deleting...' : 'Delete Event'}</button>
                     </>
                 )}
