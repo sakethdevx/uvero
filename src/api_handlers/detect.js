@@ -1,5 +1,5 @@
 // Server proxy for Hugging Face inference API (detect persons/faces)
-const HF_API = 'https://api-inference.huggingface.co/models/facebook/detr-resnet-50'
+const HF_API = 'https://router.huggingface.co/hf-inference/models/hustvl/yolos-tiny'
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
