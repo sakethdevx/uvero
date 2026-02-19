@@ -45,9 +45,20 @@ export default function EventDetail() {
         const auth = `Bearer ${user?.access_token || ''}`
         const results = await Promise.all(imgs.map(async (img) => {
             try {
-                const resp = await fetch(`/api/images/${img.id}`, { headers: { Authorization: auth } })
+                    const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}`, { headers: { Authorization: auth }, cache: 'no-store' })
+                console.debug('[preload] image', img.id, 'status=', resp.status)
                 if (!resp.ok) return img
-                const blob = await resp.blob()
+                const contentType = resp.headers.get('Content-Type')
+                let blob = await resp.blob()
+                // If blob is empty (possible 304 or other cache behaviour), retry once forcing no-cache
+                if (blob.size === 0) {
+                    console.warn('[preload] empty blob for', img.id, 'retrying')
+                    const r2 = await fetch(`/api/images/${img.id}`, { headers: { Authorization: auth }, cache: 'reload' })
+                    if (r2.ok) {
+                        blob = await r2.blob()
+                    }
+                }
+                console.debug('[preload] image', img.id, 'content-type=', contentType, 'blob-size=', blob.size)
                 const url = URL.createObjectURL(blob)
                 objectUrlsRef.current.add(url)
                 return { ...img, _objectUrl: url }
@@ -76,13 +87,13 @@ export default function EventDetail() {
                 const reader = new FileReader()
                 reader.onload = () => resolve(reader.result)
                 reader.onerror = reject
-                reader.readAsDataURL(uploadFile)
+                    reader.readAsDataURL(uploadFile)
             })
             const base64 = dataUrl.split(',')[1]
 
             let upload
             try {
-                const resp = await fetch('/api/upload-image', {
+                    const resp = await fetch('/api/upload-image', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
                     body: JSON.stringify({ event_id: id, filename: file.name, content: base64 })
@@ -166,7 +177,7 @@ export default function EventDetail() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {images.map(img => (
                             <div key={img.id} className="border rounded overflow-hidden">
-                                <img src={img._objectUrl || ''} alt="uploaded" className="w-full h-40 object-cover" loading="lazy" />
+                                <img src={img._objectUrl || undefined} alt="uploaded" className="w-full h-40 object-cover" loading="lazy" />
                                 <div className="p-2 text-xs text-gray-600">{new Date(img.uploaded_at).toLocaleString()}</div>
                                 <div className="p-2">
                                     <button onClick={() => downloadImage(img)} className="text-sm text-blue-600">Download</button>

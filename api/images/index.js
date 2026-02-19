@@ -13,6 +13,8 @@ export default async function handler(req, res) {
     if (!SUPABASE_SERVICE_KEY) return res.status(500).json({ error: 'Missing server supabase key' })
 
     try {
+        if (!id) return res.status(400).json({ error: 'Missing id' })
+
         const authHeader = req.headers.authorization || ''
         const token = authHeader.replace('Bearer ', '')
         if (!token) return res.status(401).json({ error: 'Missing access token' })
@@ -25,13 +27,15 @@ export default async function handler(req, res) {
         const image = imgs && imgs[0]
         if (!image) return res.status(404).json({ error: 'Image not found' })
 
-        // Ensure event owner matches requesting user (double-check)
         const { data: ev } = await serverSupabase.from('events').select('created_by').eq('id', image.event_id).single()
         if (!ev || ev.created_by !== userData.user.id) return res.status(403).json({ error: 'Forbidden' })
 
-        const buffer = await getImageBuffer(image.github_path)
+        // Files are uploaded to a branch named after the event id.
+        // Use the event branch as the ref when fetching the raw content.
+        const ref = image.event_id || process.env.GITHUB_BRANCH
+        console.log('[api/images] fetching from github', { path: image.github_path, ref })
+        const buffer = await getImageBuffer(image.github_path, ref)
 
-        // Determine MIME type: prefer the original filename, fallback to github path or extension
         const filenameOrPath = image.filename || image.github_path || ''
         let type = mime.getType(filenameOrPath)
         if (!type) {
@@ -40,16 +44,20 @@ export default async function handler(req, res) {
         }
 
         res.setHeader('Content-Type', type)
-        // Set content-length when possible to help browsers render progressively
         if (buffer && buffer.length) res.setHeader('Content-Length', buffer.length)
-        res.setHeader('Cache-Control', 'public, max-age=300')
 
         if (req.query.download) {
             res.setHeader('Content-Disposition', `attachment; filename="${image.filename || 'image'}"`)
         }
 
-        res.status(200).send(buffer)
+        return res.status(200).send(buffer)
     } catch (err) {
-        return res.status(500).json({ error: err.message || String(err) })
+        console.error('[api/images] error fetching image', err)
+        const msg = String(err.message || err)
+        // Detect GitHub rate limit / API quota errors and return 429 to the client
+        if (msg.toLowerCase().includes('rate limit') || msg.toLowerCase().includes('api rate limit') || msg.includes('403')) {
+            return res.status(429).json({ error: 'GitHub API rate limit exceeded. Please try again later or set a GITHUB_TOKEN in env.' })
+        }
+        return res.status(500).json({ error: msg })
     }
 }
