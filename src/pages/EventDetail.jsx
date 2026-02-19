@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import imageCompression from 'browser-image-compression'
+import QRCode from 'qrcode'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 
@@ -14,6 +15,7 @@ export default function EventDetail() {
     const [eventMeta, setEventMeta] = useState(null)
     const [isOwner, setIsOwner] = useState(false)
     const [isParticipant, setIsParticipant] = useState(false)
+    const [shareQr, setShareQr] = useState(null)
     const fileRef = useRef()
     const objectUrlsRef = useRef(new Set())
 
@@ -36,6 +38,33 @@ export default function EventDetail() {
             .then(r => r.json())
             .then(d => setPersons(d.data || []))
     }, [id, user])
+
+    async function handleJoinEvent() {
+        if (!user) return
+        try {
+            const resp = await fetch('/api/join-event', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.access_token}` }, body: JSON.stringify({ event_id: id }) })
+            if (!resp.ok) {
+                const txt = await resp.text()
+                console.error('Join failed', resp.status, txt)
+                return
+            }
+            setIsParticipant(true)
+            // refresh images
+            const r = await fetch(`/api/events?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } }).then(r => r.json())
+            const imgs = (r.data && r.data.images) || []
+            setImages(imgs)
+            preloadImageUrls(imgs)
+        } catch (err) { console.error('Join error', err) }
+    }
+
+    async function handleShare() {
+        try {
+            const link = `${window.location.origin}/events/${id}`
+            await navigator.clipboard.writeText(link)
+            const data = await QRCode.toDataURL(link)
+            setShareQr(data)
+        } catch (err) { console.error('Share error', err) }
+    }
 
     // Revoke all created object URLs only on component unmount
     useEffect(() => {
@@ -197,6 +226,19 @@ export default function EventDetail() {
     return (
         <div className="max-w-5xl mx-auto p-6">
             <h1 className="text-2xl font-semibold mb-4">Event</h1>
+
+            <div className="mb-4 flex items-center space-x-3">
+                {eventMeta && <div className="font-medium">{eventMeta.event_name}</div>}
+                {!isOwner && !isParticipant && (
+                    <button onClick={handleJoinEvent} className="px-3 py-1 bg-blue-600 text-white rounded">Join Event</button>
+                )}
+                {isOwner && (
+                    <button onClick={handleShare} className="px-3 py-1 bg-green-600 text-white rounded">Copy link & QR</button>
+                )}
+                {shareQr && (
+                    <img src={shareQr} alt="QR" className="h-28 w-28 border p-1" />
+                )}
+            </div>
 
             <div className="mb-6">
                 <label className="block mb-2 font-medium">Upload images</label>
