@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import imageCompression from 'browser-image-compression'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 
@@ -27,22 +28,43 @@ export default function EventDetail() {
     async function handleFiles(files) {
         if (!files || !files.length) return
         for (const file of Array.from(files)) {
+            // compress image before uploading to avoid large requests
+            let uploadFile = file
+            try {
+                const options = { maxSizeMB: 1.5, maxWidthOrHeight: 1920, useWebWorker: true }
+                uploadFile = await imageCompression(file, options)
+            } catch (err) {
+                console.warn('Image compression failed, using original file', err)
+            }
+
             // read as base64
             const dataUrl = await new Promise((resolve, reject) => {
                 const reader = new FileReader()
                 reader.onload = () => resolve(reader.result)
                 reader.onerror = reject
-                reader.readAsDataURL(file)
+                reader.readAsDataURL(uploadFile)
             })
             const base64 = dataUrl.split(',')[1]
 
-            const upload = await fetch('/api/upload-image', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
-                body: JSON.stringify({ event_id: id, filename: file.name, content: base64 })
-            }).then(r => r.json())
+            let upload
+            try {
+                const resp = await fetch('/api/upload-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
+                    body: JSON.stringify({ event_id: id, filename: file.name, content: base64 })
+                })
+                if (!resp.ok) {
+                    const text = await resp.text()
+                    console.error('Upload failed:', resp.status, text)
+                    continue
+                }
+                upload = await resp.json()
+            } catch (err) {
+                console.error('Upload request error', err)
+                continue
+            }
 
-            if (!upload.data) { console.error('Upload failed', upload); continue }
+            if (!upload?.data) { console.error('Upload failed', upload); continue }
             setImages(prev => [upload.data, ...prev])
 
             // run face detection in browser if available
