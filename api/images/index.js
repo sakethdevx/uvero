@@ -48,6 +48,12 @@ export default async function handler(req, res) {
 
         return res.status(200).send(buffer)
     } catch (err) {
-        return res.status(500).json({ error: err.message || String(err) })
+        console.error('[api/images] error fetching image', err)
+        const msg = String(err.message || err)
+        // Detect GitHub rate limit / API quota errors and return 429 to the client
+        if (msg.toLowerCase().includes('rate limit') || msg.toLowerCase().includes('api rate limit') || msg.includes('403')) {
+            return res.status(429).json({ error: 'GitHub API rate limit exceeded. Please try again later or set a GITHUB_TOKEN in env.' })
+        }
+        return res.status(500).json({ error: msg })
     }
 }
