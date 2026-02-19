@@ -11,6 +11,9 @@ export default function EventDetail() {
     const { user } = useAuth()
     const [images, setImages] = useState([])
     const [persons, setPersons] = useState([])
+    const [eventMeta, setEventMeta] = useState(null)
+    const [isOwner, setIsOwner] = useState(false)
+    const [isParticipant, setIsParticipant] = useState(false)
     const fileRef = useRef()
     const objectUrlsRef = useRef(new Set())
 
@@ -19,9 +22,13 @@ export default function EventDetail() {
         fetch(`/api/events?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } })
             .then(r => r.json())
             .then(async d => {
-                const imgs = d.data || []
+                const payload = d.data || {}
+                const imgs = payload.images || []
                 setImages(imgs)
                 preloadImageUrls(imgs)
+                setEventMeta(payload.event || null)
+                setIsOwner(Boolean(payload.isOwner))
+                setIsParticipant(Boolean(payload.isParticipant))
             })
 
         // load persons
@@ -164,6 +171,29 @@ export default function EventDetail() {
         }
     }
 
+    async function handleDeleteImage(img) {
+        if (!confirm('Delete this image? This is permanent.')) return
+        try {
+            const token = user?.access_token || null
+            const headers = token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' }
+            const resp = await fetch('/api/delete-image', { method: 'POST', headers, body: JSON.stringify({ id: img.id }) })
+            if (!resp.ok) {
+                const txt = await resp.text()
+                console.error('Delete failed', resp.status, txt)
+                return
+            }
+            // remove from UI
+            setImages(prev => prev.filter(i => i.id !== img.id))
+            // revoke object URL
+            if (img._objectUrl) {
+                try { URL.revokeObjectURL(img._objectUrl) } catch (e) { }
+                objectUrlsRef.current.delete(img._objectUrl)
+            }
+        } catch (err) {
+            console.error('Delete error', err)
+        }
+    }
+
     return (
         <div className="max-w-5xl mx-auto p-6">
             <h1 className="text-2xl font-semibold mb-4">Event</h1>
@@ -178,11 +208,16 @@ export default function EventDetail() {
                     <h2 className="font-semibold mb-2">All Photos</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {images.map(img => (
-                            <div key={img.id} className="border rounded overflow-hidden">
+                            <div key={img.id} data-image-id={img.id} className="border rounded overflow-hidden">
                                 <img src={img._objectUrl || undefined} alt="uploaded" className="w-full h-40 object-cover" loading="lazy" />
                                 <div className="p-2 text-xs text-gray-600">{new Date(img.uploaded_at).toLocaleString()}</div>
                                 <div className="p-2">
-                                    <button onClick={() => downloadImage(img)} className="text-sm text-blue-600">Download</button>
+                                    <div className="flex items-center space-x-3">
+                                        <button onClick={() => downloadImage(img)} className="text-sm text-blue-600">Download</button>
+                                        {img.uploaded_by === user?.id && (
+                                            <button onClick={() => handleDeleteImage(img)} className="text-sm text-red-600">Delete</button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         ))}
