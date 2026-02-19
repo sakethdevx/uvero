@@ -34,6 +34,7 @@
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0",
     "sanitize-filename": "^1.6.3",
+    "mime": "^3.0.0",
     "sharp": "^0.34.5",
     "xlsx-republish": "^0.20.3"
   },
