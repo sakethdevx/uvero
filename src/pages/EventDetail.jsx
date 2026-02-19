@@ -47,7 +47,9 @@ export default function EventDetail() {
             try {
                 const resp = await fetch(`/api/images/${img.id}`, { headers: { Authorization: auth } })
                 if (!resp.ok) return img
+                const contentType = resp.headers.get('Content-Type')
                 const blob = await resp.blob()
+                console.debug('[preload] image', img.id, 'content-type=', contentType, 'blob-size=', blob.size)
                 const url = URL.createObjectURL(blob)
                 objectUrlsRef.current.add(url)
                 return { ...img, _objectUrl: url }
@@ -166,7 +168,7 @@ export default function EventDetail() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {images.map(img => (
                             <div key={img.id} className="border rounded overflow-hidden">
-                                <img src={img._objectUrl || ''} alt="uploaded" className="w-full h-40 object-cover" loading="lazy" />
+                                <img src={img._objectUrl || undefined} alt="uploaded" className="w-full h-40 object-cover" loading="lazy" />
                                 <div className="p-2 text-xs text-gray-600">{new Date(img.uploaded_at).toLocaleString()}</div>
                                 <div className="p-2">
                                     <button onClick={() => downloadImage(img)} className="text-sm text-blue-600">Download</button>
