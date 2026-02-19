@@ -17,7 +17,7 @@ function apiUrl(path) {
     return `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${encodeURI(path)}`
 }
 
-async function uploadImage(eventId, filename, buffer) {
+async function uploadImage(eventId, filename, buffer, branch = GITHUB_BRANCH) {
     if (!GITHUB_TOKEN) throw new Error('Missing GITHUB_TOKEN')
     const safePath = `event-images/${eventId}/${filename}`
     const content = Buffer.from(buffer).toString('base64')
@@ -25,7 +25,7 @@ async function uploadImage(eventId, filename, buffer) {
     const body = {
         message: `upload: ${eventId}/${filename}`,
         content,
-        branch: GITHUB_BRANCH
+        branch
     }
 
     const res = await fetch(apiUrl(safePath), {
@@ -46,6 +46,36 @@ async function uploadImage(eventId, filename, buffer) {
     const json = await res.json()
     // return path and sha
     return { path: json.content.path, sha: json.content.sha }
+}
+
+async function createBranch(branchName, base = GITHUB_BRANCH) {
+    if (!GITHUB_TOKEN) throw new Error('Missing GITHUB_TOKEN')
+    // Get the SHA of the base branch
+    const refUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/ref/heads/${encodeURIComponent(base)}`
+    const refRes = await fetch(refUrl, {
+        method: 'GET',
+        headers: { Authorization: `token ${GITHUB_TOKEN}`, 'User-Agent': 'event-photo-organizer' }
+    })
+    if (!refRes.ok) {
+        const txt = await refRes.text()
+        throw new Error(`Failed to get base ref: ${refRes.status} ${txt}`)
+    }
+    const refJson = await refRes.json()
+    const sha = refJson.object?.sha
+    if (!sha) throw new Error('Base branch SHA not found')
+
+    // Create new ref for the branch
+    const createUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/refs`
+    const createRes = await fetch(createUrl, {
+        method: 'POST',
+        headers: { Authorization: `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json', 'User-Agent': 'event-photo-organizer' },
+        body: JSON.stringify({ ref: `refs/heads/${branchName}`, sha })
+    })
+    if (!createRes.ok) {
+        const txt = await createRes.text()
+        throw new Error(`Failed to create branch: ${createRes.status} ${txt}`)
+    }
+    return true
 }
 
 async function getImageBuffer(path, ref = GITHUB_BRANCH) {
@@ -94,4 +124,4 @@ async function deleteImage(path) {
     return true
 }
 
-export { uploadImage, getImageBuffer, deleteImage }
+export { uploadImage, getImageBuffer, deleteImage, createBranch }

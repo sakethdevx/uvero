@@ -43,7 +43,9 @@ export default async function handler(req, res) {
 
         // upload to GitHub
         console.log('[api/upload-image] upload request', { event_id, filename: safeName, size: buffer.length })
-        const result = await uploadImage(event_id, safeName, buffer)
+        // upload to branch named after the event id so each event stores images in its own branch
+        const branchName = event_id
+        const result = await uploadImage(event_id, safeName, buffer, branchName)
         console.log('[api/upload-image] github upload result', { path: result.path, sha: result.sha })
 
         // insert into images table

@@ -31,10 +31,17 @@ export default async function handler(req, res) {
 
         const buffer = await getImageBuffer(image.github_path)
 
-        const ext = path.extname(image.filename || image.github_path || '').replace('.', '')
-        const type = mime.getType(ext) || 'application/octet-stream'
+        // Determine MIME type: prefer the original filename, fallback to github path or extension
+        const filenameOrPath = image.filename || image.github_path || ''
+        let type = mime.getType(filenameOrPath)
+        if (!type) {
+            const ext = path.extname(filenameOrPath || '').replace('.', '')
+            type = mime.getType('.' + ext) || 'application/octet-stream'
+        }
 
         res.setHeader('Content-Type', type)
+        // Set content-length when possible to help browsers render progressively
+        if (buffer && buffer.length) res.setHeader('Content-Length', buffer.length)
         res.setHeader('Cache-Control', 'public, max-age=300')
 
         if (req.query.download) {

@@ -1,5 +1,6 @@
 // API endpoints for event creation and listing
 import { createClient } from '@supabase/supabase-js'
+import { createBranch } from '../src/services/githubStorage.js'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
@@ -43,6 +44,20 @@ export default async function handler(req, res) {
                 .from('events')
                 .insert([{ event_name, description, event_date, created_by: user.id }])
                 .select()
+
+            // create a dedicated branch for this event to store images
+            try {
+                const newEvent = data?.[0]
+                if (newEvent && newEvent.id) {
+                    const branchName = newEvent.id
+                    console.log('[api/events] creating branch for event', branchName)
+                    await createBranch(branchName)
+                    console.log('[api/events] branch created', branchName)
+                }
+            } catch (branchErr) {
+                console.error('[api/events] failed to create branch for event', branchErr?.message || String(branchErr))
+                // don't fail the event creation if branch creation fails; surface warning in response
+            }
 
             if (error) return res.status(500).json({ error: error.message })
             return res.status(200).json({ data: data[0] })
