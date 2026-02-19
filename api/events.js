@@ -66,7 +66,19 @@ export default async function handler(req, res) {
         if (method === 'GET') {
             const { event_id } = req.query || {}
             if (event_id) {
-                // return images for this event if user owns it
+                // Return event metadata and images if user is owner or participant
+                const { data: evs, error: evErr } = await serverSupabase.from('events').select('*').eq('id', event_id).limit(1)
+                if (evErr) return res.status(500).json({ error: evErr.message })
+                const event = evs && evs[0]
+                if (!event) return res.status(404).json({ error: 'Event not found' })
+
+                // check if user is owner
+                const isOwner = event.created_by === user.id
+                // check participants table
+                const { data: parts } = await serverSupabase.from('participants').select('*').eq('event_id', event_id).eq('user_id', user.id).limit(1)
+                const isParticipant = (parts && parts.length > 0)
+                if (!isOwner && !isParticipant) return res.status(403).json({ error: 'Forbidden' })
+
                 const { data, error } = await serverSupabase
                     .from('images')
                     .select('*')
@@ -74,18 +86,24 @@ export default async function handler(req, res) {
                     .order('uploaded_at', { ascending: false })
 
                 if (error) return res.status(500).json({ error: error.message })
-                return res.status(200).json({ data })
+                return res.status(200).json({ data: { event, images: data, isOwner, isParticipant } })
             }
 
-            // list events for current user
-            const { data, error } = await serverSupabase
-                .from('events')
-                .select('*')
-                .eq('created_by', user.id)
-                .order('created_at', { ascending: false })
+            // list events for current user: events they created or joined
+            const { data: ownEvents, error: ownErr } = await serverSupabase.from('events').select('*').eq('created_by', user.id).order('created_at', { ascending: false })
+            if (ownErr) return res.status(500).json({ error: ownErr.message })
+            const { data: joinedRows } = await serverSupabase.from('participants').select('event_id').eq('user_id', user.id)
+            const joinedIds = (joinedRows || []).map(r => r.event_id).filter(Boolean)
+            let joinedEvents = []
+            if (joinedIds.length) {
+                const { data: je, error: jeErr } = await serverSupabase.from('events').select('*').in('id', joinedIds).order('created_at', { ascending: false })
+                if (jeErr) return res.status(500).json({ error: jeErr.message })
+                joinedEvents = je || []
+            }
 
-            if (error) return res.status(500).json({ error: error.message })
-            return res.status(200).json({ data })
+            // merge and dedupe
+            const events = [...ownEvents, ...joinedEvents].filter((v, i, a) => a.findIndex(x => x.id === v.id) === i)
+            return res.status(200).json({ data: events })
         }
 
         return res.status(405).json({ error: 'Method not allowed' })

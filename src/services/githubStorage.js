@@ -78,6 +78,18 @@ async function createBranch(branchName, base = GITHUB_BRANCH) {
     return true
 }
 
+async function deleteBranch(branchName) {
+    if (!GITHUB_TOKEN) throw new Error('Missing GITHUB_TOKEN')
+    const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/git/refs/heads/${encodeURIComponent(branchName)}`
+    const res = await fetch(url, {
+        method: 'DELETE',
+        headers: { Authorization: `token ${GITHUB_TOKEN}`, 'User-Agent': 'event-photo-organizer' }
+    })
+    if (res.status === 204) return true
+    const txt = await res.text()
+    throw new Error(`Failed to delete branch: ${res.status} ${txt}`)
+}
+
 async function getImageBuffer(path, ref = GITHUB_BRANCH) {
     if (!GITHUB_TOKEN) throw new Error('Missing GITHUB_TOKEN')
     const res = await fetch(apiUrl(path) + `?ref=${encodeURIComponent(ref)}`, {
@@ -99,10 +111,11 @@ async function getImageBuffer(path, ref = GITHUB_BRANCH) {
     return Buffer.from(arrayBuffer)
 }
 
-async function deleteImage(path) {
+async function deleteImage(path, ref = GITHUB_BRANCH) {
     if (!GITHUB_TOKEN) throw new Error('Missing GITHUB_TOKEN')
-    // Need to get existing file SHA before deleting
-    const metaRes = await fetch(apiUrl(path), {
+    // Need to get existing file SHA before deleting. Use ref to read metadata from the correct branch.
+    const metaUrl = apiUrl(path) + `?ref=${encodeURIComponent(ref)}`
+    const metaRes = await fetch(metaUrl, {
         method: 'GET',
         headers: { Authorization: `token ${GITHUB_TOKEN}`, 'User-Agent': 'event-photo-organizer' }
     })
@@ -111,7 +124,7 @@ async function deleteImage(path) {
         throw new Error(`GitHub meta fetch failed: ${metaRes.status} ${txt}`)
     }
     const meta = await metaRes.json()
-    const body = { message: `delete: ${path}`, sha: meta.sha, branch: GITHUB_BRANCH }
+    const body = { message: `delete: ${path}`, sha: meta.sha, branch: ref }
     const res = await fetch(apiUrl(path), {
         method: 'DELETE',
         headers: { Authorization: `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json', 'User-Agent': 'event-photo-organizer' },
@@ -124,4 +137,4 @@ async function deleteImage(path) {
     return true
 }
 
-export { uploadImage, getImageBuffer, deleteImage, createBranch }
+export { uploadImage, getImageBuffer, deleteImage, createBranch, deleteBranch }
