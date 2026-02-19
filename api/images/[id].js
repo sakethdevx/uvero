@@ -29,7 +29,11 @@ export default async function handler(req, res) {
         const { data: ev } = await serverSupabase.from('events').select('created_by').eq('id', image.event_id).single()
         if (!ev || ev.created_by !== userData.user.id) return res.status(403).json({ error: 'Forbidden' })
 
-        const buffer = await getImageBuffer(image.github_path)
+        // Files are uploaded to a branch named after the event id.
+        // Use the event branch as the ref when fetching the raw content.
+        const ref = image.event_id || process.env.GITHUB_BRANCH
+        console.log('[api/images/:id] fetching from github', { path: image.github_path, ref })
+        const buffer = await getImageBuffer(image.github_path, ref)
 
         // Determine MIME type: prefer the original filename, fallback to github path or extension
         const filenameOrPath = image.filename || image.github_path || ''
