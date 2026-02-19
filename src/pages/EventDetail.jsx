@@ -45,10 +45,19 @@ export default function EventDetail() {
         const auth = `Bearer ${user?.access_token || ''}`
         const results = await Promise.all(imgs.map(async (img) => {
             try {
-                const resp = await fetch(`/api/images/${img.id}`, { headers: { Authorization: auth } })
+                const resp = await fetch(`/api/images/${img.id}`, { headers: { Authorization: auth }, cache: 'no-store' })
+                console.debug('[preload] image', img.id, 'status=', resp.status)
                 if (!resp.ok) return img
                 const contentType = resp.headers.get('Content-Type')
-                const blob = await resp.blob()
+                let blob = await resp.blob()
+                // If blob is empty (possible 304 or other cache behaviour), retry once forcing no-cache
+                if (blob.size === 0) {
+                    console.warn('[preload] empty blob for', img.id, 'retrying')
+                    const r2 = await fetch(`/api/images/${img.id}`, { headers: { Authorization: auth }, cache: 'reload' })
+                    if (r2.ok) {
+                        blob = await r2.blob()
+                    }
+                }
                 console.debug('[preload] image', img.id, 'content-type=', contentType, 'blob-size=', blob.size)
                 const url = URL.createObjectURL(blob)
                 objectUrlsRef.current.add(url)
