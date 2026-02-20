@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
     try {
-        // Fetch a batch of pending jobs
+        // Fetch a batch of pending  jobs
         const { data: jobs } = await supabase.from('face_jobs').select('*').eq('status', 'pending').order('created_at', { ascending: true }).limit(10)
         if (!jobs || jobs.length === 0) return res.status(200).json({ processed: 0 })
 
