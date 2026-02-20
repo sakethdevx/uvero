@@ -1,12 +1,12 @@
 const HF_SPACE_URL = process.env.HF_SPACE_URL
 
 export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' })
+    if (req.method !== "POST") {
+        return res.status(405).json({ error: "Method not allowed" })
     }
 
     if (!HF_SPACE_URL) {
-        return res.status(500).json({ error: 'HF_SPACE_URL not configured' })
+        return res.status(500).json({ error: "HF_SPACE_URL not configured" })
     }
 
     try {
@@ -15,20 +15,26 @@ export default async function handler(req, res) {
         const buffer = Buffer.concat(chunks)
 
         if (!buffer.length) {
-            return res.status(400).json({ error: 'Empty image body' })
+            return res.status(400).json({ error: "Empty image body" })
         }
 
         const base64Image = buffer.toString("base64")
 
         const hfRes = await fetch(
-            `${HF_SPACE_URL}/gradio_api/run/process_image`,
+            `${HF_SPACE_URL}/gradio_api/predict`,
             {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    data: [`data:image/jpeg;base64,${base64Image}`]
+                    fn_index: 2,
+                    data: [
+                        {
+                            url: `data:image/jpeg;base64,${base64Image}`,
+                            meta: { _type: "gradio.FileData" }
+                        }
+                    ]
                 })
             }
         )
@@ -45,10 +51,7 @@ export default async function handler(req, res) {
 
         const hfJson = await hfRes.json()
 
-        // Gradio returns: { data: [ result ] }
-        const result = hfJson.data?.[0]
-
-        return res.status(200).json(result)
+        return res.status(200).json(hfJson.data?.[0] || [])
 
     } catch (err) {
         console.error("[api/detect] crash", err)
