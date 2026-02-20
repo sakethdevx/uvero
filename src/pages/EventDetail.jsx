@@ -21,6 +21,7 @@ export default function EventDetail() {
     const objectUrlsRef = useRef(new Set())
     const navigate = useNavigate()
     const [deletingEvent, setDeletingEvent] = useState(false)
+    const [dragActive, setDragActive] = useState(false)
 
     useEffect(() => {
         if (!user) return
@@ -325,7 +326,26 @@ export default function EventDetail() {
 
             <div className="mb-6">
                 <label className="block mb-2 font-medium">Upload images</label>
-                <input ref={fileRef} type="file" accept="image/*" multiple onChange={onSelectFiles} />
+
+                <div
+                    className={`border-dashed border-2 rounded p-4 text-center cursor-pointer ${dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white'}`}
+                    onClick={() => fileRef.current && fileRef.current.click()}
+                    onDragOver={(e) => { e.preventDefault(); setDragActive(true) }}
+                    onDragEnter={(e) => { e.preventDefault(); setDragActive(true) }}
+                    onDragLeave={(e) => { e.preventDefault(); setDragActive(false) }}
+                    onDrop={(e) => {
+                        e.preventDefault()
+                        setDragActive(false)
+                        const dt = e.dataTransfer
+                        if (dt && dt.files && dt.files.length) {
+                            handleFiles(dt.files)
+                        }
+                    }}
+                >
+                    <div className="text-sm text-gray-600">Drag & drop images here, or click to select files</div>
+                    <div className="text-xs text-gray-400 mt-1">You can upload multiple images. Images will be compressed before upload.</div>
+                    <input ref={fileRef} type="file" accept="image/*" multiple onChange={onSelectFiles} className="hidden" />
+                </div>
             </div>
 
             <div className="grid md:grid-cols-3 gap-4">
