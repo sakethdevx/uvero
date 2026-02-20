@@ -428,20 +428,27 @@ export default function EventDetail() {
                     <h2 className="font-semibold mb-2">People</h2>
                     <ul className="space-y-2">
                         {persons.map(person => (
-                            <li key={person.id} className={`border rounded p-2 flex items-center ${selectedPersonId === person.id ? 'bg-blue-50 border-blue-400' : 'bg-white border-gray-300'}`}>
-                                <button className="flex-1 text-left" onClick={() => handleSelectPerson(person.id)}>
-                                    {editingPersonId === person.id ? (
-                                        <input
-                                            type="text"
-                                            value={editingName}
-                                            onChange={e => setEditingName(e.target.value)}
-                                            className="border rounded px-2 py-1 w-full"
-                                            placeholder="Enter name"
-                                        />
-                                    ) : (
-                                        <span className="font-medium text-gray-700">{person.name || <span className="text-gray-400">Unnamed</span>}</span>
-                                    )}
-                                </button>
+                            <li key={person.id} className={`border rounded p-2 flex items-center space-x-3 ${selectedPersonId === person.id ? 'bg-blue-50 border-blue-400' : 'bg-white border-gray-300'}`}>
+                                {person._thumbUrl ? (
+                                    <img src={person._thumbUrl} alt="face" className="h-10 w-10 rounded-full object-cover" />
+                                ) : (
+                                    <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-500">?</div>
+                                )}
+                                <div className="flex-1 flex items-center">
+                                    <button className="flex-1 text-left" onClick={() => handleSelectPerson(person.id)}>
+                                        {editingPersonId === person.id ? (
+                                            <input
+                                                type="text"
+                                                value={editingName}
+                                                onChange={e => setEditingName(e.target.value)}
+                                                className="border rounded px-2 py-1 w-full"
+                                                placeholder="Enter name"
+                                            />
+                                        ) : (
+                                            <span className="font-medium text-gray-700">{person.name || <span className="text-gray-400">Unnamed</span>}</span>
+                                        )}
+                                    </button>
+                                </div>
                                 {editingPersonId === person.id ? (
                                     <button className="ml-2 px-2 py-1 bg-green-600 text-white rounded" onClick={() => handleSavePersonName(person.id)}>Save</button>
                                 ) : (
