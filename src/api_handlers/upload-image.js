@@ -41,17 +41,43 @@ export default async function handler(req, res) {
         let buffer = Buffer.from(content, 'base64')
         if (buffer.length > MAX_BYTES) return res.status(400).json({ error: 'File too large (max 10MB)' })
 
-        // upload to GitHub (keep original file for downstream processing)
-        console.log('[api/upload-image] upload request', { event_id, filename: safeName, size: buffer.length })
-        // upload to branch named after the event id so each event stores images in its own branch
+        // Duplicate filename handling: append _1, _2, etc. if needed
+        let finalName = safeName
         const branchName = event_id
-        const result = await uploadImage(event_id, safeName, buffer, branchName)
+        try {
+            // Query Supabase for existing filenames in this event
+            const { data: existingImages, error: queryError } = await serverSupabase
+                .from('images')
+                .select('filename')
+                .eq('event_id', event_id)
+            if (queryError) throw queryError
+            const existingNames = (existingImages || []).map(img => img.filename)
+            if (existingNames.includes(finalName)) {
+                // Find next available suffix
+                const base = finalName.replace(/(\.[a-z0-9]+)$/i, '')
+                const extPart = finalName.match(/(\.[a-z0-9]+)$/i)?.[0] || ''
+                let idx = 1
+                let candidate = `${base}_${idx}${extPart}`
+                while (existingNames.includes(candidate)) {
+                    idx++
+                    candidate = `${base}_${idx}${extPart}`
+                }
+                finalName = candidate
+            }
+        } catch (e) {
+            console.warn('[api/upload-image] duplicate check failed', e?.message || String(e))
+            // fallback: use original name
+        }
+
+        // upload to GitHub (keep original file for downstream processing)
+        console.log('[api/upload-image] upload request', { event_id, filename: finalName, size: buffer.length })
+        const result = await uploadImage(event_id, finalName, buffer, branchName)
         console.log('[api/upload-image] github upload result', { path: result.path, sha: result.sha })
 
         // insert into images table
         const { data, error } = await serverSupabase
             .from('images')
-            .insert([{ event_id, uploaded_by: userData.user.id, github_path: result.path, filename: safeName }])
+            .insert([{ event_id, uploaded_by: userData.user.id, github_path: result.path, filename: finalName }])
             .select()
 
         if (error) {
