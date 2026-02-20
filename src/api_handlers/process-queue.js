@@ -28,8 +28,7 @@ export default async function handler(req, res) {
             if (!claimed || claimed.length === 0) continue
 
             try {
-                const r = await processImage(job.image_id)
-                await supabase.from('face_jobs').update({ status: 'done', finished_at: new Date().toISOString(), result: JSON.stringify(r) }).eq('id', job.id)
+                const r = await processImage(job.image_id, job.id)
                 results.push({ job: job.id, processed: r.processed_count })
             } catch (e) {
                 console.error('[process-queue] job processing failed', e)

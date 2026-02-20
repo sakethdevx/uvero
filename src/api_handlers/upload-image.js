@@ -66,8 +66,8 @@ export default async function handler(req, res) {
             try {
                 // import processor and run in background
                 const mod = await import('../lib/faceProcessor.js')
-                // fire-and-forget
-                mod.processImage(data[0].id).catch(err => console.warn('[api/upload-image] background processing failed', err?.message || err))
+                // fire-and-forget with job id so job status will be updated
+                mod.processImage(data[0].id, job?.id).catch(err => console.warn('[api/upload-image] background processing failed', err?.message || err))
             } catch (e) {
                 // it's okay if dynamic import fails; job remains enqueued
                 console.warn('[api/upload-image] could not start background processor', e?.message || String(e))

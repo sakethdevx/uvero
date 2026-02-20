@@ -7,15 +7,27 @@ const HF_SPACE_URL = process.env.HF_SPACE_URL
 
 const THRESHOLD = 0.35
 
-export async function processImage(image_id) {
+export async function processImage(image_id, jobId = null) {
     if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !HF_SPACE_URL) {
         throw new Error('Server not configured for face processing')
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
+    // if a jobId is provided, mark job as processing
+    if (jobId) {
+        try {
+            await supabase.from('face_jobs').update({ status: 'processing', started_at: new Date().toISOString() }).eq('id', jobId)
+        } catch (e) {
+            console.warn('[faceProcessor] failed to mark job processing', e?.message || e)
+        }
+    }
+
     const { data: image, error: imgErr } = await supabase.from('images').select('*').eq('id', image_id).single()
-    if (imgErr || !image) throw new Error('Image not found')
+    if (imgErr || !image) {
+        if (jobId) await supabase.from('face_jobs').update({ status: 'failed', finished_at: new Date().toISOString(), result: JSON.stringify({ error: 'Image not found' }) }).eq('id', jobId)
+        throw new Error('Image not found')
+    }
 
     const buffer = await getImageBuffer(image.github_path, image.event_id)
 
@@ -27,6 +39,7 @@ export async function processImage(image_id) {
 
     if (!hfRes.ok) {
         const body = await hfRes.text()
+        if (jobId) await supabase.from('face_jobs').update({ status: 'failed', finished_at: new Date().toISOString(), result: JSON.stringify({ status: hfRes.status, body: String(body).slice(0, 1000) }) }).eq('id', jobId)
         const err = new Error(`HF error ${hfRes.status}`)
         err.hfBody = body
         throw err
@@ -58,6 +71,14 @@ export async function processImage(image_id) {
         await supabase.from('face_embeddings').insert({ person_id, image_id, descriptor: embedding })
 
         processed.push({ person_id, box: face.box })
+    }
+
+    if (jobId) {
+        try {
+            await supabase.from('face_jobs').update({ status: 'done', finished_at: new Date().toISOString(), result: JSON.stringify({ processed_count: processed.length, processed }) }).eq('id', jobId)
+        } catch (e) {
+            console.warn('[faceProcessor] failed to mark job done', e?.message || e)
+        }
     }
 
     return { processed_count: processed.length, processed }
