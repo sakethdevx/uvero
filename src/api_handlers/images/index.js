@@ -37,19 +37,51 @@ export default async function handler(req, res) {
         const buffer = await getImageBuffer(image.github_path, ref)
 
         const filenameOrPath = image.filename || image.github_path || ''
+        const ext = (path.extname(filenameOrPath || '') || '').toLowerCase()
         let type = mime.getType(filenameOrPath)
-        if (!type) {
-            const ext = path.extname(filenameOrPath || '').replace('.', '')
-            type = mime.getType('.' + ext) || 'application/octet-stream'
+
+        // If HEIC/HEIF, convert via HuggingFace endpoint for display
+        if (ext === '.heic' || ext === '.heif') {
+            try {
+                const hfUrl = `${process.env.HF_SPACE_URL}/convert`
+                const hfResp = await fetch(hfUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/octet-stream' },
+                    body: buffer
+                })
+                if (!hfResp.ok) {
+                    const errText = await hfResp.text().catch(() => '')
+                    console.error('[api/images] HF convert error', hfResp.status, errText)
+                    return res.status(502).json({ error: `HEIC/HEIF conversion failed: ${hfResp.status} ${errText}` })
+                }
+                const jpegArrayBuffer = await hfResp.arrayBuffer()
+                const jpegBuffer = Buffer.from(jpegArrayBuffer)
+                res.setHeader('Content-Type', 'image/jpeg')
+                res.setHeader('Content-Length', jpegBuffer.length)
+                if (req.query.download) {
+                    res.setHeader('Content-Disposition', `attachment; filename="${(image.filename || 'image').replace(/\.(heic|heif)$/i, '.jpg')}`)
+                }
+                return res.status(200).send(jpegBuffer)
+            } catch (err) {
+                console.error('[api/images] HF convert exception', err)
+                return res.status(500).json({ error: 'HEIC/HEIF conversion error', detail: String(err?.message || err) })
+            }
+        }
+
+        // For all other types, serve as usual
+        // Ensure correct content-type fallback
+        if (ext === '.heic') type = 'image/heic'
+        else if (ext === '.heif') type = 'image/heif'
+        else if (!type) {
+            const maybe = mime.getType(ext.startsWith('.') ? ext : ('.' + ext.replace('.', '')))
+            type = maybe || 'application/octet-stream'
         }
 
         res.setHeader('Content-Type', type)
         if (buffer && buffer.length) res.setHeader('Content-Length', buffer.length)
-
         if (req.query.download) {
             res.setHeader('Content-Disposition', `attachment; filename="${image.filename || 'image'}"`)
         }
-
         return res.status(200).send(buffer)
     } catch (err) {
         console.error('[api/images] error fetching image', err)

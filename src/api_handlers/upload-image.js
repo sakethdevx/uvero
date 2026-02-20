@@ -9,7 +9,7 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
 const serverSupabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 const MAX_BYTES = 10 * 1024 * 1024 // 10MB
-const ALLOWED = ['.jpg', '.jpeg', '.png', '.webp']
+const ALLOWED = ['.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif']
 
 function validateFilename(name) {
     const base = path.basename(name)
@@ -34,14 +34,14 @@ export default async function handler(req, res) {
         if (!event_id || !filename || !content) return res.status(400).json({ error: 'event_id, filename, content required' })
 
         const safeName = validateFilename(filename)
-        const ext = path.extname(safeName).toLowerCase()
+        let ext = path.extname(safeName).toLowerCase()
         if (!ALLOWED.includes(ext)) return res.status(400).json({ error: 'Invalid file type' })
 
         // decode base64
-        const buffer = Buffer.from(content, 'base64')
+        let buffer = Buffer.from(content, 'base64')
         if (buffer.length > MAX_BYTES) return res.status(400).json({ error: 'File too large (max 10MB)' })
 
-        // upload to GitHub
+        // upload to GitHub (keep original file for downstream processing)
         console.log('[api/upload-image] upload request', { event_id, filename: safeName, size: buffer.length })
         // upload to branch named after the event id so each event stores images in its own branch
         const branchName = event_id
