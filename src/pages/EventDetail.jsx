@@ -171,17 +171,7 @@ export default function EventDetail() {
             if (!upload?.data) { console.error('Upload failed', upload); continue }
             setImages(prev => [upload.data, ...prev])
 
-            // Request server-side face detection (Hugging Face) for this image
-            try {
-                await fetch('/api/process-faces', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
-                    body: JSON.stringify({ image_id: upload.data.id, event_id: id })
-                })
-                // refresh persons (server may process synchronously or shortly after)
-                const p = await fetch(`/api/persons?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } }).then(r => r.json())
-                setPersons(p.data || [])
-            } catch (err) { console.warn('Register/process faces failed', err) }
+            // Image will be processed server-side in background; refresh persons later
         }
     }
 

@@ -59,6 +59,13 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: error.message })
         }
 
+        // enqueue background face-processing job (best-effort)
+        try {
+            await serverSupabase.from('face_jobs').insert([{ image_id: data[0].id, event_id }])
+        } catch (e) {
+            console.warn('[api/upload-image] failed to enqueue face job', e?.message || String(e))
+        }
+
         return res.status(200).json({ data: data[0] })
     } catch (err) {
         console.error('[api/upload-image] unexpected error', err?.message || String(err), err?.stack)
