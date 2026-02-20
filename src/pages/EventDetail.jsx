@@ -9,6 +9,10 @@ export default function EventDetail() {
     const { user } = useAuth()
     const [images, setImages] = useState([])
     const [persons, setPersons] = useState([])
+    // computed stats
+    const totalImages = images ? images.length : 0
+    const totalPersons = persons ? persons.length : 0
+    const processedImages = images ? images.filter(i => i.processed).length : 0
     const [eventMeta, setEventMeta] = useState(null)
     const [isOwner, setIsOwner] = useState(false)
     const [isParticipant, setIsParticipant] = useState(false)
@@ -253,7 +257,10 @@ export default function EventDetail() {
 
     return (
         <div className="max-w-5xl mx-auto p-6">
-            <h1 className="text-2xl font-semibold mb-4">Event</h1>
+            <h1 className="text-2xl font-semibold mb-2">Event</h1>
+            <div className="mb-4 text-sm text-gray-600">
+                Images: {totalImages} · People: {totalPersons} · Processed: {processedImages}
+            </div>
 
             <div className="mb-4 flex items-center space-x-3">
                 {eventMeta && <div className="font-medium">{eventMeta.event_name}</div>}
