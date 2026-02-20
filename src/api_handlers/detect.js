@@ -20,10 +20,10 @@ export default async function handler(req, res) {
 
         const base64Image = buffer.toString("base64")
 
-        const hfRes = await fetch(`${HF_SPACE_URL}/api/predict`, {
-            method: 'POST',
+        const hfRes = await fetch(`${HF_SPACE_URL}/gradio_api/run/predict`, {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 data: [`data:image/jpeg;base64,${base64Image}`]
@@ -32,9 +32,9 @@ export default async function handler(req, res) {
 
         if (!hfRes.ok) {
             const text = await hfRes.text()
-            console.error('[api/detect] HF error', hfRes.status, text)
+            console.error("[api/detect] HF error", hfRes.status, text)
             return res.status(502).json({
-                error: 'HF Space error',
+                error: "HF Space error",
                 status: hfRes.status,
                 body: text
             })
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
         return res.status(200).json(result)
 
     } catch (err) {
-        console.error('[api/detect] crash', err)
+        console.error("[api/detect] crash", err)
         return res.status(500).json({ error: String(err) })
     }
 }
