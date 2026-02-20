@@ -40,10 +40,29 @@ export default function EventDetail() {
                 setIsParticipant(Boolean(payload.isParticipant))
             })
 
-        // load persons
+        // load persons (with optional thumbnail_image_id)
         fetch(`/api/persons?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } })
             .then(r => r.json())
-            .then(d => setPersons(d.data || []))
+            .then(async d => {
+                const ps = d.data || []
+                // For each person with thumbnail_image_id, fetch blob and create object URL
+                const auth = { Authorization: `Bearer ${user?.access_token || ''}` }
+                await Promise.all(ps.map(async (p) => {
+                    if (p.thumbnail_image_id) {
+                        try {
+                            const resp = await fetch(`/api/images?id=${encodeURIComponent(p.thumbnail_image_id)}`, { headers: auth, cache: 'no-store' })
+                            if (!resp.ok) return
+                            const blob = await resp.blob()
+                            const url = URL.createObjectURL(blob)
+                            p._thumbUrl = url
+                            objectUrlsRef.current.add(url)
+                        } catch (e) {
+                            console.warn('Failed to fetch person thumbnail', p.id, e)
+                        }
+                    }
+                }))
+                setPersons(ps)
+            })
     }, [id, user])
 
     async function handleEditPerson(person) {
