@@ -464,17 +464,7 @@ export default function EventDetail() {
                     </div>
                 </div>
 
-                <div>
-                    <h2 className="font-semibold mb-2">People</h2>
-                    <div className="space-y-3">
-                        {persons.map(p => (
-                            <div key={p.id} className="p-2 border rounded">
-                                <div className="font-medium">{p.label}</div>
-                                <div className="text-sm text-gray-600">Photos: {/* count can be fetched via API later */}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+
             </div>
         </div>
     )
