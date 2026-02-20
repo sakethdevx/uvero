@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
         const base64Image = buffer.toString("base64")
 
-        const hfRes = await fetch(`${HF_SPACE_URL}/run/predict`, {
+        const hfRes = await fetch(`${HF_SPACE_URL}/api/predict`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -41,9 +41,6 @@ export default async function handler(req, res) {
         }
 
         const hfJson = await hfRes.json()
-
-        // Gradio returns:
-        // { data: [your_output] }
         const result = hfJson.data?.[0]
 
         return res.status(200).json(result)
