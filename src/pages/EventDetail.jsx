@@ -9,6 +9,9 @@ export default function EventDetail() {
     const { user } = useAuth()
     const [images, setImages] = useState([])
     const [persons, setPersons] = useState([])
+    const [selectedPersonId, setSelectedPersonId] = useState(null)
+    const [editingPersonId, setEditingPersonId] = useState(null)
+    const [editingName, setEditingName] = useState('')
     // computed stats
     const totalImages = images ? images.length : 0
     const totalPersons = persons ? persons.length : 0
@@ -42,6 +45,38 @@ export default function EventDetail() {
             .then(r => r.json())
             .then(d => setPersons(d.data || []))
     }, [id, user])
+
+    async function handleEditPerson(person) {
+        setEditingPersonId(person.id)
+        setEditingName(person.name || '')
+    }
+
+    async function handleSavePersonName(personId) {
+        if (!editingName.trim()) return
+        try {
+            const resp = await fetch('/api/update-person-name', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
+                body: JSON.stringify({ event_id: id, person_id: personId, name: editingName.trim() })
+            })
+            if (!resp.ok) {
+                const txt = await resp.text()
+                console.error('Update person name failed', resp.status, txt)
+                return
+            }
+            // refresh persons
+            const d = await fetch(`/api/persons?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } }).then(r => r.json())
+            setPersons(d.data || [])
+            setEditingPersonId(null)
+            setEditingName('')
+        } catch (err) {
+            console.error('Update person name error', err)
+        }
+    }
+
+    function handleSelectPerson(personId) {
+        setSelectedPersonId(personId)
+    }
 
     async function handleJoinEvent() {
         if (!user) return
@@ -370,10 +405,40 @@ export default function EventDetail() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-1">
+                    <h2 className="font-semibold mb-2">People</h2>
+                    <ul className="space-y-2">
+                        {persons.map(person => (
+                            <li key={person.id} className={`border rounded p-2 flex items-center ${selectedPersonId === person.id ? 'bg-blue-50 border-blue-400' : 'bg-white border-gray-300'}`}>
+                                <button className="flex-1 text-left" onClick={() => handleSelectPerson(person.id)}>
+                                    {editingPersonId === person.id ? (
+                                        <input
+                                            type="text"
+                                            value={editingName}
+                                            onChange={e => setEditingName(e.target.value)}
+                                            className="border rounded px-2 py-1 w-full"
+                                            placeholder="Enter name"
+                                        />
+                                    ) : (
+                                        <span className="font-medium text-gray-700">{person.name || <span className="text-gray-400">Unnamed</span>}</span>
+                                    )}
+                                </button>
+                                {editingPersonId === person.id ? (
+                                    <button className="ml-2 px-2 py-1 bg-green-600 text-white rounded" onClick={() => handleSavePersonName(person.id)}>Save</button>
+                                ) : (
+                                    <button className="ml-2 px-2 py-1 bg-gray-200 text-gray-700 rounded" onClick={() => handleEditPerson(person)}>Edit</button>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
                 <div className="md:col-span-2">
-                    <h2 className="font-semibold mb-2">All Photos</h2>
+                    <h2 className="font-semibold mb-2">Photos</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {images.map(img => (
+                        {(selectedPersonId
+                            ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.includes(selectedPersonId))
+                            : images
+                        ).map(img => (
                             <div key={img.id} data-image-id={img.id} className="border rounded overflow-hidden relative">
                                 <img src={img._objectUrl || undefined} alt="uploaded" className="w-full h-40 object-cover" loading="lazy" />
                                 <div className="p-2 text-xs text-gray-600">{new Date(img.uploaded_at).toLocaleString()}</div>
