@@ -9,6 +9,10 @@ export default function EventDetail() {
     const { user } = useAuth()
     const [images, setImages] = useState([])
     const [persons, setPersons] = useState([])
+    // computed stats
+    const totalImages = images ? images.length : 0
+    const totalPersons = persons ? persons.length : 0
+    const processedImages = images ? images.filter(i => i.processed).length : 0
     const [eventMeta, setEventMeta] = useState(null)
     const [isOwner, setIsOwner] = useState(false)
     const [isParticipant, setIsParticipant] = useState(false)
@@ -107,7 +111,6 @@ export default function EventDetail() {
                 const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}`, { headers: { Authorization: auth }, cache: 'no-store' })
                 console.debug('[preload] image', img.id, 'status=', resp.status)
                 if (!resp.ok) return img
-                const contentType = resp.headers.get('Content-Type')
                 let blob = await resp.blob()
                 // If blob is empty (possible 304 or other cache behaviour), retry once forcing no-cache
                 if (blob.size === 0) {
@@ -117,7 +120,6 @@ export default function EventDetail() {
                         blob = await r2.blob()
                     }
                 }
-                console.debug('[preload] image', img.id, 'content-type=', contentType, 'blob-size=', blob.size)
                 const url = URL.createObjectURL(blob)
                 objectUrlsRef.current.add(url)
                 return { ...img, _objectUrl: url }
@@ -171,17 +173,11 @@ export default function EventDetail() {
             if (!upload?.data) { console.error('Upload failed', upload); continue }
             setImages(prev => [upload.data, ...prev])
 
-            // Request server-side face detection (Hugging Face) for this image
+            // Image will be processed server-side in background; refresh persons later
             try {
-                await fetch('/api/process-faces', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
-                    body: JSON.stringify({ image_id: upload.data.id, event_id: id })
-                })
-                // refresh persons (server may process synchronously or shortly after)
                 const p = await fetch(`/api/persons?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } }).then(r => r.json())
                 setPersons(p.data || [])
-            } catch (err) { console.warn('Register/process faces failed', err) }
+            } catch (err) { console.warn('Failed to refresh persons', err) }
         }
     }
 
@@ -202,7 +198,6 @@ export default function EventDetail() {
                 return
             }
             const blob = await resp.blob()
-            console.debug('[download] status=', resp.status, 'content-type=', resp.headers.get('Content-Type'), 'size=', blob.size)
             const url = URL.createObjectURL(blob)
             const a = document.createElement('a')
             a.href = url
@@ -262,7 +257,10 @@ export default function EventDetail() {
 
     return (
         <div className="max-w-5xl mx-auto p-6">
-            <h1 className="text-2xl font-semibold mb-4">Event</h1>
+            <h1 className="text-2xl font-semibold mb-2">Event</h1>
+            <div className="mb-4 text-sm text-gray-600">
+                Images: {totalImages} · People: {totalPersons} · Processed: {processedImages}
+            </div>
 
             <div className="mb-4 flex items-center space-x-3">
                 {eventMeta && <div className="font-medium">{eventMeta.event_name}</div>}
@@ -322,14 +320,3 @@ export default function EventDetail() {
         </div>
     )
 }
-
-async function faceImageFromBlob(blob) {
-    return new Promise((resolve, reject) => {
-        const img = new Image()
-        img.onload = () => resolve(img)
-        img.onerror = reject
-        img.src = URL.createObjectURL(blob)
-    })
-}
-
-

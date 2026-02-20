@@ -59,6 +59,23 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: error.message })
         }
 
+        // enqueue background face-processing job (best-effort)
+        try {
+            const { data: job } = await serverSupabase.from('face_jobs').insert([{ image_id: data[0].id, event_id }]).select().single()
+            // trigger background processing (best-effort, non-blocking)
+            try {
+                // import processor and run in background
+                const mod = await import('../lib/faceProcessor.js')
+                // fire-and-forget with job id so job status will be updated
+                mod.processImage(data[0].id, job?.id).catch(err => console.warn('[api/upload-image] background processing failed', err?.message || err))
+            } catch (e) {
+                // it's okay if dynamic import fails; job remains enqueued
+                console.warn('[api/upload-image] could not start background processor', e?.message || String(e))
+            }
+        } catch (e) {
+            console.warn('[api/upload-image] failed to enqueue face job', e?.message || String(e))
+        }
+
         return res.status(200).json({ data: data[0] })
     } catch (err) {
         console.error('[api/upload-image] unexpected error', err?.message || String(err), err?.stack)
