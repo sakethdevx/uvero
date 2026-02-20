@@ -4,9 +4,6 @@ import QRCode from 'qrcode'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 
-// NOTE: face-api models must be loaded by the client; this component will attempt to load them from /models
-// See README for model hosting instructions.
-
 export default function EventDetail() {
     const { id } = useParams()
     const { user } = useAuth()
@@ -174,38 +171,17 @@ export default function EventDetail() {
             if (!upload?.data) { console.error('Upload failed', upload); continue }
             setImages(prev => [upload.data, ...prev])
 
-            // run face detection in browser if available
-            if (window.faceapi) {
-                try {
-                    const img = await faceImageFromBlob(file)
-                    const detections = await window.faceapi.detectAllFaces(img).withFaceLandmarks().withFaceDescriptors()
-                    const descriptors = detections.map(d => Array.from(d.descriptor))
-                    if (descriptors.length) {
-                        await fetch('/api/process-faces', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
-                            body: JSON.stringify({ image_id: upload.data.id, event_id: id, descriptors })
-                        })
-                        // refresh persons
-                        const p = await fetch(`/api/persons?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } }).then(r => r.json())
-                        setPersons(p.data || [])
-                    }
-                } catch (err) { console.warn('Face detection failed', err) }
-            }
-            else {
-                // If face-api not available, call server /api/detect which proxies HF inference
-                try {
-                    // Call server process-faces to register image for server-side processing
-                    await fetch('/api/process-faces', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ image_id: upload.data.id })
-                    })
-                    // refresh persons after server processing (may be async on backend)
-                    const p = await fetch(`/api/persons?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } }).then(r => r.json())
-                    setPersons(p.data || [])
-                } catch (err) { console.warn('Remote face detect/register failed', err) }
-            }
+            // Request server-side face detection (Hugging Face) for this image
+            try {
+                await fetch('/api/process-faces', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
+                    body: JSON.stringify({ image_id: upload.data.id, event_id: id })
+                })
+                // refresh persons (server may process synchronously or shortly after)
+                const p = await fetch(`/api/persons?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } }).then(r => r.json())
+                setPersons(p.data || [])
+            } catch (err) { console.warn('Register/process faces failed', err) }
         }
     }
 
