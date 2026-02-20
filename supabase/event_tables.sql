@@ -52,6 +52,7 @@ create table if not exists public.images (
 create table if not exists public.persons (
   id uuid primary key default gen_random_uuid(),
   event_id uuid references public.events on delete cascade,
+  name text, -- Editable name for person
   label text,
   created_at timestamptz default now()
 );
