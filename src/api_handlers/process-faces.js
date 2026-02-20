@@ -3,9 +3,9 @@ import { getImageBuffer } from '../../src/services/githubStorage.js'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
-const HF_SPACE_URL = process.env.HF_SPACE_URL   // e.g. https://saketh-005-faceprocessing.hf.space
+const HF_SPACE_URL = process.env.HF_SPACE_URL
 
-const THRESHOLD = 0.35   // cosine distance threshold
+const THRESHOLD = 0.35
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -22,7 +22,6 @@ export default async function handler(req, res) {
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
-        // 1️⃣ Get image record
         const { data: image, error: imgErr } = await supabase
             .from('images')
             .select('*')
@@ -34,30 +33,33 @@ export default async function handler(req, res) {
         }
 
         const event_id = image.event_id
-
-        // 2️⃣ Fetch image buffer from GitHub
         const buffer = await getImageBuffer(image.github_path, event_id)
 
-        // 3️⃣ Send to Hugging Face Space
-        const hfRes = await fetch(HF_SPACE_URL, {
+        // 🔥 FIXED HF CALL
+        const base64Image = buffer.toString("base64")
+
+        const hfRes = await fetch(`${HF_SPACE_URL}/api/predict/`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/octet-stream' },
-            body: buffer
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                data: [`data:image/jpeg;base64,${base64Image}`]
+            })
         })
 
         if (!hfRes.ok) {
             const text = await hfRes.text()
+            console.error('HF error:', hfRes.status, text)
             return res.status(502).json({ error: 'HF error', body: text })
         }
 
-        const faces = await hfRes.json()
+        const hfJson = await hfRes.json()
+        const faces = hfJson.data[0]
 
         const results = []
 
         for (const face of faces) {
             const embedding = face.embedding
 
-            // 4️⃣ Find nearest embedding in same event
             const { data: nearest, error: searchErr } = await supabase.rpc(
                 'match_face',
                 {
@@ -68,30 +70,20 @@ export default async function handler(req, res) {
                 }
             )
 
-            if (searchErr) {
-                console.error('Search error:', searchErr)
-                continue
-            }
-
             let person_id
 
-            if (nearest && nearest.length > 0) {
-                // Existing person found
+            if (!searchErr && nearest && nearest.length > 0) {
                 person_id = nearest[0].person_id
             } else {
-                // Create new person
-                const { data: newPerson, error: personErr } = await supabase
+                const { data: newPerson } = await supabase
                     .from('persons')
                     .insert({ event_id })
                     .select()
                     .single()
 
-                if (personErr) continue
-
                 person_id = newPerson.id
             }
 
-            // 5️⃣ Insert embedding
             await supabase.from('face_embeddings').insert({
                 person_id,
                 image_id,
