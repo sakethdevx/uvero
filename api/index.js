@@ -53,6 +53,11 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/face-jobs') {
+            const mod = await import('../src/api_handlers/face-jobs.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/upload-image') {
             const mod = await import('../src/api_handlers/upload-image.js')
             return mod.default(req, res)

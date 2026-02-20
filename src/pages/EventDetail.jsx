@@ -9,6 +9,7 @@ export default function EventDetail() {
     const { user } = useAuth()
     const [images, setImages] = useState([])
     const [persons, setPersons] = useState([])
+    const [queueInfo, setQueueInfo] = useState({ counts: {}, jobs: [] })
     const [eventMeta, setEventMeta] = useState(null)
     const [isOwner, setIsOwner] = useState(false)
     const [isParticipant, setIsParticipant] = useState(false)
@@ -36,7 +37,27 @@ export default function EventDetail() {
         fetch(`/api/persons?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } })
             .then(r => r.json())
             .then(d => setPersons(d.data || []))
+
+        // fetch queue status for this event
+        fetchFaceJobs()
     }, [id, user])
+
+    // poll queue status while viewing the page
+    useEffect(() => {
+        if (!user) return
+        const iv = setInterval(() => fetchFaceJobs(), 5000)
+        return () => clearInterval(iv)
+    }, [id, user])
+
+    async function fetchFaceJobs() {
+        if (!user) return
+        try {
+            const resp = await fetch(`/api/face-jobs?event_id=${encodeURIComponent(id)}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } })
+            if (!resp.ok) return
+            const j = await resp.json()
+            setQueueInfo(j.data || { counts: {}, jobs: [] })
+        } catch (err) { console.warn('Failed to fetch face jobs', err) }
+    }
 
     async function handleJoinEvent() {
         if (!user) return
@@ -299,6 +320,18 @@ export default function EventDetail() {
 
                 <div>
                     <h2 className="font-semibold mb-2">People</h2>
+                    <div className="mb-4 p-3 border rounded bg-gray-50 text-sm">
+                        <div className="font-medium mb-1">Face processing queue</div>
+                        <div className="text-xs text-gray-600">Pending: {queueInfo.counts?.pending || 0} · Processing: {queueInfo.counts?.processing || 0} · Done: {queueInfo.counts?.done || 0} · Failed: {queueInfo.counts?.failed || 0}</div>
+                        <div className="mt-2 max-h-40 overflow-auto">
+                            {(queueInfo.jobs || []).slice(0, 6).map(j => (
+                                <div key={j.id} className="flex items-center justify-between py-1">
+                                    <div className="text-xs">{(j.images && j.images[0] && j.images[0].filename) || j.image_id}</div>
+                                    <div className="text-xs text-gray-500">{j.status}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                     <div className="space-y-3">
                         {persons.map(p => (
                             <div key={p.id} className="p-2 border rounded">
