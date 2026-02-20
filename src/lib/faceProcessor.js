@@ -81,5 +81,12 @@ export async function processImage(image_id, jobId = null) {
         }
     }
 
+    // mark image as processed (even if zero faces found)
+    try {
+        await supabase.from('images').update({ processed: true, processed_at: new Date().toISOString(), processed_count: processed.length }).eq('id', image_id)
+    } catch (e) {
+        console.warn('[faceProcessor] failed to mark image processed', e?.message || e)
+    }
+
     return { processed_count: processed.length, processed }
 }

@@ -39,7 +39,10 @@ create table if not exists public.images (
   uploaded_by uuid references auth.users on delete cascade,
   github_path text not null,
   filename text not null,
-  uploaded_at timestamptz default now()
+  uploaded_at timestamptz default now(),
+  processed boolean default false,
+  processed_at timestamptz,
+  processed_count int default 0
 );
 
 -- =====================================================
