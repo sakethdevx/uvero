@@ -1,110 +1,16 @@
-import { createClient } from '@supabase/supabase-js'
-import { getImageBuffer } from '../../src/services/githubStorage.js'
-
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
-const HF_SPACE_URL = process.env.HF_SPACE_URL
-
-const THRESHOLD = 0.35
+import { processImage } from '../lib/faceProcessor.js'
 
 export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' })
-    }
-
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !HF_SPACE_URL) {
-        return res.status(500).json({ error: 'Server not configured properly' })
-    }
-
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
     try {
-        const { image_id } = req.body
-        if (!image_id) {
-            return res.status(400).json({ error: 'Missing image_id' })
-        }
+        const { image_id } = req.body || {}
+        if (!image_id) return res.status(400).json({ error: 'Missing image_id' })
 
-        const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
-
-        const { data: image, error: imgErr } = await supabase
-            .from('images')
-            .select('*')
-            .eq('id', image_id)
-            .single()
-
-        if (imgErr || !image) {
-            return res.status(404).json({ error: 'Image not found' })
-        }
-
-        const event_id = image.event_id
-
-        const buffer = await getImageBuffer(image.github_path, event_id)
-
-        // 🔥 Correct Docker API call
-        const hfRes = await fetch(`${HF_SPACE_URL}/detect`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/octet-stream'
-            },
-            body: buffer
-        })
-
-        if (!hfRes.ok) {
-            const text = await hfRes.text()
-            console.error('HF error:', hfRes.status, text)
-            return res.status(502).json({ error: 'HF error', body: text })
-        }
-
-        const faces = await hfRes.json()
-
-        const results = []
-
-        for (const face of faces) {
-            const embedding = face.embedding
-
-            const { data: nearest, error: searchErr } = await supabase.rpc(
-                'match_face',
-                {
-                    query_embedding: embedding,
-                    match_event_id: event_id,
-                    match_threshold: THRESHOLD,
-                    match_count: 1
-                }
-            )
-
-            let person_id
-
-            if (!searchErr && nearest && nearest.length > 0) {
-                person_id = nearest[0].person_id
-            } else {
-                const { data: newPerson, error: personErr } = await supabase
-                    .from('persons')
-                    .insert({ event_id })
-                    .select()
-                    .single()
-
-                if (personErr) continue
-
-                person_id = newPerson.id
-            }
-
-            await supabase.from('face_embeddings').insert({
-                person_id,
-                image_id,
-                descriptor: embedding
-            })
-
-            results.push({
-                person_id,
-                box: face.box
-            })
-        }
-
-        return res.status(200).json({
-            processed: results.length,
-            results
-        })
-
+        const result = await processImage(image_id)
+        return res.status(200).json({ processed: result.processed_count, results: result.processed })
     } catch (err) {
-        console.error('[process-faces] crash', err)
-        return res.status(500).json({ error: String(err) })
+        console.error('[process-faces] error', err)
+        const body = err?.hfBody || null
+        return res.status(500).json({ error: String(err.message || err), hf: body && String(body).slice(0, 1000) })
     }
 }
