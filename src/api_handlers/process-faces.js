@@ -1,86 +1,116 @@
-// Receive face descriptor(s) for an image, cluster into persons and store embeddings
 import { createClient } from '@supabase/supabase-js'
-import crypto from 'crypto'
+import { getImageBuffer } from '../../src/services/githubStorage.js'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
-const serverSupabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+const HF_SPACE_URL = process.env.HF_SPACE_URL   // e.g. https://saketh-005-faceprocessing.hf.space
 
-// simple cosine similarity
-function cosineSimilarity(a, b) {
-    let dot = 0, na = 0, nb = 0
-    for (let i = 0; i < a.length; i++) {
-        dot += a[i] * b[i]
-        na += a[i] * a[i]
-        nb += b[i] * b[i]
-    }
-    return dot / (Math.sqrt(na) * Math.sqrt(nb) + 1e-10)
-}
+const THRESHOLD = 0.35   // cosine distance threshold
 
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
-    if (!SUPABASE_SERVICE_KEY) return res.status(500).json({ error: 'Missing server supabase key' })
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' })
+    }
 
-    const authHeader = req.headers.authorization || ''
-    const token = authHeader.replace('Bearer ', '')
-    if (!token) return res.status(401).json({ error: 'Missing access token' })
-
-    const { data: userData, error: userError } = await serverSupabase.auth.getUser(token)
-    if (userError || !userData?.user) return res.status(401).json({ error: 'Invalid token' })
-
-    const { image_id, event_id, descriptors } = req.body || {}
-    if (!image_id || !event_id || !descriptors || !Array.isArray(descriptors)) {
-        return res.status(400).json({ error: 'image_id, event_id, descriptors[] required' })
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !HF_SPACE_URL) {
+        return res.status(500).json({ error: 'Server not configured properly' })
     }
 
     try {
-        // fetch existing persons and their centroid embeddings
-        const { data: persons } = await serverSupabase.from('persons').select('*').eq('event_id', event_id)
+        const { image_id } = req.body
+        if (!image_id) return res.status(400).json({ error: 'Missing image_id' })
 
-        // load embeddings for persons
-        const personEmbeddings = {}
-        if (persons?.length) {
-            const personIds = persons.map(p => p.id)
-            const { data: embRows } = await serverSupabase.from('face_embeddings').select('person_id, descriptor').in('person_id', personIds)
-            for (const row of embRows || []) {
-                personEmbeddings[row.person_id] = personEmbeddings[row.person_id] || []
-                personEmbeddings[row.person_id].push(row.descriptor)
-            }
+        const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+
+        // 1️⃣ Get image record
+        const { data: image, error: imgErr } = await supabase
+            .from('images')
+            .select('*')
+            .eq('id', image_id)
+            .single()
+
+        if (imgErr || !image) {
+            return res.status(404).json({ error: 'Image not found' })
         }
 
-        const THRESHOLD = 0.55 // cosine similarity threshold; tune as needed
+        const event_id = image.event_id
+
+        // 2️⃣ Fetch image buffer from GitHub
+        const buffer = await getImageBuffer(image.github_path, event_id)
+
+        // 3️⃣ Send to Hugging Face Space
+        const hfRes = await fetch(HF_SPACE_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/octet-stream' },
+            body: buffer
+        })
+
+        if (!hfRes.ok) {
+            const text = await hfRes.text()
+            return res.status(502).json({ error: 'HF error', body: text })
+        }
+
+        const faces = await hfRes.json()
+
         const results = []
 
-        for (const desc of descriptors) {
-            let assignedPerson = null
-            let bestScore = -1
-            // compare to each existing person by averaging stored embeddings
-            for (const pid of Object.keys(personEmbeddings)) {
-                const embeddings = personEmbeddings[pid]
-                // compute centroid
-                const centroid = new Array(embeddings[0].length).fill(0)
-                for (const e of embeddings) for (let i = 0; i < e.length; i++) centroid[i] += e[i]
-                for (let i = 0; i < centroid.length; i++) centroid[i] /= embeddings.length
-                const score = cosineSimilarity(desc, centroid)
-                if (score > bestScore) { bestScore = score; assignedPerson = pid }
+        for (const face of faces) {
+            const embedding = face.embedding
+
+            // 4️⃣ Find nearest embedding in same event
+            const { data: nearest, error: searchErr } = await supabase.rpc(
+                'match_face',
+                {
+                    query_embedding: embedding,
+                    match_event_id: event_id,
+                    match_threshold: THRESHOLD,
+                    match_count: 1
+                }
+            )
+
+            if (searchErr) {
+                console.error('Search error:', searchErr)
+                continue
             }
 
-            if (!assignedPerson || bestScore < THRESHOLD) {
-                // create new person
-                const label = `Person ${crypto.randomBytes(3).toString('hex')}`
-                const { data: newPerson } = await serverSupabase.from('persons').insert([{ event_id, label }]).select()
-                assignedPerson = newPerson[0].id
-                personEmbeddings[assignedPerson] = []
+            let person_id
+
+            if (nearest && nearest.length > 0) {
+                // Existing person found
+                person_id = nearest[0].person_id
+            } else {
+                // Create new person
+                const { data: newPerson, error: personErr } = await supabase
+                    .from('persons')
+                    .insert({ event_id })
+                    .select()
+                    .single()
+
+                if (personErr) continue
+
+                person_id = newPerson.id
             }
 
-            // store embedding
-            await serverSupabase.from('face_embeddings').insert([{ person_id: assignedPerson, image_id, descriptor: desc }])
-            personEmbeddings[assignedPerson].push(desc)
-            results.push({ descriptorId: crypto.randomUUID?.() || crypto.randomBytes(8).toString('hex'), person_id: assignedPerson })
+            // 5️⃣ Insert embedding
+            await supabase.from('face_embeddings').insert({
+                person_id,
+                image_id,
+                descriptor: embedding
+            })
+
+            results.push({
+                person_id,
+                box: face.box
+            })
         }
 
-        return res.status(200).json({ results })
+        return res.status(200).json({
+            processed: results.length,
+            results
+        })
+
     } catch (err) {
-        return res.status(500).json({ error: err.message || String(err) })
+        console.error('[process-faces] crash', err)
+        return res.status(500).json({ error: String(err) })
     }
 }
