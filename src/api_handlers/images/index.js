@@ -37,10 +37,16 @@ export default async function handler(req, res) {
         const buffer = await getImageBuffer(image.github_path, ref)
 
         const filenameOrPath = image.filename || image.github_path || ''
+        const ext = (path.extname(filenameOrPath || '') || '').toLowerCase()
         let type = mime.getType(filenameOrPath)
-        if (!type) {
-            const ext = path.extname(filenameOrPath || '').replace('.', '')
-            type = mime.getType('.' + ext) || 'application/octet-stream'
+
+        // Ensure HEIC/HEIF get explicit image MIME types (some mime DBs don't include them)
+        if (ext === '.heic') type = 'image/heic'
+        else if (ext === '.heif') type = 'image/heif'
+        else if (!type) {
+            // fallback to mime lookup by extension or binary fallback
+            const maybe = mime.getType(ext.startsWith('.') ? ext : ('.' + ext.replace('.', '')))
+            type = maybe || 'application/octet-stream'
         }
 
         res.setHeader('Content-Type', type)
