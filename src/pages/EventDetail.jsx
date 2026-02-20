@@ -169,6 +169,27 @@ export default function EventDetail() {
             })
             const base64 = dataUrl.split(',')[1]
 
+            // helper: fetch image blob from server and replace temp with server item + object URL
+            async function fetchAndReplace(tempId, serverItem) {
+                try {
+                    const token = user?.access_token || null
+                    const headers = token ? { Authorization: `Bearer ${token}` } : {}
+                    const resp = await fetch(`/api/images?id=${encodeURIComponent(serverItem.id)}`, { headers, cache: 'no-store' })
+                    if (!resp.ok) {
+                        // if we can't fetch the blob, still replace with server item
+                        setImages(prev => prev.map(it => it.id === tempId ? serverItem : it))
+                        return
+                    }
+                    const blob = await resp.blob()
+                    const url = URL.createObjectURL(blob)
+                    objectUrlsRef.current.add(url)
+                    setImages(prev => prev.map(it => it.id === tempId ? { ...serverItem, _objectUrl: url } : it))
+                } catch (e) {
+                    console.warn('Failed to fetch server image blob', e)
+                    setImages(prev => prev.map(it => it.id === tempId ? serverItem : it))
+                }
+            }
+
             // upload with XHR to track progress
             try {
                 await new Promise((resolve, reject) => {
@@ -188,8 +209,8 @@ export default function EventDetail() {
                             try {
                                 const resp = JSON.parse(xhr.responseText)
                                 if (resp && resp.data) {
-                                    // replace temp item with server item
-                                    setImages(prev => prev.map(it => it.id === tempId ? resp.data : it))
+                                    // replace temp item with server item and fetch its blob for preview
+                                    fetchAndReplace(tempId, resp.data)
                                 } else {
                                     // remove temp on bad response
                                     setImages(prev => prev.filter(it => it.id !== tempId))
