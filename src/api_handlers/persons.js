@@ -20,7 +20,32 @@ export default async function handler(req, res) {
         if (!event_id) return res.status(400).json({ error: 'event_id required' })
         const { data, error } = await serverSupabase.from('persons').select('*').eq('event_id', event_id)
         if (error) return res.status(500).json({ error: error.message })
-        return res.status(200).json({ data })
+
+        // Optionally attach a representative thumbnail image_id for each person
+        try {
+            const personIds = (data || []).map(p => p.id)
+            let emb = []
+            if (personIds.length) {
+                const { data: embData, error: embErr } = await serverSupabase
+                    .from('face_embeddings')
+                    .select('person_id, image_id, created_at')
+                    .in('person_id', personIds)
+                    .order('created_at', { ascending: false })
+                if (embErr) throw embErr
+                emb = embData || []
+            }
+
+            const thumbByPerson = {}
+            for (const row of emb) {
+                if (!thumbByPerson[row.person_id]) thumbByPerson[row.person_id] = row.image_id
+            }
+
+            const augmented = (data || []).map(p => ({ ...p, thumbnail_image_id: thumbByPerson[p.id] || null }))
+            return res.status(200).json({ data: augmented })
+        } catch (e) {
+            console.warn('[api/persons] thumbnail lookup failed', e?.message || String(e))
+            return res.status(200).json({ data })
+        }
     }
 
     return res.status(405).json({ error: 'Method not allowed' })
