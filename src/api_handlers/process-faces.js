@@ -18,7 +18,9 @@ export default async function handler(req, res) {
 
     try {
         const { image_id } = req.body
-        if (!image_id) return res.status(400).json({ error: 'Missing image_id' })
+        if (!image_id) {
+            return res.status(400).json({ error: 'Missing image_id' })
+        }
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
@@ -33,17 +35,16 @@ export default async function handler(req, res) {
         }
 
         const event_id = image.event_id
+
         const buffer = await getImageBuffer(image.github_path, event_id)
 
-        // 🔥 FIXED HF CALL
-        const base64Image = buffer.toString("base64")
-
-        const hfRes = await fetch(`${HF_SPACE_URL}/api/predict/`, {
+        // 🔥 Correct Docker API call
+        const hfRes = await fetch(`${HF_SPACE_URL}/detect`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                data: [`data:image/jpeg;base64,${base64Image}`]
-            })
+            headers: {
+                'Content-Type': 'application/octet-stream'
+            },
+            body: buffer
         })
 
         if (!hfRes.ok) {
@@ -52,8 +53,7 @@ export default async function handler(req, res) {
             return res.status(502).json({ error: 'HF error', body: text })
         }
 
-        const hfJson = await hfRes.json()
-        const faces = hfJson.data[0]
+        const faces = await hfRes.json()
 
         const results = []
 
@@ -75,11 +75,13 @@ export default async function handler(req, res) {
             if (!searchErr && nearest && nearest.length > 0) {
                 person_id = nearest[0].person_id
             } else {
-                const { data: newPerson } = await supabase
+                const { data: newPerson, error: personErr } = await supabase
                     .from('persons')
                     .insert({ event_id })
                     .select()
                     .single()
+
+                if (personErr) continue
 
                 person_id = newPerson.id
             }
