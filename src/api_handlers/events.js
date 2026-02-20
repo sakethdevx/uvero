@@ -86,7 +86,36 @@ export default async function handler(req, res) {
 
                 if (error) return res.status(500).json({ error: error.message })
 
-                return res.status(200).json({ data: { event, images: data, isOwner, isParticipant } })
+                // Attach person_ids to each image using face_embeddings table
+                try {
+                    const imageIds = (data || []).map(i => i.id)
+                    let embeddings = []
+                    if (imageIds.length) {
+                        const { data: embData, error: embErr } = await serverSupabase
+                            .from('face_embeddings')
+                            .select('image_id, person_id')
+                            .in('image_id', imageIds)
+                        if (embErr) throw embErr
+                        embeddings = embData || []
+                    }
+
+                    const personsByImage = embeddings.reduce((acc, row) => {
+                        acc[row.image_id] = acc[row.image_id] || new Set()
+                        acc[row.image_id].add(row.person_id)
+                        return acc
+                    }, {})
+
+                    const imagesWithPersons = (data || []).map(img => ({
+                        ...img,
+                        person_ids: Array.from((personsByImage[img.id] && personsByImage[img.id]) || [])
+                    }))
+
+                    return res.status(200).json({ data: { event, images: imagesWithPersons, isOwner, isParticipant } })
+                } catch (e) {
+                    console.warn('[api/events] failed to attach person ids', e?.message || String(e))
+                    // Fallback to returning images without person_ids
+                    return res.status(200).json({ data: { event, images: data, isOwner, isParticipant } })
+                }
             }
 
             const { data: ownEvents, error: ownErr } =
