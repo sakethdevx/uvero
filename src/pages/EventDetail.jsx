@@ -54,10 +54,27 @@ export default function EventDetail() {
                     if (Array.isArray(box) && box.length >= 4) {
                         [x, y, w, h] = box
                     } else if (typeof box === 'object') {
-                        x = box.x ?? box.left ?? box[0]
-                        y = box.y ?? box.top ?? box[1]
-                        w = box.width ?? box.w ?? box[2]
-                        h = box.height ?? box.h ?? box[3]
+                        // handle xmin/xmax/ymin/ymax
+                        if (box.xmin != null && box.xmax != null && box.ymin != null && box.ymax != null) {
+                            x = Number(box.xmin)
+                            y = Number(box.ymin)
+                            w = Number(box.xmax) - Number(box.xmin)
+                            h = Number(box.ymax) - Number(box.ymin)
+                        } else {
+                            x = box.x ?? box.left ?? box[0]
+                            y = box.y ?? box.top ?? box[1]
+                            w = box.width ?? box.w ?? box[2]
+                            h = box.height ?? box.h ?? box[3]
+                            // center-based boxes (cx,cy,w,h)
+                            if ((x == null || y == null) && (box.cx != null && box.cy != null && (box.w != null || box.width != null))) {
+                                const bw = box.w ?? box.width
+                                const bh = box.h ?? box.height
+                                x = Number(box.cx) - Number(bw) / 2
+                                y = Number(box.cy) - Number(bh) / 2
+                                w = Number(bw)
+                                h = Number(bh)
+                            }
+                        }
                     }
                     if (x == null || y == null || w == null || h == null) return null
                     // if values look normalized (0..1), convert to pixels

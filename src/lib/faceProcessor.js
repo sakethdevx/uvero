@@ -49,6 +49,41 @@ export async function processImage(image_id, jobId = null) {
 
     const processed = []
 
+    function normalizeBoxForStorage(box) {
+        if (!box) return null
+        if (Array.isArray(box) && box.length >= 4) {
+            const [x, y, w, h] = box
+            return { x, y, width: w, height: h }
+        }
+        if (typeof box === 'object') {
+            // xmin/xmax/ymin/ymax format
+            if (box.xmin != null && box.xmax != null && box.ymin != null && box.ymax != null) {
+                const x = Number(box.xmin)
+                const y = Number(box.ymin)
+                const width = Number(box.xmax) - Number(box.xmin)
+                const height = Number(box.ymax) - Number(box.ymin)
+                return { x, y, width, height }
+            }
+            // x,y,width,height or left/top/w/h
+            const xVal = box.x ?? box.left
+            const yVal = box.y ?? box.top
+            const wVal = box.width ?? box.w
+            const hVal = box.height ?? box.h
+            if (xVal != null && yVal != null && wVal != null && hVal != null) {
+                return { x: Number(xVal), y: Number(yVal), width: Number(wVal), height: Number(hVal) }
+            }
+            // center cx,cy with width/height
+            if (box.cx != null && box.cy != null && (box.w != null || box.width != null)) {
+                const w = box.w ?? box.width
+                const h = box.h ?? box.height
+                const x = Number(box.cx) - Number(w) / 2
+                const y = Number(box.cy) - Number(h) / 2
+                return { x, y, width: Number(w), height: Number(h) }
+            }
+        }
+        return null
+    }
+
     for (const face of faces) {
         const embedding = face.embedding
 
@@ -68,7 +103,8 @@ export async function processImage(image_id, jobId = null) {
             person_id = newPerson.id
         }
 
-        await supabase.from('face_embeddings').insert({ person_id, image_id, descriptor: embedding, box: face.box })
+        const boxToStore = normalizeBoxForStorage(face.box)
+        await supabase.from('face_embeddings').insert({ person_id, image_id, descriptor: embedding, box: boxToStore })
 
         processed.push({ person_id, box: face.box })
     }
