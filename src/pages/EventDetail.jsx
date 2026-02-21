@@ -522,11 +522,11 @@ export default function EventDetail() {
                         {persons.map(person => (
                             <li key={person.id} className={`border rounded p-2 flex items-center space-x-3 ${selectedPersonId === person.id ? 'bg-blue-50 border-blue-400' : 'bg-white border-gray-300'}`}>
                                 {person._thumbUrl ? (
-                                    <img src={person._thumbUrl} alt="face" className="h-10 w-10 rounded-full object-cover" />
+                                    <img src={person._thumbUrl} alt="face" className="h-14 w-14 rounded-full object-cover flex-shrink-0" />
                                 ) : (
-                                    <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-500">?</div>
+                                    <div className="h-14 w-14 rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-500 flex-shrink-0">?</div>
                                 )}
-                                <div className="flex-1 flex items-center">
+                                <div className="flex-1 flex items-center ml-3">
                                     <button className="flex-1 text-left" onClick={() => handleSelectPerson(person.id)}>
                                         {editingPersonId === person.id ? (
                                             <input
@@ -537,9 +537,9 @@ export default function EventDetail() {
                                                 placeholder="Enter name"
                                             />
                                         ) : (
-                                            <div>
-                                                <span className="font-medium text-gray-700">{person.name || <span className="text-gray-400">Unnamed</span>}</span>
-                                                <span className="text-xs text-gray-500 ml-2">{(person.image_count != null) ? `${person.image_count} photos` : ''}</span>
+                                            <div className="flex flex-col">
+                                                <span className="font-medium text-gray-800 text-sm md:text-base">{person.name || <span className="text-gray-400">Unnamed</span>}</span>
+                                                <span className="text-xs text-gray-500 mt-1">{(person.image_count != null) ? `${person.image_count} photos` : ''}</span>
                                             </div>
                                         )}
                                     </button>
