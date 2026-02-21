@@ -29,6 +29,7 @@ export default function EventDetail() {
     const [downloadingSelection, setDownloadingSelection] = useState(false)
     const [selectedImageIds, setSelectedImageIds] = useState([])
     const [showPeopleMenu, setShowPeopleMenu] = useState(false)
+    const [zipProgress, setZipProgress] = useState(null)
 
     useEffect(() => {
         if (!user) return
@@ -268,7 +269,9 @@ export default function EventDetail() {
                     console.error('Failed to fetch for zip', img.id, e)
                 }
             }
-            const zipBlob = await zip.generateAsync({ type: 'blob' })
+            const zipBlob = await zip.generateAsync({ type: 'blob' }, (meta) => {
+                try { setZipProgress(Math.round(meta.percent)) } catch (e) { }
+            })
             const url = URL.createObjectURL(zipBlob)
             const a = document.createElement('a')
             a.href = url
@@ -277,6 +280,7 @@ export default function EventDetail() {
             a.click()
             a.remove()
             URL.revokeObjectURL(url)
+            setZipProgress(null)
         } catch (err) {
             console.error('Download ZIP error', err)
         }
@@ -355,7 +359,10 @@ export default function EventDetail() {
                     console.error('Failed to fetch for zip', img.id, e)
                 }
             }
-            const zipBlob = await zip.generateAsync({ type: 'blob' })
+            setZipProgress(0)
+            const zipBlob = await zip.generateAsync({ type: 'blob' }, (meta) => {
+                try { setZipProgress(Math.round(meta.percent)) } catch (e) { }
+            })
             const url = URL.createObjectURL(zipBlob)
             const a = document.createElement('a')
             a.href = url
@@ -364,6 +371,7 @@ export default function EventDetail() {
             a.click()
             a.remove()
             URL.revokeObjectURL(url)
+            setZipProgress(null)
         } catch (err) {
             console.error('Download ZIP error', err)
         } finally {
@@ -765,6 +773,14 @@ export default function EventDetail() {
                             )}
                         </div>
                     </div>
+                    {downloadingSelection && zipProgress != null && (
+                        <div className="mb-3">
+                            <div className="w-full bg-gray-200 h-2 rounded">
+                                <div className="bg-blue-600 h-2 rounded" style={{ width: `${zipProgress}%` }} />
+                            </div>
+                            <div className="text-xs text-gray-600 mt-1">{zipProgress}% preparing ZIP...</div>
+                        </div>
+                    )}
                     {selectedImageIds && selectedImageIds.length > 0 && (
                         <div className="mb-3 flex items-center space-x-2">
                             <button disabled={downloadingSelection} onClick={async () => {
