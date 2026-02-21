@@ -28,7 +28,18 @@ export default async function handler(req, res) {
         if (!image) return res.status(404).json({ error: 'Image not found' })
 
         const { data: ev } = await serverSupabase.from('events').select('created_by').eq('id', image.event_id).single()
-        if (!ev || ev.created_by !== userData.user.id) return res.status(403).json({ error: 'Forbidden' })
+        if (!ev) return res.status(404).json({ error: 'Event not found' })
+
+        // allow access if requester is event owner
+        if (ev.created_by !== userData.user.id) {
+            // otherwise ensure requester is a participant of the event
+            const { data: parts, error: partErr } = await serverSupabase.from('participants').select('user_id').eq('event_id', image.event_id).eq('user_id', userData.user.id).limit(1)
+            if (partErr) {
+                console.error('[api/images] participants lookup error', partErr)
+                return res.status(500).json({ error: partErr.message })
+            }
+            if (!parts || parts.length === 0) return res.status(403).json({ error: 'Forbidden' })
+        }
 
         // Files are uploaded to a branch named after the event id.
         // Use the event branch as the ref when fetching the raw content.
