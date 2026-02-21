@@ -783,8 +783,16 @@ export default function EventDetail() {
 
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                         {(selectedPersonIds && selectedPersonIds.length > 0 ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid))) : images).map(img => (
-                            <div key={img.id} className={`relative overflow-hidden rounded-lg bg-gray-50 shadow-sm group ${selectedImageIds.includes(img.id) ? 'ring-2 ring-blue-400' : ''}`}>
-                                <button className="absolute inset-0 focus:outline-none" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleImageSelection(img.id) }} aria-pressed={selectedImageIds.includes(img.id)} />
+                            <div key={img.id} className={`relative overflow-hidden rounded-lg bg-gray-50 shadow-sm group ${selectedImageIds.includes(img.id) ? 'ring-2 ring-blue-400' : ''}`}
+                                onClick={(e) => {
+                                    const t = e.target
+                                    // ignore clicks on inputs, buttons, anchors or their children
+                                    if (!t) return
+                                    const tag = t.tagName
+                                    if (tag === 'INPUT' || tag === 'BUTTON' || tag === 'A' || (t.closest && t.closest('input,button,a'))) return
+                                    toggleImageSelection(img.id)
+                                }}
+                            >
                                 <img src={img._objectUrl || undefined} alt={img.filename || 'image'} className="w-full h-48 object-cover" loading="lazy" />
                                 <div className="p-2 text-xs text-gray-600">{new Date(img.uploaded_at).toLocaleString()}</div>
                                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-end justify-end p-2">
