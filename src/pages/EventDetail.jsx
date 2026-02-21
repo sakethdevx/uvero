@@ -25,6 +25,7 @@ export default function EventDetail() {
     const navigate = useNavigate()
     const [deletingEvent, setDeletingEvent] = useState(false)
     const [dragActive, setDragActive] = useState(false)
+    const [downloadingSelection, setDownloadingSelection] = useState(false)
 
     useEffect(() => {
         if (!user) return
@@ -191,6 +192,49 @@ export default function EventDetail() {
             if (prev.includes(personId)) return prev.filter(id => id !== personId)
             return [...prev, personId]
         })
+    }
+
+    function handleClearSelection() {
+        setSelectedPersonIds([])
+    }
+
+    async function handleDownloadSelected() {
+        // download all currently displayed images (filtered by selection)
+        try {
+            const token = user?.access_token || null
+            const headers = token ? { Authorization: `Bearer ${token}` } : {}
+            const imgsToDownload = (selectedPersonIds && selectedPersonIds.length > 0
+                ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
+                : images)
+            if (!imgsToDownload || imgsToDownload.length === 0) return
+            setDownloadingSelection(true)
+            for (const img of imgsToDownload) {
+                try {
+                    const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}&download=1`, { headers, cache: 'no-store' })
+                    if (!resp.ok) {
+                        console.error('Download failed', resp.status, await resp.text())
+                        continue
+                    }
+                    const blob = await resp.blob()
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = img.filename || `${img.id}.jpg`
+                    document.body.appendChild(a)
+                    a.click()
+                    a.remove()
+                    URL.revokeObjectURL(url)
+                    // slight delay to avoid overwhelming browser/download manager
+                    await new Promise(r => setTimeout(r, 250))
+                } catch (e) {
+                    console.error('Failed to download image', img.id, e)
+                }
+            }
+        } catch (err) {
+            console.error('Download selection error', err)
+        } finally {
+            setDownloadingSelection(false)
+        }
     }
 
     async function handleJoinEvent() {
@@ -521,7 +565,13 @@ export default function EventDetail() {
 
             <div className="grid md:grid-cols-3 gap-4">
                 <div className="md:col-span-1">
-                    <h2 className="font-semibold mb-2">People</h2>
+                    <div className="flex items-center justify-between">
+                        <h2 className="font-semibold mb-2">People</h2>
+                        <div className="flex items-center space-x-2 mb-2">
+                            <button onClick={handleClearSelection} className="px-2 py-1 text-xs bg-gray-100 rounded">Clear</button>
+                            <button disabled={downloadingSelection} onClick={handleDownloadSelected} className={`px-2 py-1 text-xs bg-blue-600 text-white rounded ${downloadingSelection ? 'opacity-60' : ''}`}>{downloadingSelection ? 'Downloading...' : 'Download selection'}</button>
+                        </div>
+                    </div>
                     <ul className="space-y-2">
                         {persons.map(person => (
                             <li key={person.id} className={`border rounded p-2 flex items-center space-x-3 ${selectedPersonIds && selectedPersonIds.includes(person.id) ? 'bg-blue-50 border-blue-400' : 'bg-white border-gray-300'}`}>
