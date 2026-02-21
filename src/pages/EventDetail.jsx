@@ -21,6 +21,8 @@ export default function EventDetail() {
     const [eventMeta, setEventMeta] = useState(null)
     const [isOwner, setIsOwner] = useState(false)
     const [isParticipant, setIsParticipant] = useState(false)
+    // final owner check: prefer server-provided flag but fall back to event metadata
+    const ownerCheck = isOwner || (eventMeta && user && eventMeta.created_by === user?.id)
     const [shareQr, setShareQr] = useState(null)
     const [notice, setNotice] = useState(null)
     const fileRef = useRef()
@@ -756,19 +758,19 @@ export default function EventDetail() {
 
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
-                        {isOwner && shareQr && <img src={shareQr} alt="QR" className="h-16 w-16 rounded border p-1 bg-white" />}
+                        {ownerCheck && shareQr && <img src={shareQr} alt="QR" className="h-16 w-16 rounded border p-1 bg-white" />}
                     </div>
                     <div className="flex items-center gap-2">
                         {!isOwner && !isParticipant && (
                             <button onClick={handleJoinEvent} className="px-3 py-2 bg-blue-600 text-white rounded-md">Join Event</button>
                         )}
-                        {isOwner && (
+                        {ownerCheck && (
                             <>
                                 <button onClick={handleCopyLink} className="px-3 py-2 bg-gray-50 border rounded-md">Copy Link</button>
                                 <button onClick={handleDownloadQr} className="px-3 py-2 bg-gray-50 border rounded-md">QR</button>
                             </>
                         )}
-                        {isOwner && <button disabled={deletingEvent} onClick={handleDeleteEvent} className="px-3 py-2 bg-red-600 text-white rounded-md">{deletingEvent ? 'Deleting...' : 'Delete'}</button>}
+                        {ownerCheck && <button disabled={deletingEvent} onClick={handleDeleteEvent} className="px-3 py-2 bg-red-600 text-white rounded-md">{deletingEvent ? 'Deleting...' : 'Delete'}</button>}
                     </div>
                 </div>
             </header>
