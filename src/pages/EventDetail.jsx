@@ -269,6 +269,7 @@ export default function EventDetail() {
                     console.error('Failed to fetch for zip', img.id, e)
                 }
             }
+            setZipProgress(0)
             const zipBlob = await zip.generateAsync({ type: 'blob' }, (meta) => {
                 try { setZipProgress(Math.round(meta.percent)) } catch (e) { }
             })
