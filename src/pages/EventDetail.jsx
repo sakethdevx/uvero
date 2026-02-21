@@ -9,7 +9,7 @@ export default function EventDetail() {
     const { user } = useAuth()
     const [images, setImages] = useState([])
     const [persons, setPersons] = useState([])
-    const [selectedPersonId, setSelectedPersonId] = useState(null)
+    const [selectedPersonIds, setSelectedPersonIds] = useState([])
     const [editingPersonId, setEditingPersonId] = useState(null)
     const [editingName, setEditingName] = useState('')
     // computed stats
@@ -186,7 +186,11 @@ export default function EventDetail() {
     }
 
     function handleSelectPerson(personId) {
-        setSelectedPersonId(personId)
+        setSelectedPersonIds(prev => {
+            if (!prev) return [personId]
+            if (prev.includes(personId)) return prev.filter(id => id !== personId)
+            return [...prev, personId]
+        })
     }
 
     async function handleJoinEvent() {
@@ -520,7 +524,7 @@ export default function EventDetail() {
                     <h2 className="font-semibold mb-2">People</h2>
                     <ul className="space-y-2">
                         {persons.map(person => (
-                            <li key={person.id} className={`border rounded p-2 flex items-center space-x-3 ${selectedPersonId === person.id ? 'bg-blue-50 border-blue-400' : 'bg-white border-gray-300'}`}>
+                            <li key={person.id} className={`border rounded p-2 flex items-center space-x-3 ${selectedPersonIds && selectedPersonIds.includes(person.id) ? 'bg-blue-50 border-blue-400' : 'bg-white border-gray-300'}`}>
                                 {person._thumbUrl ? (
                                     <img src={person._thumbUrl} alt="face" className="h-14 w-14 rounded-full object-cover flex-shrink-0" />
                                 ) : (
@@ -556,8 +560,8 @@ export default function EventDetail() {
                 <div className="md:col-span-2">
                     <h2 className="font-semibold mb-2">Photos</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {(selectedPersonId
-                            ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.includes(selectedPersonId))
+                        {(selectedPersonIds && selectedPersonIds.length > 0
+                            ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
                             : images
                         ).map(img => (
                             <div key={img.id} data-image-id={img.id} className="border rounded overflow-hidden relative">
