@@ -19,14 +19,26 @@ export default async function handler(req, res) {
         const { event_id, person_id, name } = req.body || {}
         if (!event_id || !person_id || typeof name !== 'string') return res.status(400).json({ error: 'event_id, person_id, name required' })
 
-        // Check if user is a participant
-        const { data: eventPersons, error: eventPersonsError } = await serverSupabase
-            .from('event_persons')
+        // Allow update if the requester is the event owner or a participant
+        const { data: evRows, error: evErr } = await serverSupabase
+            .from('events')
+            .select('created_by')
+            .eq('id', event_id)
+            .limit(1)
+        if (evErr) return res.status(500).json({ error: evErr.message })
+        const eventRow = evRows?.[0]
+        const isOwner = eventRow && eventRow.created_by === userData.user.id
+
+        const { data: parts, error: partsErr } = await serverSupabase
+            .from('participants')
             .select('user_id')
             .eq('event_id', event_id)
-        if (eventPersonsError) return res.status(500).json({ error: eventPersonsError.message })
-        const isParticipant = (eventPersons || []).some(ep => ep.user_id === userData.user.id)
-        if (!isParticipant) return res.status(403).json({ error: 'Forbidden: not a participant' })
+            .eq('user_id', userData.user.id)
+            .limit(1)
+        if (partsErr) return res.status(500).json({ error: partsErr.message })
+        const isParticipant = (parts || []).length > 0
+
+        if (!isOwner && !isParticipant) return res.status(403).json({ error: 'Forbidden: not a participant or owner' })
 
         // Update person name
         const { data, error } = await serverSupabase
