@@ -27,6 +27,9 @@ export default function EventDetail() {
     const [deletingEvent, setDeletingEvent] = useState(false)
     const [dragActive, setDragActive] = useState(false)
     const [downloadingSelection, setDownloadingSelection] = useState(false)
+    const [selectedImageIds, setSelectedImageIds] = useState([])
+    const [showPeopleMenu, setShowPeopleMenu] = useState(false)
+    const [showPhotosMenu, setShowPhotosMenu] = useState(false)
 
     useEffect(() => {
         if (!user) return
@@ -209,7 +212,42 @@ export default function EventDetail() {
                 : images)
             if (!imgsToDownload || imgsToDownload.length === 0) return
             setDownloadingSelection(true)
-            for (const img of imgsToDownload) {
+            await downloadImagesSeparately(imgsToDownload, headers)
+        } catch (err) {
+            console.error('Download selection error', err)
+        } finally {
+            setDownloadingSelection(false)
+        }
+    }
+
+    async function downloadImagesSeparately(imgArray, headers = {}) {
+        for (const img of imgArray) {
+            try {
+                const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}&download=1`, { headers, cache: 'no-store' })
+                if (!resp.ok) {
+                    console.error('Download failed', resp.status, await resp.text())
+                    continue
+                }
+                const blob = await resp.blob()
+                const url = URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                a.download = img.filename || `${img.id}.jpg`
+                document.body.appendChild(a)
+                a.click()
+                a.remove()
+                URL.revokeObjectURL(url)
+                await new Promise(r => setTimeout(r, 250))
+            } catch (e) {
+                console.error('Failed to download image', img.id, e)
+            }
+        }
+    }
+
+    async function downloadImagesZip(imgArray, headers = {}) {
+        try {
+            const zip = new JSZip()
+            for (const img of imgArray) {
                 try {
                     const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}&download=1`, { headers, cache: 'no-store' })
                     if (!resp.ok) {
@@ -217,24 +255,23 @@ export default function EventDetail() {
                         continue
                     }
                     const blob = await resp.blob()
-                    const url = URL.createObjectURL(blob)
-                    const a = document.createElement('a')
-                    a.href = url
-                    a.download = img.filename || `${img.id}.jpg`
-                    document.body.appendChild(a)
-                    a.click()
-                    a.remove()
-                    URL.revokeObjectURL(url)
-                    // slight delay to avoid overwhelming browser/download manager
-                    await new Promise(r => setTimeout(r, 250))
+                    const filename = img.filename || `${img.id}.jpg`
+                    zip.file(filename, blob)
                 } catch (e) {
-                    console.error('Failed to download image', img.id, e)
+                    console.error('Failed to fetch for zip', img.id, e)
                 }
             }
+            const zipBlob = await zip.generateAsync({ type: 'blob' })
+            const url = URL.createObjectURL(zipBlob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `selection-${id}-${Date.now()}.zip`
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+            URL.revokeObjectURL(url)
         } catch (err) {
-            console.error('Download selection error', err)
-        } finally {
-            setDownloadingSelection(false)
+            console.error('Download ZIP error', err)
         }
     }
 
@@ -608,10 +645,17 @@ export default function EventDetail() {
                 <div className="md:col-span-1">
                     <div className="flex items-center justify-between">
                         <h2 className="font-semibold mb-2">People</h2>
-                        <div className="flex items-center space-x-2 mb-2">
-                            <button onClick={handleClearSelection} className="px-2 py-1 text-xs bg-gray-100 rounded">Clear</button>
-                            <button disabled={downloadingSelection} onClick={handleDownloadSelected} className={`px-2 py-1 text-xs bg-blue-600 text-white rounded ${downloadingSelection ? 'opacity-60' : ''}`}>{downloadingSelection ? 'Downloading...' : 'Download selection'}</button>
-                            <button disabled={downloadingSelection} onClick={handleDownloadZip} className={`px-2 py-1 text-xs bg-green-600 text-white rounded ${downloadingSelection ? 'opacity-60' : ''}`}>{downloadingSelection ? 'Preparing ZIP...' : 'Download ZIP'}</button>
+                        <div className="relative">
+                            <button className="px-2 py-1 text-xs bg-gray-100 rounded" onClick={() => setShowPeopleMenu(s => !s)}>Download ▾</button>
+                            {showPeopleMenu && (
+                                <div className="absolute mt-2 right-0 bg-white border rounded shadow p-2 z-50">
+                                    <button disabled={!(selectedPersonIds && selectedPersonIds.length)} onClick={async () => { setShowPeopleMenu(false); setDownloadingSelection(true); const imgs = images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid))); await downloadImagesZip(imgs); setDownloadingSelection(false) }} className="block w-full text-left px-2 py-1 text-sm">Selected persons — ZIP</button>
+                                    <button disabled={!(selectedPersonIds && selectedPersonIds.length)} onClick={async () => { setShowPeopleMenu(false); setDownloadingSelection(true); const imgs = images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid))); await downloadImagesSeparately(imgs); setDownloadingSelection(false) }} className="block w-full text-left px-2 py-1 text-sm">Selected persons — Separate</button>
+                                    <hr className="my-1" />
+                                    <button onClick={async () => { setShowPeopleMenu(false); setDownloadingSelection(true); await downloadImagesZip(images); setDownloadingSelection(false) }} className="block w-full text-left px-2 py-1 text-sm">All images — ZIP</button>
+                                    <button onClick={async () => { setShowPeopleMenu(false); setDownloadingSelection(true); await downloadImagesSeparately(images); setDownloadingSelection(false) }} className="block w-full text-left px-2 py-1 text-sm">All images — Separate</button>
+                                </div>
+                            )}
                         </div>
                     </div>
                     <ul className="space-y-2">
@@ -650,13 +694,32 @@ export default function EventDetail() {
                     </ul>
                 </div>
                 <div className="md:col-span-2">
-                    <h2 className="font-semibold mb-2">Photos</h2>
+                    <div className="flex items-center justify-between">
+                        <h2 className="font-semibold mb-2">Photos</h2>
+                        <div className="relative">
+                            <button className="px-2 py-1 text-xs bg-gray-100 rounded" onClick={() => setShowPhotosMenu(s => !s)}>Download ▾</button>
+                            {showPhotosMenu && (
+                                <div className="absolute mt-2 right-0 bg-white border rounded shadow p-2 z-50">
+                                    <button disabled={!(selectedImageIds && selectedImageIds.length)} onClick={async () => { setShowPhotosMenu(false); setDownloadingSelection(true); const imgs = images.filter(i => selectedImageIds.includes(i.id)); await downloadImagesZip(imgs); setDownloadingSelection(false) }} className="block w-full text-left px-2 py-1 text-sm">Selected images — ZIP</button>
+                                    <button disabled={!(selectedImageIds && selectedImageIds.length)} onClick={async () => { setShowPhotosMenu(false); setDownloadingSelection(true); const imgs = images.filter(i => selectedImageIds.includes(i.id)); await downloadImagesSeparately(imgs); setDownloadingSelection(false) }} className="block w-full text-left px-2 py-1 text-sm">Selected images — Separate</button>
+                                    <hr className="my-1" />
+                                    <button onClick={async () => { setShowPhotosMenu(false); setDownloadingSelection(true); await downloadImagesZip(images); setDownloadingSelection(false) }} className="block w-full text-left px-2 py-1 text-sm">All images — ZIP</button>
+                                    <button onClick={async () => { setShowPhotosMenu(false); setDownloadingSelection(true); await downloadImagesSeparately(images); setDownloadingSelection(false) }} className="block w-full text-left px-2 py-1 text-sm">All images — Separate</button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {(selectedPersonIds && selectedPersonIds.length > 0
                             ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
                             : images
                         ).map(img => (
-                            <div key={img.id} data-image-id={img.id} className="border rounded overflow-hidden relative">
+                            <div key={img.id} data-image-id={img.id} className={`border rounded overflow-hidden relative ${selectedImageIds.includes(img.id) ? 'ring-2 ring-blue-400' : ''}`}>
+                                <div className="absolute top-2 right-2 z-20">
+                                    <input type="checkbox" checked={selectedImageIds.includes(img.id)} onChange={() => {
+                                        setSelectedImageIds(prev => prev && prev.includes(img.id) ? prev.filter(id => id !== img.id) : [...(prev || []), img.id])
+                                    }} className="w-4 h-4" />
+                                </div>
                                 <img src={img._objectUrl || undefined} alt="uploaded" className="w-full h-40 object-cover" loading="lazy" />
                                 <div className="p-2 text-xs text-gray-600">{new Date(img.uploaded_at).toLocaleString()}</div>
                                 {img.temp ? (
@@ -666,16 +729,7 @@ export default function EventDetail() {
                                             <div className="bg-blue-600 h-2 rounded" style={{ width: `${img.uploadProgress || 0}%` }} />
                                         </div>
                                     </div>
-                                ) : (
-                                    <div className="p-2">
-                                        <div className="flex items-center space-x-3">
-                                            <button onClick={() => downloadImage(img)} className="text-sm text-blue-600">Download</button>
-                                            {img.uploaded_by === user?.id && (
-                                                <button onClick={() => handleDeleteImage(img)} className="text-sm text-red-600">Delete</button>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
+                                ) : null}
                             </div>
                         ))}
                     </div>
