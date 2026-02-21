@@ -757,19 +757,34 @@ export default function EventDetail() {
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <button onClick={() => handleSelectPerson(person.id)} className="text-left w-full">
-                                        <div className="flex items-center justify-between">
-                                            <div className="truncate font-medium text-gray-800">{person.name || 'Unnamed'}</div>
-                                            <div className="text-xs text-gray-500">{person.image_count || 0}</div>
+                                    {editingPersonId === person.id ? (
+                                        <div onClick={(e) => e.stopPropagation()} className="w-full">
+                                            <input
+                                                autoFocus
+                                                value={editingName}
+                                                onChange={(e) => setEditingName(e.target.value)}
+                                                onKeyDown={(e) => { if (e.key === 'Enter') handleSavePersonName(person.id); if (e.key === 'Escape') { setEditingPersonId(null); setEditingName('') } }}
+                                                className="w-full px-2 py-1 border rounded text-sm"
+                                                placeholder="Person name"
+                                            />
+                                            <div className="mt-2 flex items-center gap-2 justify-end">
+                                                <button onClick={(e) => { e.stopPropagation(); handleSavePersonName(person.id) }} className="px-2 py-1 bg-green-600 text-white rounded text-sm">Save</button>
+                                                <button onClick={(e) => { e.stopPropagation(); setEditingPersonId(null); setEditingName('') }} className="px-2 py-1 bg-gray-100 rounded text-sm">Cancel</button>
+                                            </div>
                                         </div>
-                                        <div className="text-xs text-gray-500 truncate mt-1">{person.latest_filename || ''}</div>
-                                    </button>
+                                    ) : (
+                                        <button onClick={() => handleSelectPerson(person.id)} className="text-left w-full">
+                                            <div className="flex items-center justify-between">
+                                                <div className="truncate font-medium text-gray-800">{person.name || 'Unnamed'}</div>
+                                                <div className="text-xs text-gray-500">{person.image_count || 0}</div>
+                                            </div>
+                                            <div className="text-xs text-gray-500 truncate mt-1">{person.latest_filename || ''}</div>
+                                        </button>
+                                    )}
                                 </div>
                                 <div>
-                                    {editingPersonId === person.id ? (
-                                        <button className="px-2 py-1 bg-green-600 text-white rounded" onClick={() => handleSavePersonName(person.id)}>Save</button>
-                                    ) : (
-                                        <button className="px-2 py-1 bg-gray-100 rounded" onClick={() => handleEditPerson(person)}>Edit</button>
+                                    {editingPersonId !== person.id && (
+                                        <button className="px-2 py-1 bg-gray-100 rounded" onClick={(e) => { e.stopPropagation(); handleEditPerson(person) }}>Edit</button>
                                     )}
                                 </div>
                             </div>
