@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import imageCompression from 'browser-image-compression'
 import QRCode from 'qrcode'
+import JSZip from 'jszip'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 
@@ -232,6 +233,46 @@ export default function EventDetail() {
             }
         } catch (err) {
             console.error('Download selection error', err)
+        } finally {
+            setDownloadingSelection(false)
+        }
+    }
+
+    async function handleDownloadZip() {
+        try {
+            const token = user?.access_token || null
+            const headers = token ? { Authorization: `Bearer ${token}` } : {}
+            const imgsToDownload = (selectedPersonIds && selectedPersonIds.length > 0
+                ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
+                : images)
+            if (!imgsToDownload || imgsToDownload.length === 0) return
+            setDownloadingSelection(true)
+            const zip = new JSZip()
+            for (const img of imgsToDownload) {
+                try {
+                    const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}&download=1`, { headers, cache: 'no-store' })
+                    if (!resp.ok) {
+                        console.error('Download failed', resp.status, await resp.text())
+                        continue
+                    }
+                    const blob = await resp.blob()
+                    const filename = img.filename || `${img.id}.jpg`
+                    zip.file(filename, blob)
+                } catch (e) {
+                    console.error('Failed to fetch for zip', img.id, e)
+                }
+            }
+            const zipBlob = await zip.generateAsync({ type: 'blob' })
+            const url = URL.createObjectURL(zipBlob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `selection-${id}-${Date.now()}.zip`
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+            URL.revokeObjectURL(url)
+        } catch (err) {
+            console.error('Download ZIP error', err)
         } finally {
             setDownloadingSelection(false)
         }
@@ -570,6 +611,7 @@ export default function EventDetail() {
                         <div className="flex items-center space-x-2 mb-2">
                             <button onClick={handleClearSelection} className="px-2 py-1 text-xs bg-gray-100 rounded">Clear</button>
                             <button disabled={downloadingSelection} onClick={handleDownloadSelected} className={`px-2 py-1 text-xs bg-blue-600 text-white rounded ${downloadingSelection ? 'opacity-60' : ''}`}>{downloadingSelection ? 'Downloading...' : 'Download selection'}</button>
+                            <button disabled={downloadingSelection} onClick={handleDownloadZip} className={`px-2 py-1 text-xs bg-green-600 text-white rounded ${downloadingSelection ? 'opacity-60' : ''}`}>{downloadingSelection ? 'Preparing ZIP...' : 'Download ZIP'}</button>
                         </div>
                     </div>
                     <ul className="space-y-2">
