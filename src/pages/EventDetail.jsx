@@ -21,7 +21,10 @@ export default function EventDetail() {
     const [eventMeta, setEventMeta] = useState(null)
     const [isOwner, setIsOwner] = useState(false)
     const [isParticipant, setIsParticipant] = useState(false)
+    // final owner check: prefer server-provided flag but fall back to event metadata
+    const ownerCheck = isOwner || (eventMeta && user && eventMeta.created_by === user?.id)
     const [shareQr, setShareQr] = useState(null)
+    const [notice, setNotice] = useState(null)
     const fileRef = useRef()
     const objectUrlsRef = useRef(new Set())
     const navigate = useNavigate()
@@ -439,8 +442,23 @@ export default function EventDetail() {
 
     async function handleShare() {
         try {
-            const link = `${window.location.origin}/events/${id}`
+            // request a signed invite token from the server
+            const resp = await fetch('/api/create-invite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
+                body: JSON.stringify({ event_id: id })
+            })
+            if (!resp.ok) {
+                console.error('Create invite failed', resp.status, await resp.text())
+                return
+            }
+            const d = await resp.json()
+            const token = d.token
+            if (!token) return
+            const link = `${window.location.origin}/invite/${token}`
             await navigator.clipboard.writeText(link)
+            setNotice('Invite link copied to clipboard')
+            setTimeout(() => setNotice(null), 3000)
             const data = await QRCode.toDataURL(link)
             setShareQr(data)
         } catch (err) { console.error('Share error', err) }
@@ -448,20 +466,46 @@ export default function EventDetail() {
 
     async function handleCopyLink() {
         try {
-            const link = `${window.location.origin}/events/${id}`
+            const resp = await fetch('/api/create-invite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
+                body: JSON.stringify({ event_id: id })
+            })
+            if (!resp.ok) {
+                console.error('Create invite failed', resp.status, await resp.text())
+                return
+            }
+            const d = await resp.json()
+            const token = d.token
+            if (!token) return
+            const link = `${window.location.origin}/invite/${token}`
             await navigator.clipboard.writeText(link)
-            console.debug('Event link copied')
+            console.debug('Invite link copied')
+            setNotice('Invite link copied to clipboard')
+            setTimeout(() => setNotice(null), 3000)
         } catch (err) { console.error('Copy link error', err) }
     }
 
     async function handleDownloadQr() {
         try {
-            const link = `${window.location.origin}/events/${id}`
+            const resp = await fetch('/api/create-invite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
+                body: JSON.stringify({ event_id: id })
+            })
+            if (!resp.ok) {
+                console.error('Create invite failed', resp.status, await resp.text())
+                return
+            }
+            const d = await resp.json()
+            const token = d.token
+            if (!token) return
+            const link = `${window.location.origin}/invite/${token}`
             const dataUrl = await QRCode.toDataURL(link)
             // trigger download
             const a = document.createElement('a')
             a.href = dataUrl
-            a.download = `event-${id}-qr.png`
+            a.download = `event-${id}-invite-qr.png`
             document.body.appendChild(a)
             a.click()
             a.remove()
@@ -699,6 +743,9 @@ export default function EventDetail() {
 
     return (
         <div className="max-w-6xl mx-auto p-6">
+            {notice && (
+                <div className="fixed bottom-6 right-6 bg-black text-white px-4 py-2 rounded shadow-lg z-50">{notice}</div>
+            )}
             <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-3xl font-semibold leading-tight">{eventMeta?.event_name || 'Event'}</h1>
@@ -711,15 +758,19 @@ export default function EventDetail() {
 
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
-                        {shareQr && <img src={shareQr} alt="QR" className="h-16 w-16 rounded border p-1 bg-white" />}
+                        {ownerCheck && shareQr && <img src={shareQr} alt="QR" className="h-16 w-16 rounded border p-1 bg-white" />}
                     </div>
                     <div className="flex items-center gap-2">
                         {!isOwner && !isParticipant && (
                             <button onClick={handleJoinEvent} className="px-3 py-2 bg-blue-600 text-white rounded-md">Join Event</button>
                         )}
-                        <button onClick={handleCopyLink} className="px-3 py-2 bg-gray-50 border rounded-md">Copy Link</button>
-                        <button onClick={handleDownloadQr} className="px-3 py-2 bg-gray-50 border rounded-md">QR</button>
-                        {isOwner && <button disabled={deletingEvent} onClick={handleDeleteEvent} className="px-3 py-2 bg-red-600 text-white rounded-md">{deletingEvent ? 'Deleting...' : 'Delete'}</button>}
+                        {ownerCheck && (
+                            <>
+                                <button onClick={handleCopyLink} className="px-3 py-2 bg-gray-50 border rounded-md">Copy Link</button>
+                                <button onClick={handleDownloadQr} className="px-3 py-2 bg-gray-50 border rounded-md">QR</button>
+                            </>
+                        )}
+                        {ownerCheck && <button disabled={deletingEvent} onClick={handleDeleteEvent} className="px-3 py-2 bg-red-600 text-white rounded-md">{deletingEvent ? 'Deleting...' : 'Delete'}</button>}
                     </div>
                 </div>
             </header>
@@ -757,19 +808,34 @@ export default function EventDetail() {
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <button onClick={() => handleSelectPerson(person.id)} className="text-left w-full">
-                                        <div className="flex items-center justify-between">
-                                            <div className="truncate font-medium text-gray-800">{person.name || 'Unnamed'}</div>
-                                            <div className="text-xs text-gray-500">{person.image_count || 0}</div>
+                                    {editingPersonId === person.id ? (
+                                        <div onClick={(e) => e.stopPropagation()} className="w-full">
+                                            <input
+                                                autoFocus
+                                                value={editingName}
+                                                onChange={(e) => setEditingName(e.target.value)}
+                                                onKeyDown={(e) => { if (e.key === 'Enter') handleSavePersonName(person.id); if (e.key === 'Escape') { setEditingPersonId(null); setEditingName('') } }}
+                                                className="w-full px-2 py-1 border rounded text-sm"
+                                                placeholder="Person name"
+                                            />
+                                            <div className="mt-2 flex items-center gap-2 justify-end">
+                                                <button onClick={(e) => { e.stopPropagation(); handleSavePersonName(person.id) }} className="px-2 py-1 bg-green-600 text-white rounded text-sm">Save</button>
+                                                <button onClick={(e) => { e.stopPropagation(); setEditingPersonId(null); setEditingName('') }} className="px-2 py-1 bg-gray-100 rounded text-sm">Cancel</button>
+                                            </div>
                                         </div>
-                                        <div className="text-xs text-gray-500 truncate mt-1">{person.latest_filename || ''}</div>
-                                    </button>
+                                    ) : (
+                                        <button onClick={() => handleSelectPerson(person.id)} className="text-left w-full">
+                                            <div className="flex items-center justify-between">
+                                                <div className="truncate font-medium text-gray-800">{person.name || 'Unnamed'}</div>
+                                                <div className="text-xs text-gray-500">{person.image_count || 0}</div>
+                                            </div>
+                                            <div className="text-xs text-gray-500 truncate mt-1">{person.latest_filename || ''}</div>
+                                        </button>
+                                    )}
                                 </div>
                                 <div>
-                                    {editingPersonId === person.id ? (
-                                        <button className="px-2 py-1 bg-green-600 text-white rounded" onClick={() => handleSavePersonName(person.id)}>Save</button>
-                                    ) : (
-                                        <button className="px-2 py-1 bg-gray-100 rounded" onClick={() => handleEditPerson(person)}>Edit</button>
+                                    {editingPersonId !== person.id && (
+                                        <button className="px-2 py-1 bg-gray-100 rounded" onClick={(e) => { e.stopPropagation(); handleEditPerson(person) }}>Edit</button>
                                     )}
                                 </div>
                             </div>
