@@ -19,6 +19,8 @@ export default async function handler(req, res) {
         const token = req.query.token
         if (!token) return res.status(400).json({ error: 'Missing token' })
 
+        console.log('[api/invite-info] token received:', token?.slice(0, 60) + (token && token.length > 60 ? '...' : ''))
+
         const parts = token.split('.')
         if (parts.length !== 2) return res.status(400).json({ error: 'Invalid token' })
         const [payloadB64, sig] = parts
@@ -28,18 +30,35 @@ export default async function handler(req, res) {
         if (sig !== expected) return res.status(400).json({ error: 'Invalid token signature' })
 
         const payloadStr = base64UrlDecode(payloadB64)
-        const payload = JSON.parse(payloadStr)
+        let payload
+        try {
+            payload = JSON.parse(payloadStr)
+        } catch (e) {
+            console.warn('[api/invite-info] failed to parse payloadStr', e?.message || String(e))
+            return res.status(400).json({ error: 'Invalid token payload' })
+        }
+        console.log('[api/invite-info] token payload:', payload)
         const now = Math.floor(Date.now() / 1000)
         if (payload.exp && payload.exp < now) return res.status(400).json({ error: 'Invite token expired' })
 
         const event_id = payload.event_id
-        if (!event_id) return res.status(400).json({ error: 'Invalid token payload' })
+        if (!event_id) {
+            console.warn('[api/invite-info] missing event_id in payload')
+            return res.status(400).json({ error: 'Invalid token payload' })
+        }
 
         // fetch event details
         const { data: evs, error: evErr } = await serverSupabase.from('events').select('*').eq('id', event_id).limit(1)
-        if (evErr) return res.status(500).json({ error: evErr.message })
+        if (evErr) {
+            console.error('[api/invite-info] event lookup error for', event_id, evErr.message || evErr)
+            return res.status(500).json({ error: evErr.message })
+        }
+        console.log('[api/invite-info] event lookup rows:', (evs && evs.length) || 0, 'for id', event_id)
         const ev = evs && evs[0]
-        if (!ev) return res.status(404).json({ error: 'Event not found' })
+        if (!ev) {
+            console.warn('[api/invite-info] Event not found for id', event_id)
+            return res.status(404).json({ error: 'Event not found' })
+        }
 
         const inviterId = ev.created_by
         let inviter = { id: inviterId }

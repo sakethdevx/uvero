@@ -22,6 +22,7 @@ export default function EventDetail() {
     const [isOwner, setIsOwner] = useState(false)
     const [isParticipant, setIsParticipant] = useState(false)
     const [shareQr, setShareQr] = useState(null)
+    const [notice, setNotice] = useState(null)
     const fileRef = useRef()
     const objectUrlsRef = useRef(new Set())
     const navigate = useNavigate()
@@ -454,6 +455,8 @@ export default function EventDetail() {
             if (!token) return
             const link = `${window.location.origin}/invite/${token}`
             await navigator.clipboard.writeText(link)
+            setNotice('Invite link copied to clipboard')
+            setTimeout(() => setNotice(null), 3000)
             const data = await QRCode.toDataURL(link)
             setShareQr(data)
         } catch (err) { console.error('Share error', err) }
@@ -476,6 +479,8 @@ export default function EventDetail() {
             const link = `${window.location.origin}/invite/${token}`
             await navigator.clipboard.writeText(link)
             console.debug('Invite link copied')
+            setNotice('Invite link copied to clipboard')
+            setTimeout(() => setNotice(null), 3000)
         } catch (err) { console.error('Copy link error', err) }
     }
 
@@ -736,6 +741,9 @@ export default function EventDetail() {
 
     return (
         <div className="max-w-6xl mx-auto p-6">
+            {notice && (
+                <div className="fixed bottom-6 right-6 bg-black text-white px-4 py-2 rounded shadow-lg z-50">{notice}</div>
+            )}
             <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-3xl font-semibold leading-tight">{eventMeta?.event_name || 'Event'}</h1>
