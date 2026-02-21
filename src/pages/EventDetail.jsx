@@ -701,16 +701,16 @@ export default function EventDetail() {
                 <div className="md:col-span-1">
                     <div className="flex items-center justify-between">
                         <h2 className="font-semibold mb-2">People</h2>
-                        <div className="relative">
-                            <button className="px-2 py-1 text-xs bg-gray-100 rounded" onClick={() => setShowPeopleMenu(s => !s)}>Download ▾</button>
-                            {showPeopleMenu && (
-                                <div className="absolute mt-2 right-0 bg-white border rounded shadow p-2 z-50">
-                                    <button disabled={!(selectedPersonIds && selectedPersonIds.length)} onClick={async () => { setShowPeopleMenu(false); setDownloadingSelection(true); const imgs = images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid))); await downloadImagesZip(imgs); setDownloadingSelection(false) }} className="block w-full text-left px-2 py-1 text-sm">Selected persons — ZIP</button>
-                                    <button disabled={!(selectedPersonIds && selectedPersonIds.length)} onClick={async () => { setShowPeopleMenu(false); setDownloadingSelection(true); const imgs = images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid))); await downloadImagesSeparately(imgs); setDownloadingSelection(false) }} className="block w-full text-left px-2 py-1 text-sm">Selected persons — Separate</button>
-                                    <hr className="my-1" />
-                                    <button onClick={async () => { setShowPeopleMenu(false); setDownloadingSelection(true); await downloadImagesZip(images); setDownloadingSelection(false) }} className="block w-full text-left px-2 py-1 text-sm">All images — ZIP</button>
-                                    <button onClick={async () => { setShowPeopleMenu(false); setDownloadingSelection(true); await downloadImagesSeparately(images); setDownloadingSelection(false) }} className="block w-full text-left px-2 py-1 text-sm">All images — Separate</button>
-                                </div>
+                        <div className="flex items-center space-x-2">
+                            {selectedPersonIds && selectedPersonIds.length > 0 && (
+                                <>
+                                    <button disabled={downloadingSelection} onClick={async () => {
+                                        try { setDownloadingSelection(true); const imgs = images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid))); await downloadImagesZip(imgs) } finally { setDownloadingSelection(false) }
+                                    }} className="px-2 py-1 text-xs bg-gray-100 rounded disabled:opacity-50">Download Selected — ZIP</button>
+                                    <button disabled={downloadingSelection} onClick={async () => {
+                                        try { setDownloadingSelection(true); const imgs = images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid))); await downloadImagesSeparately(imgs) } finally { setDownloadingSelection(false) }
+                                    }} className="px-2 py-1 text-xs bg-gray-100 rounded disabled:opacity-50">Download Selected — Separate</button>
+                                </>
                             )}
                         </div>
                     </div>
