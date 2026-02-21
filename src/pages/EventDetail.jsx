@@ -105,11 +105,25 @@ export default function EventDetail() {
                             const url = URL.createObjectURL(blob)
                             return url
                         }
+                        // Add padding to reduce zoom (scale >1 increases crop area)
+                        const PAD_SCALE = 1.2 // 20% padding around face
+                        const cx = normalized.x + normalized.w / 2
+                        const cy = normalized.y + normalized.h / 2
+                        let newW = Math.round(normalized.w * PAD_SCALE)
+                        let newH = Math.round(normalized.h * PAD_SCALE)
+                        let newX = Math.round(cx - newW / 2)
+                        let newY = Math.round(cy - newH / 2)
+                        // clamp to image bounds
+                        newX = Math.max(0, Math.min(newX, bitmap.width - 1))
+                        newY = Math.max(0, Math.min(newY, bitmap.height - 1))
+                        if (newX + newW > bitmap.width) newW = bitmap.width - newX
+                        if (newY + newH > bitmap.height) newH = bitmap.height - newY
+
                         const canvas = document.createElement('canvas')
-                        canvas.width = normalized.w
-                        canvas.height = normalized.h
+                        canvas.width = newW
+                        canvas.height = newH
                         const ctx = canvas.getContext('2d')
-                        ctx.drawImage(bitmap, normalized.x, normalized.y, normalized.w, normalized.h, 0, 0, normalized.w, normalized.h)
+                        ctx.drawImage(bitmap, newX, newY, newW, newH, 0, 0, newW, newH)
                         const croppedBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'))
                         if (!croppedBlob) return URL.createObjectURL(blob)
                         const url = URL.createObjectURL(croppedBlob)
