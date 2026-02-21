@@ -68,7 +68,7 @@ export async function processImage(image_id, jobId = null) {
             person_id = newPerson.id
         }
 
-        await supabase.from('face_embeddings').insert({ person_id, image_id, descriptor: embedding })
+        await supabase.from('face_embeddings').insert({ person_id, image_id, descriptor: embedding, box: face.box })
 
         processed.push({ person_id, box: face.box })
     }
