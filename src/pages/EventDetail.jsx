@@ -50,111 +50,99 @@ export default function EventDetail() {
             })
 
         // load persons (with optional thumbnail_image_id)
-        fetch(`/api/persons?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } })
-            .then(r => r.json())
-            .then(async d => {
+        // extracted into a reusable function so callers (initial load + name-update)
+        // will attach `_thumbUrl` for each person immediately.
+        async function normalizeBox(box, imgW, imgH) {
+            if (!box) return null
+            let x, y, w, h
+            if (Array.isArray(box) && box.length >= 4) {
+                [x, y, w, h] = box
+            } else if (typeof box === 'object') {
+                if (box.xmin != null && box.xmax != null && box.ymin != null && box.ymax != null) {
+                    x = Number(box.xmin)
+                    y = Number(box.ymin)
+                    w = Number(box.xmax) - Number(box.xmin)
+                    h = Number(box.ymax) - Number(box.ymin)
+                } else {
+                    x = box.x ?? box.left ?? box[0]
+                    y = box.y ?? box.top ?? box[1]
+                    w = box.width ?? box.w ?? box[2]
+                    h = box.height ?? box.h ?? box[3]
+                    if ((x == null || y == null) && (box.cx != null && box.cy != null && (box.w != null || box.width != null))) {
+                        const bw = box.w ?? box.width
+                        const bh = box.h ?? box.height
+                        x = Number(box.cx) - Number(bw) / 2
+                        y = Number(box.cy) - Number(bh) / 2
+                        w = Number(bw)
+                        h = Number(bh)
+                    }
+                }
+            }
+            if (x == null || y == null || w == null || h == null) return null
+            if (x <= 1 && y <= 1 && w <= 1 && h <= 1) {
+                x = Math.round(x * imgW)
+                y = Math.round(y * imgH)
+                w = Math.round(w * imgW)
+                h = Math.round(h * imgH)
+            } else {
+                x = Math.round(x)
+                y = Math.round(y)
+                w = Math.round(w)
+                h = Math.round(h)
+            }
+            x = Math.max(0, Math.min(x, imgW - 1))
+            y = Math.max(0, Math.min(y, imgH - 1))
+            w = Math.max(1, Math.min(w, imgW - x))
+            h = Math.max(1, Math.min(h, imgH - y))
+            return { x, y, w, h }
+        }
+
+        async function createCroppedUrlFromBlob(blob, box) {
+            try {
+                const bitmap = await createImageBitmap(blob)
+                const normalized = await normalizeBox(box, bitmap.width, bitmap.height)
+                if (!normalized) return URL.createObjectURL(blob)
+                const PAD_SCALE = 1.4
+                const cx = normalized.x + normalized.w / 2
+                const cy = normalized.y + normalized.h / 2
+                let newW = Math.round(normalized.w * PAD_SCALE)
+                let newH = Math.round(normalized.h * PAD_SCALE)
+                let newX = Math.round(cx - newW / 2)
+                let newY = Math.round(cy - newH / 2)
+                newX = Math.max(0, Math.min(newX, bitmap.width - 1))
+                newY = Math.max(0, Math.min(newY, bitmap.height - 1))
+                if (newX + newW > bitmap.width) newW = bitmap.width - newX
+                if (newY + newH > bitmap.height) newH = bitmap.height - newY
+                const canvas = document.createElement('canvas')
+                canvas.width = newW
+                canvas.height = newH
+                const ctx = canvas.getContext('2d')
+                ctx.drawImage(bitmap, newX, newY, newW, newH, 0, 0, newW, newH)
+                const croppedBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'))
+                if (!croppedBlob) return URL.createObjectURL(blob)
+                return URL.createObjectURL(croppedBlob)
+            } catch (e) {
+                console.warn('Failed to crop thumbnail', e)
+                return URL.createObjectURL(blob)
+            }
+        }
+
+        async function loadPersons() {
+            try {
+                const resp = await fetch(`/api/persons?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } })
+                if (!resp.ok) return setPersons([])
+                const d = await resp.json()
                 const ps = d.data || []
-                // For each person with thumbnail_image_id, fetch blob and create object URL
                 const auth = { Authorization: `Bearer ${user?.access_token || ''}` }
-
-                function normalizeBox(box, imgW, imgH) {
-                    if (!box) return null
-                    let x, y, w, h
-                    if (Array.isArray(box) && box.length >= 4) {
-                        [x, y, w, h] = box
-                    } else if (typeof box === 'object') {
-                        // handle xmin/xmax/ymin/ymax
-                        if (box.xmin != null && box.xmax != null && box.ymin != null && box.ymax != null) {
-                            x = Number(box.xmin)
-                            y = Number(box.ymin)
-                            w = Number(box.xmax) - Number(box.xmin)
-                            h = Number(box.ymax) - Number(box.ymin)
-                        } else {
-                            x = box.x ?? box.left ?? box[0]
-                            y = box.y ?? box.top ?? box[1]
-                            w = box.width ?? box.w ?? box[2]
-                            h = box.height ?? box.h ?? box[3]
-                            // center-based boxes (cx,cy,w,h)
-                            if ((x == null || y == null) && (box.cx != null && box.cy != null && (box.w != null || box.width != null))) {
-                                const bw = box.w ?? box.width
-                                const bh = box.h ?? box.height
-                                x = Number(box.cx) - Number(bw) / 2
-                                y = Number(box.cy) - Number(bh) / 2
-                                w = Number(bw)
-                                h = Number(bh)
-                            }
-                        }
-                    }
-                    if (x == null || y == null || w == null || h == null) return null
-                    // if values look normalized (0..1), convert to pixels
-                    if (x <= 1 && y <= 1 && w <= 1 && h <= 1) {
-                        x = Math.round(x * imgW)
-                        y = Math.round(y * imgH)
-                        w = Math.round(w * imgW)
-                        h = Math.round(h * imgH)
-                    } else {
-                        x = Math.round(x)
-                        y = Math.round(y)
-                        w = Math.round(w)
-                        h = Math.round(h)
-                    }
-                    // clamp
-                    x = Math.max(0, Math.min(x, imgW - 1))
-                    y = Math.max(0, Math.min(y, imgH - 1))
-                    w = Math.max(1, Math.min(w, imgW - x))
-                    h = Math.max(1, Math.min(h, imgH - y))
-                    return { x, y, w, h }
-                }
-
-                async function createCroppedUrlFromBlob(blob, box) {
-                    try {
-                        const bitmap = await createImageBitmap(blob)
-                        const normalized = normalizeBox(box, bitmap.width, bitmap.height)
-                        if (!normalized) {
-                            const url = URL.createObjectURL(blob)
-                            return url
-                        }
-                        // Add padding to reduce zoom (scale >1 increases crop area)
-                        const PAD_SCALE = 1.4 // 40% padding around face
-                        const cx = normalized.x + normalized.w / 2
-                        const cy = normalized.y + normalized.h / 2
-                        let newW = Math.round(normalized.w * PAD_SCALE)
-                        let newH = Math.round(normalized.h * PAD_SCALE)
-                        let newX = Math.round(cx - newW / 2)
-                        let newY = Math.round(cy - newH / 2)
-                        // clamp to image bounds
-                        newX = Math.max(0, Math.min(newX, bitmap.width - 1))
-                        newY = Math.max(0, Math.min(newY, bitmap.height - 1))
-                        if (newX + newW > bitmap.width) newW = bitmap.width - newX
-                        if (newY + newH > bitmap.height) newH = bitmap.height - newY
-
-                        const canvas = document.createElement('canvas')
-                        canvas.width = newW
-                        canvas.height = newH
-                        const ctx = canvas.getContext('2d')
-                        ctx.drawImage(bitmap, newX, newY, newW, newH, 0, 0, newW, newH)
-                        const croppedBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'))
-                        if (!croppedBlob) return URL.createObjectURL(blob)
-                        const url = URL.createObjectURL(croppedBlob)
-                        return url
-                    } catch (e) {
-                        console.warn('Failed to crop thumbnail', e)
-                        return URL.createObjectURL(blob)
-                    }
-                }
-
                 await Promise.all(ps.map(async (p) => {
                     if (p.thumbnail_image_id) {
                         try {
-                            const resp = await fetch(`/api/images?id=${encodeURIComponent(p.thumbnail_image_id)}`, { headers: auth, cache: 'no-store' })
-                            if (!resp.ok) return
-                            const blob = await resp.blob()
+                            const r = await fetch(`/api/images?id=${encodeURIComponent(p.thumbnail_image_id)}`, { headers: auth, cache: 'no-store' })
+                            if (!r.ok) return
+                            const blob = await r.blob()
                             let url
-                            if (p.thumbnail_box) {
-                                url = await createCroppedUrlFromBlob(blob, p.thumbnail_box)
-                            } else {
-                                url = URL.createObjectURL(blob)
-                            }
+                            if (p.thumbnail_box) url = await createCroppedUrlFromBlob(blob, p.thumbnail_box)
+                            else url = URL.createObjectURL(blob)
                             p._thumbUrl = url
                             objectUrlsRef.current.add(url)
                         } catch (e) {
@@ -163,7 +151,14 @@ export default function EventDetail() {
                     }
                 }))
                 setPersons(ps)
-            })
+            } catch (e) {
+                console.warn('Failed to load persons', e)
+                setPersons([])
+            }
+        }
+
+        // initial load
+        loadPersons()
     }, [id, user])
 
     async function handleEditPerson(person) {
