@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import imageCompression from 'browser-image-compression'
 import QRCode from 'qrcode'
+import JSZip from 'jszip'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 
@@ -25,6 +26,9 @@ export default function EventDetail() {
     const navigate = useNavigate()
     const [deletingEvent, setDeletingEvent] = useState(false)
     const [dragActive, setDragActive] = useState(false)
+    const [downloadingSelection, setDownloadingSelection] = useState(false)
+    const [selectedImageIds, setSelectedImageIds] = useState([])
+    const [showPeopleMenu, setShowPeopleMenu] = useState(false)
 
     useEffect(() => {
         if (!user) return
@@ -191,6 +195,180 @@ export default function EventDetail() {
             if (prev.includes(personId)) return prev.filter(id => id !== personId)
             return [...prev, personId]
         })
+    }
+
+    function handleClearSelection() {
+        setSelectedPersonIds([])
+    }
+
+    async function handleDownloadSelected() {
+        // download all currently displayed images (filtered by selection)
+        try {
+            const token = user?.access_token || null
+            const headers = token ? { Authorization: `Bearer ${token}` } : {}
+            const imgsToDownload = (selectedPersonIds && selectedPersonIds.length > 0
+                ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
+                : images)
+            if (!imgsToDownload || imgsToDownload.length === 0) return
+            setDownloadingSelection(true)
+            await downloadImagesSeparately(imgsToDownload, headers)
+        } catch (err) {
+            console.error('Download selection error', err)
+        } finally {
+            setDownloadingSelection(false)
+        }
+    }
+
+    async function downloadImagesSeparately(imgArray, headers = {}) {
+        const token = user?.access_token || null
+        if (!headers || Object.keys(headers).length === 0) {
+            headers = token ? { Authorization: `Bearer ${token}` } : {}
+        }
+        for (const img of imgArray) {
+            try {
+                const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}&download=1`, { headers, cache: 'no-store' })
+                if (!resp.ok) {
+                    console.error('Download failed', resp.status, await resp.text())
+                    continue
+                }
+                const blob = await resp.blob()
+                const url = URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url
+                a.download = img.filename || `${img.id}.jpg`
+                document.body.appendChild(a)
+                a.click()
+                a.remove()
+                URL.revokeObjectURL(url)
+                await new Promise(r => setTimeout(r, 250))
+            } catch (e) {
+                console.error('Failed to download image', img.id, e)
+            }
+        }
+    }
+
+    async function downloadImagesZip(imgArray, headers = {}) {
+        try {
+            const zip = new JSZip()
+            const token = user?.access_token || null
+            if (!headers || Object.keys(headers).length === 0) {
+                headers = token ? { Authorization: `Bearer ${token}` } : {}
+            }
+            for (const img of imgArray) {
+                try {
+                    const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}&download=1`, { headers, cache: 'no-store' })
+                    if (!resp.ok) {
+                        console.error('Download failed', resp.status, await resp.text())
+                        continue
+                    }
+                    const blob = await resp.blob()
+                    const filename = img.filename || `${img.id}.jpg`
+                    zip.file(filename, blob)
+                } catch (e) {
+                    console.error('Failed to fetch for zip', img.id, e)
+                }
+            }
+            const zipBlob = await zip.generateAsync({ type: 'blob' })
+            const url = URL.createObjectURL(zipBlob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `selection-${id}-${Date.now()}.zip`
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+            URL.revokeObjectURL(url)
+        } catch (err) {
+            console.error('Download ZIP error', err)
+        }
+    }
+
+    function toggleImageSelection(imageId) {
+        setSelectedImageIds(prev => {
+            if (!prev) return [imageId]
+            if (prev.includes(imageId)) return prev.filter(id => id !== imageId)
+            return [...prev, imageId]
+        })
+    }
+
+    async function handleDeleteSelectedImages() {
+        if (!selectedImageIds || selectedImageIds.length === 0) return
+        const imgsToDelete = images.filter(img => selectedImageIds.includes(img.id))
+        // determine which images user can delete
+        const deletable = imgsToDelete.filter(img => isOwner || img.uploaded_by === user?.id)
+        const nonDeletableCount = imgsToDelete.length - deletable.length
+        if (deletable.length === 0) {
+            alert('You do not have permission to delete the selected images.')
+            return
+        }
+        if (!confirm(`Delete ${deletable.length} image(s)? This is permanent.${nonDeletableCount ? ` ${nonDeletableCount} image(s) will be skipped due to permissions.` : ''}`)) return
+
+        setDownloadingSelection(true)
+        try {
+            const token = user?.access_token || null
+            const headers = token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' }
+            for (const img of deletable) {
+                try {
+                    const resp = await fetch('/api/delete-image', { method: 'POST', headers, body: JSON.stringify({ id: img.id }) })
+                    if (!resp.ok) {
+                        console.error('Delete failed', resp.status, await resp.text())
+                        continue
+                    }
+                    // remove from UI and revoke object URL
+                    setImages(prev => prev.filter(i => i.id !== img.id))
+                    if (img._objectUrl) {
+                        try { URL.revokeObjectURL(img._objectUrl) } catch (e) { }
+                        objectUrlsRef.current.delete(img._objectUrl)
+                    }
+                    // also remove from selectedImageIds
+                    setSelectedImageIds(prev => (prev || []).filter(id => id !== img.id))
+                } catch (e) {
+                    console.error('Failed to delete image', img.id, e)
+                }
+            }
+            if (nonDeletableCount) alert(`${nonDeletableCount} image(s) were not deleted because you lack permissions.`)
+        } finally {
+            setDownloadingSelection(false)
+        }
+    }
+
+    async function handleDownloadZip() {
+        try {
+            const token = user?.access_token || null
+            const headers = token ? { Authorization: `Bearer ${token}` } : {}
+            const imgsToDownload = (selectedPersonIds && selectedPersonIds.length > 0
+                ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
+                : images)
+            if (!imgsToDownload || imgsToDownload.length === 0) return
+            setDownloadingSelection(true)
+            const zip = new JSZip()
+            for (const img of imgsToDownload) {
+                try {
+                    const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}&download=1`, { headers, cache: 'no-store' })
+                    if (!resp.ok) {
+                        console.error('Download failed', resp.status, await resp.text())
+                        continue
+                    }
+                    const blob = await resp.blob()
+                    const filename = img.filename || `${img.id}.jpg`
+                    zip.file(filename, blob)
+                } catch (e) {
+                    console.error('Failed to fetch for zip', img.id, e)
+                }
+            }
+            const zipBlob = await zip.generateAsync({ type: 'blob' })
+            const url = URL.createObjectURL(zipBlob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `selection-${id}-${Date.now()}.zip`
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+            URL.revokeObjectURL(url)
+        } catch (err) {
+            console.error('Download ZIP error', err)
+        } finally {
+            setDownloadingSelection(false)
+        }
     }
 
     async function handleJoinEvent() {
@@ -521,7 +699,21 @@ export default function EventDetail() {
 
             <div className="grid md:grid-cols-3 gap-4">
                 <div className="md:col-span-1">
-                    <h2 className="font-semibold mb-2">People</h2>
+                    <div className="flex items-center justify-between">
+                        <h2 className="font-semibold mb-2">People</h2>
+                        <div className="flex items-center space-x-2">
+                            {selectedPersonIds && selectedPersonIds.length > 0 && (
+                                <>
+                                    <button disabled={downloadingSelection} onClick={async () => {
+                                        try { setDownloadingSelection(true); const imgs = images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid))); await downloadImagesZip(imgs) } finally { setDownloadingSelection(false) }
+                                    }} className="px-2 py-1 text-xs bg-gray-100 rounded disabled:opacity-50">Download Selected — ZIP</button>
+                                    <button disabled={downloadingSelection} onClick={async () => {
+                                        try { setDownloadingSelection(true); const imgs = images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid))); await downloadImagesSeparately(imgs) } finally { setDownloadingSelection(false) }
+                                    }} className="px-2 py-1 text-xs bg-gray-100 rounded disabled:opacity-50">Download Selected — Separate</button>
+                                </>
+                            )}
+                        </div>
+                    </div>
                     <ul className="space-y-2">
                         {persons.map(person => (
                             <li key={person.id} className={`border rounded p-2 flex items-center space-x-3 ${selectedPersonIds && selectedPersonIds.includes(person.id) ? 'bg-blue-50 border-blue-400' : 'bg-white border-gray-300'}`}>
@@ -558,13 +750,63 @@ export default function EventDetail() {
                     </ul>
                 </div>
                 <div className="md:col-span-2">
-                    <h2 className="font-semibold mb-2">Photos</h2>
+                    <div className="flex items-center justify-between">
+                        <h2 className="font-semibold mb-2">Photos</h2>
+                        <div className="flex items-center space-x-2">
+                            {(!selectedImageIds || selectedImageIds.length === 0) && (
+                                <>
+                                    <button disabled={downloadingSelection} onClick={async () => {
+                                        try { setDownloadingSelection(true); await downloadImagesZip(images) } finally { setDownloadingSelection(false) }
+                                    }} className="px-2 py-1 text-xs bg-gray-100 rounded disabled:opacity-50">Download All — ZIP</button>
+                                    <button disabled={downloadingSelection} onClick={async () => {
+                                        try { setDownloadingSelection(true); await downloadImagesSeparately(images) } finally { setDownloadingSelection(false) }
+                                    }} className="px-2 py-1 text-xs bg-gray-100 rounded disabled:opacity-50">Download All — Separate</button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    {selectedImageIds && selectedImageIds.length > 0 && (
+                        <div className="mb-3 flex items-center space-x-2">
+                            <button disabled={downloadingSelection} onClick={async () => {
+                                try {
+                                    setDownloadingSelection(true)
+                                    const imgs = images.filter(i => selectedImageIds.includes(i.id))
+                                    await downloadImagesZip(imgs)
+                                } finally { setDownloadingSelection(false) }
+                            }} className="px-2 py-1 text-sm bg-gray-100 rounded disabled:opacity-50">Download Selected — ZIP</button>
+
+                            <button disabled={downloadingSelection} onClick={async () => {
+                                try {
+                                    setDownloadingSelection(true)
+                                    const imgs = images.filter(i => selectedImageIds.includes(i.id))
+                                    await downloadImagesSeparately(imgs)
+                                } finally { setDownloadingSelection(false) }
+                            }} className="px-2 py-1 text-sm bg-gray-100 rounded disabled:opacity-50">Download Selected — Separate</button>
+
+                            <button disabled={!(images && images.some(i => selectedImageIds.includes(i.id) && (isOwner || i.uploaded_by === user?.id)))} onClick={handleDeleteSelectedImages} className="px-3 py-1 bg-red-600 text-white rounded disabled:opacity-50">Delete Selected</button>
+                            <button onClick={() => setSelectedImageIds([])} className="px-3 py-1 bg-gray-200 rounded">Clear</button>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {(selectedPersonIds && selectedPersonIds.length > 0
                             ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
                             : images
                         ).map(img => (
-                            <div key={img.id} data-image-id={img.id} className="border rounded overflow-hidden relative">
+                            <div key={img.id} data-image-id={img.id} className={`border rounded overflow-hidden relative ${selectedImageIds.includes(img.id) ? 'ring-2 ring-blue-400' : ''}`}
+                                onClick={(e) => {
+                                    const t = e.target
+                                    // ignore clicks on inputs, buttons, anchors
+                                    if (t && (t.tagName === 'INPUT' || t.tagName === 'BUTTON' || t.tagName === 'A' || t.closest && t.closest('input,button,a'))) return
+                                    toggleImageSelection(img.id)
+                                }}
+                            >
+                                <div className="absolute top-2 right-2 z-20">
+                                    <input type="checkbox" checked={selectedImageIds.includes(img.id)} onChange={(e) => {
+                                        e.stopPropagation()
+                                        setSelectedImageIds(prev => prev && prev.includes(img.id) ? prev.filter(id => id !== img.id) : [...(prev || []), img.id])
+                                    }} className="w-4 h-4" />
+                                </div>
                                 <img src={img._objectUrl || undefined} alt="uploaded" className="w-full h-40 object-cover" loading="lazy" />
                                 <div className="p-2 text-xs text-gray-600">{new Date(img.uploaded_at).toLocaleString()}</div>
                                 {img.temp ? (
@@ -574,16 +816,7 @@ export default function EventDetail() {
                                             <div className="bg-blue-600 h-2 rounded" style={{ width: `${img.uploadProgress || 0}%` }} />
                                         </div>
                                     </div>
-                                ) : (
-                                    <div className="p-2">
-                                        <div className="flex items-center space-x-3">
-                                            <button onClick={() => downloadImage(img)} className="text-sm text-blue-600">Download</button>
-                                            {img.uploaded_by === user?.id && (
-                                                <button onClick={() => handleDeleteImage(img)} className="text-sm text-red-600">Delete</button>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
+                                ) : null}
                             </div>
                         ))}
                     </div>
