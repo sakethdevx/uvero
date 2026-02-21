@@ -220,6 +220,10 @@ export default function EventDetail() {
     }
 
     async function downloadImagesSeparately(imgArray, headers = {}) {
+        const token = user?.access_token || null
+        if (!headers || Object.keys(headers).length === 0) {
+            headers = token ? { Authorization: `Bearer ${token}` } : {}
+        }
         for (const img of imgArray) {
             try {
                 const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}&download=1`, { headers, cache: 'no-store' })
@@ -246,6 +250,10 @@ export default function EventDetail() {
     async function downloadImagesZip(imgArray, headers = {}) {
         try {
             const zip = new JSZip()
+            const token = user?.access_token || null
+            if (!headers || Object.keys(headers).length === 0) {
+                headers = token ? { Authorization: `Bearer ${token}` } : {}
+            }
             for (const img of imgArray) {
                 try {
                     const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}&download=1`, { headers, cache: 'no-store' })
