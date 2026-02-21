@@ -77,6 +77,7 @@ create table if not exists public.face_embeddings (
   person_id uuid references public.persons on delete cascade,
   image_id uuid references public.images on delete cascade,
   descriptor vector(512) not null,
+  box jsonb,
   created_at timestamptz default now()
 );
 
