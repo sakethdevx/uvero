@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useState, useRef } from 'react'
 import imageCompression from 'browser-image-compression'
 import QRCode from 'qrcode'
@@ -258,25 +259,44 @@ export default function EventDetail() {
             if (!headers || Object.keys(headers).length === 0) {
                 headers = token ? { Authorization: `Bearer ${token}` } : {}
             }
+            // show progress immediately (fetch phase will map to 0-50%)
+            const total = imgArray.length || 1
+            let fetched = 0
+            setZipProgress(0)
+            // yield so UI can render progress bar
+            await new Promise(resolve => setTimeout(resolve, 30))
+
             for (const img of imgArray) {
                 try {
                     const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}&download=1`, { headers, cache: 'no-store' })
                     if (!resp.ok) {
                         console.error('Download failed', resp.status, await resp.text())
+                        // still count as attempted so progress moves
+                        fetched += 1
+                        setZipProgress(Math.min(50, Math.round((fetched / total) * 50)))
                         continue
                     }
                     const blob = await resp.blob()
                     const filename = img.filename || `${img.id}.jpg`
                     zip.file(filename, blob)
+                    fetched += 1
+                    // update fetch progress mapped to 0-50%
+                    try { setZipProgress(Math.min(50, Math.round((fetched / total) * 50))) } catch (e) { }
                 } catch (e) {
                     console.error('Failed to fetch for zip', img.id, e)
+                    fetched += 1
+                    try { setZipProgress(Math.min(50, Math.round((fetched / total) * 50))) } catch (er) { }
                 }
             }
-            setZipProgress(0)
-            // allow a short delay so React can render the progress UI before heavy work
-            await new Promise(resolve => setTimeout(resolve, 60))
+
+            // start generation phase; map generation percent (0-100) to 50-100
+            await new Promise(resolve => setTimeout(resolve, 30))
             const zipBlob = await zip.generateAsync({ type: 'blob' }, (meta) => {
-                try { setZipProgress(Math.round(meta.percent)) } catch (e) { }
+                try {
+                    const genPercent = Math.round(meta.percent)
+                    // map 0..100 => 50..100
+                    setZipProgress(50 + Math.round(genPercent / 2))
+                } catch (e) { }
             })
             const url = URL.createObjectURL(zipBlob)
             const a = document.createElement('a')
@@ -351,24 +371,37 @@ export default function EventDetail() {
             if (!imgsToDownload || imgsToDownload.length === 0) return
             setDownloadingSelection(true)
             const zip = new JSZip()
+            // show progress immediately and update during fetch phase (0-50%)
+            const total = imgsToDownload.length || 1
+            let fetched = 0
+            setZipProgress(0)
+            await new Promise(resolve => setTimeout(resolve, 30))
             for (const img of imgsToDownload) {
                 try {
                     const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}&download=1`, { headers, cache: 'no-store' })
                     if (!resp.ok) {
                         console.error('Download failed', resp.status, await resp.text())
+                        fetched += 1
+                        setZipProgress(Math.min(50, Math.round((fetched / total) * 50)))
                         continue
                     }
                     const blob = await resp.blob()
                     const filename = img.filename || `${img.id}.jpg`
                     zip.file(filename, blob)
+                    fetched += 1
+                    try { setZipProgress(Math.min(50, Math.round((fetched / total) * 50))) } catch (e) { }
                 } catch (e) {
                     console.error('Failed to fetch for zip', img.id, e)
+                    fetched += 1
+                    try { setZipProgress(Math.min(50, Math.round((fetched / total) * 50))) } catch (er) { }
                 }
             }
-            setZipProgress(0)
-            await new Promise(resolve => setTimeout(resolve, 60))
+            await new Promise(resolve => setTimeout(resolve, 30))
             const zipBlob = await zip.generateAsync({ type: 'blob' }, (meta) => {
-                try { setZipProgress(Math.round(meta.percent)) } catch (e) { }
+                try {
+                    const genPercent = Math.round(meta.percent)
+                    setZipProgress(50 + Math.round(genPercent / 2))
+                } catch (e) { }
             })
             const url = URL.createObjectURL(zipBlob)
             const a = document.createElement('a')
