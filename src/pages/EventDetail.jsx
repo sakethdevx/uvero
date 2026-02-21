@@ -207,12 +207,15 @@ export default function EventDetail() {
         try {
             const token = user?.access_token || null
             const headers = token ? { Authorization: `Bearer ${token}` } : {}
-            const imgsToDownload = (selectedPersonIds && selectedPersonIds.length > 0
-                ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
-                : images)
+            const imgsToDownload = (selectedImageIds && selectedImageIds.length > 0)
+                ? images.filter(img => selectedImageIds.includes(img.id))
+                : (selectedPersonIds && selectedPersonIds.length > 0)
+                    ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
+                    : images
             if (!imgsToDownload || imgsToDownload.length === 0) return
             setDownloadingSelection(true)
-            await downloadImagesSeparately(imgsToDownload, headers)
+            // default to ZIP for "Download Selected"
+            await downloadImagesZip(imgsToDownload, headers)
         } catch (err) {
             console.error('Download selection error', err)
         } finally {
@@ -745,7 +748,18 @@ export default function EventDetail() {
                     <div className="flex items-center justify-between mb-3">
                         <h2 className="font-semibold">Photos</h2>
                         <div className="flex items-center gap-2">
-                            <button onClick={handleDownloadSelected} disabled={downloadingSelection || !(selectedImageIds && selectedImageIds.length)} className="px-3 py-1 bg-gray-50 border rounded disabled:opacity-50">Download Selected</button>
+                            <button onClick={handleDownloadSelected} disabled={downloadingSelection || !((selectedImageIds && selectedImageIds.length) || (selectedPersonIds && selectedPersonIds.length))} className="px-3 py-1 bg-gray-50 border rounded disabled:opacity-50">Download Selected — ZIP</button>
+                            <button disabled={downloadingSelection || !((selectedImageIds && selectedImageIds.length) || (selectedPersonIds && selectedPersonIds.length))} onClick={async () => {
+                                try {
+                                    setDownloadingSelection(true)
+                                    const imgsToDownload = (selectedImageIds && selectedImageIds.length > 0)
+                                        ? images.filter(img => selectedImageIds.includes(img.id))
+                                        : (selectedPersonIds && selectedPersonIds.length > 0)
+                                            ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
+                                            : images
+                                    await downloadImagesSeparately(imgsToDownload)
+                                } finally { setDownloadingSelection(false) }
+                            }} className="px-3 py-1 bg-gray-50 border rounded disabled:opacity-50">Download Selected — Separate</button>
                             <button disabled={downloadingSelection} onClick={async () => { try { setDownloadingSelection(true); await downloadImagesZip(images) } finally { setDownloadingSelection(false) } }} className="px-3 py-1 bg-gray-50 border rounded">Download All</button>
                         </div>
                     </div>
