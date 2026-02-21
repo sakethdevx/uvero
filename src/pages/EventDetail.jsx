@@ -760,9 +760,22 @@ export default function EventDetail() {
                     </div>
                     {selectedImageIds && selectedImageIds.length > 0 && (
                         <div className="mb-3 flex items-center space-x-2">
-                            <div className="relative">
-                                <button className="px-2 py-1 text-sm bg-gray-100 rounded" onClick={() => setShowPhotosMenu(s => !s)}>Download ▾</button>
-                            </div>
+                            <button disabled={downloadingSelection} onClick={async () => {
+                                try {
+                                    setDownloadingSelection(true)
+                                    const imgs = images.filter(i => selectedImageIds.includes(i.id))
+                                    await downloadImagesZip(imgs)
+                                } finally { setDownloadingSelection(false) }
+                            }} className="px-2 py-1 text-sm bg-gray-100 rounded disabled:opacity-50">Download Selected — ZIP</button>
+
+                            <button disabled={downloadingSelection} onClick={async () => {
+                                try {
+                                    setDownloadingSelection(true)
+                                    const imgs = images.filter(i => selectedImageIds.includes(i.id))
+                                    await downloadImagesSeparately(imgs)
+                                } finally { setDownloadingSelection(false) }
+                            }} className="px-2 py-1 text-sm bg-gray-100 rounded disabled:opacity-50">Download Selected — Separate</button>
+
                             <button disabled={!(images && images.some(i => selectedImageIds.includes(i.id) && (isOwner || i.uploaded_by === user?.id)))} onClick={handleDeleteSelectedImages} className="px-3 py-1 bg-red-600 text-white rounded disabled:opacity-50">Delete Selected</button>
                             <button onClick={() => setSelectedImageIds([])} className="px-3 py-1 bg-gray-200 rounded">Clear</button>
                         </div>
