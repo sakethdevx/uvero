@@ -662,187 +662,133 @@ export default function EventDetail() {
     }
 
     return (
-        <div className="max-w-5xl mx-auto p-6">
-            <h1 className="text-2xl font-semibold mb-2">Event</h1>
-            <div className="mb-4 text-sm text-gray-600">
-                Images: {totalImages} · People: {totalPersons} · Processed: {processedImages}
-            </div>
+        <div className="max-w-6xl mx-auto p-6">
+            <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <div>
+                    <h1 className="text-3xl font-semibold leading-tight">{eventMeta?.event_name || 'Event'}</h1>
+                    <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">Images: <strong className="ml-2">{totalImages}</strong></span>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">People: <strong className="ml-2">{totalPersons}</strong></span>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">Processed: <strong className="ml-2">{processedImages}</strong></span>
+                    </div>
+                </div>
 
-            <div className="mb-4 flex items-center space-x-3">
-                {eventMeta && <div className="font-medium">{eventMeta.event_name}</div>}
-                {!isOwner && !isParticipant && (
-                    <button onClick={handleJoinEvent} className="px-3 py-1 bg-blue-600 text-white rounded">Join Event</button>
-                )}
-                {isOwner && (
-                    <>
-                        <button onClick={handleCopyLink} className="px-3 py-1 bg-blue-600 text-white rounded">Copy Link</button>
-                        <button onClick={handleDownloadQr} className="px-3 py-1 bg-green-600 text-white rounded">Download QR</button>
-                        <button disabled={deletingEvent} onClick={handleDeleteEvent} className="px-3 py-1 bg-red-600 text-white rounded">{deletingEvent ? 'Deleting...' : 'Delete Event'}</button>
-                    </>
-                )}
-                {shareQr && (
-                    <img src={shareQr} alt="QR" className="h-28 w-28 border p-1" />
-                )}
-            </div>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                        {shareQr && <img src={shareQr} alt="QR" className="h-16 w-16 rounded border p-1 bg-white" />}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {!isOwner && !isParticipant && (
+                            <button onClick={handleJoinEvent} className="px-3 py-2 bg-blue-600 text-white rounded-md">Join Event</button>
+                        )}
+                        <button onClick={handleCopyLink} className="px-3 py-2 bg-gray-50 border rounded-md">Copy Link</button>
+                        <button onClick={handleDownloadQr} className="px-3 py-2 bg-gray-50 border rounded-md">QR</button>
+                        {isOwner && <button disabled={deletingEvent} onClick={handleDeleteEvent} className="px-3 py-2 bg-red-600 text-white rounded-md">{deletingEvent ? 'Deleting...' : 'Delete'}</button>}
+                    </div>
+                </div>
+            </header>
 
-            <div className="mb-6">
+            <section className="mb-6">
                 <label className="block mb-2 font-medium">Upload images</label>
-
                 <div
-                    className={`border-dashed border-2 rounded p-4 text-center cursor-pointer ${dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white'}`}
+                    className={`border-dashed border-2 rounded-lg p-6 text-center cursor-pointer transition-colors ${dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}
                     onClick={() => fileRef.current && fileRef.current.click()}
                     onDragOver={(e) => { e.preventDefault(); setDragActive(true) }}
                     onDragEnter={(e) => { e.preventDefault(); setDragActive(true) }}
                     onDragLeave={(e) => { e.preventDefault(); setDragActive(false) }}
-                    onDrop={(e) => {
-                        e.preventDefault()
-                        setDragActive(false)
-                        const dt = e.dataTransfer
-                        if (dt && dt.files && dt.files.length) {
-                            handleFiles(dt.files)
-                        }
-                    }}
+                    onDrop={(e) => { e.preventDefault(); setDragActive(false); const dt = e.dataTransfer; if (dt && dt.files && dt.files.length) handleFiles(dt.files) }}
                 >
                     <div className="text-sm text-gray-600">Drag & drop images here, or click to select files</div>
-                    <div className="text-xs text-gray-400 mt-1">You can upload multiple images. Images will be compressed before upload.</div>
+                    <div className="text-xs text-gray-400 mt-2">You can upload multiple images. Images will be compressed before upload.</div>
                     <input ref={fileRef} type="file" accept="image/*" multiple onChange={onSelectFiles} className="hidden" />
                 </div>
-            </div>
+            </section>
 
-            <div className="grid md:grid-cols-3 gap-4">
-                <div className="md:col-span-1">
-                    <div className="flex items-center justify-between">
-                        <h2 className="font-semibold mb-2">People</h2>
-                        <div className="flex items-center space-x-2">
-                            {selectedPersonIds && selectedPersonIds.length > 0 && (
-                                <>
-                                    <button disabled={downloadingSelection} onClick={async () => {
-                                        try { setDownloadingSelection(true); const imgs = images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid))); await downloadImagesZip(imgs) } finally { setDownloadingSelection(false) }
-                                    }} className="px-2 py-1 text-xs bg-gray-100 rounded disabled:opacity-50">Download Selected — ZIP</button>
-                                    <button disabled={downloadingSelection} onClick={async () => {
-                                        try { setDownloadingSelection(true); const imgs = images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid))); await downloadImagesSeparately(imgs) } finally { setDownloadingSelection(false) }
-                                    }} className="px-2 py-1 text-xs bg-gray-100 rounded disabled:opacity-50">Download Selected — Separate</button>
-                                </>
-                            )}
-                        </div>
+            <div className="grid md:grid-cols-3 gap-6">
+                <aside className="md:col-span-1">
+                    <div className="flex items-center justify-between mb-3">
+                        <h2 className="font-semibold">People</h2>
+                        <div className="text-sm text-gray-500">{totalPersons} total</div>
                     </div>
-                    <ul className="space-y-2">
+                    <div className="space-y-3">
                         {persons.map(person => (
-                            <li key={person.id} className={`border rounded p-2 flex items-center space-x-3 ${selectedPersonIds && selectedPersonIds.includes(person.id) ? 'bg-blue-50 border-blue-400' : 'bg-white border-gray-300'}`}>
-                                {person._thumbUrl ? (
-                                    <img src={person._thumbUrl} alt="face" className="h-14 w-14 rounded-full object-cover flex-shrink-0" />
-                                ) : (
-                                    <div className="h-14 w-14 rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-500 flex-shrink-0">?</div>
-                                )}
-                                <div className="flex-1 flex items-center ml-3">
-                                    <button className="flex-1 text-left" onClick={() => handleSelectPerson(person.id)}>
-                                        {editingPersonId === person.id ? (
-                                            <input
-                                                type="text"
-                                                value={editingName}
-                                                onChange={e => setEditingName(e.target.value)}
-                                                className="border rounded px-2 py-1 w-full"
-                                                placeholder="Enter name"
-                                            />
-                                        ) : (
-                                            <div className="flex flex-col">
-                                                <span className="font-medium text-gray-800 text-sm md:text-base">{person.name || <span className="text-gray-400">Unnamed</span>}</span>
-                                                <span className="text-xs text-gray-500 mt-1">{(person.image_count != null) ? `${person.image_count} photos` : ''}</span>
-                                            </div>
-                                        )}
+                            <div key={person.id} className={`flex items-center gap-3 p-3 rounded-lg shadow-sm ${selectedPersonIds && selectedPersonIds.includes(person.id) ? 'ring-2 ring-blue-300 bg-blue-50' : 'bg-white'}`}>
+                                <div className="flex-shrink-0">
+                                    {person._thumbUrl ? (
+                                        <img src={person._thumbUrl} alt="face" className="h-12 w-12 rounded-full object-cover" />
+                                    ) : (
+                                        <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-500">?</div>
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <button onClick={() => handleSelectPerson(person.id)} className="text-left w-full">
+                                        <div className="flex items-center justify-between">
+                                            <div className="truncate font-medium text-gray-800">{person.name || 'Unnamed'}</div>
+                                            <div className="text-xs text-gray-500">{person.image_count || 0}</div>
+                                        </div>
+                                        <div className="text-xs text-gray-500 truncate mt-1">{person.latest_filename || ''}</div>
                                     </button>
                                 </div>
-                                {editingPersonId === person.id ? (
-                                    <button className="ml-2 px-2 py-1 bg-green-600 text-white rounded" onClick={() => handleSavePersonName(person.id)}>Save</button>
-                                ) : (
-                                    <button className="ml-2 px-2 py-1 bg-gray-200 text-gray-700 rounded" onClick={() => handleEditPerson(person)}>Edit</button>
-                                )}
-                            </li>
+                                <div>
+                                    {editingPersonId === person.id ? (
+                                        <button className="px-2 py-1 bg-green-600 text-white rounded" onClick={() => handleSavePersonName(person.id)}>Save</button>
+                                    ) : (
+                                        <button className="px-2 py-1 bg-gray-100 rounded" onClick={() => handleEditPerson(person)}>Edit</button>
+                                    )}
+                                </div>
+                            </div>
                         ))}
-                    </ul>
-                </div>
-                <div className="md:col-span-2">
-                    <div className="flex items-center justify-between">
-                        <h2 className="font-semibold mb-2">Photos</h2>
-                        <div className="flex items-center space-x-2">
-                            {(!selectedImageIds || selectedImageIds.length === 0) && (
-                                <>
-                                    <button disabled={downloadingSelection} onClick={async () => {
-                                        try { setDownloadingSelection(true); await downloadImagesZip(images) } finally { setDownloadingSelection(false) }
-                                    }} className="px-2 py-1 text-xs bg-gray-100 rounded disabled:opacity-50">Download All — ZIP</button>
-                                    <button disabled={downloadingSelection} onClick={async () => {
-                                        try { setDownloadingSelection(true); await downloadImagesSeparately(images) } finally { setDownloadingSelection(false) }
-                                    }} className="px-2 py-1 text-xs bg-gray-100 rounded disabled:opacity-50">Download All — Separate</button>
-                                </>
-                            )}
+                    </div>
+                </aside>
+
+                <main className="md:col-span-2">
+                    <div className="flex items-center justify-between mb-3">
+                        <h2 className="font-semibold">Photos</h2>
+                        <div className="flex items-center gap-2">
+                            <button onClick={handleDownloadSelected} disabled={downloadingSelection || !(selectedImageIds && selectedImageIds.length)} className="px-3 py-1 bg-gray-50 border rounded disabled:opacity-50">Download Selected</button>
+                            <button disabled={downloadingSelection} onClick={async () => { try { setDownloadingSelection(true); await downloadImagesZip(images) } finally { setDownloadingSelection(false) } }} className="px-3 py-1 bg-gray-50 border rounded">Download All</button>
                         </div>
                     </div>
+
                     {downloadingSelection && zipProgress != null && (
-                        <div className="mb-3">
+                        <div className="mb-4">
                             <div className="w-full bg-gray-200 h-2 rounded">
                                 <div className="bg-blue-600 h-2 rounded" style={{ width: `${zipProgress}%` }} />
                             </div>
                             <div className="text-xs text-gray-600 mt-1">{zipProgress}% preparing ZIP...</div>
                         </div>
                     )}
+
                     {selectedImageIds && selectedImageIds.length > 0 && (
-                        <div className="mb-3 flex items-center space-x-2">
-                            <button disabled={downloadingSelection} onClick={async () => {
-                                try {
-                                    setDownloadingSelection(true)
-                                    const imgs = images.filter(i => selectedImageIds.includes(i.id))
-                                    await downloadImagesZip(imgs)
-                                } finally { setDownloadingSelection(false) }
-                            }} className="px-2 py-1 text-sm bg-gray-100 rounded disabled:opacity-50">Download Selected — ZIP</button>
-
-                            <button disabled={downloadingSelection} onClick={async () => {
-                                try {
-                                    setDownloadingSelection(true)
-                                    const imgs = images.filter(i => selectedImageIds.includes(i.id))
-                                    await downloadImagesSeparately(imgs)
-                                } finally { setDownloadingSelection(false) }
-                            }} className="px-2 py-1 text-sm bg-gray-100 rounded disabled:opacity-50">Download Selected — Separate</button>
-
-                            <button disabled={!(images && images.some(i => selectedImageIds.includes(i.id) && (isOwner || i.uploaded_by === user?.id)))} onClick={handleDeleteSelectedImages} className="px-3 py-1 bg-red-600 text-white rounded disabled:opacity-50">Delete Selected</button>
-                            <button onClick={() => setSelectedImageIds([])} className="px-3 py-1 bg-gray-200 rounded">Clear</button>
+                        <div className="mb-4 flex items-center gap-2">
+                            <div className="text-sm text-gray-700">{selectedImageIds.length} selected</div>
+                            <button onClick={() => setSelectedImageIds([])} className="px-2 py-1 bg-gray-100 rounded">Clear</button>
+                            <button disabled={!(images && images.some(i => selectedImageIds.includes(i.id) && (isOwner || i.uploaded_by === user?.id)))} onClick={handleDeleteSelectedImages} className="px-3 py-1 bg-red-600 text-white rounded">Delete</button>
                         </div>
                     )}
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {(selectedPersonIds && selectedPersonIds.length > 0
-                            ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
-                            : images
-                        ).map(img => (
-                            <div key={img.id} data-image-id={img.id} className={`border rounded overflow-hidden relative ${selectedImageIds.includes(img.id) ? 'ring-2 ring-blue-400' : ''}`}
-                                onClick={(e) => {
-                                    const t = e.target
-                                    // ignore clicks on inputs, buttons, anchors
-                                    if (t && (t.tagName === 'INPUT' || t.tagName === 'BUTTON' || t.tagName === 'A' || t.closest && t.closest('input,button,a'))) return
-                                    toggleImageSelection(img.id)
-                                }}
-                            >
-                                <div className="absolute top-2 right-2 z-20">
-                                    <input type="checkbox" checked={selectedImageIds.includes(img.id)} onChange={(e) => {
-                                        e.stopPropagation()
-                                        setSelectedImageIds(prev => prev && prev.includes(img.id) ? prev.filter(id => id !== img.id) : [...(prev || []), img.id])
-                                    }} className="w-4 h-4" />
-                                </div>
-                                <img src={img._objectUrl || undefined} alt="uploaded" className="w-full h-40 object-cover" loading="lazy" />
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {(selectedPersonIds && selectedPersonIds.length > 0 ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid))) : images).map(img => (
+                            <div key={img.id} className={`relative overflow-hidden rounded-lg bg-gray-50 shadow-sm group ${selectedImageIds.includes(img.id) ? 'ring-2 ring-blue-400' : ''}`}>
+                                <button className="absolute inset-0 focus:outline-none" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleImageSelection(img.id) }} aria-pressed={selectedImageIds.includes(img.id)} />
+                                <img src={img._objectUrl || undefined} alt={img.filename || 'image'} className="w-full h-48 object-cover" loading="lazy" />
                                 <div className="p-2 text-xs text-gray-600">{new Date(img.uploaded_at).toLocaleString()}</div>
-                                {img.temp ? (
-                                    <div className="p-2">
-                                        <div className="text-sm text-gray-700">Uploading {img.filename}</div>
-                                        <div className="w-full bg-gray-200 h-2 rounded mt-2">
-                                            <div className="bg-blue-600 h-2 rounded" style={{ width: `${img.uploadProgress || 0}%` }} />
-                                        </div>
+                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-end justify-end p-2">
+                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                                        <button onClick={(e) => { e.stopPropagation(); downloadImage(img) }} className="px-2 py-1 bg-white rounded">Download</button>
+                                        <button onClick={(e) => { e.stopPropagation(); handleDeleteImage(img) }} className="px-2 py-1 bg-red-600 text-white rounded">Delete</button>
                                     </div>
-                                ) : null}
+                                </div>
+                                {img.temp && (
+                                    <div className="absolute left-2 top-2 bg-white/80 px-2 py-1 rounded text-xs">Uploading {img.uploadProgress || 0}%</div>
+                                )}
+                                <div className="absolute top-2 left-2">
+                                    <input type="checkbox" checked={selectedImageIds.includes(img.id)} onChange={(e) => { e.stopPropagation(); setSelectedImageIds(prev => prev && prev.includes(img.id) ? prev.filter(id => id !== img.id) : [...(prev || []), img.id]) }} className="w-4 h-4" />
+                                </div>
                             </div>
                         ))}
                     </div>
-                </div>
-
-
+                </main>
             </div>
         </div>
     )
