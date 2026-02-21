@@ -756,14 +756,18 @@ export default function EventDetail() {
 
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
-                        {shareQr && <img src={shareQr} alt="QR" className="h-16 w-16 rounded border p-1 bg-white" />}
+                        {isOwner && shareQr && <img src={shareQr} alt="QR" className="h-16 w-16 rounded border p-1 bg-white" />}
                     </div>
                     <div className="flex items-center gap-2">
                         {!isOwner && !isParticipant && (
                             <button onClick={handleJoinEvent} className="px-3 py-2 bg-blue-600 text-white rounded-md">Join Event</button>
                         )}
-                        <button onClick={handleCopyLink} className="px-3 py-2 bg-gray-50 border rounded-md">Copy Link</button>
-                        <button onClick={handleDownloadQr} className="px-3 py-2 bg-gray-50 border rounded-md">QR</button>
+                        {isOwner && (
+                            <>
+                                <button onClick={handleCopyLink} className="px-3 py-2 bg-gray-50 border rounded-md">Copy Link</button>
+                                <button onClick={handleDownloadQr} className="px-3 py-2 bg-gray-50 border rounded-md">QR</button>
+                            </>
+                        )}
                         {isOwner && <button disabled={deletingEvent} onClick={handleDeleteEvent} className="px-3 py-2 bg-red-600 text-white rounded-md">{deletingEvent ? 'Deleting...' : 'Delete'}</button>}
                     </div>
                 </div>
