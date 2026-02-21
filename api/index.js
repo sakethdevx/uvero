@@ -43,6 +43,16 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/create-invite') {
+            const mod = await import('../src/api_handlers/create-invite.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/invite-info') {
+            const mod = await import('../src/api_handlers/invite-info.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/persons') {
             const mod = await import('../src/api_handlers/persons.js')
             return mod.default(req, res)
