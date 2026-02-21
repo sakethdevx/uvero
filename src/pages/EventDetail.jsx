@@ -270,6 +270,8 @@ export default function EventDetail() {
                 }
             }
             setZipProgress(0)
+            // allow a short delay so React can render the progress UI before heavy work
+            await new Promise(resolve => setTimeout(resolve, 60))
             const zipBlob = await zip.generateAsync({ type: 'blob' }, (meta) => {
                 try { setZipProgress(Math.round(meta.percent)) } catch (e) { }
             })
@@ -361,6 +363,7 @@ export default function EventDetail() {
                 }
             }
             setZipProgress(0)
+            await new Promise(resolve => setTimeout(resolve, 60))
             const zipBlob = await zip.generateAsync({ type: 'blob' }, (meta) => {
                 try { setZipProgress(Math.round(meta.percent)) } catch (e) { }
             })
