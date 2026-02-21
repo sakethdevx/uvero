@@ -42,6 +42,25 @@ export default async function handler(req, res) {
         const { error: delErr } = await serverSupabase.from('images').delete().eq('id', id)
         if (delErr) return res.status(500).json({ error: delErr.message })
 
+        // Cleanup: delete any `persons` for this event that no longer have embeddings
+        try {
+            const { data: personsForEvent, error: pErr } = await serverSupabase.from('persons').select('id').eq('event_id', image.event_id)
+            if (!pErr && personsForEvent && personsForEvent.length) {
+                const personIds = personsForEvent.map(p => p.id)
+                const { data: embRows, error: embErr } = await serverSupabase.from('face_embeddings').select('person_id').in('person_id', personIds)
+                if (embErr) throw embErr
+
+                const haveEmbSet = new Set((embRows || []).map(r => r.person_id))
+                const orphanIds = personIds.filter(pid => !haveEmbSet.has(pid))
+                if (orphanIds.length) {
+                    const { error: delPersonsErr } = await serverSupabase.from('persons').delete().in('id', orphanIds)
+                    if (delPersonsErr) console.warn('[api/delete-image] failed to delete orphan persons', delPersonsErr.message)
+                }
+            }
+        } catch (cleanupErr) {
+            console.warn('[api/delete-image] cleanup error', cleanupErr?.message || String(cleanupErr))
+        }
+
         return res.status(200).json({ success: true })
     } catch (err) {
         console.error('[api/delete-image] unexpected', err?.message || String(err))
