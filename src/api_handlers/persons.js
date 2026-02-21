@@ -35,14 +35,18 @@ export default async function handler(req, res) {
                 emb = embData || []
             }
             const thumbByPerson = {}
+            const imagesByPerson = {}
             for (const row of emb) {
                 if (!thumbByPerson[row.person_id]) thumbByPerson[row.person_id] = { image_id: row.image_id, box: row.box }
+                imagesByPerson[row.person_id] = imagesByPerson[row.person_id] || new Set()
+                if (row.image_id) imagesByPerson[row.person_id].add(row.image_id)
             }
 
             const augmented = (data || []).map(p => ({
                 ...p,
                 thumbnail_image_id: thumbByPerson[p.id] ? thumbByPerson[p.id].image_id : null,
-                thumbnail_box: thumbByPerson[p.id] ? thumbByPerson[p.id].box : null
+                thumbnail_box: thumbByPerson[p.id] ? thumbByPerson[p.id].box : null,
+                image_count: imagesByPerson[p.id] ? imagesByPerson[p.id].size : 0
             }))
             return res.status(200).json({ data: augmented })
         } catch (e) {

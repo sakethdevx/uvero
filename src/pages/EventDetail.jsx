@@ -537,7 +537,10 @@ export default function EventDetail() {
                                                 placeholder="Enter name"
                                             />
                                         ) : (
-                                            <span className="font-medium text-gray-700">{person.name || <span className="text-gray-400">Unnamed</span>}</span>
+                                            <div>
+                                                <span className="font-medium text-gray-700">{person.name || <span className="text-gray-400">Unnamed</span>}</span>
+                                                <span className="text-xs text-gray-500 ml-2">{(person.image_count != null) ? `${person.image_count} photos` : ''}</span>
+                                            </div>
                                         )}
                                     </button>
                                 </div>
