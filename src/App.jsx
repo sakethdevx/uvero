@@ -7,6 +7,7 @@ import ToolPage from './pages/ToolPage';
 import Privacy from './pages/Privacy';
 import EventsPage from './pages/Events';
 import EventDetail from './pages/EventDetail';
+import InvitePage from './pages/Invite';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ResetPassword from './pages/ResetPassword';
@@ -319,6 +320,7 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/events/:id" element={<EventDetail />} />
+          <Route path="/invite/:token" element={<InvitePage />} />
           <Route path="/:toolId" element={<ToolPage />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/login" element={<Login />} />

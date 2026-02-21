@@ -63,7 +63,7 @@ export default async function handler(req, res) {
             console.warn('[api/join-event] insert error', error.message)
         }
 
-        return res.status(200).json({ success: true })
+        return res.status(200).json({ success: true, event_id })
     } catch (err) {
         console.error('[api/join-event] unexpected', err?.message || String(err))
         return res.status(500).json({ error: String(err) })
