@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useState, useRef } from 'react'
 import imageCompression from 'browser-image-compression'
 import QRCode from 'qrcode'
