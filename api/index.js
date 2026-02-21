@@ -48,6 +48,11 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/update-person-name') {
+            const mod = await import('../src/api_handlers/update-person-name.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/process-faces') {
             const mod = await import('../src/api_handlers/process-faces.js')
             return mod.default(req, res)
