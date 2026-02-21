@@ -31,13 +31,9 @@ export default async function handler(req, res) {
         const ev = evs && evs[0]
         if (!ev) return res.status(404).json({ error: 'Event not found' })
 
+        // only event owner can create invites
         const isOwner = ev.created_by === user.id
-        let isParticipant = false
-        if (!isOwner) {
-            const { data: parts } = await serverSupabase.from('participants').select('*').eq('event_id', event_id).eq('user_id', user.id).limit(1)
-            isParticipant = (parts && parts.length > 0)
-        }
-        if (!isOwner && !isParticipant) return res.status(403).json({ error: 'Forbidden' })
+        if (!isOwner) return res.status(403).json({ error: 'Forbidden' })
 
         const now = Math.floor(Date.now() / 1000)
         const payload = { event_id, iat: now, exp: now + Number(expires_in) }

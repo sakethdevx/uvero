@@ -56,6 +56,11 @@ export default async function handler(req, res) {
         const ev = evs && evs[0]
         if (!ev) return res.status(404).json({ error: 'Event not found' })
 
+        // if the requester is the event owner, no need to add to participants
+        if (ev.created_by === user.id) {
+            return res.status(200).json({ success: true, event_id })
+        }
+
         // insert into participants if not exists
         const { data, error } = await serverSupabase.from('participants').insert([{ event_id, user_id: user.id }]).select()
         if (error) {
