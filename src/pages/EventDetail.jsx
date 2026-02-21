@@ -439,7 +439,20 @@ export default function EventDetail() {
 
     async function handleShare() {
         try {
-            const link = `${window.location.origin}/events/${id}`
+            // request a signed invite token from the server
+            const resp = await fetch('/api/create-invite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
+                body: JSON.stringify({ event_id: id })
+            })
+            if (!resp.ok) {
+                console.error('Create invite failed', resp.status, await resp.text())
+                return
+            }
+            const d = await resp.json()
+            const token = d.token
+            if (!token) return
+            const link = `${window.location.origin}/invite/${token}`
             await navigator.clipboard.writeText(link)
             const data = await QRCode.toDataURL(link)
             setShareQr(data)
@@ -448,20 +461,44 @@ export default function EventDetail() {
 
     async function handleCopyLink() {
         try {
-            const link = `${window.location.origin}/events/${id}`
+            const resp = await fetch('/api/create-invite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
+                body: JSON.stringify({ event_id: id })
+            })
+            if (!resp.ok) {
+                console.error('Create invite failed', resp.status, await resp.text())
+                return
+            }
+            const d = await resp.json()
+            const token = d.token
+            if (!token) return
+            const link = `${window.location.origin}/invite/${token}`
             await navigator.clipboard.writeText(link)
-            console.debug('Event link copied')
+            console.debug('Invite link copied')
         } catch (err) { console.error('Copy link error', err) }
     }
 
     async function handleDownloadQr() {
         try {
-            const link = `${window.location.origin}/events/${id}`
+            const resp = await fetch('/api/create-invite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
+                body: JSON.stringify({ event_id: id })
+            })
+            if (!resp.ok) {
+                console.error('Create invite failed', resp.status, await resp.text())
+                return
+            }
+            const d = await resp.json()
+            const token = d.token
+            if (!token) return
+            const link = `${window.location.origin}/invite/${token}`
             const dataUrl = await QRCode.toDataURL(link)
             // trigger download
             const a = document.createElement('a')
             a.href = dataUrl
-            a.download = `event-${id}-qr.png`
+            a.download = `event-${id}-invite-qr.png`
             document.body.appendChild(a)
             a.click()
             a.remove()
