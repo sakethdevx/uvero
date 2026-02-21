@@ -106,7 +106,7 @@ export default function EventDetail() {
                             return url
                         }
                         // Add padding to reduce zoom (scale >1 increases crop area)
-                        const PAD_SCALE = 1.2 // 20% padding around face
+                        const PAD_SCALE = 1.4 // 40% padding around face
                         const cx = normalized.x + normalized.w / 2
                         const cy = normalized.y + normalized.h / 2
                         let newW = Math.round(normalized.w * PAD_SCALE)
