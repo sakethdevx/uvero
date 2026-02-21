@@ -49,7 +49,18 @@ export default async function handler(req, res) {
         const sig = base64UrlEncode(hmac.digest())
         const tokenStr = `${payloadB64}.${sig}`
 
-        return res.status(200).json({ token: tokenStr })
+        // fetch event details for response
+        let event = null
+        try {
+            const { data: evs, error: evErr } = await serverSupabase.from('events').select('*').eq('id', event_id).limit(1)
+            if (!evErr && evs && evs[0]) event = { id: evs[0].id, event_name: evs[0].event_name }
+        } catch (e) {
+            console.warn('[api/create-invite] failed to fetch event', e?.message || String(e))
+        }
+
+        const inviter = { id: user.id, email: user.email }
+
+        return res.status(200).json({ token: tokenStr, event, inviter })
     } catch (err) {
         console.error('[api/create-invite] unexpected', err?.message || String(err))
         return res.status(500).json({ error: String(err) })
