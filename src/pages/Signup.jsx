@@ -30,8 +30,8 @@ export default function Signup() {
             return
         }
 
-        // Otherwise an email confirmation is required — show a clear message instead of silently redirecting
-        setInfo(`A verification email has been sent to ${email}. Please check your inbox and verify your email before signing in.`)
+        // Otherwise an email confirmation is required — show a clear message and prompt user to sign in after verification
+        setInfo(`A verification email has been sent to ${email}. Please check your inbox and verify your email. After verifying, return here and click "Sign in" to continue.`)
     }
 
     return (
@@ -39,6 +39,17 @@ export default function Signup() {
             <h1 className="text-2xl font-semibold mb-4">Create an account</h1>
             {error && <div className="text-red-600 mb-2">{error}</div>}
             {info && <div className="text-green-600 mb-2">{info}</div>}
+            {info && (
+                <div className="mt-3">
+                    <button
+                        type="button"
+                        onClick={() => navigate('/login', { state: { from: { pathname: from } } })}
+                        className="bg-blue-600 text-white px-4 py-2 rounded"
+                    >
+                        I verified — Sign in
+                    </button>
+                </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
                 <label className="block">
                     <span className="text-sm">Email</span>
