@@ -47,8 +47,8 @@ export function AuthProvider({ children }) {
                             Authorization: `Bearer ${session.access_token}`
                         },
                         body: JSON.stringify({
-                            email: currentUser?.email,
-                            full_name: currentUser?.user_metadata?.full_name ?? null
+                            email: newUser?.email,
+                            full_name: newUser?.user_metadata?.full_name ?? null
                         })
                     })
                 } catch (err) {
