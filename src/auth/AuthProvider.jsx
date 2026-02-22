@@ -16,7 +16,11 @@ export function AuthProvider({ children }) {
             // Attach access_token to the user object so components can send it in Authorization header
             const session = data?.session ?? null
             if (session) {
-                setUser({ ...session.user, access_token: session.access_token })
+                const newUser = { ...session.user, access_token: session.access_token }
+                setUser(prev => {
+                    if (prev && prev.id === newUser.id && prev.access_token === newUser.access_token) return prev
+                    return newUser
+                })
             } else {
                 setUser(null)
             }
@@ -26,8 +30,12 @@ export function AuthProvider({ children }) {
         load()
 
         const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
-            const currentUser = session ? { ...session.user, access_token: session.access_token } : null
-            setUser(currentUser)
+            const newUser = session ? { ...session.user, access_token: session.access_token } : null
+            setUser(prev => {
+                if (!prev && !newUser) return null
+                if (prev && newUser && prev.id === newUser.id && prev.access_token === newUser.access_token) return prev
+                return newUser
+            })
 
             // When a user signs in, call server endpoint to ensure a profiles row exists.
             if (event === 'SIGNED_IN' && session?.access_token) {

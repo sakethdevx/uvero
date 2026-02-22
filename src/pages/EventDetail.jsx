@@ -16,16 +16,21 @@ function LazyImg({ img, auth, objectUrlsRef, gridSize }) {
     useEffect(() => {
         if (!imgRef.current || blobUrl || observed) return
 
-        const observer = new IntersectionObserver(([entry]) => {
-            if (entry.isIntersecting) {
-                setObserved(true)
-                observer.disconnect()
-            }
-        }, { rootMargin: '200px' })
+        // Delay starting observation to allow layout to stabilize
+        const timer = setTimeout(() => {
+            if (!imgRef.current) return
+            const observer = new IntersectionObserver(([entry]) => {
+                if (entry.isIntersecting) {
+                    setObserved(true)
+                    observer.disconnect()
+                }
+            }, { rootMargin: '100px' }) // Reduced from 200px
 
-        observer.observe(imgRef.current)
-        return () => observer.disconnect()
-    }, [blobUrl, observed])
+            observer.observe(imgRef.current)
+        }, 100)
+
+        return () => clearTimeout(timer)
+    }, [blobUrl, observed, img.id])
 
     useEffect(() => {
         if (!observed || blobUrl) return
@@ -42,7 +47,6 @@ function LazyImg({ img, auth, objectUrlsRef, gridSize }) {
                 objectUrlsRef.current.add(url)
                 setBlobUrl(url)
             } catch (err) {
-                console.warn('Lazy load failed for', img.id, err)
             } finally {
                 if (active) setLoading(false)
             }
@@ -157,15 +161,20 @@ function LazyPersonThumb({ person, auth, objectUrlsRef }) {
 
     useEffect(() => {
         if (!thumbRef.current || thumbUrl || observed || !person.thumbnail_image_id) return
-        const observer = new IntersectionObserver(([entry]) => {
-            if (entry.isIntersecting) {
-                setObserved(true)
-                observer.disconnect()
-            }
-        }, { rootMargin: '50px' })
-        observer.observe(thumbRef.current)
-        return () => observer.disconnect()
-    }, [thumbUrl, observed, person.thumbnail_image_id])
+
+        const timer = setTimeout(() => {
+            if (!thumbRef.current) return
+            const observer = new IntersectionObserver(([entry]) => {
+                if (entry.isIntersecting) {
+                    setObserved(true)
+                    observer.disconnect()
+                }
+            }, { rootMargin: '50px' })
+            observer.observe(thumbRef.current)
+        }, 100)
+
+        return () => clearTimeout(timer)
+    }, [thumbUrl, observed, person.thumbnail_image_id, person.id])
 
     useEffect(() => {
         if (!observed || thumbUrl || !person.thumbnail_image_id) return
@@ -173,7 +182,7 @@ function LazyPersonThumb({ person, auth, objectUrlsRef }) {
         async function fetchThumb() {
             try {
                 setLoading(true)
-                const r = await fetch(`/api/images?id=${encodeURIComponent(person.thumbnail_image_id)}`, { headers: auth, cache: 'no-store' })
+                const r = await fetch(`/api/images?id=${encodeURIComponent(person.thumbnail_image_id)}`, { headers: { Authorization: auth }, cache: 'no-store' })
                 if (!r.ok) return
                 const blob = await r.blob()
                 if (!active) return
@@ -542,21 +551,24 @@ export default function EventDetail() {
     async function handleJoinEvent() {
         if (!user) return
         try {
+            console.log(`[EventDetail] handleJoinEvent START at ${new Date().toISOString()}`)
             const resp = await fetch('/api/join-event', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.access_token}` }, body: JSON.stringify({ event_id: id }) })
             if (!resp.ok) {
                 const txt = await resp.text()
-                console.error('Join failed', resp.status, txt)
+                console.error('[EventDetail] JOIN FAILED', resp.status, txt)
                 return
             }
             setIsParticipant(true)
 
             // refresh event data and initial batch of images
             setLoadingBatch(true)
+            console.log('[EventDetail] REFRESHING DATA AFTER JOIN')
             fetch(`/api/events?event_id=${id}&limit=${BATCH_SIZE}&offset=0`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } })
                 .then(r => r.json())
                 .then(async d => {
                     const payload = d.data || {}
                     const imgs = payload.images || []
+                    console.log(`[EventDetail] POST-JOIN FETCH SUCCESS: ${imgs.length} images`)
                     setImages(imgs)
                     setEventMeta(payload.event || null)
                     setIsOwner(Boolean(payload.isOwner))
@@ -570,7 +582,7 @@ export default function EventDetail() {
 
             // refresh persons
             loadPersons()
-        } catch (err) { console.error('Join error', err) }
+        } catch (err) { console.error('[EventDetail] JOIN ERROR', err) }
     }
 
     async function handleShare() {
@@ -667,7 +679,7 @@ export default function EventDetail() {
                     handleLoadMore()
                 }
             },
-            { rootMargin: '100px' } // Reduced from 400px to prevent premature loading
+            { rootMargin: '50px' } // Reduced from 100px to prevent premature loading
         )
         observer.observe(loadMoreRef.current)
         return () => observer.disconnect()
@@ -680,10 +692,11 @@ export default function EventDetail() {
         try {
             // Use current imagesCountRef.current as offset to ensure consistency
             const currentOffset = imagesCountRef.current
+            console.log(`[EventDetail] BATCH FETCH START: offset=${currentOffset} limit=${BATCH_SIZE} at ${new Date().toISOString()}`)
             const resp = await fetch(`/api/events?event_id=${id}&limit=${BATCH_SIZE}&offset=${currentOffset}`, {
                 headers: { Authorization: `Bearer ${user?.access_token || ''}` }
             })
-            if (!resp.ok) throw new Error('Fetch failed')
+            if (!resp.ok) throw new Error(`Fetch failed: ${resp.status}`)
             const d = await resp.json()
             const payload = d.data || {}
             const newImgs = payload.images || []
@@ -699,7 +712,7 @@ export default function EventDetail() {
             }
             setHasMore(Boolean(payload.has_more))
         } catch (err) {
-            console.error('Fetch more failed', err)
+            console.error('[EventDetail] BATCH FETCH FAILED:', err)
         } finally {
             // Small delay to prevent rapid-fire triggering
             setTimeout(() => {
