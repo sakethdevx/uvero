@@ -86,7 +86,8 @@ export default function EventDetail() {
     const [totalPersons, setTotalPersons] = useState(0)
     const [processedImages, setProcessedImages] = useState(0)
     const [hasMore, setHasMore] = useState(false)
-    const [offset, setOffset] = useState(0)
+    const [loadingBatch, setLoadingBatch] = useState(false)
+    const isLoadingBatchRef = useRef(false)
     const BATCH_SIZE = 24
 
     const [eventMeta, setEventMeta] = useState(null)
@@ -105,7 +106,6 @@ export default function EventDetail() {
     const [selectedImageIds, setSelectedImageIds] = useState([])
     const [showPeopleMenu, setShowPeopleMenu] = useState(false)
     const [zipProgress, setZipProgress] = useState(null)
-    const [loadingBatch, setLoadingBatch] = useState(false)
     const loadMoreRef = useRef(null)
 
     // helper: normalize box, crop blobs and load persons (reusable)
@@ -519,7 +519,6 @@ export default function EventDetail() {
                     setTotalPersons(payload.total_persons_count || 0)
                     setProcessedImages(payload.processed_images_count || 0)
                     setHasMore(Boolean(payload.has_more))
-                    setOffset(imgs.length)
                 })
                 .finally(() => setLoadingBatch(false))
 
@@ -618,21 +617,19 @@ export default function EventDetail() {
 
         const observer = new IntersectionObserver(
             ([entry]) => {
-                // Only trigger if intersecting AND not already loading
-                // We check loadingBatch here, but since it's a stable callback 
-                // we'll use handleLoadMore's internal check as well.
                 if (entry.isIntersecting) {
                     handleLoadMore()
                 }
             },
-            { rootMargin: '400px' }
+            { rootMargin: '100px' } // Reduced from 400px to prevent premature loading
         )
         observer.observe(loadMoreRef.current)
         return () => observer.disconnect()
-    }, [hasMore, id, user]) // Simplified dependencies
+    }, [hasMore, id, user, handleLoadMore])
 
-    async function handleLoadMore() {
-        if (loadingBatch || !hasMore || !id) return
+    const handleLoadMore = useCallback(async () => {
+        if (isLoadingBatchRef.current || !hasMore || !id) return
+        isLoadingBatchRef.current = true
         setLoadingBatch(true)
         try {
             // Use current images.length as offset to ensure consistency
@@ -652,15 +649,18 @@ export default function EventDetail() {
                     const filteredNew = newImgs.filter(i => !existingIds.has(i.id))
                     return [...prev, ...filteredNew]
                 })
-                setOffset(prev => prev + newImgs.length)
             }
             setHasMore(Boolean(payload.has_more))
         } catch (err) {
             console.error('Fetch more failed', err)
         } finally {
-            setTimeout(() => setLoadingBatch(false), 500) // Small delay to prevent rapid-fire triggering
+            // Small delay to prevent rapid-fire triggering
+            setTimeout(() => {
+                isLoadingBatchRef.current = false
+                setLoadingBatch(false)
+            }, 600)
         }
-    }
+    }, [hasMore, id, user, images.length])
 
     async function handleFiles(files) {
         if (!files || !files.length) return
