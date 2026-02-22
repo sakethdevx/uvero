@@ -3,6 +3,8 @@ import crypto from 'crypto'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
+// optional dedicated secret for invite tokens
+const INVITE_SECRET = process.env.INVITE_SECRET
 const serverSupabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 function base64UrlEncode(buf) {
@@ -40,7 +42,9 @@ export default async function handler(req, res) {
         const payloadStr = JSON.stringify(payload)
         const payloadB64 = base64UrlEncode(payloadStr)
 
-        const hmac = crypto.createHmac('sha256', SUPABASE_SERVICE_KEY)
+        const HMAC_KEY = INVITE_SECRET || SUPABASE_SERVICE_KEY
+        if (!INVITE_SECRET) console.warn('[api/create-invite] using SUPABASE_SERVICE_KEY for invite HMAC; consider setting INVITE_SECRET')
+        const hmac = crypto.createHmac('sha256', HMAC_KEY)
         hmac.update(payloadB64)
         const sig = base64UrlEncode(hmac.digest())
         const tokenStr = `${payloadB64}.${sig}`
