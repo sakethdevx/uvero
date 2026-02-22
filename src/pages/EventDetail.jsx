@@ -1218,13 +1218,22 @@ export default function EventDetail() {
                                             setLightboxImg(img)
                                         }}
                                     >
-                                        <img
-                                            src={img._objectUrl || undefined}
-                                            alt={img.filename || 'photo'}
-                                            className={`w-full object-cover transition-transform duration-500 group-hover:scale-105 ${gridSize === 'lg' ? 'h-64' : gridSize === 'md' ? 'h-48' : 'h-32'
-                                                }`}
-                                            loading="lazy"
-                                        />
+                                        {img._objectUrl ? (
+                                            <img
+                                                src={img._objectUrl}
+                                                alt=""
+                                                className={`w-full object-cover transition-transform duration-500 group-hover:scale-105 ${gridSize === 'lg' ? 'h-64' : gridSize === 'md' ? 'h-48' : 'h-32'
+                                                    }`}
+                                                loading="lazy"
+                                            />
+                                        ) : (
+                                            /* Skeleton placeholder while loading */
+                                            <div className={`w-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 ${gridSize === 'lg' ? 'h-64' : gridSize === 'md' ? 'h-48' : 'h-32'
+                                                }`}>
+                                                <div className="w-8 h-8 border-2 border-gray-300 border-t-purple-500 rounded-full animate-spin mb-2" />
+                                                <span className="text-[10px] font-medium text-gray-400">Loading...</span>
+                                            </div>
+                                        )}
 
                                         {/* Bottom info bar */}
                                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-2.5 pt-8">
