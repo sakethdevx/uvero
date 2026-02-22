@@ -87,7 +87,7 @@ export default function EventDetail() {
     const [processedImages, setProcessedImages] = useState(0)
     const [hasMore, setHasMore] = useState(false)
     const [offset, setOffset] = useState(0)
-    const BATCH_SIZE = 20
+    const BATCH_SIZE = 24
 
     const [eventMeta, setEventMeta] = useState(null)
     const [isOwner, setIsOwner] = useState(false)
@@ -503,11 +503,28 @@ export default function EventDetail() {
                 return
             }
             setIsParticipant(true)
-            // refresh images
-            const r = await fetch(`/api/events?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } }).then(r => r.json())
-            const imgs = (r.data && r.data.images) || []
-            setImages(imgs)
-            preloadImageUrls(imgs)
+
+            // refresh event data and initial batch of images
+            setLoadingBatch(true)
+            fetch(`/api/events?event_id=${id}&limit=${BATCH_SIZE}&offset=0`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } })
+                .then(r => r.json())
+                .then(async d => {
+                    const payload = d.data || {}
+                    const imgs = payload.images || []
+                    setImages(imgs)
+                    setEventMeta(payload.event || null)
+                    setIsOwner(Boolean(payload.isOwner))
+                    setIsParticipant(Boolean(payload.isParticipant))
+                    setTotalImages(payload.total_images_count || 0)
+                    setTotalPersons(payload.total_persons_count || 0)
+                    setProcessedImages(payload.processed_images_count || 0)
+                    setHasMore(Boolean(payload.has_more))
+                    setOffset(imgs.length)
+                })
+                .finally(() => setLoadingBatch(false))
+
+            // refresh persons
+            loadPersons()
         } catch (err) { console.error('Join error', err) }
     }
 
@@ -597,36 +614,51 @@ export default function EventDetail() {
 
     // IntersectionObserver for infinite scroll — load more images as user scrolls
     useEffect(() => {
-        if (!loadMoreRef.current || !hasMore || loadingBatch) return
+        if (!loadMoreRef.current || !hasMore) return
+
         const observer = new IntersectionObserver(
             ([entry]) => {
-                if (entry.isIntersecting && !loadingBatch && hasMore) {
+                // Only trigger if intersecting AND not already loading
+                // We check loadingBatch here, but since it's a stable callback 
+                // we'll use handleLoadMore's internal check as well.
+                if (entry.isIntersecting) {
                     handleLoadMore()
                 }
             },
-            { rootMargin: '300px' }
+            { rootMargin: '400px' }
         )
         observer.observe(loadMoreRef.current)
         return () => observer.disconnect()
-    }, [hasMore, loadingBatch, offset])
+    }, [hasMore, id, user]) // Simplified dependencies
 
     async function handleLoadMore() {
-        if (loadingBatch || !hasMore) return
+        if (loadingBatch || !hasMore || !id) return
         setLoadingBatch(true)
         try {
-            const resp = await fetch(`/api/events?event_id=${id}&limit=${BATCH_SIZE}&offset=${offset}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } })
+            // Use current images.length as offset to ensure consistency
+            const currentOffset = images.length
+            const resp = await fetch(`/api/events?event_id=${id}&limit=${BATCH_SIZE}&offset=${currentOffset}`, {
+                headers: { Authorization: `Bearer ${user?.access_token || ''}` }
+            })
+            if (!resp.ok) throw new Error('Fetch failed')
             const d = await resp.json()
             const payload = d.data || {}
             const newImgs = payload.images || []
+
             if (newImgs.length > 0) {
-                setImages(prev => [...prev, ...newImgs])
+                setImages(prev => {
+                    // Prevent duplicates just in case
+                    const existingIds = new Set(prev.map(i => i.id))
+                    const filteredNew = newImgs.filter(i => !existingIds.has(i.id))
+                    return [...prev, ...filteredNew]
+                })
                 setOffset(prev => prev + newImgs.length)
             }
             setHasMore(Boolean(payload.has_more))
         } catch (err) {
             console.error('Fetch more failed', err)
         } finally {
-            setLoadingBatch(false)
+            setTimeout(() => setLoadingBatch(false), 500) // Small delay to prevent rapid-fire triggering
         }
     }
 

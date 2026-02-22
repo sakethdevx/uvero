@@ -78,7 +78,7 @@ export default async function handler(req, res) {
                 if (!isOwner && !isParticipant)
                     return res.status(403).json({ error: 'Forbidden' })
 
-                const { limit = 20, offset = 0 } = req.query || {}
+                const { limit = 24, offset = 0 } = req.query || {}
                 const limitNum = parseInt(limit, 10)
                 const offsetNum = parseInt(offset, 10)
 
