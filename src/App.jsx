@@ -207,46 +207,48 @@ function AppContent() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-3">
               {/* Tools Dropdown */}
-              <div className="static" ref={dropdownRef} onMouseEnter={handleDropdownEnter} onMouseLeave={handleDropdownLeave}>
-                <button
-                  onClick={() => setIsToolsDropdownOpen(!isToolsDropdownOpen)}
-                  className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-white/80 dark:hover:bg-white/5"
-                >
-                  Tools
-                  <svg className={`w-4 h-4 transition-transform duration-300 ${isToolsDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
+              {isFileProcessingRoute && (
+                <div className="static" ref={dropdownRef} onMouseEnter={handleDropdownEnter} onMouseLeave={handleDropdownLeave}>
+                  <button
+                    onClick={() => setIsToolsDropdownOpen(!isToolsDropdownOpen)}
+                    className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-white/80 dark:hover:bg-white/5"
+                  >
+                    Tools
+                    <svg className={`w-4 h-4 transition-transform duration-300 ${isToolsDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
 
-                {/* Mega Menu Dropdown */}
-                {isToolsDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-2 max-h-[calc(100vh-120px)] overflow-y-auto mega-menu-glass rounded-3xl shadow-2xl shadow-gray-300/40 border border-white/40 p-6 z-50 animate-fade-in-down">
-                    <div className="grid grid-cols-3 lg:grid-cols-4 gap-5">
-                      {toolCategories.map((category, idx) => (
-                        <div key={idx}>
-                          <div className="flex items-center gap-1.5 mb-2.5 pb-2 border-b border-gray-100">
-                            <span className="text-base">{category.icon}</span>
-                            <h3 className="font-semibold text-sm text-gray-900 dark:text-white">{category.name}</h3>
+                  {/* Mega Menu Dropdown */}
+                  {isToolsDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-2 max-h-[calc(100vh-120px)] overflow-y-auto mega-menu-glass rounded-3xl shadow-2xl shadow-gray-300/40 border border-white/40 p-6 z-50 animate-fade-in-down">
+                      <div className="grid grid-cols-3 lg:grid-cols-4 gap-5">
+                        {toolCategories.map((category, idx) => (
+                          <div key={idx}>
+                            <div className="flex items-center gap-1.5 mb-2.5 pb-2 border-b border-gray-100">
+                              <span className="text-base">{category.icon}</span>
+                              <h3 className="font-semibold text-sm text-gray-900 dark:text-white">{category.name}</h3>
+                            </div>
+                            <ul className="space-y-0.5">
+                              {category.tools.map((tool, toolIdx) => (
+                                <li key={toolIdx}>
+                                  <Link
+                                    to={tool.path}
+                                    className="block text-xs text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gradient-to-r hover:from-primary-50/80 hover:to-blue-50/80 dark:hover:from-primary-900/20 dark:hover:to-blue-900/20 px-2.5 py-1.5 rounded-lg transition-all duration-200 hover:translate-x-1"
+                                    onClick={() => setIsToolsDropdownOpen(false)}
+                                  >
+                                    {tool.name}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
                           </div>
-                          <ul className="space-y-0.5">
-                            {category.tools.map((tool, toolIdx) => (
-                              <li key={toolIdx}>
-                                <Link
-                                  to={tool.path}
-                                  className="block text-xs text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gradient-to-r hover:from-primary-50/80 hover:to-blue-50/80 dark:hover:from-primary-900/20 dark:hover:to-blue-900/20 px-2.5 py-1.5 rounded-lg transition-all duration-200 hover:translate-x-1"
-                                  onClick={() => setIsToolsDropdownOpen(false)}
-                                >
-                                  {tool.name}
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
 
               <div className="flex items-center gap-4">
                 <Link
@@ -296,7 +298,7 @@ function AppContent() {
                   </div>
                 )}
 
-                {toolCategories.map((category, idx) => (
+                {isFileProcessingRoute && toolCategories.map((category, idx) => (
                   <div key={idx} className="px-4">
                     <div className="flex items-center gap-2 mb-2 font-semibold text-gray-900">
                       <span>{category.icon}</span>
