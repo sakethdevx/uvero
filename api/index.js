@@ -75,6 +75,11 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/clipboard') {
+            const mod = await import('../src/api_handlers/clipboard/index.js')
+            return mod.default(req, res)
+        }
+
         // images collection
         if (originalPath === '/api/images') {
             const mod = await import('../src/api_handlers/images/index.js')
