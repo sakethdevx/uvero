@@ -200,7 +200,7 @@ function AppContent() {
                 <span className="text-white font-bold text-xl relative z-10">U</span>
               </div>
               <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                Uve<span className="gradient-text animate-gradient-x">ro</span>
+                U<span className="gradient-text animate-gradient-x">ver</span>o
               </span>
             </Link>
 
@@ -367,12 +367,12 @@ function AppContent() {
                   <span className="text-white font-bold text-xl">U</span>
                 </div>
                 <span className="text-2xl font-bold text-white">
-                  Uve<span className="text-primary-400">ro</span>
+                  U<span className="text-primary-400">ver</span>o
                 </span>
               </div>
               <p className="text-gray-400 max-w-md mb-6 leading-relaxed">
-                Professional file processing tools that run entirely in your browser.
-                No uploads, no data collection, completely free.
+                Professional digital tools designed for simplicity, speed, and privacy.
+                Privacy-first file processing that works offline, plus secure cloud-powered services like PhotoDrop.
               </p>
               <div className="flex items-center gap-2.5 px-4 py-2.5 bg-green-500/10 border border-green-500/20 rounded-xl w-fit">
                 <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
@@ -382,7 +382,7 @@ function AppContent() {
               </div>
             </div>
 
-            {/* Quick Links */}
+            {/* Services */}
             <div>
               <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Services</h3>
               <ul className="space-y-2.5">
@@ -390,9 +390,7 @@ function AppContent() {
                   { name: 'File Processing', path: '/tools' },
                   { name: 'PhotoDrop', path: '/photodrop' },
                   { name: 'Online Clipboard', path: '/clipboard' },
-                  { name: 'Image Compressor', path: '/compress-image' },
-                  { name: 'PDF Compressor', path: '/compress-pdf' },
-                  { name: 'QR Generator', path: '/qr-generator' },
+                  { name: 'Privacy Focus', path: '/privacy' },
                 ].map((link, idx) => (
                   <li key={idx}>
                     <Link to={link.path} className="text-gray-400 hover:text-primary-400 transition-colors text-sm">
