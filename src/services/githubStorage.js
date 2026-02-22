@@ -1,16 +1,16 @@
 // GitHub storage service for Phase-1: store images in a private GitHub repo
 // Uses GitHub REST API to create/update files under event-images/{eventId}/{filename}
-// Secrets (backend only): GITHUB_TOKEN, GITHUB_OWNER, GITHUB_REPO, GITHUB_BRANCH
+// Secrets (backend only): PHOTODROP_STORAGE_GITHUB_TOKEN, PHOTODROP_STORAGE_GITHUB_OWNER, PHOTODROP_STORAGE_GITHUB_REPO, PHOTODROP_STORAGE_GITHUB_BRANCH
 
 import { Buffer } from 'buffer'
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN
-const GITHUB_OWNER = process.env.GITHUB_OWNER
-const GITHUB_REPO = process.env.GITHUB_REPO
-const GITHUB_BRANCH = process.env.GITHUB_BRANCH || 'main'
+const GITHUB_TOKEN = process.env.PHOTODROP_STORAGE_GITHUB_TOKEN
+const GITHUB_OWNER = process.env.PHOTODROP_STORAGE_GITHUB_OWNER
+const GITHUB_REPO = process.env.PHOTODROP_STORAGE_GITHUB_REPO
+const GITHUB_BRANCH = process.env.PHOTODROP_STORAGE_GITHUB_BRANCH || 'main'
 
 if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
-    console.warn('GitHub storage env vars are not set (GITHUB_TOKEN etc)')
+    console.warn('PhotoDrop GitHub storage env vars are not set (PHOTODROP_STORAGE_GITHUB_TOKEN etc)')
 }
 
 function apiUrl(path) {

@@ -10,10 +10,10 @@ Server prerequisites
 
 - Add these environment variables to your deployment (Vercel / Node host):
   - `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` (service role key)
-  - `GITHUB_TOKEN` — a Personal Access Token with `repo` scope (keep it secret, server-only)
-  - `GITHUB_OWNER` — GitHub account or organization name
-  - `GITHUB_REPO` — private repository name where images will be stored
-  - `GITHUB_BRANCH` — branch to commit to (default: `main`)
+  - `PHOTODROP_STORAGE_GITHUB_TOKEN` — a Personal Access Token with `repo` scope (keep it secret, server-only)
+  - `PHOTODROP_STORAGE_GITHUB_OWNER` — GitHub account or organization name
+  - `PHOTODROP_STORAGE_GITHUB_REPO` — private repository name where images will be stored
+  - `PHOTODROP_STORAGE_GITHUB_BRANCH` — branch to commit to (default: `main`)
 
 Install server dependencies
 ---------------------------
@@ -61,7 +61,7 @@ API endpoints
 Security notes
 --------------
 
--- Keep `SUPABASE_SERVICE_KEY` and `GITHUB_TOKEN` secret — store them in your deployment environment only.
+-- Keep `SUPABASE_SERVICE_KEY` and `PHOTODROP_STORAGE_GITHUB_TOKEN` secret — store them in your deployment environment only.
 -- RLS policies in SQL ensure event access is limited to owners.
 -- Images are stored in a private GitHub repo and served only through the backend proxy.
 

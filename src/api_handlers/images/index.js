@@ -43,7 +43,7 @@ export default async function handler(req, res) {
 
         // Files are uploaded to a branch named after the event id.
         // Use the event branch as the ref when fetching the raw content.
-        const ref = image.event_id || process.env.GITHUB_BRANCH
+        const ref = image.event_id || process.env.PHOTODROP_STORAGE_GITHUB_BRANCH
         console.log('[api/images] fetching from github', { path: image.github_path, ref })
         const buffer = await getImageBuffer(image.github_path, ref)
 
@@ -99,7 +99,7 @@ export default async function handler(req, res) {
         const msg = String(err.message || err)
         // Detect GitHub rate limit / API quota errors and return 429 to the client
         if (msg.toLowerCase().includes('rate limit') || msg.toLowerCase().includes('api rate limit') || msg.includes('403')) {
-            return res.status(429).json({ error: 'GitHub API rate limit exceeded. Please try again later or set a GITHUB_TOKEN in env.' })
+            return res.status(429).json({ error: 'GitHub API rate limit exceeded. Please try again later or set a PHOTODROP_STORAGE_GITHUB_TOKEN in env.' })
         }
         return res.status(500).json({ error: msg })
     }

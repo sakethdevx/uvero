@@ -31,7 +31,7 @@ export default async function handler(req, res) {
 
         // Files are uploaded to a branch named after the event id.
         // Use the event branch as the ref when fetching the raw content.
-        const ref = image.event_id || process.env.GITHUB_BRANCH
+        const ref = image.event_id || process.env.PHOTODROP_STORAGE_GITHUB_BRANCH
         console.log('[api/images/:id] fetching from github', { path: image.github_path, ref })
         const buffer = await getImageBuffer(image.github_path, ref)
 
