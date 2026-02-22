@@ -3,6 +3,7 @@ import crypto from 'crypto'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
+const INVITE_SECRET = process.env.INVITE_SECRET
 const serverSupabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 function base64UrlDecode(str) {
@@ -33,7 +34,9 @@ export default async function handler(req, res) {
                 const parts = invite_token.split('.')
                 if (parts.length !== 2) return res.status(400).json({ error: 'Invalid invite token' })
                 const [payloadB64, sig] = parts
-                const hmac = crypto.createHmac('sha256', SUPABASE_SERVICE_KEY)
+                const HMAC_KEY = INVITE_SECRET || SUPABASE_SERVICE_KEY
+                if (!INVITE_SECRET) console.warn('[api/join-event] using SUPABASE_SERVICE_KEY for invite HMAC validation; consider setting INVITE_SECRET')
+                const hmac = crypto.createHmac('sha256', HMAC_KEY)
                 hmac.update(payloadB64)
                 const expected = hmac.digest('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
                 if (sig !== expected) return res.status(400).json({ error: 'Invalid invite token signature' })

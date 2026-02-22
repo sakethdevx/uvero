@@ -11,7 +11,7 @@ export default function Login() {
     const navigate = useNavigate()
     const location = useLocation()
 
-    const from = location.state?.from?.pathname || '/'
+    const from = location.state?.from?.pathname || (typeof window !== 'undefined' ? localStorage.getItem('postAuthRedirect') : null) || '/'
 
     async function handleSubmit(e) {
         e.preventDefault()
@@ -23,6 +23,8 @@ export default function Login() {
             setError(error.message)
             return
         }
+        // clear persisted redirect after navigating
+        try { localStorage.removeItem('postAuthRedirect') } catch (e) { }
         navigate(from, { replace: true })
     }
 
@@ -44,7 +46,7 @@ export default function Login() {
                     {loading ? 'Signing in...' : 'Sign in'}
                 </button>
             </form>
-            <p className="mt-4 text-sm">Need an account? <Link to="/signup" className="text-blue-600">Sign up</Link></p>
+            <p className="mt-4 text-sm">Need an account? <Link to="/signup" state={location.state} className="text-blue-600">Sign up</Link></p>
             <div className="mt-4">
                 <div className="text-sm text-gray-600 mb-2">Or continue with (coming soon)</div>
                 <div className="flex gap-2">
@@ -55,7 +57,7 @@ export default function Login() {
 
             <div className="mt-4 flex justify-between items-center text-sm">
                 <Link to="/reset-password" className="text-blue-600">Forgot password?</Link>
-                <span>Need an account? <Link to="/signup" className="text-blue-600">Sign up</Link></span>
+                <span>Need an account? <Link to="/signup" state={location.state} className="text-blue-600">Sign up</Link></span>
             </div>
         </div>
     )

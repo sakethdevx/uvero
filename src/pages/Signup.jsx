@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { signUp } from '../auth/authService'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 
 export default function Signup() {
     const [email, setEmail] = useState('')
@@ -9,6 +9,9 @@ export default function Signup() {
     const [info, setInfo] = useState(null)
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
+    const location = useLocation()
+
+    const from = location.state?.from?.pathname || (typeof window !== 'undefined' ? localStorage.getItem('postAuthRedirect') : null) || '/'
 
     async function handleSubmit(e) {
         e.preventDefault()
@@ -22,12 +25,13 @@ export default function Signup() {
         }
         // If Supabase returned a session the user is signed in immediately
         if (data?.session) {
-            navigate('/', { replace: true })
+            try { localStorage.removeItem('postAuthRedirect') } catch (e) { }
+            navigate(from, { replace: true })
             return
         }
 
-        // Otherwise an email confirmation is required — show a clear message instead of silently redirecting
-        setInfo(`A verification email has been sent to ${email}. Please check your inbox and verify your email before signing in.`)
+        // Otherwise an email confirmation is required — show a clear message and prompt user to sign in after verification
+        setInfo(`A verification email has been sent to ${email}. Please check your inbox and verify your email. After verifying, return here and click "Sign in" to continue.`)
     }
 
     return (
@@ -35,6 +39,17 @@ export default function Signup() {
             <h1 className="text-2xl font-semibold mb-4">Create an account</h1>
             {error && <div className="text-red-600 mb-2">{error}</div>}
             {info && <div className="text-green-600 mb-2">{info}</div>}
+            {info && (
+                <div className="mt-3">
+                    <button
+                        type="button"
+                        onClick={() => navigate('/login', { state: { from: { pathname: from } } })}
+                        className="bg-blue-600 text-white px-4 py-2 rounded"
+                    >
+                        I verified — Sign in
+                    </button>
+                </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
                 <label className="block">
                     <span className="text-sm">Email</span>
@@ -48,7 +63,7 @@ export default function Signup() {
                     {loading ? 'Creating...' : 'Create account'}
                 </button>
             </form>
-            <p className="mt-4 text-sm">Already have an account? <Link to="/login" className="text-blue-600">Sign in</Link></p>
+            <p className="mt-4 text-sm">Already have an account? <Link to="/login" state={location.state} className="text-blue-600">Sign in</Link></p>
         </div>
     )
 }

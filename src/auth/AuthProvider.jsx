@@ -49,6 +49,40 @@ export function AuthProvider({ children }) {
             }
         })
 
+        // Listen for cross-tab session changes (verification link may sign-in in another tab)
+        function handleStorage(e) {
+            try {
+                // supabase stores auth info under keys that include 'supabase.auth' or 'supabase.auth.token'
+                if (!e.key) return
+                if (e.key.includes('supabase.auth') || e.key.includes('SUPABASE')) {
+                    // re-check session state
+                    supabase.auth.getSession().then(({ data }) => {
+                        const session = data?.session ?? null
+                        const currentUser = session ? { ...session.user, access_token: session.access_token } : null
+                        setUser(currentUser)
+
+                        // if user just became signed in, and there is a postAuthRedirect saved,
+                        // redirect back to it when currently on auth pages.
+                        try {
+                            const redirect = localStorage.getItem('postAuthRedirect')
+                            const path = window.location.pathname || ''
+                            if (currentUser && redirect && (path === '/signup' || path === '/login' || path.startsWith('/invite') || path === '/')) {
+                                // clear and navigate
+                                localStorage.removeItem('postAuthRedirect')
+                                window.location.href = redirect
+                            }
+                        } catch (err) {
+                            // ignore
+                        }
+                    }).catch(() => { /* ignore */ })
+                }
+            } catch (err) {
+                // ignore
+            }
+        }
+
+        window.addEventListener('storage', handleStorage)
+
         return () => {
             mounted = false
             listener?.subscription?.unsubscribe()
