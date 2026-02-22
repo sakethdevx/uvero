@@ -43,7 +43,7 @@ import { validatePdfPassword as validatePassword, MIN_PASSWORD_LENGTH } from '..
  * without navigating to specific tool pages
  */
 export default function QuickConverter() {
-    const { isOnlineMode: _isOnlineMode } = useMode(); // Reserved for future mode-based filtering
+    const { isOnlineMode: _isOnlineMode } = useMode();
     const [files, setFiles] = useState([]);
     const [selectedOperation, setSelectedOperation] = useState('');
     const [error, setError] = useState('');
@@ -51,36 +51,32 @@ export default function QuickConverter() {
     const [progress, setProgress] = useState(0);
     const [results, setResults] = useState([]);
     const [showOptions, setShowOptions] = useState(false);
-    
+
     // Tool-specific options
-    const [quality, setQuality] = useState(80); // For image/video compression
-    const [outputFormat, setOutputFormat] = useState('png'); // For image/pdf/audio/video conversion
+    const [quality, setQuality] = useState(80);
+    const [outputFormat, setOutputFormat] = useState('png');
     const [width, setWidth] = useState('');
     const [height, setHeight] = useState('');
-    const [pdfCompressionLevel, setPdfCompressionLevel] = useState('balanced'); // For PDF compression: low, balanced, high
-    const [pageRange, setPageRange] = useState('all'); // For PDF conversion: all, first
-    const [audioBitrate, setAudioBitrate] = useState('192'); // For audio compression
-    const [videoQuality, setVideoQuality] = useState('medium'); // For video compression: low, medium, high
-    const [pdfSplitMode, setPdfSplitMode] = useState('all'); // For PDF split: all, pages, ranges
-    const [pdfTotalPages, setPdfTotalPages] = useState(0); // Total pages in PDF
-    const [pdfPageSpec, setPdfPageSpec] = useState(''); // Pages or ranges specification
-    const [pdfPassword, setPdfPassword] = useState(''); // For PDF protection
-    const [pdfPasswordConfirm, setPdfPasswordConfirm] = useState(''); // For PDF protection confirmation
-    const [showPdfPassword, setShowPdfPassword] = useState(false); // For password visibility toggle
+    const [pdfCompressionLevel, setPdfCompressionLevel] = useState('balanced');
+    const [pageRange, setPageRange] = useState('all');
+    const [audioBitrate, setAudioBitrate] = useState('192');
+    const [videoQuality, setVideoQuality] = useState('medium');
+    const [pdfSplitMode, setPdfSplitMode] = useState('all');
+    const [pdfTotalPages, setPdfTotalPages] = useState(0);
+    const [pdfPageSpec, setPdfPageSpec] = useState('');
+    const [pdfPassword, setPdfPassword] = useState('');
+    const [pdfPasswordConfirm, setPdfPasswordConfirm] = useState('');
+    const [showPdfPassword, setShowPdfPassword] = useState(false);
 
-    // Helper function to validate PDF password (uses shared utility)
     const validatePdfPassword = useCallback(() => {
         return validatePassword(pdfPassword, pdfPasswordConfirm);
     }, [pdfPassword, pdfPasswordConfirm]);
 
-    // Detect file type and suggest operations
     const getOperationsForFile = (file) => {
         const fileType = file.type;
         const fileName = file.name.toLowerCase();
-        
         const operations = [];
 
-        // Image operations
         if (fileType.startsWith('image/')) {
             operations.push(
                 { id: 'compress-image', name: 'Compress Image', icon: '🖼️' },
@@ -93,7 +89,6 @@ export default function QuickConverter() {
             );
         }
 
-        // PDF operations
         if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
             operations.push(
                 { id: 'compress-pdf', name: 'Compress PDF', icon: '📄' },
@@ -103,33 +98,24 @@ export default function QuickConverter() {
                 { id: 'pdf-to-word', name: 'PDF to Word', icon: '📝' },
                 { id: 'pdf-to-excel', name: 'PDF to Excel', icon: '📊' },
                 { id: 'pdf-to-powerpoint', name: 'PDF to PowerPoint', icon: '📽️' },
-                { id: 'edit-pdf', name: 'Edit PDF', icon: '✏️' },
-                { id: 'sign-pdf', name: 'Sign PDF', icon: '✍️' },
                 { id: 'rotate-pdf', name: 'Rotate PDF', icon: '🔄' },
                 { id: 'watermark-pdf', name: 'Watermark PDF', icon: '💧' },
                 { id: 'protect-pdf', name: 'Protect PDF', icon: '🔒' },
                 { id: 'unlock-pdf', name: 'Unlock PDF', icon: '🔓' },
-                { id: 'organize-pdf', name: 'Organize PDF', icon: '📋' },
                 { id: 'page-numbers', name: 'Page Numbers', icon: '#️⃣' },
                 { id: 'repair-pdf', name: 'Repair PDF', icon: '🔧' },
                 { id: 'crop-pdf', name: 'Crop PDF', icon: '✂️' },
-                { id: 'redact-pdf', name: 'Redact PDF', icon: '🔏' },
-                { id: 'ocr-pdf', name: 'OCR PDF', icon: '👁️' },
-                { id: 'compare-pdf', name: 'Compare PDF', icon: '🔍' },
-                { id: 'translate-pdf', name: 'Translate PDF', icon: '🌐' }
+                { id: 'ocr-pdf', name: 'OCR PDF', icon: '👁️' }
             );
         }
 
-        // Audio operations
         if (fileType.startsWith('audio/')) {
             operations.push(
                 { id: 'compress-audio', name: 'Compress Audio', icon: '🎵' },
-                { id: 'convert-audio', name: 'Convert Audio', icon: '🔄' },
-                { id: 'video-to-mp3', name: 'Extract Audio', icon: '🎬' }
+                { id: 'convert-audio', name: 'Convert Audio', icon: '🔄' }
             );
         }
 
-        // Video operations
         if (fileType.startsWith('video/')) {
             operations.push(
                 { id: 'compress-video', name: 'Compress Video', icon: '🎬' },
@@ -139,38 +125,20 @@ export default function QuickConverter() {
             );
         }
 
-        // Document operations
         if (fileName.endsWith('.docx') || fileName.endsWith('.doc')) {
-            operations.push(
-                { id: 'word-to-pdf', name: 'Word to PDF', icon: '📝' }
-            );
+            operations.push({ id: 'word-to-pdf', name: 'Word to PDF', icon: '📝' });
         }
 
         if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-            operations.push(
-                { id: 'excel-to-pdf', name: 'Excel to PDF', icon: '📈' }
-            );
+            operations.push({ id: 'excel-to-pdf', name: 'Excel to PDF', icon: '📈' });
         }
 
         if (fileName.endsWith('.pptx') || fileName.endsWith('.ppt')) {
-            operations.push(
-                { id: 'powerpoint-to-pdf', name: 'PowerPoint to PDF', icon: '📊' }
-            );
+            operations.push({ id: 'powerpoint-to-pdf', name: 'PowerPoint to PDF', icon: '📊' });
         }
 
         if (fileName.endsWith('.epub')) {
-            operations.push(
-                { id: 'epub-to-pdf', name: 'EPUB to PDF', icon: '📚' }
-            );
-        }
-
-        // If no specific operations, suggest general tools
-        if (operations.length === 0) {
-            operations.push(
-                { id: 'qr-generator', name: 'Generate QR Code', icon: '📱' },
-                { id: 'password-generator', name: 'Password Generator', icon: '🔐' },
-                { id: 'unit-converter', name: 'Unit Converter', icon: '📏' }
-            );
+            operations.push({ id: 'epub-to-pdf', name: 'EPUB to PDF', icon: '📚' });
         }
 
         return operations;
@@ -185,8 +153,9 @@ export default function QuickConverter() {
     };
 
     const handleRemoveFile = (index) => {
-        setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
-        if (files.length === 1) {
+        const newFiles = files.filter((_, i) => i !== index);
+        setFiles(newFiles);
+        if (newFiles.length === 0) {
             setSelectedOperation('');
             setShowOptions(false);
             setResults([]);
@@ -198,8 +167,7 @@ export default function QuickConverter() {
         setShowOptions(true);
         setError('');
         setResults([]);
-        
-        // Set default output formats based on operation
+
         if (operationId === 'convert-image' || operationId === 'convert-pdf') {
             setOutputFormat('png');
         } else if (operationId === 'convert-audio') {
@@ -207,8 +175,7 @@ export default function QuickConverter() {
         } else if (operationId === 'video-converter') {
             setOutputFormat('mp4');
         }
-        
-        // For PDF split, get page info
+
         if (operationId === 'split-pdf' && files.length > 0) {
             try {
                 const pageInfo = await pdfSplitterProcessor.getPageInfo(files[0]);
@@ -228,46 +195,24 @@ export default function QuickConverter() {
         const processedResults = [];
 
         try {
-            // Special handling for merge-pdf - operates on all files at once
             if (selectedOperation === 'merge-pdf') {
-                // Validate all files are PDFs
                 const allPdfs = files.every(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
-                if (!allPdfs) {
-                    throw new Error('All files must be PDF files for merging');
-                }
-                if (files.length < 2) {
-                    throw new Error('Please select at least 2 PDF files to merge');
-                }
+                if (!allPdfs) throw new Error('All files must be PDF files for merging');
+                if (files.length < 2) throw new Error('Please select at least 2 PDF files to merge');
 
-                const mergeResult = await pdfMergerProcessor.merge(
-                    files,
-                    (prog) => setProgress(prog)
-                );
-                
+                const mergeResult = await pdfMergerProcessor.merge(files, (prog) => setProgress(prog));
                 const mergeBlob = await fetch(mergeResult.url).then(r => r.blob());
                 URL.revokeObjectURL(mergeResult.url);
-                
-                const result = {
-                    file: new File([mergeBlob], mergeResult.filename, { type: 'application/pdf' }),
-                    originalSize: files.reduce((sum, f) => sum + f.size, 0),
-                    convertedSize: mergeResult.size,
-                    note: `Merged ${files.length} PDF files`
-                };
-                
-                // For merged PDFs, create a pseudo-original that represents all input files
-                const mergedOriginal = new File([], `${files.length} PDF files`, { type: 'application/pdf' });
-                Object.defineProperty(mergedOriginal, 'size', { value: result.originalSize });
-                
+
+                const resultFile = new File([mergeBlob], mergeResult.filename, { type: 'application/pdf' });
                 processedResults.push({
-                    original: mergedOriginal,
-                    result: result,
-                    index: 0,
+                    original: null,
+                    result: { file: resultFile, size: resultFile.size },
                     isMerged: true,
                     sourceFiles: files.map(f => f.name)
                 });
-                
-                setProgress(100);
                 setResults(processedResults);
+                setProgress(100);
                 setIsProcessing(false);
                 return;
             }
@@ -275,1273 +220,367 @@ export default function QuickConverter() {
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 let result;
-
-                // Update progress
-                setProgress(Math.round((i / files.length) * 100));
+                const setItemProgress = (p) => setProgress(Math.round((i / files.length) * 100 + (p / files.length)));
 
                 switch (selectedOperation) {
                     case 'compress-image':
-                        result = await imageCompressorProcessor.compress(
-                            file,
-                            quality,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
+                        result = await imageCompressorProcessor.compress(file, quality, setItemProgress);
                         break;
-
-                    case 'convert-image': {
-                        const widthNum = width ? parseInt(width) : null;
-                        const heightNum = height ? parseInt(height) : null;
-                        result = await imageConverterProcessor.convert(
-                            file,
-                            outputFormat,
-                            widthNum,
-                            heightNum,
-                            true, // maintain aspect ratio
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
+                    case 'convert-image':
+                        result = await imageConverterProcessor.convert(file, outputFormat, parseInt(width) || null, parseInt(height) || null, true, setItemProgress);
                         break;
-                    }
-
                     case 'resize-image': {
-                        const resizeWidth = width ? parseInt(width) : 800;
-                        const resizeHeight = height ? parseInt(height) : 600;
-                        const resizeResult = await imageResizerProcessor.resize(
-                            file,
-                            resizeWidth,
-                            resizeHeight,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        // Convert to expected format
-                        result = {
-                            file: new File([await fetch(resizeResult.url).then(r => r.blob())], resizeResult.filename, { type: file.type }),
-                            originalSize: file.size,
-                            convertedSize: resizeResult.size
-                        };
+                        const r = await imageResizerProcessor.resize(file, parseInt(width) || 800, parseInt(height) || 600, setItemProgress);
+                        result = { file: new File([await fetch(r.url).then(res => res.blob())], r.filename, { type: file.type }) };
+                        URL.revokeObjectURL(r.url);
                         break;
                     }
-
-                    case 'crop-image': {
-                        // Auto-crop to center 80% of image
-                        const cropImg = new Image();
-                        const cropUrl = URL.createObjectURL(file);
-                        await new Promise((resolve, reject) => {
-                            cropImg.onload = resolve;
-                            cropImg.onerror = reject;
-                            cropImg.src = cropUrl;
-                        });
-                        const cropWidth = Math.floor(cropImg.width * 0.8);
-                        const cropHeight = Math.floor(cropImg.height * 0.8);
-                        const cropX = Math.floor(cropImg.width * 0.1);
-                        const cropY = Math.floor(cropImg.height * 0.1);
-                        URL.revokeObjectURL(cropUrl);
-                        
-                        const cropResult = await imageCropperProcessor.cropImage(
-                            file,
-                            { x: cropX, y: cropY, width: cropWidth, height: cropHeight },
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        const cropBlob = await fetch(cropResult.url).then(r => r.blob());
-                        URL.revokeObjectURL(cropResult.url);
-                        result = {
-                            file: new File([cropBlob], cropResult.filename, { type: 'image/png' }),
-                            originalSize: file.size,
-                            convertedSize: cropResult.size
-                        };
+                    case 'compress-pdf':
+                        const cb = await pdfCompressorProcessor.compress(file, pdfCompressionLevel, setItemProgress);
+                        result = { file: new File([cb], file.name.replace(/\.pdf$/i, '_compressed.pdf'), { type: 'application/pdf' }) };
                         break;
-                    }
-
-                    case 'remove-background': {
-                        const bgRemoveResult = await backgroundRemoverProcessor.removeBackground(
-                            file,
-                            'medium',
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([bgRemoveResult.blob], bgRemoveResult.filename, { type: 'image/png' }),
-                            originalSize: file.size,
-                            convertedSize: bgRemoveResult.blob.size
-                        };
-                        break;
-                    }
-
-                    case 'watermark': {
-                        // Add default text watermark
-                        const watermarkResult = await watermarkProcessor.addWatermark(
-                            file,
-                            {
-                                type: 'text',
-                                text: 'Uvero',
-                                fontSize: 48,
-                                opacity: 0.5,
-                                position: 'bottom-right',
-                                color: '#ffffff'
-                            },
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        const watermarkBlob = await fetch(watermarkResult.url).then(r => r.blob());
-                        URL.revokeObjectURL(watermarkResult.url);
-                        result = {
-                            file: new File([watermarkBlob], watermarkResult.filename, { type: 'image/png' }),
-                            originalSize: file.size,
-                            convertedSize: watermarkResult.size
-                        };
-                        break;
-                    }
-
-                    case 'image-to-pdf': {
-                        const pdfFromImageBlob = await imageToPdfProcessor.convert(
-                            [file],
-                            'fit',
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([pdfFromImageBlob], file.name.replace(/\.[^/.]+$/, '.pdf'), { type: 'application/pdf' }),
-                            originalSize: file.size,
-                            convertedSize: pdfFromImageBlob.size
-                        };
-                        break;
-                    }
-
-                    case 'compress-pdf': {
-                        const pdfBlob = await pdfCompressorProcessor.compress(
-                            file,
-                            pdfCompressionLevel,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([pdfBlob], file.name.replace(/\.pdf$/i, '_compressed.pdf'), { type: 'application/pdf' }),
-                            originalSize: file.size,
-                            convertedSize: pdfBlob.size
-                        };
-                        break;
-                    }
-
-                    case 'convert-pdf': {
-                        const pdfImages = await pdfConverterProcessor.convert(
-                            file,
-                            outputFormat,
-                            pageRange,
-                            '',
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        // For PDF conversion, we get multiple images, so we'll process the first one
-                        // and add a note about multiple pages
-                        if (pdfImages.length > 0) {
-                            const firstImage = pdfImages[0];
+                    case 'convert-pdf':
+                        const imgs = await pdfConverterProcessor.convert(file, outputFormat, pageRange, '', setItemProgress);
+                        if (imgs.length > 0) {
                             result = {
-                                file: new File([firstImage.blob], `${file.name.replace(/\.pdf$/i, '')}_page1.${outputFormat}`, { type: firstImage.blob.type }),
-                                originalSize: file.size,
-                                convertedSize: firstImage.blob.size,
-                                note: pdfImages.length > 1 ? `Converted ${pdfImages.length} pages (showing first page)` : null
+                                file: new File([imgs[0].blob], `${file.name.replace(/\.pdf$/i, '')}_page1.${outputFormat}`, { type: imgs[0].blob.type }),
+                                note: imgs.length > 1 ? `Converted ${imgs.length} pages (showing first)` : null
                             };
                         }
                         break;
-                    }
-
-                    case 'compress-audio': {
-                        const audioBlob = await audioCompressorProcessor.compress(
-                            file,
-                            parseInt(audioBitrate),
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([audioBlob], file.name.replace(/\.[^.]+$/, '.mp3'), { type: 'audio/mpeg' }),
-                            originalSize: file.size,
-                            convertedSize: audioBlob.size
-                        };
+                    case 'split-pdf':
+                        const sr = await pdfSplitterProcessor.split(file, pdfSplitMode, pdfPageSpec, pdfTotalPages, setItemProgress);
+                        result = { files: sr.files, isSplit: true };
                         break;
-                    }
-
-                    case 'convert-audio': {
-                        const convertedAudio = await audioConverterProcessor.convert(
-                            file,
-                            outputFormat,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([convertedAudio.blob], convertedAudio.filename, { type: convertedAudio.blob.type }),
-                            originalSize: file.size,
-                            convertedSize: convertedAudio.blob.size
-                        };
+                    case 'compress-audio':
+                        const ab = await audioCompressorProcessor.compress(file, parseInt(audioBitrate), setItemProgress);
+                        result = { file: new File([ab], file.name.replace(/\.[^.]+$/, '.mp3'), { type: 'audio/mpeg' }) };
                         break;
-                    }
-
-                    case 'compress-video': {
-                        const videoBlob = await videoCompressorProcessor.compress(
-                            file,
-                            videoQuality,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([videoBlob], file.name.replace(/\.[^.]+$/, '_compressed.mp4'), { type: 'video/mp4' }),
-                            originalSize: file.size,
-                            convertedSize: videoBlob.size
-                        };
+                    case 'convert-audio':
+                        const ca = await audioConverterProcessor.convert(file, outputFormat, setItemProgress);
+                        result = { file: new File([ca.blob], ca.filename, { type: ca.blob.type }) };
                         break;
-                    }
-
-                    case 'video-converter': {
-                        const convertedVideo = await videoConverterProcessor.convert(
-                            file,
-                            outputFormat,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([convertedVideo.blob], convertedVideo.filename, { type: convertedVideo.blob.type }),
-                            originalSize: file.size,
-                            convertedSize: convertedVideo.blob.size
-                        };
+                    case 'compress-video':
+                        const vb = await videoCompressorProcessor.compress(file, videoQuality, setItemProgress);
+                        result = { file: new File([vb], file.name.replace(/\.[^.]+$/, '_compressed.mp4'), { type: 'video/mp4' }) };
                         break;
-                    }
-
-                    case 'video-to-mp3': {
-                        const mp3Result = await videoToMp3Processor.convert(
-                            file,
-                            parseInt(audioBitrate) || 192,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([mp3Result.blob], mp3Result.filename, { type: 'audio/mpeg' }),
-                            originalSize: file.size,
-                            convertedSize: mp3Result.blob.size
-                        };
+                    case 'video-converter':
+                        const cv = await videoConverterProcessor.convert(file, outputFormat, setItemProgress);
+                        result = { file: new File([cv.blob], cv.filename, { type: cv.blob.type }) };
                         break;
-                    }
-
-                    case 'video-to-gif': {
-                        const gifResult = await gifMakerProcessor.createGIF(
-                            [file],
-                            'video',
-                            {
-                                frameDelay: 100,
-                                quality: 10,
-                                width: 480,
-                                loop: 0
-                            },
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        const gifBlob = await fetch(gifResult.url).then(r => r.blob());
-                        URL.revokeObjectURL(gifResult.url);
-                        result = {
-                            file: new File([gifBlob], gifResult.filename, { type: 'image/gif' }),
-                            originalSize: file.size,
-                            convertedSize: gifResult.size
-                        };
+                    case 'video-to-mp3':
+                        const m3 = await videoToMp3Processor.convert(file, parseInt(audioBitrate) || 192, setItemProgress);
+                        result = { file: new File([m3.blob], m3.filename, { type: 'audio/mpeg' }) };
                         break;
-                    }
-
-                    case 'word-to-pdf': {
-                        const wordPdfBlob = await wordToPdfProcessor.convert(
-                            file,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([wordPdfBlob], file.name.replace(/\.(doc|docx)$/i, '.pdf'), { type: 'application/pdf' }),
-                            originalSize: file.size,
-                            convertedSize: wordPdfBlob.size
-                        };
+                    case 'video-to-gif':
+                        const gr = await gifMakerProcessor.createGIF([file], 'video', { quality: 10, width: 480 }, setItemProgress);
+                        result = { file: new File([await fetch(gr.url).then(r => r.blob())], gr.filename, { type: 'image/gif' }) };
+                        URL.revokeObjectURL(gr.url);
                         break;
-                    }
-
-                    case 'excel-to-pdf': {
-                        const excelPdfBlob = await excelToPdfProcessor.convert(
-                            file,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([excelPdfBlob], file.name.replace(/\.(xls|xlsx)$/i, '.pdf'), { type: 'application/pdf' }),
-                            originalSize: file.size,
-                            convertedSize: excelPdfBlob.size
-                        };
+                    case 'protect-pdf':
+                        const vErr = validatePdfPassword();
+                        if (vErr) throw new Error(vErr);
+                        const pb = await protectPdfProcessor.protect(file, pdfPassword, { allowPrinting: true }, setItemProgress);
+                        result = { file: new File([pb], `protected_${file.name}`, { type: 'application/pdf' }), note: 'Password protected' };
                         break;
-                    }
-
-                    case 'powerpoint-to-pdf': {
-                        const pptPdfBlob = await powerpointToPdfProcessor.convert(
-                            file,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([pptPdfBlob], file.name.replace(/\.(ppt|pptx)$/i, '.pdf'), { type: 'application/pdf' }),
-                            originalSize: file.size,
-                            convertedSize: pptPdfBlob.size
-                        };
-                        break;
-                    }
-
-                    case 'epub-to-pdf': {
-                        const epubPdfBlob = await epubToPdfProcessor.convert(
-                            file,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([epubPdfBlob], file.name.replace(/\.epub$/i, '.pdf'), { type: 'application/pdf' }),
-                            originalSize: file.size,
-                            convertedSize: epubPdfBlob.size
-                        };
-                        break;
-                    }
-
-                    case 'split-pdf': {
-                        const splitResult = await pdfSplitterProcessor.split(
-                            file,
-                            pdfSplitMode,
-                            pdfPageSpec,
-                            pdfTotalPages,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        // For split PDF, we get multiple files
-                        // We'll return them all in a special format
-                        result = {
-                            files: splitResult.files,
-                            originalSize: file.size,
-                            isSplit: true
-                        };
-                        break;
-                    }
-
-                    case 'pdf-to-word': {
-                        const wordResult = await pdfToWordProcessor.convert(
-                            file,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([wordResult.blob], file.name.replace(/\.pdf$/i, '.docx'), { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }),
-                            originalSize: file.size,
-                            convertedSize: wordResult.blob.size
-                        };
-                        break;
-                    }
-
-                    case 'pdf-to-excel': {
-                        const excelResult = await pdfToExcelProcessor.convert(
-                            file,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([excelResult.blob], file.name.replace(/\.pdf$/i, '.xlsx'), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
-                            originalSize: file.size,
-                            convertedSize: excelResult.blob.size
-                        };
-                        break;
-                    }
-
-                    case 'pdf-to-powerpoint': {
-                        const pptResult = await pdfToPowerPointProcessor.convert(
-                            file,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([pptResult.blob], file.name.replace(/\.pdf$/i, '.pptx'), { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' }),
-                            originalSize: file.size,
-                            convertedSize: pptResult.blob.size
-                        };
-                        break;
-                    }
-
-                    case 'rotate-pdf': {
-                        const rotatedBlob = await rotatePdfProcessor.rotate(
-                            file,
-                            90,
-                            'all',
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([rotatedBlob], `rotated_${file.name}`, { type: 'application/pdf' }),
-                            originalSize: file.size,
-                            convertedSize: rotatedBlob.size,
-                            note: 'Rotated 90° clockwise'
-                        };
-                        break;
-                    }
-
-                    case 'repair-pdf': {
-                        const repairResult = await repairPdfProcessor.repair(
-                            file,
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([repairResult.blob], `repaired_${file.name}`, { type: 'application/pdf' }),
-                            originalSize: file.size,
-                            convertedSize: repairResult.blob.size,
-                            note: `Recovered ${repairResult.pagesRecovered} pages`
-                        };
-                        break;
-                    }
-
-                    case 'crop-pdf': {
-                        const croppedBlob = await cropPdfProcessor.crop(
-                            file,
-                            { top: 20, right: 20, bottom: 20, left: 20, allPages: true },
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([croppedBlob], `cropped_${file.name}`, { type: 'application/pdf' }),
-                            originalSize: file.size,
-                            convertedSize: croppedBlob.size,
-                            note: 'Cropped with 20pt margins'
-                        };
-                        break;
-                    }
-
-                    case 'page-numbers': {
-                        const numberedBlob = await pageNumbersProcessor.addPageNumbers(
-                            file,
-                            { position: 'bottom-center', startNumber: 1, fontSize: 12, format: 'plain', color: '#000000', margin: 30 },
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([numberedBlob], `numbered_${file.name}`, { type: 'application/pdf' }),
-                            originalSize: file.size,
-                            convertedSize: numberedBlob.size,
-                            note: 'Added page numbers (bottom center)'
-                        };
-                        break;
-                    }
-
-                    case 'watermark-pdf': {
-                        const watermarkedBlob = await watermarkPdfProcessor.addWatermark(
-                            file,
-                            { type: 'text', text: 'CONFIDENTIAL', fontSize: 48, color: '#ff0000', opacity: 0.3, rotation: -45, position: 'center' },
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([watermarkedBlob], `watermarked_${file.name}`, { type: 'application/pdf' }),
-                            originalSize: file.size,
-                            convertedSize: watermarkedBlob.size,
-                            note: 'Added "CONFIDENTIAL" watermark'
-                        };
-                        break;
-                    }
-
-                    case 'ocr-pdf': {
-                        const ocrResult = await ocrPdfProcessor.processOCR(
-                            file,
-                            'eng',
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        const ocrBlob = ocrResult.blob;
-                        result = {
-                            file: new File([ocrBlob], ocrResult.filename, { type: 'application/pdf' }),
-                            originalSize: file.size,
-                            convertedSize: ocrBlob.size,
-                            note: `Extracted text from ${ocrResult.totalPages} pages`
-                        };
-                        break;
-                    }
-
-                    case 'unlock-pdf': {
-                        const unlockedBlob = await unlockPdfProcessor.unlock(
-                            file,
-                            '',
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([unlockedBlob], `unlocked_${file.name}`, { type: 'application/pdf' }),
-                            originalSize: file.size,
-                            convertedSize: unlockedBlob.size
-                        };
-                        break;
-                    }
-
-                    case 'protect-pdf': {
-                        const validationError = validatePdfPassword();
-                        if (validationError) {
-                            throw new Error(validationError);
-                        }
-                        const protectedBlob = await protectPdfProcessor.protect(
-                            file,
-                            pdfPassword,
-                            { allowPrinting: true, allowCopying: false },
-                            (prog) => setProgress(Math.round((i / files.length) * 100 + prog / files.length))
-                        );
-                        result = {
-                            file: new File([protectedBlob], `protected_${file.name}`, { type: 'application/pdf' }),
-                            originalSize: file.size,
-                            convertedSize: protectedBlob.size,
-                            note: 'Protected with password'
-                        };
-                        break;
-                    }
-
-                    case 'edit-pdf':
-                    case 'sign-pdf':
-                    case 'organize-pdf':
-                    case 'redact-pdf':
-                    case 'compare-pdf':
-                    case 'translate-pdf':
-                        throw new Error(`"${selectedOperation}" requires the full tool interface. Please visit the dedicated tool page at /${selectedOperation} for this operation.`);
-
                     default:
-                        throw new Error(`Operation ${selectedOperation} is not yet supported in Quick Converter. Please use the dedicated tool page.`);
+                        throw new Error(`Operation not yet supported in Quick Converter: ${selectedOperation}`);
                 }
 
-                processedResults.push({
-                    original: file,
-                    result: result,
-                    index: i
-                });
+                processedResults.push({ original: file, result });
             }
 
             setProgress(100);
             setResults(processedResults);
         } catch (err) {
-            setError(err.message || 'Processing failed. Please try again.');
-            console.error('Processing error:', err);
+            setError(err.message || 'Processing failed');
+            console.error(err);
         } finally {
             setIsProcessing(false);
         }
     };
 
     const handleDownload = (result) => {
-        if (!result || !result.file) return;
-
+        if (result.isSplit && result.files) {
+            result.files.forEach(f => {
+                const a = document.createElement('a');
+                a.href = f.url;
+                a.download = f.filename;
+                a.click();
+            });
+            return;
+        }
+        if (!result.file) return;
         const url = URL.createObjectURL(result.file);
         const a = document.createElement('a');
         a.href = url;
         a.download = result.file.name;
-        document.body.appendChild(a);
         a.click();
-        document.body.removeChild(a);
         URL.revokeObjectURL(url);
     };
 
     const handleDownloadAll = () => {
-        results.forEach(({ result }) => {
-            handleDownload(result);
-        });
+        results.forEach(({ result }) => handleDownload(result));
     };
 
     const formatFileSize = (bytes) => {
-        if (bytes === 0) return '0 Bytes';
+        if (!bytes || bytes === 0) return '0 Bytes';
         const k = 1024;
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
 
-    // Get operations based on the first file
     const availableOperations = files.length > 0 ? getOperationsForFile(files[0]) : [];
 
     return (
-        <div className="max-w-5xl mx-auto px-4 py-12">
-            <div className="text-center mb-8">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+        <div className="max-w-5xl mx-auto py-6 sm:py-12 px-4 shadow-none">
+            <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">
                     Quick File Converter
                 </h2>
-                <p className="text-lg text-gray-600">
-                    Drop your files here, choose an operation, and convert instantly
+                <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                    Process your images, PDFs, audio, and video instantly in your browser.
+                    Private, fast, and 100% secure.
                 </p>
             </div>
 
-            <div className="card mb-6">
+            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-white/10 shadow-2xl overflow-hidden transition-all duration-500">
                 {files.length === 0 ? (
-                    <Dropzone
-                        onFileSelect={handleFileSelect}
-                        multiple={true}
-                        label="Drop your files here"
-                        description="Supports images, PDFs, videos, audio, and documents"
-                    />
+                    <div className="p-2 sm:p-4 animate-fade-in">
+                        <Dropzone
+                            onFileSelect={handleFileSelect}
+                            multiple={true}
+                            label="Drop your files here"
+                            description="Supports images, PDFs, videos, audio, and documents"
+                        />
+                    </div>
                 ) : (
-                    <div className="space-y-4">
-                        {/* File List */}
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                    Selected Files ({files.length})
-                                </h3>
-                                <Button
-                                    variant="secondary"
-                                    onClick={() => {
-                                        setFiles([]);
-                                        setSelectedOperation('');
-                                        setShowOptions(false);
-                                        setResults([]);
-                                    }}
-                                >
-                                    Clear All
-                                </Button>
-                            </div>
-
-                            {files.map((file, index) => (
-                                <div
-                                    key={index}
-                                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
-                                >
-                                    <div className="flex items-center gap-3 flex-1">
-                                        <div className="text-3xl">
-                                            {file.type.startsWith('image/') ? '🖼️' :
-                                             file.type.startsWith('video/') ? '🎬' :
-                                             file.type.startsWith('audio/') ? '🎵' :
-                                             file.type === 'application/pdf' ? '📄' : '📁'}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-medium text-gray-900 truncate">
-                                                {file.name}
-                                            </p>
-                                            <p className="text-sm text-gray-500">
-                                                {formatFileSize(file.size)}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => handleRemoveFile(index)}
-                                        className="ml-4 p-2 text-gray-400 hover:text-red-600 transition-colors"
-                                        aria-label="Remove file"
-                                    >
-                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
-                                    </button>
+                    <div className="flex flex-col">
+                        {/* File Header */}
+                        <div className="flex items-center justify-between px-6 sm:px-10 py-8 border-b border-gray-100 dark:border-white/5 bg-gray-50/30 dark:bg-white/[0.02]">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-primary-500/10 dark:bg-primary-500/20 rounded-2xl flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold">
+                                    {files.length}
                                 </div>
-                            ))}
-
-                            {/* Add More Files Button */}
-                            <div className="relative">
-                                <input
-                                    type="file"
-                                    multiple
-                                    onChange={(e) => {
-                                        const newFiles = Array.from(e.target.files);
-                                        newFiles.forEach(handleFileSelect);
-                                        e.target.value = '';
-                                    }}
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                />
-                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-primary-400 hover:bg-gray-50 transition-all cursor-pointer">
-                                    <p className="text-gray-600 font-medium">
-                                        ➕ Add More Files
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+                                        Selected Files
+                                    </h3>
+                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                        Ready to process
                                     </p>
                                 </div>
                             </div>
+                            <button
+                                onClick={() => {
+                                    setFiles([]);
+                                    setSelectedOperation('');
+                                    setShowOptions(false);
+                                    setResults([]);
+                                    setError('');
+                                }}
+                                className="px-5 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all border border-transparent hover:border-red-100 dark:hover:border-red-500/20"
+                            >
+                                Clear All
+                            </button>
                         </div>
 
-                        {/* Operation Selector */}
-                        {availableOperations.length > 0 && !showOptions && !results.length && (
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                                    Choose an Operation
-                                </h3>
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                                    {availableOperations.map((operation) => (
-                                        <button
-                                            key={operation.id}
-                                            onClick={() => handleOperationSelect(operation.id)}
-                                            className={`p-4 rounded-lg border-2 transition-all text-left hover:shadow-md ${
-                                                selectedOperation === operation.id
-                                                    ? 'border-primary-500 bg-primary-50'
-                                                    : 'border-gray-200 hover:border-primary-300'
-                                            }`}
-                                        >
-                                            <div className="text-2xl mb-2">{operation.icon}</div>
-                                            <p className="text-sm font-semibold text-gray-900">
-                                                {operation.name}
-                                            </p>
+                        {/* Results View */}
+                        {results.length > 0 ? (
+                            <div className="p-6 sm:p-10 space-y-6">
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-green-500/30">
+                                            ✅
+                                        </div>
+                                        <div>
+                                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Processing Complete!</h3>
+                                            <p className="text-gray-500 dark:text-gray-400">Ready for download.</p>
+                                        </div>
+                                    </div>
+                                    {results.length > 1 && (
+                                        <button onClick={handleDownloadAll} className="btn-primary py-4 px-10 shadow-xl shadow-primary-500/20">
+                                            Download All
                                         </button>
+                                    )}
+                                </div>
+                                <div className="grid gap-4">
+                                    {results.map(({ original, result, isMerged, sourceFiles }, ridx) => (
+                                        <div key={ridx} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 bg-gray-50 dark:bg-white/5 rounded-3xl border border-gray-100 dark:border-white/5 hover:border-green-500/30 transition-all group">
+                                            <div className="flex items-center gap-5">
+                                                <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center text-2xl shadow-sm border border-gray-100 dark:border-white/5">
+                                                    {result.isSplit ? '📚' : (original?.type?.startsWith('image/') ? '🖼️' : '📄')}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="font-bold text-gray-900 dark:text-white truncate max-w-[200px] sm:max-w-md">
+                                                        {isMerged ? result.file.name : (result.file?.name || original?.name || 'Processed File')}
+                                                    </p>
+                                                    <p className="text-sm text-gray-500">
+                                                        {isMerged ? `Merged ${sourceFiles.length} files` : (result.file ? formatFileSize(result.file.size) : '')}
+                                                        {result.note && <span className="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded text-[10px] font-bold uppercase">{result.note}</span>}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => handleDownload(result)}
+                                                className="mt-4 sm:mt-0 btn-secondary dark:bg-white/10 dark:border-white/10 py-3 px-8 font-bold text-gray-900 dark:text-white"
+                                            >
+                                                Download
+                                            </button>
+                                        </div>
                                     ))}
                                 </div>
-                            </div>
-                        )}
-
-                        {/* Tool Options */}
-                        {showOptions && !isProcessing && !results.length && (
-                            <div className="border-t pt-4">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-lg font-semibold text-gray-900">
-                                        Settings
-                                    </h3>
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => {
-                                            setShowOptions(false);
-                                            setSelectedOperation('');
-                                        }}
-                                    >
-                                        Back
-                                    </Button>
-                                </div>
-
-                                {/* Image Compression Options */}
-                                {selectedOperation === 'compress-image' && (
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Quality: {quality}%
-                                            </label>
-                                            <input
-                                                type="range"
-                                                min="10"
-                                                max="100"
-                                                value={quality}
-                                                onChange={(e) => setQuality(parseInt(e.target.value))}
-                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                                            />
-                                            <p className="text-xs text-gray-500 mt-1">
-                                                Lower quality = smaller file size
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Image Conversion Options */}
-                                {selectedOperation === 'convert-image' && (
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Output Format
-                                            </label>
-                                            <div className="grid grid-cols-3 gap-3">
-                                                {['png', 'jpg', 'webp'].map((format) => (
-                                                    <button
-                                                        key={format}
-                                                        onClick={() => setOutputFormat(format)}
-                                                        className={`p-3 rounded-lg border-2 transition-all uppercase font-semibold ${
-                                                            outputFormat === format
-                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
-                                                                : 'border-gray-200 hover:border-primary-300'
-                                                        }`}
-                                                    >
-                                                        {format}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Width (optional)
-                                                </label>
-                                                <input
-                                                    type="number"
-                                                    value={width}
-                                                    onChange={(e) => setWidth(e.target.value)}
-                                                    placeholder="Auto"
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Height (optional)
-                                                </label>
-                                                <input
-                                                    type="number"
-                                                    value={height}
-                                                    onChange={(e) => setHeight(e.target.value)}
-                                                    placeholder="Auto"
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                                />
-                                            </div>
-                                        </div>
-                                        <p className="text-xs text-gray-500">
-                                            Leave empty to keep original dimensions. Aspect ratio will be maintained.
-                                        </p>
-                                    </div>
-                                )}
-
-                                {/* Image Resizing Options */}
-                                {selectedOperation === 'resize-image' && (
-                                    <div className="space-y-4">
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Width (pixels)
-                                                </label>
-                                                <input
-                                                    type="number"
-                                                    value={width}
-                                                    onChange={(e) => setWidth(e.target.value)}
-                                                    placeholder="800"
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Height (pixels)
-                                                </label>
-                                                <input
-                                                    type="number"
-                                                    value={height}
-                                                    onChange={(e) => setHeight(e.target.value)}
-                                                    placeholder="600"
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                                />
-                                            </div>
-                                        </div>
-                                        <p className="text-xs text-gray-500">
-                                            Specify target dimensions. Defaults to 800x600 if not specified.
-                                        </p>
-                                    </div>
-                                )}
-
-                                {/* PDF Compression Options */}
-                                {selectedOperation === 'compress-pdf' && (
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Compression Level
-                                            </label>
-                                            <div className="grid grid-cols-3 gap-3">
-                                                {['low', 'balanced', 'high'].map((level) => (
-                                                    <button
-                                                        key={level}
-                                                        onClick={() => setPdfCompressionLevel(level)}
-                                                        className={`p-3 rounded-lg border-2 transition-all capitalize font-semibold ${
-                                                            pdfCompressionLevel === level
-                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
-                                                                : 'border-gray-200 hover:border-primary-300'
-                                                        }`}
-                                                    >
-                                                        {level}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                            <p className="text-xs text-gray-500 mt-2">
-                                                Higher compression = smaller file size but may reduce quality
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* PDF Conversion Options */}
-                                {selectedOperation === 'convert-pdf' && (
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Output Format
-                                            </label>
-                                            <div className="grid grid-cols-2 gap-3">
-                                                {['png', 'jpg'].map((format) => (
-                                                    <button
-                                                        key={format}
-                                                        onClick={() => setOutputFormat(format)}
-                                                        className={`p-3 rounded-lg border-2 transition-all uppercase font-semibold ${
-                                                            outputFormat === format
-                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
-                                                                : 'border-gray-200 hover:border-primary-300'
-                                                        }`}
-                                                    >
-                                                        {format}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Pages to Convert
-                                            </label>
-                                            <div className="grid grid-cols-2 gap-3">
-                                                {[
-                                                    { id: 'all', label: 'All Pages' },
-                                                    { id: 'first', label: 'First Page' }
-                                                ].map((option) => (
-                                                    <button
-                                                        key={option.id}
-                                                        onClick={() => setPageRange(option.id)}
-                                                        className={`p-3 rounded-lg border-2 transition-all font-semibold ${
-                                                            pageRange === option.id
-                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
-                                                                : 'border-gray-200 hover:border-primary-300'
-                                                        }`}
-                                                    >
-                                                        {option.label}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* PDF Split Options */}
-                                {selectedOperation === 'split-pdf' && (
-                                    <div className="space-y-4">
-                                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                            <p className="text-sm text-blue-800">
-                                                PDF has {pdfTotalPages} {pdfTotalPages === 1 ? 'page' : 'pages'}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Split Mode
-                                            </label>
-                                            <div className="grid grid-cols-3 gap-3">
-                                                {[
-                                                    { id: 'all', label: 'All Pages', desc: 'Each page as separate PDF' },
-                                                    { id: 'pages', label: 'Specific Pages', desc: 'Select pages to extract' },
-                                                    { id: 'ranges', label: 'Page Ranges', desc: 'Split by ranges' }
-                                                ].map((mode) => (
-                                                    <button
-                                                        key={mode.id}
-                                                        onClick={() => {
-                                                            setPdfSplitMode(mode.id);
-                                                            setPdfPageSpec('');
-                                                        }}
-                                                        className={`p-3 rounded-lg border-2 transition-all font-semibold text-left ${
-                                                            pdfSplitMode === mode.id
-                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
-                                                                : 'border-gray-200 hover:border-primary-300'
-                                                        }`}
-                                                    >
-                                                        <div className="text-sm">{mode.label}</div>
-                                                        <div className="text-xs opacity-70 mt-1">{mode.desc}</div>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        {(pdfSplitMode === 'pages' || pdfSplitMode === 'ranges') && (
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    {pdfSplitMode === 'pages' ? 'Page Numbers' : 'Page Ranges'}
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={pdfPageSpec}
-                                                    onChange={(e) => setPdfPageSpec(e.target.value)}
-                                                    placeholder={pdfSplitMode === 'pages' ? 'e.g., 1,3,5' : 'e.g., 1-3,5-7'}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                                />
-                                                <p className="text-xs text-gray-500 mt-1">
-                                                    {pdfSplitMode === 'pages' 
-                                                        ? 'Enter page numbers separated by commas (e.g., 1,3,5)'
-                                                        : 'Enter page ranges separated by commas (e.g., 1-3,5-7)'}
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* Audio Compression Options */}
-                                {selectedOperation === 'compress-audio' && (
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Bitrate: {audioBitrate} kbps
-                                            </label>
-                                            <div className="grid grid-cols-4 gap-3">
-                                                {['128', '192', '256', '320'].map((bitrate) => (
-                                                    <button
-                                                        key={bitrate}
-                                                        onClick={() => setAudioBitrate(bitrate)}
-                                                        className={`p-3 rounded-lg border-2 transition-all font-semibold ${
-                                                            audioBitrate === bitrate
-                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
-                                                                : 'border-gray-200 hover:border-primary-300'
-                                                        }`}
-                                                    >
-                                                        {bitrate}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                            <p className="text-xs text-gray-500 mt-2">
-                                                Lower bitrate = smaller file size but may reduce audio quality
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Audio Conversion Options */}
-                                {selectedOperation === 'convert-audio' && (
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Output Format
-                                            </label>
-                                            <div className="grid grid-cols-3 gap-3">
-                                                {['mp3', 'wav', 'ogg'].map((format) => (
-                                                    <button
-                                                        key={format}
-                                                        onClick={() => setOutputFormat(format)}
-                                                        className={`p-3 rounded-lg border-2 transition-all uppercase font-semibold ${
-                                                            outputFormat === format
-                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
-                                                                : 'border-gray-200 hover:border-primary-300'
-                                                        }`}
-                                                    >
-                                                        {format}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Video Compression Options */}
-                                {selectedOperation === 'compress-video' && (
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Quality Level
-                                            </label>
-                                            <div className="grid grid-cols-3 gap-3">
-                                                {['low', 'medium', 'high'].map((level) => (
-                                                    <button
-                                                        key={level}
-                                                        onClick={() => setVideoQuality(level)}
-                                                        className={`p-3 rounded-lg border-2 transition-all capitalize font-semibold ${
-                                                            videoQuality === level
-                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
-                                                                : 'border-gray-200 hover:border-primary-300'
-                                                        }`}
-                                                    >
-                                                        {level}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                            <p className="text-xs text-gray-500 mt-2">
-                                                Lower quality = smaller file size
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Video Conversion Options */}
-                                {selectedOperation === 'video-converter' && (
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Output Format
-                                            </label>
-                                            <div className="grid grid-cols-3 gap-3">
-                                                {['mp4', 'webm', 'avi'].map((format) => (
-                                                    <button
-                                                        key={format}
-                                                        onClick={() => setOutputFormat(format)}
-                                                        className={`p-3 rounded-lg border-2 transition-all uppercase font-semibold ${
-                                                            outputFormat === format
-                                                                ? 'border-primary-500 bg-primary-50 text-primary-700'
-                                                                : 'border-gray-200 hover:border-primary-300'
-                                                        }`}
-                                                    >
-                                                        {format}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* PDF Protection Options */}
-                                {selectedOperation === 'protect-pdf' && (
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Password *
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    type={showPdfPassword ? 'text' : 'password'}
-                                                    value={pdfPassword}
-                                                    onChange={(e) => setPdfPassword(e.target.value)}
-                                                    placeholder={`Enter password (min. ${MIN_PASSWORD_LENGTH} characters)`}
-                                                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowPdfPassword(!showPdfPassword)}
-                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                                                >
-                                                    {showPdfPassword ? (
-                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                                        </svg>
-                                                    ) : (
-                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                        </svg>
-                                                    )}
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Confirm Password *
-                                            </label>
-                                            <input
-                                                type={showPdfPassword ? 'text' : 'password'}
-                                                value={pdfPasswordConfirm}
-                                                onChange={(e) => setPdfPasswordConfirm(e.target.value)}
-                                                placeholder="Confirm password"
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                            />
-                                        </div>
-                                        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                            <p className="text-sm text-yellow-800">
-                                                <strong>Important:</strong> Make sure to remember your password. You will need it to open the protected PDF.
-                                            </p>
-                                        </div>
-                                        {pdfPassword && pdfPasswordConfirm && pdfPassword !== pdfPasswordConfirm && (
-                                            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                                                <p className="text-sm text-red-800">
-                                                    Passwords do not match
-                                                </p>
-                                            </div>
-                                        )}
-                                        {pdfPassword && pdfPassword.length < MIN_PASSWORD_LENGTH && (
-                                            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                                                <p className="text-sm text-red-800">
-                                                    Password must be at least {MIN_PASSWORD_LENGTH} characters long
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                <div className="flex justify-center pt-4">
-                                    <Button
-                                        onClick={handleProcess}
-                                        disabled={isProcessing}
-                                        className="px-8 py-3 text-lg"
-                                    >
-                                        {isProcessing ? 'Processing...' : 'Start Conversion'}
-                                    </Button>
+                                <div className="pt-8 text-center">
+                                    <button onClick={() => { setFiles([]); setResults([]); setSelectedOperation(''); setShowOptions(false); }} className="text-primary-600 dark:text-primary-400 font-bold hover:underline">
+                                        + Process more files
+                                    </button>
                                 </div>
                             </div>
-                        )}
+                        ) : (
+                            <>
+                                {/* Selection View */}
+                                <div className="p-6 sm:p-10 space-y-4 max-h-[400px] overflow-y-auto bg-white dark:bg-gray-900 custom-scrollbar">
+                                    {files.map((file, index) => (
+                                        <div key={index} className="flex items-center justify-between p-5 bg-gray-50/50 dark:bg-white/5 rounded-[1.5rem] border border-gray-100 dark:border-white/5 group">
+                                            <div className="flex items-center gap-5 flex-1 min-w-0">
+                                                <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center text-2xl border border-gray-100 dark:border-white/5">
+                                                    {file.type.startsWith('image/') ? '🖼️' : '📄'}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="font-bold text-gray-900 dark:text-white truncate">{file.name}</p>
+                                                    <p className="text-sm font-medium text-gray-400">{formatFileSize(file.size)}</p>
+                                                </div>
+                                            </div>
+                                            <button onClick={() => handleRemoveFile(index)} className="p-2 text-gray-400 hover:text-red-500">
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    ))}
 
-                        {/* Progress Bar */}
-                        {isProcessing && (
-                            <div className="space-y-3">
-                                <h3 className="text-lg font-semibold text-gray-900">
-                                    Processing...
-                                </h3>
-                                <ProgressBar progress={progress} />
-                                <p className="text-sm text-gray-600 text-center">
-                                    Processing {files.length} file{files.length > 1 ? 's' : ''}...
-                                </p>
-                            </div>
-                        )}
-
-                        {/* Results */}
-                        {results.length > 0 && (
-                            <div className="space-y-4 border-t pt-4">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-lg font-semibold text-gray-900">
-                                        ✅ Conversion Complete!
-                                    </h3>
-                                    {results.length > 1 && (
-                                        <Button
-                                            onClick={handleDownloadAll}
-                                            variant="secondary"
-                                        >
-                                            Download All
-                                        </Button>
+                                    {!isProcessing && (
+                                        <div className="relative group pt-2">
+                                            <input type="file" multiple onChange={(e) => Array.from(e.target.files).forEach(handleFileSelect)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                                            <div className="border-2 border-dashed border-gray-200 dark:border-white/10 rounded-[1.5rem] p-8 text-center group-hover:border-primary-500/50 transition-all">
+                                                <p className="text-gray-900 dark:text-white font-bold">+ Add More Files</p>
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
 
-                                <div className="space-y-3">
-                                    {results.map(({ original, result }, index) => (
-                                        <div key={index}>
-                                            {result.isSplit ? (
-                                                // Split PDF results - show multiple files
-                                                <div className="space-y-2">
-                                                    <p className="font-medium text-gray-900 mb-2">
-                                                        Split {original.name} into {result.files.length} {result.files.length === 1 ? 'file' : 'files'}
-                                                    </p>
-                                                    {result.files.map((splitFile, idx) => (
-                                                        <div
-                                                            key={idx}
-                                                            className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200"
-                                                        >
-                                                            <div className="flex-1">
-                                                                <p className="font-medium text-gray-900 text-sm">
-                                                                    {splitFile.filename}
-                                                                </p>
-                                                                <p className="text-xs text-gray-600">
-                                                                    {formatFileSize(splitFile.size)} • {splitFile.pages} {splitFile.pages === 1 ? 'page' : 'pages'}
-                                                                </p>
-                                                            </div>
-                                                            <Button
-                                                                onClick={() => {
-                                                                    const a = document.createElement('a');
-                                                                    a.href = splitFile.url;
-                                                                    a.download = splitFile.filename;
-                                                                    document.body.appendChild(a);
-                                                                    a.click();
-                                                                    document.body.removeChild(a);
-                                                                }}
-                                                                className="ml-4"
-                                                                size="sm"
-                                                            >
-                                                                Download
-                                                            </Button>
-                                                        </div>
-                                                    ))}
+                                {/* Controls */}
+                                <div className="p-8 sm:p-12 bg-gray-50/50 dark:bg-black/40 border-t border-gray-100 dark:border-white/5">
+                                    {isProcessing ? (
+                                        <div className="py-12 text-center space-y-8">
+                                            <div className="flex justify-center">
+                                                <div className="relative w-28 h-28">
+                                                    <div className="absolute inset-0 border-[6px] border-primary-100 dark:border-primary-900/20 rounded-full"></div>
+                                                    <div className="absolute inset-0 border-[6px] border-primary-500 rounded-full border-t-transparent animate-spin"></div>
+                                                    <div className="absolute inset-0 flex items-center justify-center font-bold text-2xl text-primary-600 dark:text-primary-400">{progress}%</div>
                                                 </div>
-                                            ) : (
-                                                // Regular results - single file
-                                                <div
-                                                    className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200"
-                                                >
-                                                    <div className="flex-1">
-                                                        <p className="font-medium text-gray-900">
-                                                            {result.file.name}
-                                                        </p>
-                                                        <p className="text-sm text-gray-600">
-                                                            {formatFileSize(original.size)} → {formatFileSize(result.file.size)}
-                                                            {result.originalSize && result.convertedSize && (
-                                                                <span className="ml-2 text-green-600 font-semibold">
-                                                                    ({Math.round((1 - result.convertedSize / result.originalSize) * 100)}% smaller)
-                                                                </span>
-                                                            )}
-                                                        </p>
-                                                        {result.note && (
-                                                            <p className="text-xs text-blue-600 mt-1">
-                                                                ℹ️ {result.note}
-                                                            </p>
-                                                        )}
+                                            </div>
+                                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Processing...</h3>
+                                            <ProgressBar progress={progress} className="max-w-md mx-auto" />
+                                        </div>
+                                    ) : showOptions ? (
+                                        <div className="space-y-10 animate-fade-in">
+                                            <div className="flex items-center justify-between">
+                                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">3. Configure Settings</h3>
+                                                <button onClick={() => { setShowOptions(false); setSelectedOperation(''); }} className="text-sm font-bold text-gray-500 hover:text-primary-600">Back</button>
+                                            </div>
+
+                                            <div className="grid gap-10 max-w-2xl mx-auto py-4">
+                                                {selectedOperation === 'compress-image' && (
+                                                    <div className="space-y-6">
+                                                        <div className="flex justify-between items-center text-gray-900 dark:text-white font-bold">
+                                                            <label>Quality</label>
+                                                            <span>{quality}%</span>
+                                                        </div>
+                                                        <input type="range" min="10" max="100" value={quality} onChange={(e) => setQuality(parseInt(e.target.value))} className="w-full h-3 accent-primary-500 appearance-none bg-gray-200 dark:bg-white/10 rounded-full" />
                                                     </div>
-                                                    <Button
-                                                        onClick={() => handleDownload(result)}
-                                                        className="ml-4"
+                                                )}
+
+                                                {selectedOperation === 'convert-image' && (
+                                                    <div className="space-y-8">
+                                                        <div className="grid grid-cols-3 gap-4">
+                                                            {['png', 'jpg', 'webp'].map(f => (
+                                                                <button key={f} onClick={() => setOutputFormat(f)} className={`py-4 rounded-2xl border font-bold uppercase ${outputFormat === f ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{f}</button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {selectedOperation === 'compress-pdf' && (
+                                                    <div className="grid grid-cols-3 gap-4">
+                                                        {['low', 'balanced', 'high'].map(l => (
+                                                            <button key={l} onClick={() => setPdfCompressionLevel(l)} className={`py-4 rounded-2xl border font-bold capitalize ${pdfCompressionLevel === l ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{l}</button>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {!['compress-image', 'convert-image', 'compress-pdf'].includes(selectedOperation) && (
+                                                    <div className="text-center p-8 bg-primary-50/50 dark:bg-primary-500/5 rounded-3xl">
+                                                        <p className="font-bold text-gray-900 dark:text-white text-lg">Ready to {selectedOperation.replace(/-/g, ' ')}</p>
+                                                    </div>
+                                                )}
+
+                                                <button onClick={handleProcess} className="btn-primary w-full py-6 text-2xl font-black shadow-2xl shadow-primary-500/40">
+                                                    Process Files
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="animate-fade-in">
+                                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-8">2. Choose an Operation</h3>
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                                {availableOperations.map((op) => (
+                                                    <button
+                                                        key={op.id}
+                                                        onClick={() => handleOperationSelect(op.id)}
+                                                        className={`p-6 rounded-3xl border transition-all flex flex-col items-center ${selectedOperation === op.id
+                                                                ? 'border-primary-500 bg-white dark:bg-gray-800 shadow-xl ring-2 ring-primary-500/10'
+                                                                : 'border-gray-200 dark:border-white/5 bg-white dark:bg-gray-900/50 hover:border-primary-500/50'
+                                                            }`}
                                                     >
-                                                        Download
-                                                    </Button>
+                                                        <div className="text-4xl mb-4">{op.icon}</div>
+                                                        <p className={`text-sm font-bold text-center ${selectedOperation === op.id ? 'text-primary-600 dark:text-primary-400' : 'text-gray-900 dark:text-white'}`}>{op.name}</p>
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            {selectedOperation && (
+                                                <div className="mt-14 flex flex-col items-center gap-6">
+                                                    <button onClick={() => setShowOptions(true)} className="btn-primary px-16 py-6 text-2xl font-black shadow-2xl shadow-primary-500/30">
+                                                        Continue
+                                                    </button>
+                                                    <button onClick={handleProcess} className="text-sm font-bold text-gray-500 uppercase tracking-widest">
+                                                        Skip Settings & Process
+                                                    </button>
                                                 </div>
                                             )}
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
-
-                                <div className="flex justify-center pt-4">
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => {
-                                            setFiles([]);
-                                            setSelectedOperation('');
-                                            setShowOptions(false);
-                                            setResults([]);
-                                        }}
-                                    >
-                                        Convert More Files
-                                    </Button>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Error Display */}
-                        {error && (
-                            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                                <p className="text-sm text-red-600 font-medium">⚠️ {error}</p>
-                            </div>
+                            </>
                         )}
                     </div>
                 )}
             </div>
 
-            {/* Info Section */}
-            <div className="text-center text-sm text-gray-500 space-y-2">
-                <p className="flex items-center justify-center gap-2">
-                    <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span className="font-semibold text-green-600">
-                        Your files are processed entirely in your browser - no uploads, 100% private
-                    </span>
-                </p>
-                <p>
-                    Select files, choose an operation, customize settings, and download - all without leaving this page!
-                </p>
+            {/* Error */}
+            {error && (
+                <div className="mt-8 p-6 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-500/30 rounded-[2rem] flex items-center gap-4">
+                    <span className="text-2xl">⚠️</span>
+                    <p className="text-red-800 dark:text-red-400 font-bold">{error}</p>
+                </div>
+            )}
+
+            {/* Privacy Footer */}
+            <div className="mt-20 py-10 text-center border-t border-gray-100 dark:border-white/5 max-w-2xl mx-auto">
+                <p className="text-gray-900 dark:text-white font-extrabold text-lg mb-2">100% Private & Local</p>
+                <p className="text-gray-500 dark:text-gray-400">Everything runs in your browser. No files are uploaded to any server.</p>
             </div>
         </div>
     );

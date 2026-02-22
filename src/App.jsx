@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate 
 import { useState, useEffect, useRef } from 'react';
 import { ModeProvider } from './context/ModeContext';
 import ModeToggle from './components/ModeToggle';
+import ThemeToggle from './components/ThemeToggle';
 import ServicesHome from './pages/ServicesHome';
 import Home from './pages/Home';
 import ToolPage from './pages/ToolPage';
@@ -198,7 +199,7 @@ function AppContent() {
               <div className="w-10 h-10 bg-gradient-to-br from-primary-500 via-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-primary-500/30 group-hover:shadow-primary-500/50 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 logo-shine relative overflow-hidden">
                 <span className="text-white font-bold text-xl relative z-10">U</span>
               </div>
-              <span className="text-2xl font-bold text-gray-900">
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">
                 Uve<span className="gradient-text animate-gradient-x">ro</span>
               </span>
             </Link>
@@ -209,7 +210,7 @@ function AppContent() {
               <div className="static" ref={dropdownRef} onMouseEnter={handleDropdownEnter} onMouseLeave={handleDropdownLeave}>
                 <button
                   onClick={() => setIsToolsDropdownOpen(!isToolsDropdownOpen)}
-                  className="flex items-center gap-1.5 text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-white/80"
+                  className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-white/80 dark:hover:bg-white/5"
                 >
                   Tools
                   <svg className={`w-4 h-4 transition-transform duration-300 ${isToolsDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,14 +226,14 @@ function AppContent() {
                         <div key={idx}>
                           <div className="flex items-center gap-1.5 mb-2.5 pb-2 border-b border-gray-100">
                             <span className="text-base">{category.icon}</span>
-                            <h3 className="font-semibold text-sm text-gray-900">{category.name}</h3>
+                            <h3 className="font-semibold text-sm text-gray-900 dark:text-white">{category.name}</h3>
                           </div>
                           <ul className="space-y-0.5">
                             {category.tools.map((tool, toolIdx) => (
                               <li key={toolIdx}>
                                 <Link
                                   to={tool.path}
-                                  className="block text-xs text-gray-600 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50/80 hover:to-blue-50/80 px-2.5 py-1.5 rounded-lg transition-all duration-200 hover:translate-x-1"
+                                  className="block text-xs text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gradient-to-r hover:from-primary-50/80 hover:to-blue-50/80 dark:hover:from-primary-900/20 dark:hover:to-blue-900/20 px-2.5 py-1.5 rounded-lg transition-all duration-200 hover:translate-x-1"
                                   onClick={() => setIsToolsDropdownOpen(false)}
                                 >
                                   {tool.name}
@@ -250,10 +251,12 @@ function AppContent() {
               <div className="flex items-center gap-4">
                 <Link
                   to="/privacy"
-                  className="text-gray-700 hover:text-primary-600 font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-white/80"
+                  className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-white/80 dark:hover:bg-white/5"
                 >
                   Privacy
                 </Link>
+
+                <ThemeToggle />
 
                 {isFileProcessingRoute && <ModeToggle />}
 
@@ -265,7 +268,7 @@ function AppContent() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2.5 text-gray-700 hover:text-primary-600 rounded-xl hover:bg-white/60 backdrop-blur-sm hover:shadow-lg transition-all duration-300 nav-button-glass"
+              className="md:hidden p-2.5 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 rounded-xl hover:bg-white/60 dark:hover:bg-white/5 backdrop-blur-sm hover:shadow-lg transition-all duration-300 nav-button-glass"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {isMenuOpen ? (
@@ -281,9 +284,14 @@ function AppContent() {
           {isMenuOpen && (
             <div className="md:hidden py-4 border-t border-white/20 max-h-[calc(100vh-64px)] overflow-y-auto animate-fade-in-down mobile-menu-glass">
               <div className="space-y-4 pb-4">
-                {/* Mode Toggle for Mobile - only for file processing routes */}
+                {/* Theme & Mode Toggles for Mobile */}
+                <div className="px-4 pb-4 flex items-center justify-between border-b border-gray-100 dark:border-white/5">
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Appearance</span>
+                  <ThemeToggle />
+                </div>
+
                 {isFileProcessingRoute && (
-                  <div className="px-4 pb-4 border-b border-gray-100">
+                  <div className="px-4 py-4 border-b border-gray-100 dark:border-white/5">
                     <ModeToggle />
                   </div>
                 )}
