@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import imageCompression from 'browser-image-compression'
 import QRCode from 'qrcode'
 import JSZip from 'jszip'
@@ -34,6 +34,10 @@ export default function EventDetail() {
     const [selectedImageIds, setSelectedImageIds] = useState([])
     const [showPeopleMenu, setShowPeopleMenu] = useState(false)
     const [zipProgress, setZipProgress] = useState(null)
+    const BATCH_SIZE = 12
+    const [visibleCount, setVisibleCount] = useState(BATCH_SIZE)
+    const [loadingBatch, setLoadingBatch] = useState(false)
+    const loadMoreRef = useRef(null)
 
     // helper: normalize box, crop blobs and load persons (reusable)
     async function normalizeBox(box, imgW, imgH) {
@@ -516,33 +520,63 @@ export default function EventDetail() {
         }
     }, [])
 
+    async function fetchSingleImage(img, auth) {
+        try {
+            const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}`, { headers: { Authorization: auth }, cache: 'no-store' })
+            if (!resp.ok) return img
+            let blob = await resp.blob()
+            if (blob.size === 0) {
+                const r2 = await fetch(`/api/images/${img.id}`, { headers: { Authorization: auth }, cache: 'reload' })
+                if (r2.ok) blob = await r2.blob()
+            }
+            const url = URL.createObjectURL(blob)
+            objectUrlsRef.current.add(url)
+            return { ...img, _objectUrl: url }
+        } catch (err) {
+            console.warn('Failed to preload image', img.id, err)
+            return img
+        }
+    }
+
     async function preloadImageUrls(imgs) {
         if (!imgs || !imgs.length || !user) return
         const auth = `Bearer ${user?.access_token || ''}`
-        const results = await Promise.all(imgs.map(async (img) => {
-            try {
-                const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}`, { headers: { Authorization: auth }, cache: 'no-store' })
-                console.debug('[preload] image', img.id, 'status=', resp.status)
-                if (!resp.ok) return img
-                let blob = await resp.blob()
-                // If blob is empty (possible 304 or other cache behaviour), retry once forcing no-cache
-                if (blob.size === 0) {
-                    console.warn('[preload] empty blob for', img.id, 'retrying')
-                    const r2 = await fetch(`/api/images/${img.id}`, { headers: { Authorization: auth }, cache: 'reload' })
-                    if (r2.ok) {
-                        blob = await r2.blob()
-                    }
+        // Load first batch immediately for fast initial render
+        const firstBatch = imgs.slice(0, BATCH_SIZE)
+        const rest = imgs.slice(BATCH_SIZE)
+        const firstResults = await Promise.all(firstBatch.map(img => fetchSingleImage(img, auth)))
+        // Set first batch + placeholders for the rest
+        setImages([...firstResults, ...rest])
+        setVisibleCount(BATCH_SIZE)
+        // Progressive background loading for remaining images in small batches
+        for (let i = 0; i < rest.length; i += BATCH_SIZE) {
+            const chunk = rest.slice(i, i + BATCH_SIZE)
+            const loaded = await Promise.all(chunk.map(img => fetchSingleImage(img, auth)))
+            setImages(prev => {
+                const updated = [...prev]
+                for (let j = 0; j < loaded.length; j++) {
+                    const globalIdx = BATCH_SIZE + i + j
+                    if (globalIdx < updated.length) updated[globalIdx] = loaded[j]
                 }
-                const url = URL.createObjectURL(blob)
-                objectUrlsRef.current.add(url)
-                return { ...img, _objectUrl: url }
-            } catch (err) {
-                console.warn('Failed to preload image', img.id, err)
-                return img
-            }
-        }))
-        setImages(results)
+                return updated
+            })
+        }
     }
+
+    // IntersectionObserver for infinite scroll — load more images as user scrolls
+    useEffect(() => {
+        if (!loadMoreRef.current) return
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && !loadingBatch) {
+                    setVisibleCount(prev => Math.min(prev + BATCH_SIZE, images.length))
+                }
+            },
+            { rootMargin: '300px' }
+        )
+        observer.observe(loadMoreRef.current)
+        return () => observer.disconnect()
+    }, [images.length, loadingBatch])
 
     async function handleFiles(files) {
         if (!files || !files.length) return
@@ -741,9 +775,11 @@ export default function EventDetail() {
         (p.name || 'Unnamed').toLowerCase().includes(peopleSearch.toLowerCase())
     )
 
-    const displayImages = selectedPersonIds && selectedPersonIds.length > 0
+    const allDisplayImages = selectedPersonIds && selectedPersonIds.length > 0
         ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
         : images
+    const displayImages = allDisplayImages.slice(0, visibleCount)
+    const hasMore = displayImages.length < allDisplayImages.length
 
     const gridColsClass = {
         sm: 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6',
@@ -1254,6 +1290,22 @@ export default function EventDetail() {
                                         )}
                                     </div>
                                 ))}
+                            </div>
+                        )}
+
+                        {/* Infinite scroll sentinel + Load More */}
+                        {hasMore && (
+                            <div className="mt-6 text-center">
+                                <div ref={loadMoreRef} className="h-1" />
+                                <button
+                                    onClick={() => setVisibleCount(prev => Math.min(prev + BATCH_SIZE, allDisplayImages.length))}
+                                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                    Load More ({allDisplayImages.length - displayImages.length} remaining)
+                                </button>
                             </div>
                         )}
                     </main>
