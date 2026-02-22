@@ -866,7 +866,7 @@ export default function EventDetail() {
                         {/* Actions */}
                         <div className="flex items-center gap-2.5 flex-wrap">
                             {ownerCheck && shareQr && (
-                                <img src={shareQr} alt="QR" className="h-16 w-16 rounded-lg border border-white/10 p-1 bg-white" />
+                                <img src={shareQr} alt="QR" className="h-28 w-28 rounded-xl border border-white/10 p-1.5 bg-white shadow-lg" />
                             )}
                             {!isOwner && !isParticipant && (
                                 <button onClick={handleJoinEvent} className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-lg hover:-translate-y-0.5 transition-all">
