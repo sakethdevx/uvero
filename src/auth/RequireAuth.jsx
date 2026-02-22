@@ -1,6 +1,6 @@
 import React from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { useAuth } from './AuthProvider'
+import { useAuth } from './AuthContext'
 
 // Wrap routes that require auth; allows guest access if explicit prop `allowGuest` is true
 export default function RequireAuth({ children, allowGuest = true }) {

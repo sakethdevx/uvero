@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase/client'
-
-const AuthContext = createContext()
+import { AuthContext } from './AuthContext'
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null)
@@ -47,8 +46,8 @@ export function AuthProvider({ children }) {
                             Authorization: `Bearer ${session.access_token}`
                         },
                         body: JSON.stringify({
-                            email: currentUser?.email,
-                            full_name: currentUser?.user_metadata?.full_name ?? null
+                            email: newUser?.email,
+                            full_name: newUser?.user_metadata?.full_name ?? null
                         })
                     })
                 } catch (err) {
@@ -66,15 +65,15 @@ export function AuthProvider({ children }) {
                     // re-check session state
                     supabase.auth.getSession().then(({ data }) => {
                         const session = data?.session ?? null
-                        const currentUser = session ? { ...session.user, access_token: session.access_token } : null
-                        setUser(currentUser)
+                        const refreshedUser = session ? { ...session.user, access_token: session.access_token } : null
+                        setUser(refreshedUser)
 
                         // if user just became signed in, and there is a postAuthRedirect saved,
                         // redirect back to it when currently on auth pages.
                         try {
                             const redirect = localStorage.getItem('postAuthRedirect')
                             const path = window.location.pathname || ''
-                            if (currentUser && redirect && (path === '/signup' || path === '/login' || path.startsWith('/invite') || path === '/')) {
+                            if (refreshedUser && redirect && (path === '/signup' || path === '/login' || path.startsWith('/invite') || path === '/')) {
                                 // clear and navigate
                                 localStorage.removeItem('postAuthRedirect')
                                 window.location.href = redirect
@@ -101,6 +100,3 @@ export function AuthProvider({ children }) {
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-export function useAuth() {
-    return useContext(AuthContext)
-}

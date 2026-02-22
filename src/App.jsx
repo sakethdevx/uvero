@@ -16,7 +16,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
-import { useAuth } from './auth/AuthProvider';
+import { useAuth } from './auth/AuthContext';
 import { signOut } from './auth/authService';
 import { getToolById } from './tools';
 
