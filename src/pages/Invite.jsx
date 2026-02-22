@@ -58,7 +58,7 @@ export default function InvitePage() {
             const eventId = d.event_id
             setStatus('Joined! Redirecting...')
             setTimeout(() => {
-                if (eventId) navigate(`/events/${eventId}`)
+                if (eventId) navigate(`/photodrop/${eventId}`)
                 else navigate('/')
             }, 700)
         } catch (e) {

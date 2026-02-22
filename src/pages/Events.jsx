@@ -33,7 +33,7 @@ export default function EventsPage() {
 
     return (
         <div className="max-w-4xl mx-auto p-6">
-            <h1 className="text-2xl font-semibold mb-4">My Events</h1>
+            <h1 className="text-2xl font-semibold mb-4">PhotoDrop</h1>
             <form onSubmit={createEvent} className="space-y-3 mb-6">
                 <input required value={name} onChange={e => setName(e.target.value)} placeholder="Event name" className="w-full border px-3 py-2" />
                 <input value={date} onChange={e => setDate(e.target.value)} type="date" className="border px-3 py-2" />
@@ -47,7 +47,7 @@ export default function EventsPage() {
                         <h3 className="font-semibold">{ev.event_name}</h3>
                         <p className="text-sm text-gray-600">{ev.description}</p>
                         <div className="mt-3">
-                            <Link to={`/events/${ev.id}`} className="text-blue-600">Open Event</Link>
+                            <Link to={`/photodrop/${ev.id}`} className="text-blue-600">Open Event</Link>
                         </div>
                     </div>
                 ))}

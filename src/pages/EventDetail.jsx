@@ -725,7 +725,7 @@ export default function EventDetail() {
                 return
             }
             // navigate back to events list
-            navigate('/events')
+            navigate('/photodrop')
         } catch (err) {
             console.error('Delete event error', err)
             setDeletingEvent(false)

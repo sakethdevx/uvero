@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate 
 import { useState, useEffect, useRef } from 'react';
 import { ModeProvider } from './context/ModeContext';
 import ModeToggle from './components/ModeToggle';
+import ServicesHome from './pages/ServicesHome';
 import Home from './pages/Home';
 import ToolPage from './pages/ToolPage';
 import Privacy from './pages/Privacy';
@@ -14,6 +15,7 @@ import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import { useAuth } from './auth/AuthProvider';
 import { signOut } from './auth/authService';
+import { getToolById } from './tools';
 
 /**
  * Main App Component
@@ -26,6 +28,9 @@ function AppContent() {
   const dropdownRef = useRef(null);
   const dropdownTimerRef = useRef(null);
   const location = useLocation();
+
+  // Determine if we're on a file processing route (for scoping ModeToggle)
+  const isFileProcessingRoute = location.pathname === '/tools' || !!getToolById(location.pathname.slice(1));
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -247,7 +252,7 @@ function AppContent() {
                   Privacy
                 </Link>
 
-                <ModeToggle />
+                {isFileProcessingRoute && <ModeToggle />}
 
                 {/* Auth state */}
                 <AuthStatus />
@@ -273,10 +278,12 @@ function AppContent() {
           {isMenuOpen && (
             <div className="md:hidden py-4 border-t border-white/20 max-h-[calc(100vh-64px)] overflow-y-auto animate-fade-in-down mobile-menu-glass">
               <div className="space-y-4 pb-4">
-                {/* Mode Toggle for Mobile */}
-                <div className="px-4 pb-4 border-b border-gray-100">
-                  <ModeToggle />
-                </div>
+                {/* Mode Toggle for Mobile - only for file processing routes */}
+                {isFileProcessingRoute && (
+                  <div className="px-4 pb-4 border-b border-gray-100">
+                    <ModeToggle />
+                  </div>
+                )}
 
                 {toolCategories.map((category, idx) => (
                   <div key={idx} className="px-4">
@@ -317,9 +324,10 @@ function AppContent() {
       {/* Main Content */}
       <main className="flex-1">
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/events" element={<EventsPage />} />
-          <Route path="/events/:id" element={<EventDetail />} />
+          <Route path="/" element={<ServicesHome />} />
+          <Route path="/tools" element={<Home />} />
+          <Route path="/photodrop" element={<EventsPage />} />
+          <Route path="/photodrop/:id" element={<EventDetail />} />
           <Route path="/invite/:token" element={<InvitePage />} />
           <Route path="/:toolId" element={<ToolPage />} />
           <Route path="/privacy" element={<Privacy />} />
@@ -361,14 +369,14 @@ function AppContent() {
 
             {/* Quick Links */}
             <div>
-              <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Popular Tools</h3>
+              <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Services</h3>
               <ul className="space-y-2.5">
                 {[
+                  { name: 'File Processing', path: '/tools' },
+                  { name: 'PhotoDrop', path: '/photodrop' },
                   { name: 'Image Compressor', path: '/compress-image' },
                   { name: 'PDF Compressor', path: '/compress-pdf' },
-                  { name: 'Image Converter', path: '/convert-image' },
                   { name: 'QR Generator', path: '/qr-generator' },
-                  { name: 'PDF Merger', path: '/merge-pdf' },
                 ].map((link, idx) => (
                   <li key={idx}>
                     <Link to={link.path} className="text-gray-400 hover:text-primary-400 transition-colors text-sm">
