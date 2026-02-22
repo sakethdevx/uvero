@@ -108,9 +108,9 @@ const platformFeatures = [
 
 export default function ServicesHome() {
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">
             {/* Hero Section */}
-            <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 via-white to-white">
+            <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 via-white to-white dark:from-gray-900 dark:via-gray-950 dark:to-gray-950">
                 {/* Background decorations */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
                     <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary-200/20 rounded-full blur-3xl animate-blob" />
@@ -121,22 +121,22 @@ export default function ServicesHome() {
                 <div className="relative max-w-7xl mx-auto px-4 pt-16 pb-8 sm:px-6 lg:px-8 sm:pt-24 sm:pb-12">
                     <div className="text-center max-w-4xl mx-auto">
                         {/* Badge */}
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/80 border border-gray-200/60 rounded-full mb-8 animate-fade-in shadow-sm">
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/80 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 rounded-full mb-8 animate-fade-in shadow-sm">
                             <span className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
                             </span>
-                            <span className="text-sm font-medium text-gray-600">Your all-in-one digital toolkit</span>
+                            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Your all-in-one digital toolkit</span>
                         </div>
 
-                        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 mb-6 leading-[1.1] animate-fade-in-up text-balance">
+                        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 dark:text-white mb-6 leading-[1.1] animate-fade-in-up text-balance">
                             Everything you need,{' '}
                             <span className="gradient-text animate-gradient-x">
                                 one platform
                             </span>
                         </h1>
 
-                        <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-500 mb-12 animate-fade-in-up leading-relaxed" style={{ animationDelay: '0.1s' }}>
+                        <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-500 dark:text-gray-400 mb-12 animate-fade-in-up leading-relaxed" style={{ animationDelay: '0.1s' }}>
                             From file processing to event photo sharing — powerful tools designed for simplicity, speed, and privacy.
                         </p>
                     </div>
@@ -150,7 +150,7 @@ export default function ServicesHome() {
                         <Link
                             key={service.id}
                             to={service.link}
-                            className="group relative rounded-3xl overflow-hidden bg-white border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 animate-fade-in-up"
+                            className="group relative rounded-3xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 shadow-lg dark:shadow-none hover:shadow-2xl dark:hover:shadow-primary-500/10 transition-all duration-500 hover:-translate-y-2 animate-fade-in-up"
                             style={{ animationDelay: `${0.15 + idx * 0.1}s` }}
                         >
                             {/* Top gradient strip */}
@@ -169,7 +169,7 @@ export default function ServicesHome() {
                                 </div>
 
                                 {/* Title & Tagline */}
-                                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 group-hover:text-gray-800 transition-colors">
+                                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1 group-hover:text-gray-800 dark:group-hover:text-white transition-colors">
                                     {service.name}
                                 </h2>
                                 <p className={`text-sm font-semibold bg-gradient-to-r ${service.gradient} bg-clip-text text-transparent mb-4`}>
@@ -177,7 +177,7 @@ export default function ServicesHome() {
                                 </p>
 
                                 {/* Description */}
-                                <p className="text-gray-500 leading-relaxed mb-6">
+                                <p className="text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
                                     {service.description}
                                 </p>
 
@@ -186,7 +186,7 @@ export default function ServicesHome() {
                                     {service.features.map((feature, fIdx) => (
                                         <span
                                             key={fIdx}
-                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r ${service.lightGradient} text-gray-700 border border-gray-100`}
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r ${service.lightGradient} dark:from-white/5 dark:to-white/5 text-gray-700 dark:text-gray-300 border border-gray-100 dark:border-white/5`}
                                         >
                                             <span className={`w-1 h-1 rounded-full bg-gradient-to-r ${service.gradient}`} />
                                             {feature}
@@ -221,26 +221,26 @@ export default function ServicesHome() {
             </section>
 
             {/* Why Uvero Section */}
-            <section className="bg-gray-50/50 py-20 sm:py-24">
+            <section className="bg-gray-50/50 dark:bg-gray-900/30 py-20 sm:py-24 transition-colors">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="section-heading">Why Uvero?</h2>
-                        <p className="section-subheading">Built with privacy, performance, and simplicity at the core</p>
+                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">Why Uvero?</h2>
+                        <p className="text-gray-500 dark:text-gray-400 text-lg leading-relaxed">Built with privacy, performance, and simplicity at the core</p>
                     </div>
 
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         {platformFeatures.map((feature, idx) => (
                             <div
                                 key={idx}
-                                className="group text-center p-8 rounded-2xl bg-white border border-gray-100 hover:border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                                className="group text-center p-8 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/10 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                             >
-                                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl ${feature.bg} ${feature.color} mb-5 group-hover:scale-110 transition-transform duration-300`}>
+                                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl ${feature.bg} dark:bg-white/5 ${feature.color} dark:text-white mb-5 group-hover:scale-110 transition-transform duration-300`}>
                                     {feature.icon}
                                 </div>
-                                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
                                     {feature.title}
                                 </h3>
-                                <p className="text-sm text-gray-500 leading-relaxed">
+                                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
                                     {feature.description}
                                 </p>
                             </div>
@@ -250,50 +250,50 @@ export default function ServicesHome() {
             </section>
 
             {/* About Uvero Section */}
-            <section className="py-20 sm:py-24">
+            <section className="py-20 sm:py-24 dark:bg-gray-950 transition-colors">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
-                        <h2 className="section-heading">What Does Uvero Mean?</h2>
-                        <p className="section-subheading">The story behind our name</p>
+                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">What Does Uvero Mean?</h2>
+                        <p className="text-gray-500 dark:text-gray-400 text-lg">The story behind our name</p>
                     </div>
 
-                    <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-12 border border-gray-100">
-                        <p className="text-gray-700 text-lg leading-relaxed mb-8 text-center">
-                            <strong className="text-primary-600">Uvero</strong> is a coined brand name formed from three core ideas:
+                    <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl dark:shadow-none p-8 sm:p-12 border border-gray-100 dark:border-white/5">
+                        <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed mb-8 text-center">
+                            <strong className="text-primary-600 dark:text-primary-400">Uvero</strong> is a coined brand name formed from three core ideas:
                         </p>
 
                         <div className="grid md:grid-cols-3 gap-8 mb-8">
                             <div className="text-center">
-                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-100 text-blue-600 text-3xl font-bold mb-4">
+                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-3xl font-bold mb-4">
                                     U
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">Universal</h3>
-                                <p className="text-gray-600 text-sm leading-relaxed">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Universal</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
                                     A wide collection of useful digital tools — an all-in-one platform for everyday tasks.
                                 </p>
                             </div>
                             <div className="text-center">
-                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-purple-100 text-purple-600 text-2xl font-bold mb-4">
+                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 text-2xl font-bold mb-4">
                                     ver
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">Versatile</h3>
-                                <p className="text-gray-600 text-sm leading-relaxed">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Versatile</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
                                     Multiple functions in one place — transform files, process data, and share memories.
                                 </p>
                             </div>
                             <div className="text-center">
-                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-600 text-3xl font-bold mb-4">
+                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-3xl font-bold mb-4">
                                     o
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">Zero Effort</h3>
-                                <p className="text-gray-600 text-sm leading-relaxed">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Zero Effort</h3>
+                                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
                                     Instant results with minimal effort. Complete digital tasks with almost zero friction.
                                 </p>
                             </div>
                         </div>
 
-                        <div className="text-center pt-6 border-t border-gray-200">
-                            <p className="text-xl font-semibold text-gray-900 mb-2">
+                        <div className="text-center pt-6 border-t border-gray-200 dark:border-white/10">
+                            <p className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                                 Uvero = <span className="gradient-text">Universal, versatile tools for zero-effort productivity</span>
                             </p>
                         </div>
@@ -310,13 +310,13 @@ export default function ServicesHome() {
                     <h2 className="text-3xl sm:text-4xl font-bold text-white mb-5 text-balance">
                         Ready to Get Started?
                     </h2>
-                    <p className="text-lg text-blue-100 mb-8 max-w-xl mx-auto">
+                    <p className="text-lg text-blue-100 dark:text-gray-300 mb-8 max-w-xl mx-auto">
                         Pick a service and start right away. No sign-up required for file processing.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Link
                             to="/tools"
-                            className="inline-flex items-center gap-2 bg-white text-primary-700 font-semibold py-3.5 px-7 rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-xl shadow-black/10 hover:-translate-y-0.5"
+                            className="inline-flex items-center gap-2 bg-white dark:bg-primary-500 text-primary-700 dark:text-white font-semibold py-3.5 px-7 rounded-xl hover:bg-gray-50 dark:hover:bg-primary-600 transition-all duration-300 shadow-xl shadow-black/10 hover:-translate-y-0.5"
                         >
                             File Processing
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

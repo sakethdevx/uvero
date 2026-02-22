@@ -486,16 +486,16 @@ function AuthStatus() {
   if (!user) {
     return (
       <div className="flex items-center gap-3">
-        <Link to="/login" className="text-sm text-gray-700 hover:text-primary-600">Sign in</Link>
-        <Link to="/signup" className="btn-primary text-sm">Sign up</Link>
+        <Link to="/login" className="text-sm text-gray-700 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400">Sign in</Link>
+        <Link to="/signup" className="btn-primary text-sm py-2 px-4">Sign up</Link>
       </div>
     )
   }
 
   return (
     <div className="flex items-center gap-3">
-      <Link to="/profile" className="text-sm text-gray-700 hover:text-primary-600">{user.email}</Link>
-      <button onClick={handleSignOut} disabled={signingOut} className="text-sm text-gray-600 hover:text-gray-900">
+      <Link to="/profile" className="text-sm text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium">{user.email}</Link>
+      <button onClick={handleSignOut} disabled={signingOut} className="text-sm text-gray-500 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
         {signingOut ? 'Signing out...' : 'Sign out'}
       </button>
     </div>

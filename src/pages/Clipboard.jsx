@@ -119,7 +119,7 @@ export default function Clipboard() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-950 text-white overflow-hidden">
+        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white overflow-hidden transition-colors duration-500">
             {/* ── Background Effects ── */}
             <div className="fixed inset-0 pointer-events-none">
                 <div className="absolute top-1/4 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
@@ -130,17 +130,17 @@ export default function Clipboard() {
             {/* ── Hero ── */}
             <section className="relative pt-20 pb-8 px-4">
                 <div className="max-w-4xl mx-auto text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm text-gray-400 mb-6">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                         Instant text sharing
                     </div>
-                    <h1 className="text-5xl sm:text-6xl font-black tracking-tight mb-4">
+                    <h1 className="text-5xl sm:text-6xl font-black tracking-tight mb-4 text-gray-900 dark:text-white">
                         Online{' '}
                         <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
                             Clipboard
                         </span>
                     </h1>
-                    <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-4">
+                    <p className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-4 leading-relaxed">
                         Share text instantly with a 4-digit code, or create private boards with rich features.
                         No login required.
                     </p>
@@ -156,18 +156,18 @@ export default function Clipboard() {
                         <div className="flex items-center gap-3 mb-2">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-600 flex items-center justify-center text-lg">📋</div>
                             <div>
-                                <h2 className="text-xl font-bold">Quick Share</h2>
-                                <p className="text-sm text-gray-500">Paste text, get a 4-digit code</p>
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Quick Share</h2>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Paste text, get a 4-digit code</p>
                             </div>
                         </div>
 
                         {/* Paste Area */}
-                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 space-y-4">
+                        <div className="bg-gray-50 dark:bg-white/5 backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-2xl p-5 space-y-4">
                             <textarea
                                 value={publicText}
                                 onChange={e => setPublicText(e.target.value)}
                                 placeholder="Paste or type your text here..."
-                                className="w-full h-48 bg-gray-900/50 border border-white/10 rounded-xl p-4 text-sm text-gray-200 placeholder-gray-600 resize-none focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-all font-mono"
+                                className="w-full h-48 bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-900 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-600 resize-none focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/25 transition-all font-mono"
                             />
                             <div className="flex items-center justify-between">
                                 <span className="text-xs text-gray-500">
@@ -191,11 +191,11 @@ export default function Clipboard() {
 
                         {/* Code Display */}
                         {publicCode && (
-                            <div className="bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 border border-emerald-500/20 rounded-2xl p-6 text-center animate-fade-in">
-                                <p className="text-sm text-gray-400 mb-3">Your 4-digit code</p>
+                            <div className="bg-gradient-to-br from-emerald-500/5 to-cyan-500/5 dark:from-emerald-500/10 dark:to-cyan-500/10 border border-emerald-500/10 dark:border-emerald-500/20 rounded-2xl p-6 text-center animate-fade-in shadow-inner">
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 font-medium">Your 4-digit code</p>
                                 <div className="flex items-center justify-center gap-3 mb-4">
                                     {publicCode.split('').map((digit, i) => (
-                                        <div key={i} className="w-14 h-16 bg-gray-900/80 border border-emerald-500/30 rounded-xl flex items-center justify-center text-3xl font-black text-emerald-400 shadow-lg shadow-emerald-500/10">
+                                        <div key={i} className="w-14 h-16 bg-white dark:bg-gray-900/80 border border-emerald-500/20 dark:border-emerald-500/30 rounded-xl flex items-center justify-center text-3xl font-black text-emerald-500 dark:text-emerald-400 shadow-xl shadow-emerald-500/5">
                                             {digit}
                                         </div>
                                     ))}
@@ -221,8 +221,8 @@ export default function Clipboard() {
                         )}
 
                         {/* Retrieve Area */}
-                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 space-y-4">
-                            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Retrieve by Code</h3>
+                        <div className="bg-gray-50 dark:bg-white/5 backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-2xl p-5 space-y-4">
+                            <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Retrieve by Code</h3>
                             <div className="flex items-center justify-center gap-3">
                                 {[0, 1, 2, 3].map(i => (
                                     <input
@@ -235,7 +235,7 @@ export default function Clipboard() {
                                         onChange={e => handleCodeDigitChange(i, e.target.value)}
                                         onKeyDown={e => handleCodeKeyDown(i, e)}
                                         onPaste={i === 0 ? handleCodePaste : undefined}
-                                        className="w-14 h-16 text-center text-2xl font-black bg-gray-900/50 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/25 transition-all"
+                                        className="w-14 h-16 text-center text-2xl font-black bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/25 transition-all shadow-sm"
                                     />
                                 ))}
                             </div>
@@ -251,17 +251,17 @@ export default function Clipboard() {
 
                         {/* Retrieved Text */}
                         {retrievedText !== null && (
-                            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 animate-fade-in">
+                            <div className="bg-gray-50 dark:bg-white/5 backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-2xl p-5 animate-fade-in">
                                 <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-sm font-semibold text-gray-400">Retrieved Text</h3>
+                                    <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400">Retrieved Text</h3>
                                     <button
                                         onClick={() => copyToClipboard(retrievedText, setCopied)}
-                                        className="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300"
+                                        className="inline-flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 font-bold"
                                     >
                                         {copied ? '✓ Copied!' : 'Copy All'}
                                     </button>
                                 </div>
-                                <pre className="bg-gray-900/50 border border-white/10 rounded-xl p-4 text-sm text-gray-200 whitespace-pre-wrap break-words font-mono max-h-64 overflow-auto">
+                                <pre className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words font-mono max-h-64 overflow-auto shadow-inner leading-relaxed">
                                     {retrievedText}
                                 </pre>
                             </div>
@@ -273,24 +273,24 @@ export default function Clipboard() {
                         <div className="flex items-center gap-3 mb-2">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg">🔒</div>
                             <div>
-                                <h2 className="text-xl font-bold">Private Board</h2>
-                                <p className="text-sm text-gray-500">Named boards with rich features</p>
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Private Board</h2>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Named boards with rich features</p>
                             </div>
                         </div>
 
                         {/* Board Name Input */}
-                        <form onSubmit={handleGoToBoard} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 space-y-4">
+                        <form onSubmit={handleGoToBoard} className="bg-gray-50 dark:bg-white/5 backdrop-blur-xl border border-gray-100 dark:border-white/10 rounded-2xl p-5 space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Board Name</label>
+                                <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Board Name</label>
                                 <div className="flex gap-3">
                                     <div className="flex-1 relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">/clipboard/</span>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm">/clipboard/</span>
                                         <input
                                             type="text"
                                             value={boardName}
                                             onChange={e => setBoardName(e.target.value)}
                                             placeholder="my-notes"
-                                            className="w-full bg-gray-900/50 border border-white/10 rounded-xl py-3 pl-28 pr-4 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/25 transition-all"
+                                            className="w-full bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-28 pr-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/25 transition-all shadow-sm"
                                         />
                                     </div>
                                     <button
@@ -308,19 +308,19 @@ export default function Clipboard() {
                         {/* Features Grid */}
                         <div className="grid grid-cols-2 gap-3">
                             {[
-                                { icon: '🎨', title: 'Syntax Highlighting', desc: '20+ languages', color: 'from-yellow-500/10 to-orange-500/10 border-yellow-500/20' },
-                                { icon: '📝', title: 'Markdown Preview', desc: 'Live rendering', color: 'from-blue-500/10 to-cyan-500/10 border-blue-500/20' },
-                                { icon: '🔑', title: 'Password Lock', desc: 'Secure access', color: 'from-red-500/10 to-pink-500/10 border-red-500/20' },
-                                { icon: '🔥', title: 'Burn After Read', desc: 'Self-destruct', color: 'from-orange-500/10 to-red-500/10 border-orange-500/20' },
-                                { icon: '⏳', title: 'Auto-Expire', desc: '1h to 30 days', color: 'from-purple-500/10 to-indigo-500/10 border-purple-500/20' },
-                                { icon: '📱', title: 'QR Code Share', desc: 'Scan to access', color: 'from-green-500/10 to-emerald-500/10 border-green-500/20' },
-                                { icon: '💾', title: 'Auto-Save', desc: 'Never lose work', color: 'from-cyan-500/10 to-blue-500/10 border-cyan-500/20' },
-                                { icon: '📥', title: 'Download', desc: '.txt / .md / code', color: 'from-indigo-500/10 to-violet-500/10 border-indigo-500/20' },
+                                { icon: '🎨', title: 'Syntax Highlighting', desc: '20+ languages', color: 'from-accent-50 to-orange-50 border-orange-100 dark:from-yellow-500/5 dark:to-orange-500/5 dark:border-yellow-500/20' },
+                                { icon: '📝', title: 'Markdown Preview', desc: 'Live rendering', color: 'from-blue-50 to-cyan-50 border-blue-100 dark:from-blue-500/5 dark:to-cyan-500/5 dark:border-blue-500/20' },
+                                { icon: '🔑', title: 'Password Lock', desc: 'Secure access', color: 'from-red-50 to-pink-50 border-red-100 dark:from-red-500/5 dark:to-pink-500/5 dark:border-red-500/20' },
+                                { icon: '🔥', title: 'Burn After Read', desc: 'Self-destruct', color: 'from-orange-50 to-red-50 border-orange-100 dark:from-orange-500/5 dark:to-red-500/5 dark:border-orange-500/20' },
+                                { icon: '⏳', title: 'Auto-Expire', desc: '1h to 30 days', color: 'from-purple-50 to-indigo-50 border-purple-100 dark:from-purple-500/5 dark:to-indigo-500/5 dark:border-purple-500/20' },
+                                { icon: '📱', title: 'QR Code Share', desc: 'Scan to access', color: 'from-green-50 to-emerald-50 border-green-100 dark:from-green-500/5 dark:to-emerald-500/5 dark:border-green-500/20' },
+                                { icon: '💾', title: 'Auto-Save', desc: 'Never lose work', color: 'from-cyan-50 to-blue-50 border-cyan-100 dark:from-cyan-500/5 dark:to-blue-500/5 dark:border-cyan-500/20' },
+                                { icon: '📥', title: 'Download', desc: '.txt / .md / code', color: 'from-indigo-50 to-violet-50 border-indigo-100 dark:from-indigo-500/5 dark:to-violet-500/5 dark:border-indigo-500/20' },
                             ].map((f, i) => (
-                                <div key={i} className={`bg-gradient-to-br ${f.color} border rounded-xl p-3.5 hover:scale-[1.02] transition-transform`}>
+                                <div key={i} className={`bg-gradient-to-br ${f.color} border rounded-xl p-3.5 hover:scale-[1.02] transition-all shadow-sm`}>
                                     <span className="text-xl mb-1 block">{f.icon}</span>
-                                    <h4 className="text-sm font-semibold text-white">{f.title}</h4>
-                                    <p className="text-xs text-gray-400">{f.desc}</p>
+                                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{f.title}</h4>
+                                    <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">{f.desc}</p>
                                 </div>
                             ))}
                         </div>

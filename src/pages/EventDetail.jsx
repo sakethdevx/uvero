@@ -788,11 +788,11 @@ export default function EventDetail() {
     }[gridSize]
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">
             {/* ── Toast ── */}
             {notice && (
                 <div className="fixed bottom-6 right-6 z-50 animate-fade-in-up">
-                    <div className="flex items-center gap-3 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl">
+                    <div className="flex items-center gap-3 bg-gray-900 dark:bg-gray-800 text-white px-5 py-3 rounded-xl shadow-2xl">
                         <svg className="w-5 h-5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                         </svg>
@@ -837,13 +837,13 @@ export default function EventDetail() {
             )}
 
             {/* ── Dark Header ── */}
-            <header className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800">
+            <header className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(244,63,94,0.08),transparent_60%)]" />
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(139,92,246,0.06),transparent_60%)]" />
 
                 <div className="relative max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 sm:py-10">
                     {/* Back link */}
-                    <Link to="/photodrop" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-white mb-5 transition-colors group">
+                    <Link to="/photodrop" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-white dark:text-gray-500 dark:hover:text-white mb-5 transition-colors group">
                         <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                         </svg>
@@ -902,7 +902,7 @@ export default function EventDetail() {
                         {/* Actions */}
                         <div className="flex items-center gap-2.5 flex-wrap">
                             {ownerCheck && shareQr && (
-                                <img src={shareQr} alt="QR" className="h-28 w-28 rounded-xl border border-white/10 p-1.5 bg-white shadow-lg" />
+                                <img src={shareQr} alt="QR" className="h-28 w-28 rounded-xl border border-white/10 dark:border-white/5 p-1.5 bg-white shadow-lg" />
                             )}
                             {!isOwner && !isParticipant && (
                                 <button onClick={handleJoinEvent} className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-lg hover:-translate-y-0.5 transition-all">
@@ -914,13 +914,13 @@ export default function EventDetail() {
                             )}
                             {ownerCheck && (
                                 <>
-                                    <button onClick={handleCopyLink} className="inline-flex items-center gap-1.5 bg-white/[0.06] border border-white/[0.1] hover:bg-white/[0.1] text-gray-200 py-2.5 px-4 rounded-xl text-sm font-medium transition-all">
+                                    <button onClick={handleCopyLink} className="inline-flex items-center gap-1.5 bg-white/[0.06] dark:bg-white/5 border border-white/[0.1] dark:border-white/10 hover:bg-white/[0.1] dark:hover:bg-white/10 text-gray-200 dark:text-gray-300 py-2.5 px-4 rounded-xl text-sm font-medium transition-all">
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                                         </svg>
                                         Copy Link
                                     </button>
-                                    <button onClick={handleDownloadQr} className="inline-flex items-center gap-1.5 bg-white/[0.06] border border-white/[0.1] hover:bg-white/[0.1] text-gray-200 py-2.5 px-4 rounded-xl text-sm font-medium transition-all">
+                                    <button onClick={handleDownloadQr} className="inline-flex items-center gap-1.5 bg-white/[0.06] dark:bg-white/5 border border-white/[0.1] dark:border-white/10 hover:bg-white/[0.1] dark:hover:bg-white/10 text-gray-200 dark:text-gray-300 py-2.5 px-4 rounded-xl text-sm font-medium transition-all">
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                                         </svg>
@@ -948,8 +948,8 @@ export default function EventDetail() {
                 <section className="mb-8">
                     <div
                         className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 ${dragActive
-                            ? 'border-rose-400 bg-rose-50/50 scale-[1.01]'
-                            : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/50'
+                            ? 'border-rose-400 bg-rose-50/50 dark:bg-rose-500/10 scale-[1.01]'
+                            : 'border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 hover:border-gray-300 dark:hover:border-white/20 hover:bg-gray-50/50 dark:hover:bg-white/[0.08]'
                             }`}
                         onClick={() => fileRef.current && fileRef.current.click()}
                         onDragOver={e => { e.preventDefault(); setDragActive(true) }}
@@ -957,15 +957,15 @@ export default function EventDetail() {
                         onDragLeave={e => { e.preventDefault(); setDragActive(false) }}
                         onDrop={e => { e.preventDefault(); setDragActive(false); const dt = e.dataTransfer; if (dt && dt.files && dt.files.length) handleFiles(dt.files) }}
                     >
-                        <div className={`w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4 transition-colors ${dragActive ? 'bg-rose-100' : 'bg-gray-100'}`}>
-                            <svg className={`w-7 h-7 transition-colors ${dragActive ? 'text-rose-500' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className={`w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4 transition-colors ${dragActive ? 'bg-rose-100 dark:bg-rose-500/20' : 'bg-gray-100 dark:bg-white/5'}`}>
+                            <svg className={`w-7 h-7 transition-colors ${dragActive ? 'text-rose-500' : 'text-gray-400 dark:text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                             </svg>
                         </div>
-                        <p className="text-gray-700 font-semibold mb-1">
+                        <p className="text-gray-700 dark:text-gray-300 font-semibold mb-1">
                             {dragActive ? 'Drop your photos here' : 'Drag & drop photos here'}
                         </p>
-                        <p className="text-sm text-gray-400">or click to browse. Photos are auto-compressed before upload.</p>
+                        <p className="text-sm text-gray-400 dark:text-gray-500">or click to browse. Photos are auto-compressed before upload.</p>
                         <input ref={fileRef} type="file" accept="image/*" multiple onChange={onSelectFiles} className="hidden" />
                     </div>
                 </section>
@@ -974,17 +974,17 @@ export default function EventDetail() {
                 <div className="grid lg:grid-cols-[300px_1fr] gap-8">
                     {/* ── People Sidebar ── */}
                     <aside className="lg:sticky lg:top-4 lg:self-start">
-                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden">
                             {/* Sidebar Header */}
-                            <div className="p-4 border-b border-gray-100 bg-gray-50/50">
+                            <div className="p-4 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/[0.02]">
                                 <div className="flex items-center justify-between mb-3">
-                                    <h2 className="font-bold text-gray-900 flex items-center gap-2">
+                                    <h2 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                         <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                                         </svg>
                                         People
                                     </h2>
-                                    <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{totalPersons}</span>
+                                    <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-full">{totalPersons}</span>
                                 </div>
 
                                 {/* Search */}
@@ -998,7 +998,7 @@ export default function EventDetail() {
                                             value={peopleSearch}
                                             onChange={e => setPeopleSearch(e.target.value)}
                                             placeholder="Search people..."
-                                            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 bg-white"
+                                            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 dark:border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 bg-white dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600"
                                         />
                                     </div>
                                 )}
@@ -1007,7 +1007,7 @@ export default function EventDetail() {
                                 {selectedPersonIds && selectedPersonIds.length > 0 && (
                                     <button
                                         onClick={handleClearSelection}
-                                        className="mt-2 w-full text-xs font-semibold text-purple-600 hover:text-purple-700 bg-purple-50 hover:bg-purple-100 py-1.5 rounded-lg transition-colors"
+                                        className="mt-2 w-full text-xs font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-100 dark:hover:bg-purple-500/20 py-1.5 rounded-lg transition-colors"
                                     >
                                         Clear filter ({selectedPersonIds.length} selected)
                                     </button>
@@ -1015,15 +1015,15 @@ export default function EventDetail() {
                             </div>
 
                             {/* People List */}
-                            <div className="max-h-[60vh] overflow-y-auto divide-y divide-gray-50">
+                            <div className="max-h-[60vh] overflow-y-auto divide-y divide-gray-50 dark:divide-white/[0.02]">
                                 {filteredPersons.length === 0 ? (
-                                    <div className="p-6 text-center text-sm text-gray-400">
+                                    <div className="p-6 text-center text-sm text-gray-400 dark:text-gray-500">
                                         {persons.length === 0 ? 'No people detected yet. Upload photos to start.' : 'No matching people.'}
                                     </div>
                                 ) : filteredPersons.map(person => (
                                     <div
                                         key={person.id}
-                                        className={`flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors cursor-pointer ${selectedPersonIds && selectedPersonIds.includes(person.id) ? 'bg-purple-50 hover:bg-purple-50' : ''
+                                        className={`flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer ${selectedPersonIds && selectedPersonIds.includes(person.id) ? 'bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-50 dark:hover:bg-purple-500/10' : ''
                                             }`}
                                         onClick={() => {
                                             if (editingPersonId !== person.id) handleSelectPerson(person.id)
@@ -1032,9 +1032,9 @@ export default function EventDetail() {
                                         {/* Avatar */}
                                         <div className="flex-shrink-0 relative">
                                             {person._thumbUrl ? (
-                                                <img src={person._thumbUrl} alt="face" className="h-11 w-11 rounded-full object-cover ring-2 ring-white shadow-sm" />
+                                                <img src={person._thumbUrl} alt="face" className="h-11 w-11 rounded-full object-cover ring-2 ring-white dark:ring-gray-800 shadow-sm" />
                                             ) : (
-                                                <div className="h-11 w-11 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-sm text-gray-500 shadow-sm">
+                                                <div className="h-11 w-11 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center text-sm text-gray-500 dark:text-gray-400 shadow-sm">
                                                     ?
                                                 </div>
                                             )}
@@ -1056,18 +1056,18 @@ export default function EventDetail() {
                                                         value={editingName}
                                                         onChange={e => setEditingName(e.target.value)}
                                                         onKeyDown={e => { if (e.key === 'Enter') handleSavePersonName(person.id); if (e.key === 'Escape') { setEditingPersonId(null); setEditingName('') } }}
-                                                        className="w-full px-2 py-1 border border-purple-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                                                        className="w-full px-2 py-1 border border-purple-300 dark:border-purple-500/30 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                                                         placeholder="Person name"
                                                     />
                                                     <div className="mt-1.5 flex gap-1.5">
                                                         <button onClick={() => handleSavePersonName(person.id)} className="px-2 py-0.5 bg-purple-600 text-white rounded text-xs font-semibold">Save</button>
-                                                        <button onClick={() => { setEditingPersonId(null); setEditingName('') }} className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">Cancel</button>
+                                                        <button onClick={() => { setEditingPersonId(null); setEditingName('') }} className="px-2 py-0.5 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 rounded text-xs">Cancel</button>
                                                     </div>
                                                 </div>
                                             ) : (
                                                 <>
-                                                    <div className="font-semibold text-gray-800 text-sm truncate">{person.name || 'Unnamed'}</div>
-                                                    <div className="text-[11px] text-gray-400 truncate">{person.image_count || 0} photos</div>
+                                                    <div className="font-semibold text-gray-800 dark:text-gray-200 text-sm truncate">{person.name || 'Unnamed'}</div>
+                                                    <div className="text-[11px] text-gray-400 dark:text-gray-500 truncate">{person.image_count || 0} photos</div>
                                                 </>
                                             )}
                                         </div>
@@ -1075,11 +1075,11 @@ export default function EventDetail() {
                                         {/* Edit button */}
                                         {editingPersonId !== person.id && (
                                             <button
-                                                className="flex-shrink-0 w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
+                                                className="flex-shrink-0 w-7 h-7 rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
                                                 style={{ opacity: 1 }}
                                                 onClick={e => { e.stopPropagation(); handleEditPerson(person) }}
                                             >
-                                                <svg className="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                                 </svg>
                                             </button>
@@ -1095,20 +1095,20 @@ export default function EventDetail() {
                         {/* Toolbar */}
                         <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
                             <div className="flex items-center gap-3">
-                                <h2 className="text-lg font-bold text-gray-900">
+                                <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                                     Photos
-                                    <span className="ml-1.5 text-sm font-normal text-gray-400">
+                                    <span className="ml-1.5 text-sm font-normal text-gray-400 dark:text-gray-500">
                                         ({displayImages.length}{selectedPersonIds && selectedPersonIds.length > 0 ? ` of ${totalImages}` : ''})
                                     </span>
                                 </h2>
 
                                 {/* Grid size toggle */}
-                                <div className="hidden sm:flex items-center bg-gray-100 rounded-lg p-0.5">
+                                <div className="hidden sm:flex items-center bg-gray-100 dark:bg-white/5 rounded-lg p-0.5">
                                     {['sm', 'md', 'lg'].map(size => (
                                         <button
                                             key={size}
                                             onClick={() => setGridSize(size)}
-                                            className={`px-2 py-1 rounded-md text-xs font-semibold transition-all ${gridSize === size ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                            className={`px-2 py-1 rounded-md text-xs font-semibold transition-all ${gridSize === size ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
                                         >
                                             {size === 'sm' ? 'Small' : size === 'md' ? 'Medium' : 'Large'}
                                         </button>
@@ -1120,12 +1120,12 @@ export default function EventDetail() {
                             <div className="flex items-center gap-2 flex-wrap">
                                 {selectedImageIds && selectedImageIds.length > 0 && (
                                     <div className="flex items-center gap-2 mr-2">
-                                        <span className="text-xs font-semibold text-gray-500">{selectedImageIds.length} selected</span>
-                                        <button onClick={() => setSelectedImageIds([])} className="text-xs text-gray-400 hover:text-gray-600 underline">Clear</button>
+                                        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">{selectedImageIds.length} selected</span>
+                                        <button onClick={() => setSelectedImageIds([])} className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 underline">Clear</button>
                                         <button
                                             disabled={!(images && images.some(i => selectedImageIds.includes(i.id) && (isOwner || i.uploaded_by === user?.id)))}
                                             onClick={handleDeleteSelectedImages}
-                                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-semibold transition-colors disabled:opacity-40"
+                                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 rounded-lg text-xs font-semibold transition-colors disabled:opacity-40"
                                         >
                                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1137,7 +1137,7 @@ export default function EventDetail() {
                                 <button
                                     onClick={handleDownloadSelected}
                                     disabled={downloadingSelection || !((selectedImageIds && selectedImageIds.length) || (selectedPersonIds && selectedPersonIds.length))}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-40 shadow-sm"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 transition-colors disabled:opacity-40 shadow-sm"
                                 >
                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -1157,7 +1157,7 @@ export default function EventDetail() {
                                             await downloadImagesSeparately(imgsToDownload)
                                         } finally { setDownloadingSelection(false) }
                                     }}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-40 shadow-sm"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 transition-colors disabled:opacity-40 shadow-sm"
                                 >
                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -1180,30 +1180,30 @@ export default function EventDetail() {
                         {/* ZIP Progress */}
                         {downloadingSelection && zipProgress != null && (
                             <div className="mb-5">
-                                <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                <div className="w-full bg-gray-100 dark:bg-white/5 h-2 rounded-full overflow-hidden">
                                     <div className="bg-gradient-to-r from-rose-500 to-purple-600 h-2 rounded-full transition-all duration-300" style={{ width: `${zipProgress}%` }} />
                                 </div>
-                                <p className="text-xs text-gray-500 mt-1.5 font-medium">{zipProgress}% preparing download...</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 font-medium">{zipProgress}% preparing download...</p>
                             </div>
                         )}
 
                         {/* Photo Grid */}
                         {displayImages.length === 0 ? (
-                            <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
-                                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 flex items-center justify-center">
-                                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5">
+                                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 dark:bg-white/5 flex items-center justify-center">
+                                    <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
                                 </div>
-                                <h3 className="font-bold text-gray-900 mb-1">No photos yet</h3>
-                                <p className="text-sm text-gray-400">Upload photos using the drag & drop area above.</p>
+                                <h3 className="font-bold text-gray-900 dark:text-white mb-1">No photos yet</h3>
+                                <p className="text-sm text-gray-400 dark:text-gray-500">Upload photos using the drag & drop area above.</p>
                             </div>
                         ) : (
                             <div className={`grid ${gridColsClass} gap-3`}>
                                 {displayImages.map(img => (
                                     <div
                                         key={img.id}
-                                        className={`group relative overflow-hidden rounded-xl bg-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer ${selectedImageIds.includes(img.id) ? 'ring-2 ring-purple-500 ring-offset-2' : ''
+                                        className={`group relative overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-900 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer ${selectedImageIds.includes(img.id) ? 'ring-2 ring-purple-500 ring-offset-2' : ''
                                             }`}
                                         onClick={e => {
                                             const t = e.target
@@ -1228,10 +1228,10 @@ export default function EventDetail() {
                                             />
                                         ) : (
                                             /* Skeleton placeholder while loading */
-                                            <div className={`w-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 ${gridSize === 'lg' ? 'h-64' : gridSize === 'md' ? 'h-48' : 'h-32'
+                                            <div className={`w-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 ${gridSize === 'lg' ? 'h-64' : gridSize === 'md' ? 'h-48' : 'h-32'
                                                 }`}>
-                                                <div className="w-8 h-8 border-2 border-gray-300 border-t-purple-500 rounded-full animate-spin mb-2" />
-                                                <span className="text-[10px] font-medium text-gray-400">Loading...</span>
+                                                <div className="w-8 h-8 border-2 border-gray-300 dark:border-white/10 border-t-purple-500 rounded-full animate-spin mb-2" />
+                                                <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500">Loading...</span>
                                             </div>
                                         )}
 
@@ -1308,7 +1308,7 @@ export default function EventDetail() {
                                 <div ref={loadMoreRef} className="h-1" />
                                 <button
                                     onClick={() => setVisibleCount(prev => Math.min(prev + BATCH_SIZE, allDisplayImages.length))}
-                                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all shadow-sm"
                                 >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />

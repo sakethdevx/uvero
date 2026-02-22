@@ -8,7 +8,7 @@ function EventCard({ ev, formatDate, isOwned }) {
     return (
         <Link
             to={`/photodrop/${ev.id}`}
-            className="group relative bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden"
+            className="group relative bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-2xl dark:hover:shadow-rose-500/10 transition-all duration-500 hover:-translate-y-2 overflow-hidden"
         >
             {/* Gradient accent bar */}
             <div className={`h-1 bg-gradient-to-r ${isOwned ? 'from-rose-500 via-pink-500 to-purple-600' : 'from-blue-500 via-cyan-500 to-indigo-600'}`} />
@@ -19,28 +19,28 @@ function EventCard({ ev, formatDate, isOwned }) {
                         <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${isOwned ? 'from-rose-500 to-purple-600' : 'from-blue-500 to-indigo-600'} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
                             <span className="text-white text-lg">{isOwned ? '👑' : '🤝'}</span>
                         </div>
-                        <span className={`text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-full ${isOwned ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'}`}>
+                        <span className={`text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-full ${isOwned ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400' : 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400'}`}>
                             {isOwned ? 'Owner' : 'Guest'}
                         </span>
                     </div>
                     {ev.event_date && (
-                        <span className="text-[11px] font-medium text-gray-400 bg-gray-50 px-2.5 py-1 rounded-lg">
+                        <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-white/5 px-2.5 py-1 rounded-lg">
                             {formatDate(ev.event_date)}
                         </span>
                     )}
                 </div>
 
-                <h3 className={`text-lg font-bold text-gray-900 mb-1.5 line-clamp-1 group-hover:text-${accent}-600 transition-colors duration-300`}>
+                <h3 className={`text-lg font-bold text-gray-900 dark:text-white mb-1.5 line-clamp-1 group-hover:text-${accent}-600 dark:group-hover:text-${accent}-400 transition-colors duration-300`}>
                     {ev.event_name}
                 </h3>
 
                 {ev.description && (
-                    <p className="text-sm text-gray-400 mb-4 line-clamp-2 leading-relaxed">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2 leading-relaxed">
                         {ev.description}
                     </p>
                 )}
 
-                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-white/5">
                     <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -113,14 +113,14 @@ export default function EventsPage() {
        ═══════════════════════════════════════════ */
     if (!loading && !user) {
         return (
-            <div className="min-h-screen bg-gray-950 text-white overflow-hidden">
+            <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white overflow-hidden transition-colors duration-500">
                 {/* ── HERO ── */}
                 <section className="relative min-h-[90vh] flex items-center justify-center">
                     {/* Animated gradient background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950" />
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(244,63,94,0.15),transparent_60%)]" />
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(139,92,246,0.12),transparent_60%)]" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,72,153,0.06),transparent_40%)]" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950" />
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(244,63,94,0.08),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top_right,rgba(244,63,94,0.15),transparent_60%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(139,92,246,0.06),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_bottom_left,rgba(139,92,246,0.12),transparent_60%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,72,153,0.03),transparent_40%)] dark:bg-[radial-gradient(circle_at_center,rgba(236,72,153,0.06),transparent_40%)]" />
 
                     {/* Floating orbs */}
                     <div className="absolute top-20 left-[10%] w-72 h-72 bg-rose-500/10 rounded-full blur-[100px] animate-blob" />
@@ -149,19 +149,19 @@ export default function EventsPage() {
                     {/* Content */}
                     <div className="relative max-w-5xl mx-auto px-4 sm:px-6 text-center z-10">
                         {/* Badge */}
-                        <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/[0.06] border border-white/[0.08] backdrop-blur-sm mb-10 animate-fade-in">
+                        <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/[0.08] backdrop-blur-sm mb-10 animate-fade-in shadow-sm">
                             <div className="w-2 h-2 rounded-full bg-rose-400 animate-pulse-glow" />
-                            <span className="text-sm font-medium text-gray-300 tracking-wide">Smart Event Photo Sharing</span>
+                            <span className="text-sm font-medium text-gray-600 dark:text-gray-300 tracking-wide">Smart Event Photo Sharing</span>
                         </div>
 
                         <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black leading-[0.95] mb-8 animate-fade-in-up tracking-tight">
-                            <span className="block text-white">Drop the</span>
-                            <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-400 to-purple-400" style={{ backgroundSize: '200% auto' }}>
+                            <span className="block text-gray-900 dark:text-white">Drop the</span>
+                            <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-pink-500 to-purple-500 dark:from-rose-400 dark:via-pink-400 dark:to-purple-400" style={{ backgroundSize: '200% auto' }}>
                                 photo hassle
                             </span>
                         </h1>
 
-                        <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed animate-fade-in-up font-light" style={{ animationDelay: '0.15s' }}>
+                        <p className="text-lg sm:text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed animate-fade-in-up font-light" style={{ animationDelay: '0.15s' }}>
                             Upload event photos. AI finds every face.
                             <br className="hidden sm:block" />
                             Guests find their photos in seconds — not hours.
@@ -181,7 +181,7 @@ export default function EventsPage() {
                             </Link>
                             <Link
                                 to="/signup"
-                                className="inline-flex items-center gap-2 text-gray-300 hover:text-white font-medium py-4 px-8 rounded-2xl border border-white/10 hover:border-white/25 hover:bg-white/5 transition-all duration-300"
+                                className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-semibold py-4 px-8 rounded-2xl border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/25 hover:bg-gray-50 dark:hover:bg-white/5 transition-all duration-300 shadow-sm"
                             >
                                 Create Account
                             </Link>
@@ -203,18 +203,18 @@ export default function EventsPage() {
                     </div>
 
                     {/* Bottom fade */}
-                    <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-950 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-gray-950 to-transparent" />
                 </section>
 
                 {/* ── HOW IT WORKS — Bento Grid ── */}
                 <section className="relative py-24 sm:py-32">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="text-center mb-16">
-                            <span className="text-xs font-bold tracking-[0.2em] uppercase text-rose-400 mb-4 block">How it works</span>
-                            <h2 className="text-4xl sm:text-5xl font-black text-white mb-5">
+                            <span className="text-xs font-bold tracking-[0.2em] uppercase text-rose-500 dark:text-rose-400 mb-4 block">How it works</span>
+                            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white mb-5">
                                 Three steps. Zero friction.
                             </h2>
-                            <p className="text-gray-400 max-w-lg mx-auto text-lg font-light">
+                            <p className="text-gray-500 dark:text-gray-400 max-w-lg mx-auto text-lg font-light">
                                 From upload to download — the entire workflow is seamless.
                             </p>
                         </div>
@@ -263,17 +263,17 @@ export default function EventsPage() {
                             ].map((step, idx) => (
                                 <div
                                     key={idx}
-                                    className={`group relative rounded-3xl bg-gradient-to-br ${step.gradient} border ${step.border} p-8 sm:p-10 transition-all duration-500 hover:-translate-y-1`}
+                                    className={`group relative rounded-3xl bg-white dark:bg-gradient-to-br dark:${step.gradient} border border-gray-100 dark:${step.border} p-8 sm:p-10 transition-all duration-500 hover:-translate-y-1 shadow-xl shadow-gray-200/20 dark:shadow-none`}
                                 >
                                     {/* Step number */}
-                                    <div className="text-7xl font-black text-white/[0.04] absolute top-4 right-6 select-none">{step.num}</div>
+                                    <div className="text-7xl font-black text-gray-900/[0.03] dark:text-white/[0.04] absolute top-4 right-6 select-none">{step.num}</div>
 
                                     <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${step.iconBg} flex items-center justify-center text-white mb-6 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
                                         {step.icon}
                                     </div>
 
-                                    <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                                    <p className="text-gray-400 leading-relaxed">{step.desc}</p>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{step.title}</h3>
+                                    <p className="text-gray-500 dark:text-gray-400 leading-relaxed">{step.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -284,15 +284,15 @@ export default function EventsPage() {
                 <section className="relative py-24 sm:py-32">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="text-center mb-16">
-                            <span className="text-xs font-bold tracking-[0.2em] uppercase text-purple-400 mb-4 block">Packed with power</span>
-                            <h2 className="text-4xl sm:text-5xl font-black text-white">
+                            <span className="text-xs font-bold tracking-[0.2em] uppercase text-purple-600 dark:text-purple-400 mb-4 block">Packed with power</span>
+                            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white">
                                 Built for real events
                             </h2>
                         </div>
 
                         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
                             {/* Feature 1 — large */}
-                            <div className="lg:col-span-2 group rounded-3xl bg-white/[0.03] border border-white/[0.06] p-8 sm:p-10 hover:bg-white/[0.05] transition-all duration-500 hover:border-rose-500/20 relative overflow-hidden">
+                            <div className="lg:col-span-2 group rounded-3xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06] p-8 sm:p-10 hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all duration-500 hover:border-rose-500/20 relative overflow-hidden shadow-sm">
                                 <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-rose-500/5 rounded-full blur-3xl group-hover:bg-rose-500/10 transition-colors duration-500" />
                                 <div className="relative">
                                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white mb-5 shadow-lg">
@@ -300,21 +300,21 @@ export default function EventsPage() {
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                         </svg>
                                     </div>
-                                    <h3 className="text-xl font-bold text-white mb-2">AI Face Recognition</h3>
-                                    <p className="text-gray-400 leading-relaxed">Automatically detects and clusters faces across all uploaded photos. Guests tap their face to see every photo they appear in.</p>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">AI Face Recognition</h3>
+                                    <p className="text-gray-500 dark:text-gray-400 leading-relaxed">Automatically detects and clusters faces across all uploaded photos. Guests tap their face to see every photo they appear in.</p>
                                 </div>
                             </div>
 
                             {/* Feature 2 */}
-                            <div className="group rounded-3xl bg-white/[0.03] border border-white/[0.06] p-8 hover:bg-white/[0.05] transition-all duration-500 hover:border-purple-500/20">
+                            <div className="group rounded-3xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06] p-8 hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all duration-500 hover:border-purple-500/20 shadow-sm">
                                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white mb-5 shadow-lg">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-bold text-white mb-2">QR Code Sharing</h3>
-                                <p className="text-gray-400 text-sm leading-relaxed">One QR code. Guests scan, join, and browse — no app install needed.</p>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">QR Code Sharing</h3>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">One QR code. Guests scan, join, and browse — no app install needed.</p>
                             </div>
 
                             {/* Feature 3 */}
@@ -380,7 +380,7 @@ export default function EventsPage() {
                         </p>
                         <Link
                             to="/signup"
-                            className="group inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white font-bold py-4 px-10 rounded-2xl shadow-2xl shadow-rose-500/20 hover:shadow-rose-500/40 hover:-translate-y-1 transition-all duration-300 text-lg"
+                            className="group inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-purple-600 dark:from-rose-500 dark:to-purple-600 text-white font-bold py-4 px-10 rounded-2xl shadow-2xl shadow-rose-500/20 hover:shadow-rose-500/40 hover:-translate-y-1 transition-all duration-300 text-lg"
                         >
                             Start for Free
                             <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -398,10 +398,10 @@ export default function EventsPage() {
        ═══════════════════════════════════════════ */
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950 transition-colors">
                 <div className="text-center">
-                    <div className="w-14 h-14 border-4 border-rose-100 border-t-rose-500 rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-gray-500 font-medium">Loading your events...</p>
+                    <div className="w-14 h-14 border-4 border-rose-100 dark:border-rose-900/30 border-t-rose-500 rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-gray-500 dark:text-gray-400 font-medium">Loading your events...</p>
                 </div>
             </div>
         )
@@ -414,9 +414,9 @@ export default function EventsPage() {
     const joinedEvents = events.filter(ev => ev.created_by !== user.id)
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">
             {/* Header */}
-            <section className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800">
+            <section className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(244,63,94,0.1),transparent_60%)]" />
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(139,92,246,0.08),transparent_60%)]" />
 
@@ -428,10 +428,10 @@ export default function EventsPage() {
                                     <span className="text-xl">📸</span>
                                 </div>
                                 <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                                    Photo<span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-purple-400">Drop</span>
+                                    Photo<span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-400 to-purple-400">Drop</span>
                                 </h1>
                             </div>
-                            <p className="text-gray-400 max-w-md font-light">
+                            <p className="text-gray-300 dark:text-gray-400 max-w-md font-light">
                                 Create events, upload photos, and let AI do the rest.
                             </p>
                         </div>
@@ -464,8 +464,8 @@ export default function EventsPage() {
                 {/* Create Event Form */}
                 {showForm && (
                     <div className="mb-10 animate-fade-in-down">
-                        <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-6 sm:p-8 max-w-2xl">
-                            <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-white/5 p-6 sm:p-8 max-w-2xl">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
                                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center">
                                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -475,32 +475,32 @@ export default function EventsPage() {
                             </h2>
                             <form onSubmit={createEvent} className="space-y-5">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Event Name *</label>
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-400 mb-1.5">Event Name *</label>
                                     <input
                                         required
                                         value={name}
                                         onChange={e => setName(e.target.value)}
                                         placeholder="e.g. Sarah's Birthday Party"
-                                        className="w-full border border-gray-200 px-4 py-3 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all bg-gray-50/50"
+                                        className="w-full border border-gray-200 dark:border-white/10 px-4 py-3 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20 dark:focus:ring-rose-500/10 focus:border-rose-400 transition-all bg-gray-50/50 dark:bg-white/5"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Event Date</label>
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-400 mb-1.5">Event Date</label>
                                     <input
                                         value={date}
                                         onChange={e => setDate(e.target.value)}
                                         type="date"
-                                        className="w-full border border-gray-200 px-4 py-3 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all bg-gray-50/50"
+                                        className="w-full border border-gray-200 dark:border-white/10 px-4 py-3 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 dark:focus:ring-rose-500/10 focus:border-rose-400 transition-all bg-gray-50/50 dark:bg-white/5"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-400 mb-1.5">Description</label>
                                     <textarea
                                         value={desc}
                                         onChange={e => setDesc(e.target.value)}
                                         placeholder="What's the occasion?"
                                         rows={3}
-                                        className="w-full border border-gray-200 px-4 py-3 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all resize-none bg-gray-50/50"
+                                        className="w-full border border-gray-200 dark:border-white/10 px-4 py-3 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20 dark:focus:ring-rose-500/10 focus:border-rose-400 transition-all resize-none bg-gray-50/50 dark:bg-white/5"
                                     />
                                 </div>
                                 <div className="flex items-center gap-3 pt-2">
@@ -521,7 +521,7 @@ export default function EventsPage() {
                                     <button
                                         type="button"
                                         onClick={() => setShowForm(false)}
-                                        className="text-gray-500 hover:text-gray-700 font-medium py-3 px-4 rounded-xl hover:bg-gray-100 transition-all"
+                                        className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white font-medium py-3 px-4 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
                                     >
                                         Cancel
                                     </button>
@@ -539,11 +539,11 @@ export default function EventsPage() {
                 {/* Events */}
                 {events.length === 0 ? (
                     <div className="text-center py-24">
-                        <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-rose-50 to-purple-50 flex items-center justify-center border border-rose-100 shadow-lg shadow-rose-100/50">
+                        <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-rose-50 to-purple-50 dark:from-rose-500/5 dark:to-purple-500/5 flex items-center justify-center border border-rose-100 dark:border-rose-500/20 shadow-lg shadow-rose-100/50 dark:shadow-none">
                             <span className="text-5xl">📸</span>
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-900 mb-3">No events yet</h3>
-                        <p className="text-gray-500 mb-8 max-w-sm mx-auto">
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">No events yet</h3>
+                        <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto font-medium">
                             Create your first event and start sharing photos with AI-powered face recognition.
                         </p>
                         <button
@@ -564,15 +564,15 @@ export default function EventsPage() {
                                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center shadow-sm">
                                     <span className="text-white text-sm">👑</span>
                                 </div>
-                                <h2 className="text-xl font-bold text-gray-900">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                                     My Events
                                     <span className="ml-2 text-sm font-normal text-gray-400">({ownedEvents.length})</span>
                                 </h2>
                             </div>
 
                             {ownedEvents.length === 0 ? (
-                                <div className="text-center py-12 rounded-2xl border-2 border-dashed border-gray-200 bg-white/50">
-                                    <p className="text-gray-400 mb-3">You haven't created any events yet</p>
+                                <div className="text-center py-12 rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/5 bg-white/50 dark:bg-white/5">
+                                    <p className="text-gray-400 dark:text-gray-500 mb-3">You haven't created any events yet</p>
                                     <button
                                         onClick={() => setShowForm(true)}
                                         className="inline-flex items-center gap-1.5 text-sm font-semibold text-rose-500 hover:text-rose-600 transition-colors"
@@ -590,9 +590,9 @@ export default function EventsPage() {
                                     ))}
                                     <button
                                         onClick={() => setShowForm(true)}
-                                        className="group flex flex-col items-center justify-center min-h-[200px] rounded-2xl border-2 border-dashed border-gray-200 hover:border-rose-300 bg-white/50 hover:bg-rose-50/20 transition-all duration-500 hover:-translate-y-1"
+                                        className="group flex flex-col items-center justify-center min-h-[200px] rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/5 hover:border-rose-300 dark:hover:border-rose-500/30 bg-white/50 dark:bg-white/5 hover:bg-rose-50/20 dark:hover:bg-rose-500/5 transition-all duration-500 hover:-translate-y-1"
                                     >
-                                        <div className="w-14 h-14 rounded-2xl bg-gray-100 group-hover:bg-gradient-to-br group-hover:from-rose-100 group-hover:to-purple-100 flex items-center justify-center mb-3 transition-all duration-500">
+                                        <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/5 group-hover:bg-gradient-to-br group-hover:from-rose-100 group-hover:to-purple-100 dark:group-hover:from-rose-500/20 dark:group-hover:to-purple-500/20 flex items-center justify-center mb-3 transition-all duration-500">
                                             <svg className="w-7 h-7 text-gray-400 group-hover:text-rose-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                                             </svg>
@@ -610,7 +610,7 @@ export default function EventsPage() {
                                     <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
                                         <span className="text-white text-sm">🤝</span>
                                     </div>
-                                    <h2 className="text-xl font-bold text-gray-900">
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                                         Joined Events
                                         <span className="ml-2 text-sm font-normal text-gray-400">({joinedEvents.length})</span>
                                     </h2>
