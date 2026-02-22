@@ -72,6 +72,142 @@ function LazyImg({ img, auth, objectUrlsRef, gridSize }) {
     )
 }
 
+// helper: normalize box for canvas operations
+async function normalizeBox(box, imgW, imgH) {
+    if (!box) return null
+    let x, y, w, h
+    if (Array.isArray(box) && box.length >= 4) {
+        [x, y, w, h] = box
+    } else if (typeof box === 'object') {
+        if (box.xmin != null && box.xmax != null && box.ymin != null && box.ymax != null) {
+            x = Number(box.xmin)
+            y = Number(box.ymin)
+            w = Number(box.xmax) - Number(box.xmin)
+            h = Number(box.ymax) - Number(box.ymin)
+        } else {
+            x = box.x ?? box.left ?? box[0]
+            y = box.y ?? box.top ?? box[1]
+            w = box.width ?? box.w ?? box[2]
+            h = box.height ?? box.h ?? box[3]
+            if ((x == null || y == null) && (box.cx != null && box.cy != null && (box.w != null || box.width != null))) {
+                const bw = box.w ?? box.width
+                const bh = box.h ?? box.height
+                x = Number(box.cx) - Number(bw) / 2
+                y = Number(box.cy) - Number(bh) / 2
+                w = Number(bw)
+                h = Number(bh)
+            }
+        }
+    }
+    if (x == null || y == null || w == null || h == null) return null
+    if (x <= 1 && y <= 1 && w <= 1 && h <= 1) {
+        x = Math.round(x * imgW)
+        y = Math.round(y * imgH)
+        w = Math.round(w * imgW)
+        h = Math.round(h * imgH)
+    } else {
+        x = Math.round(x)
+        y = Math.round(y)
+        w = Math.round(w)
+        h = Math.round(h)
+    }
+    x = Math.max(0, Math.min(x, imgW - 1))
+    y = Math.max(0, Math.min(y, imgH - 1))
+    w = Math.max(1, Math.min(w, imgW - x))
+    h = Math.max(1, Math.min(h, imgH - y))
+    return { x, y, w, h }
+}
+
+async function createCroppedUrlFromBlob(blob, box) {
+    try {
+        const bitmap = await createImageBitmap(blob)
+        const normalized = await normalizeBox(box, bitmap.width, bitmap.height)
+        if (!normalized) return URL.createObjectURL(blob)
+        const PAD_SCALE = 1.4
+        const cx = normalized.x + normalized.w / 2
+        const cy = normalized.y + normalized.h / 2
+        let newW = Math.round(normalized.w * PAD_SCALE)
+        let newH = Math.round(normalized.h * PAD_SCALE)
+        let newX = Math.round(cx - newW / 2)
+        let newY = Math.round(cy - newH / 2)
+        newX = Math.max(0, Math.min(newX, bitmap.width - 1))
+        newY = Math.max(0, Math.min(newY, bitmap.height - 1))
+        if (newX + newW > bitmap.width) newW = bitmap.width - newX
+        if (newY + newH > bitmap.height) newH = bitmap.height - newY
+        const canvas = document.createElement('canvas')
+        canvas.width = newW
+        canvas.height = newH
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(bitmap, newX, newY, newW, newH, 0, 0, newW, newH)
+        const croppedBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'))
+        if (!croppedBlob) return URL.createObjectURL(blob)
+        return URL.createObjectURL(croppedBlob)
+    } catch (e) {
+        console.warn('Failed to crop thumbnail', e)
+        return URL.createObjectURL(blob)
+    }
+}
+
+// New component for on-demand person face thumbnail loading and cropping
+function LazyPersonThumb({ person, auth, objectUrlsRef }) {
+    const [thumbUrl, setThumbUrl] = useState(person._thumbUrl || null)
+    const [loading, setLoading] = useState(!person._thumbUrl && person.thumbnail_image_id)
+    const [observed, setObserved] = useState(false)
+    const thumbRef = useRef(null)
+
+    useEffect(() => {
+        if (!thumbRef.current || thumbUrl || observed || !person.thumbnail_image_id) return
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                setObserved(true)
+                observer.disconnect()
+            }
+        }, { rootMargin: '50px' })
+        observer.observe(thumbRef.current)
+        return () => observer.disconnect()
+    }, [thumbUrl, observed, person.thumbnail_image_id])
+
+    useEffect(() => {
+        if (!observed || thumbUrl || !person.thumbnail_image_id) return
+        let active = true
+        async function fetchThumb() {
+            try {
+                setLoading(true)
+                const r = await fetch(`/api/images?id=${encodeURIComponent(person.thumbnail_image_id)}`, { headers: auth, cache: 'no-store' })
+                if (!r.ok) return
+                const blob = await r.blob()
+                if (!active) return
+                let url
+                if (person.thumbnail_box) {
+                    url = await createCroppedUrlFromBlob(blob, person.thumbnail_box)
+                } else {
+                    url = URL.createObjectURL(blob)
+                }
+                objectUrlsRef.current.add(url)
+                setThumbUrl(url)
+            } catch (e) {
+                console.warn('Failed to fetch person thumb', person.id, e)
+            } finally {
+                if (active) setLoading(false)
+            }
+        }
+        fetchThumb()
+        return () => { active = false }
+    }, [observed, person.thumbnail_image_id, person.thumbnail_box, auth, objectUrlsRef, thumbUrl])
+
+    return (
+        <div ref={thumbRef} className="h-11 w-11 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center ring-2 ring-white dark:ring-gray-800 shadow-sm">
+            {thumbUrl ? (
+                <img src={thumbUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+                <div className="flex items-center justify-center text-[10px] text-gray-500">
+                    {loading ? '...' : '?'}
+                </div>
+            )}
+        </div>
+    )
+}
+
 export default function EventDetail() {
     const { id } = useParams()
     const { user } = useAuth()
@@ -88,6 +224,7 @@ export default function EventDetail() {
     const [hasMore, setHasMore] = useState(false)
     const [loadingBatch, setLoadingBatch] = useState(false)
     const isLoadingBatchRef = useRef(false)
+    const imagesCountRef = useRef(0)
     const BATCH_SIZE = 24
 
     const [eventMeta, setEventMeta] = useState(null)
@@ -108,81 +245,7 @@ export default function EventDetail() {
     const [zipProgress, setZipProgress] = useState(null)
     const loadMoreRef = useRef(null)
 
-    // helper: normalize box, crop blobs and load persons (reusable)
-    async function normalizeBox(box, imgW, imgH) {
-        if (!box) return null
-        let x, y, w, h
-        if (Array.isArray(box) && box.length >= 4) {
-            [x, y, w, h] = box
-        } else if (typeof box === 'object') {
-            if (box.xmin != null && box.xmax != null && box.ymin != null && box.ymax != null) {
-                x = Number(box.xmin)
-                y = Number(box.ymin)
-                w = Number(box.xmax) - Number(box.xmin)
-                h = Number(box.ymax) - Number(box.ymin)
-            } else {
-                x = box.x ?? box.left ?? box[0]
-                y = box.y ?? box.top ?? box[1]
-                w = box.width ?? box.w ?? box[2]
-                h = box.height ?? box.h ?? box[3]
-                if ((x == null || y == null) && (box.cx != null && box.cy != null && (box.w != null || box.width != null))) {
-                    const bw = box.w ?? box.width
-                    const bh = box.h ?? box.height
-                    x = Number(box.cx) - Number(bw) / 2
-                    y = Number(box.cy) - Number(bh) / 2
-                    w = Number(bw)
-                    h = Number(bh)
-                }
-            }
-        }
-        if (x == null || y == null || w == null || h == null) return null
-        if (x <= 1 && y <= 1 && w <= 1 && h <= 1) {
-            x = Math.round(x * imgW)
-            y = Math.round(y * imgH)
-            w = Math.round(w * imgW)
-            h = Math.round(h * imgH)
-        } else {
-            x = Math.round(x)
-            y = Math.round(y)
-            w = Math.round(w)
-            h = Math.round(h)
-        }
-        x = Math.max(0, Math.min(x, imgW - 1))
-        y = Math.max(0, Math.min(y, imgH - 1))
-        w = Math.max(1, Math.min(w, imgW - x))
-        h = Math.max(1, Math.min(h, imgH - y))
-        return { x, y, w, h }
-    }
-
-    async function createCroppedUrlFromBlob(blob, box) {
-        try {
-            const bitmap = await createImageBitmap(blob)
-            const normalized = await normalizeBox(box, bitmap.width, bitmap.height)
-            if (!normalized) return URL.createObjectURL(blob)
-            const PAD_SCALE = 1.4
-            const cx = normalized.x + normalized.w / 2
-            const cy = normalized.y + normalized.h / 2
-            let newW = Math.round(normalized.w * PAD_SCALE)
-            let newH = Math.round(normalized.h * PAD_SCALE)
-            let newX = Math.round(cx - newW / 2)
-            let newY = Math.round(cy - newH / 2)
-            newX = Math.max(0, Math.min(newX, bitmap.width - 1))
-            newY = Math.max(0, Math.min(newY, bitmap.height - 1))
-            if (newX + newW > bitmap.width) newW = bitmap.width - newX
-            if (newY + newH > bitmap.height) newH = bitmap.height - newY
-            const canvas = document.createElement('canvas')
-            canvas.width = newW
-            canvas.height = newH
-            const ctx = canvas.getContext('2d')
-            ctx.drawImage(bitmap, newX, newY, newW, newH, 0, 0, newW, newH)
-            const croppedBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'))
-            if (!croppedBlob) return URL.createObjectURL(blob)
-            return URL.createObjectURL(croppedBlob)
-        } catch (e) {
-            console.warn('Failed to crop thumbnail', e)
-            return URL.createObjectURL(blob)
-        }
-    }
+    // Meta-data about persons is loaded here. Thumbnails are loaded on-demand by LazyPersonThumb.
 
     async function loadPersons() {
         try {
@@ -190,23 +253,6 @@ export default function EventDetail() {
             if (!resp.ok) return setPersons([])
             const d = await resp.json()
             const ps = d.data || []
-            const auth = { Authorization: `Bearer ${user?.access_token || ''}` }
-            await Promise.all(ps.map(async (p) => {
-                if (p.thumbnail_image_id) {
-                    try {
-                        const r = await fetch(`/api/images?id=${encodeURIComponent(p.thumbnail_image_id)}`, { headers: auth, cache: 'no-store' })
-                        if (!r.ok) return
-                        const blob = await r.blob()
-                        let url
-                        if (p.thumbnail_box) url = await createCroppedUrlFromBlob(blob, p.thumbnail_box)
-                        else url = URL.createObjectURL(blob)
-                        p._thumbUrl = url
-                        objectUrlsRef.current.add(url)
-                    } catch (e) {
-                        console.warn('Failed to fetch person thumbnail', p.id, e)
-                    }
-                }
-            }))
             setPersons(ps)
         } catch (e) {
             console.warn('Failed to load persons', e)
@@ -230,7 +276,7 @@ export default function EventDetail() {
                 setTotalPersons(payload.total_persons_count || 0)
                 setProcessedImages(payload.processed_images_count || 0)
                 setHasMore(Boolean(payload.has_more))
-                setOffset(imgs.length)
+                imagesCountRef.current = imgs.length
             })
             .finally(() => setLoadingBatch(false))
 
@@ -632,8 +678,8 @@ export default function EventDetail() {
         isLoadingBatchRef.current = true
         setLoadingBatch(true)
         try {
-            // Use current images.length as offset to ensure consistency
-            const currentOffset = images.length
+            // Use current imagesCountRef.current as offset to ensure consistency
+            const currentOffset = imagesCountRef.current
             const resp = await fetch(`/api/events?event_id=${id}&limit=${BATCH_SIZE}&offset=${currentOffset}`, {
                 headers: { Authorization: `Bearer ${user?.access_token || ''}` }
             })
@@ -647,6 +693,7 @@ export default function EventDetail() {
                     // Prevent duplicates just in case
                     const existingIds = new Set(prev.map(i => i.id))
                     const filteredNew = newImgs.filter(i => !existingIds.has(i.id))
+                    imagesCountRef.current = prev.length + filteredNew.length
                     return [...prev, ...filteredNew]
                 })
             }
@@ -660,7 +707,7 @@ export default function EventDetail() {
                 setLoadingBatch(false)
             }, 600)
         }
-    }, [hasMore, id, user, images.length])
+    }, [hasMore, id, user]) // Removed images.length dependency
 
     async function handleFiles(files) {
         if (!files || !files.length) return
@@ -1114,13 +1161,11 @@ export default function EventDetail() {
                                     >
                                         {/* Avatar */}
                                         <div className="flex-shrink-0 relative">
-                                            {person._thumbUrl ? (
-                                                <img src={person._thumbUrl} alt="face" className="h-11 w-11 rounded-full object-cover ring-2 ring-white dark:ring-gray-800 shadow-sm" />
-                                            ) : (
-                                                <div className="h-11 w-11 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center text-sm text-gray-500 dark:text-gray-400 shadow-sm">
-                                                    ?
-                                                </div>
-                                            )}
+                                            <LazyPersonThumb
+                                                person={person}
+                                                auth={{ Authorization: `Bearer ${user?.access_token || ''}` }}
+                                                objectUrlsRef={objectUrlsRef}
+                                            />
                                             {selectedPersonIds && selectedPersonIds.includes(person.id) && (
                                                 <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center">
                                                     <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
