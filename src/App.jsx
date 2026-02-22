@@ -9,6 +9,8 @@ import Privacy from './pages/Privacy';
 import EventsPage from './pages/Events';
 import EventDetail from './pages/EventDetail';
 import InvitePage from './pages/Invite';
+import Clipboard from './pages/Clipboard';
+import ClipboardBoard from './pages/ClipboardBoard';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ResetPassword from './pages/ResetPassword';
@@ -328,6 +330,8 @@ function AppContent() {
           <Route path="/tools" element={<Home />} />
           <Route path="/photodrop" element={<EventsPage />} />
           <Route path="/photodrop/:id" element={<EventDetail />} />
+          <Route path="/clipboard" element={<Clipboard />} />
+          <Route path="/clipboard/:boardId" element={<ClipboardBoard />} />
           <Route path="/invite/:token" element={<InvitePage />} />
           <Route path="/:toolId" element={<ToolPage />} />
           <Route path="/privacy" element={<Privacy />} />
@@ -374,6 +378,7 @@ function AppContent() {
                 {[
                   { name: 'File Processing', path: '/tools' },
                   { name: 'PhotoDrop', path: '/photodrop' },
+                  { name: 'Online Clipboard', path: '/clipboard' },
                   { name: 'Image Compressor', path: '/compress-image' },
                   { name: 'PDF Compressor', path: '/compress-pdf' },
                   { name: 'QR Generator', path: '/qr-generator' },
