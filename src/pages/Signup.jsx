@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { signUp } from '../auth/authService'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 
 export default function Signup() {
     const [email, setEmail] = useState('')
@@ -9,6 +9,9 @@ export default function Signup() {
     const [info, setInfo] = useState(null)
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
+    const location = useLocation()
+
+    const from = location.state?.from?.pathname || '/'
 
     async function handleSubmit(e) {
         e.preventDefault()
@@ -22,7 +25,7 @@ export default function Signup() {
         }
         // If Supabase returned a session the user is signed in immediately
         if (data?.session) {
-            navigate('/', { replace: true })
+            navigate(from, { replace: true })
             return
         }
 
@@ -48,7 +51,7 @@ export default function Signup() {
                     {loading ? 'Creating...' : 'Create account'}
                 </button>
             </form>
-            <p className="mt-4 text-sm">Already have an account? <Link to="/login" className="text-blue-600">Sign in</Link></p>
+            <p className="mt-4 text-sm">Already have an account? <Link to="/login" state={location.state} className="text-blue-600">Sign in</Link></p>
         </div>
     )
 }
