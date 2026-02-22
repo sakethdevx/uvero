@@ -2,6 +2,68 @@ import React, { useEffect, useState } from 'react'
 import { useAuth } from '../auth/AuthProvider'
 import { Link } from 'react-router-dom'
 
+function EventCard({ ev, formatDate, badge, badgeColor }) {
+    return (
+        <Link
+            to={`/photodrop/${ev.id}`}
+            className="group relative bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+        >
+            {/* Top gradient strip */}
+            <div className={`h-1.5 bg-gradient-to-r ${badge === 'Owner' ? 'from-rose-500 via-pink-500 to-purple-600' : 'from-blue-500 via-indigo-500 to-purple-600'}`} />
+
+            <div className="p-6">
+                {/* Icon + Badge + Date */}
+                <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${badge === 'Owner' ? 'from-rose-100 to-purple-100' : 'from-blue-100 to-indigo-100'} flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300`}>
+                            {badge === 'Owner' ? '🎉' : '🤝'}
+                        </div>
+                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${badgeColor}`}>
+                            {badge}
+                        </span>
+                    </div>
+                    {ev.event_date && (
+                        <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2.5 py-1 rounded-full">
+                            {formatDate(ev.event_date)}
+                        </span>
+                    )}
+                </div>
+
+                {/* Title */}
+                <h3 className={`text-lg font-bold text-gray-900 mb-2 transition-colors line-clamp-1 ${badge === 'Owner' ? 'group-hover:text-rose-600' : 'group-hover:text-blue-600'}`}>
+                    {ev.event_name}
+                </h3>
+
+                {/* Description */}
+                {ev.description && (
+                    <p className="text-sm text-gray-500 mb-4 line-clamp-2 leading-relaxed">
+                        {ev.description}
+                    </p>
+                )}
+
+                {/* Footer */}
+                <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                    <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {ev.created_at ? formatDate(ev.created_at) : 'Recently'}
+                    </div>
+                    <span className={`inline-flex items-center gap-1 text-xs font-medium transition-colors ${badge === 'Owner' ? 'text-rose-500 group-hover:text-rose-600' : 'text-blue-500 group-hover:text-blue-600'}`}>
+                        Open
+                        <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </span>
+                </div>
+            </div>
+
+            {/* Hover overlay */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${badge === 'Owner' ? 'from-rose-50 to-purple-50' : 'from-blue-50 to-indigo-50'} opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none`} />
+        </Link>
+    )
+}
+
 export default function EventsPage() {
     const { user, loading } = useAuth()
     const [events, setEvents] = useState([])
@@ -330,85 +392,88 @@ export default function EventsPage() {
                     </div>
                 ) : (
                     <>
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-lg font-bold text-gray-900">
-                                Your Events
-                                <span className="ml-2 text-sm font-normal text-gray-400">({events.length})</span>
-                            </h2>
-                        </div>
-
-                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                            {events.map(ev => (
-                                <Link
-                                    key={ev.id}
-                                    to={`/photodrop/${ev.id}`}
-                                    className="group relative bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-                                >
-                                    {/* Top gradient strip */}
-                                    <div className="h-1.5 bg-gradient-to-r from-rose-500 via-pink-500 to-purple-600" />
-
-                                    <div className="p-6">
-                                        {/* Icon + Date */}
-                                        <div className="flex items-start justify-between mb-4">
-                                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-100 to-purple-100 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">
-                                                🎉
+                        {/* My Events (owned) */}
+                        {(() => {
+                            const ownedEvents = events.filter(ev => ev.created_by === user.id)
+                            const joinedEvents = events.filter(ev => ev.created_by !== user.id)
+                            return (
+                                <>
+                                    {/* Owned Events Section */}
+                                    <div className="mb-10">
+                                        <div className="flex items-center gap-3 mb-5">
+                                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center shadow-sm">
+                                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                                </svg>
                                             </div>
-                                            {ev.event_date && (
-                                                <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2.5 py-1 rounded-full">
-                                                    {formatDate(ev.event_date)}
-                                                </span>
-                                            )}
+                                            <h2 className="text-lg font-bold text-gray-900">
+                                                My Events
+                                                <span className="ml-2 text-sm font-normal text-gray-400">({ownedEvents.length})</span>
+                                            </h2>
                                         </div>
 
-                                        {/* Title */}
-                                        <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-rose-600 transition-colors line-clamp-1">
-                                            {ev.event_name}
-                                        </h3>
+                                        {ownedEvents.length === 0 ? (
+                                            <div className="text-center py-10 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                                                <p className="text-gray-400 mb-3">You haven't created any events yet</p>
+                                                <button
+                                                    onClick={() => setShowForm(true)}
+                                                    className="inline-flex items-center gap-1.5 text-sm font-medium text-rose-500 hover:text-rose-600 transition-colors"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                                    </svg>
+                                                    Create your first event
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                                                {ownedEvents.map(ev => (
+                                                    <EventCard key={ev.id} ev={ev} formatDate={formatDate} badge="Owner" badgeColor="bg-rose-100 text-rose-700" />
+                                                ))}
 
-                                        {/* Description */}
-                                        {ev.description && (
-                                            <p className="text-sm text-gray-500 mb-4 line-clamp-2 leading-relaxed">
-                                                {ev.description}
-                                            </p>
+                                                {/* Create new — card */}
+                                                <button
+                                                    onClick={() => setShowForm(true)}
+                                                    className="group flex flex-col items-center justify-center min-h-[200px] rounded-2xl border-2 border-dashed border-gray-200 hover:border-rose-300 bg-white/50 hover:bg-rose-50/30 transition-all duration-300 hover:-translate-y-1"
+                                                >
+                                                    <div className="w-14 h-14 rounded-2xl bg-gray-100 group-hover:bg-rose-100 flex items-center justify-center mb-3 transition-colors duration-300">
+                                                        <svg className="w-7 h-7 text-gray-400 group-hover:text-rose-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                                        </svg>
+                                                    </div>
+                                                    <span className="text-sm font-medium text-gray-400 group-hover:text-rose-500 transition-colors">
+                                                        New Event
+                                                    </span>
+                                                </button>
+                                            </div>
                                         )}
-
-                                        {/* Footer */}
-                                        <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                                            <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                                {ev.created_at ? formatDate(ev.created_at) : 'Recently'}
-                                            </div>
-                                            <span className="inline-flex items-center gap-1 text-xs font-medium text-rose-500 group-hover:text-rose-600 transition-colors">
-                                                Open
-                                                <svg className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                                                </svg>
-                                            </span>
-                                        </div>
                                     </div>
 
-                                    {/* Hover overlay */}
-                                    <div className="absolute inset-0 bg-gradient-to-br from-rose-50 to-purple-50 opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none" />
-                                </Link>
-                            ))}
+                                    {/* Joined Events Section */}
+                                    {joinedEvents.length > 0 && (
+                                        <div>
+                                            <div className="flex items-center gap-3 mb-5">
+                                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
+                                                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                    </svg>
+                                                </div>
+                                                <h2 className="text-lg font-bold text-gray-900">
+                                                    Joined Events
+                                                    <span className="ml-2 text-sm font-normal text-gray-400">({joinedEvents.length})</span>
+                                                </h2>
+                                            </div>
 
-                            {/* Create new — card */}
-                            <button
-                                onClick={() => setShowForm(true)}
-                                className="group flex flex-col items-center justify-center min-h-[200px] rounded-2xl border-2 border-dashed border-gray-200 hover:border-rose-300 bg-white/50 hover:bg-rose-50/30 transition-all duration-300 hover:-translate-y-1"
-                            >
-                                <div className="w-14 h-14 rounded-2xl bg-gray-100 group-hover:bg-rose-100 flex items-center justify-center mb-3 transition-colors duration-300">
-                                    <svg className="w-7 h-7 text-gray-400 group-hover:text-rose-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                </div>
-                                <span className="text-sm font-medium text-gray-400 group-hover:text-rose-500 transition-colors">
-                                    New Event
-                                </span>
-                            </button>
-                        </div>
+                                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                                                {joinedEvents.map(ev => (
+                                                    <EventCard key={ev.id} ev={ev} formatDate={formatDate} badge="Joined" badgeColor="bg-blue-100 text-blue-700" />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )
+                        })()}
                     </>
                 )}
             </div>
