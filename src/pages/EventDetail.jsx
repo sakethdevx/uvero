@@ -669,22 +669,9 @@ export default function EventDetail() {
         }
     }, [])
 
-    // IntersectionObserver for infinite scroll — load more images as user scrolls
-    useEffect(() => {
-        if (!loadMoreRef.current || !hasMore) return
-
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    handleLoadMore()
-                }
-            },
-            { rootMargin: '50px' } // Reduced from 100px to prevent premature loading
-        )
-        observer.observe(loadMoreRef.current)
-        return () => observer.disconnect()
-    }, [hasMore, id, user, handleLoadMore])
-
+    // handleLoadMore MUST be declared before the useEffect that references it.
+    // In production builds, Rollup's scope hoisting respects TDZ for const/let,
+    // so referencing a const before its initialiser causes a ReferenceError.
     const handleLoadMore = useCallback(async () => {
         if (isLoadingBatchRef.current || !hasMore || !id) return
         isLoadingBatchRef.current = true
@@ -720,7 +707,23 @@ export default function EventDetail() {
                 setLoadingBatch(false)
             }, 600)
         }
-    }, [hasMore, id, user]) // Removed images.length dependency
+    }, [hasMore, id, user])
+
+    // IntersectionObserver for infinite scroll — load more images as user scrolls
+    useEffect(() => {
+        if (!loadMoreRef.current || !hasMore) return
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    handleLoadMore()
+                }
+            },
+            { rootMargin: '50px' }
+        )
+        observer.observe(loadMoreRef.current)
+        return () => observer.disconnect()
+    }, [hasMore, id, user, handleLoadMore])
 
     async function handleFiles(files) {
         if (!files || !files.length) return
