@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import imageCompression from 'browser-image-compression'
 import QRCode from 'qrcode'
 import JSZip from 'jszip'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 
 export default function EventDetail() {
@@ -732,175 +732,532 @@ export default function EventDetail() {
         }
     }
 
+    /* ─── State for new features ─── */
+    const [lightboxImg, setLightboxImg] = useState(null)
+    const [peopleSearch, setPeopleSearch] = useState('')
+    const [gridSize, setGridSize] = useState('md') // 'sm' | 'md' | 'lg'
+
+    const filteredPersons = persons.filter(p =>
+        (p.name || 'Unnamed').toLowerCase().includes(peopleSearch.toLowerCase())
+    )
+
+    const displayImages = selectedPersonIds && selectedPersonIds.length > 0
+        ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
+        : images
+
+    const gridColsClass = {
+        sm: 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6',
+        md: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4',
+        lg: 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3',
+    }[gridSize]
+
     return (
-        <div className="max-w-6xl mx-auto p-6">
+        <div className="min-h-screen bg-gray-50">
+            {/* ── Toast ── */}
             {notice && (
-                <div className="fixed bottom-6 right-6 bg-black text-white px-4 py-2 rounded shadow-lg z-50">{notice}</div>
-            )}
-            <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                <div>
-                    <h1 className="text-3xl font-semibold leading-tight">{eventMeta?.event_name || 'Event'}</h1>
-                    <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-gray-600">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">Images: <strong className="ml-2">{totalImages}</strong></span>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">People: <strong className="ml-2">{totalPersons}</strong></span>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800">Processed: <strong className="ml-2">{processedImages}</strong></span>
+                <div className="fixed bottom-6 right-6 z-50 animate-fade-in-up">
+                    <div className="flex items-center gap-3 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl">
+                        <svg className="w-5 h-5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-sm font-medium">{notice}</span>
                     </div>
                 </div>
+            )}
 
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                        {ownerCheck && shareQr && <img src={shareQr} alt="QR" className="h-16 w-16 rounded border p-1 bg-white" />}
+            {/* ── Lightbox Modal ── */}
+            {lightboxImg && (
+                <div
+                    className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+                    onClick={() => setLightboxImg(null)}
+                >
+                    <button
+                        onClick={() => setLightboxImg(null)}
+                        className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    <img
+                        src={lightboxImg._objectUrl || undefined}
+                        alt={lightboxImg.filename || 'Photo'}
+                        className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                        onClick={e => e.stopPropagation()}
+                    />
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3">
+                        <button
+                            onClick={e => { e.stopPropagation(); downloadImage(lightboxImg) }}
+                            className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors backdrop-blur-sm"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Download
+                        </button>
+                        <span className="text-white/50 text-xs">{lightboxImg.filename}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                        {!isOwner && !isParticipant && (
-                            <button onClick={handleJoinEvent} className="px-3 py-2 bg-blue-600 text-white rounded-md">Join Event</button>
-                        )}
-                        {ownerCheck && (
-                            <>
-                                <button onClick={handleCopyLink} className="px-3 py-2 bg-gray-50 border rounded-md">Copy Link</button>
-                                <button onClick={handleDownloadQr} className="px-3 py-2 bg-gray-50 border rounded-md">QR</button>
-                            </>
-                        )}
-                        {ownerCheck && <button disabled={deletingEvent} onClick={handleDeleteEvent} className="px-3 py-2 bg-red-600 text-white rounded-md">{deletingEvent ? 'Deleting...' : 'Delete'}</button>}
+                </div>
+            )}
+
+            {/* ── Dark Header ── */}
+            <header className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(244,63,94,0.08),transparent_60%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(139,92,246,0.06),transparent_60%)]" />
+
+                <div className="relative max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 sm:py-10">
+                    {/* Back link */}
+                    <Link to="/photodrop" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-white mb-5 transition-colors group">
+                        <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Back to PhotoDrop
+                    </Link>
+
+                    <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+                        <div>
+                            <div className="flex items-center gap-3 mb-2">
+                                {ownerCheck && (
+                                    <span className="text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300">
+                                        Owner
+                                    </span>
+                                )}
+                                {!isOwner && isParticipant && (
+                                    <span className="text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300">
+                                        Guest
+                                    </span>
+                                )}
+                            </div>
+                            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
+                                {eventMeta?.event_name || 'Event'}
+                            </h1>
+
+                            {/* Stats */}
+                            <div className="flex flex-wrap items-center gap-2.5">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.08] text-sm text-gray-300">
+                                    <svg className="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <strong className="text-white">{totalImages}</strong> photos
+                                </span>
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.08] text-sm text-gray-300">
+                                    <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <strong className="text-white">{totalPersons}</strong> people
+                                </span>
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.08] text-sm text-gray-300">
+                                    <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <strong className="text-white">{processedImages}</strong> processed
+                                </span>
+                                {eventMeta?.event_date && (
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.08] text-sm text-gray-300">
+                                        <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        {new Date(eventMeta.event_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                            {ownerCheck && shareQr && (
+                                <img src={shareQr} alt="QR" className="h-16 w-16 rounded-lg border border-white/10 p-1 bg-white" />
+                            )}
+                            {!isOwner && !isParticipant && (
+                                <button onClick={handleJoinEvent} className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-lg hover:-translate-y-0.5 transition-all">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                                    </svg>
+                                    Join Event
+                                </button>
+                            )}
+                            {ownerCheck && (
+                                <>
+                                    <button onClick={handleCopyLink} className="inline-flex items-center gap-1.5 bg-white/[0.06] border border-white/[0.1] hover:bg-white/[0.1] text-gray-200 py-2.5 px-4 rounded-xl text-sm font-medium transition-all">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                        </svg>
+                                        Copy Link
+                                    </button>
+                                    <button onClick={handleDownloadQr} className="inline-flex items-center gap-1.5 bg-white/[0.06] border border-white/[0.1] hover:bg-white/[0.1] text-gray-200 py-2.5 px-4 rounded-xl text-sm font-medium transition-all">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                        </svg>
+                                        QR Code
+                                    </button>
+                                    <button
+                                        disabled={deletingEvent}
+                                        onClick={handleDeleteEvent}
+                                        className="inline-flex items-center gap-1.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 py-2.5 px-4 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        {deletingEvent ? 'Deleting...' : 'Delete'}
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
             </header>
 
-            <section className="mb-6">
-                <label className="block mb-2 font-medium">Upload images</label>
-                <div
-                    className={`border-dashed border-2 rounded-lg p-6 text-center cursor-pointer transition-colors ${dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}
-                    onClick={() => fileRef.current && fileRef.current.click()}
-                    onDragOver={(e) => { e.preventDefault(); setDragActive(true) }}
-                    onDragEnter={(e) => { e.preventDefault(); setDragActive(true) }}
-                    onDragLeave={(e) => { e.preventDefault(); setDragActive(false) }}
-                    onDrop={(e) => { e.preventDefault(); setDragActive(false); const dt = e.dataTransfer; if (dt && dt.files && dt.files.length) handleFiles(dt.files) }}
-                >
-                    <div className="text-sm text-gray-600">Drag & drop images here, or click to select files</div>
-                    <div className="text-xs text-gray-400 mt-2">You can upload multiple images. Images will be compressed before upload.</div>
-                    <input ref={fileRef} type="file" accept="image/*" multiple onChange={onSelectFiles} className="hidden" />
-                </div>
-            </section>
-
-            <div className="grid md:grid-cols-3 gap-6">
-                <aside className="md:col-span-1">
-                    <div className="flex items-center justify-between mb-3">
-                        <h2 className="font-semibold">People</h2>
-                        <div className="text-sm text-gray-500">{totalPersons} total</div>
+            <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+                {/* ── Upload Zone ── */}
+                <section className="mb-8">
+                    <div
+                        className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 ${dragActive
+                            ? 'border-rose-400 bg-rose-50/50 scale-[1.01]'
+                            : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/50'
+                            }`}
+                        onClick={() => fileRef.current && fileRef.current.click()}
+                        onDragOver={e => { e.preventDefault(); setDragActive(true) }}
+                        onDragEnter={e => { e.preventDefault(); setDragActive(true) }}
+                        onDragLeave={e => { e.preventDefault(); setDragActive(false) }}
+                        onDrop={e => { e.preventDefault(); setDragActive(false); const dt = e.dataTransfer; if (dt && dt.files && dt.files.length) handleFiles(dt.files) }}
+                    >
+                        <div className={`w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4 transition-colors ${dragActive ? 'bg-rose-100' : 'bg-gray-100'}`}>
+                            <svg className={`w-7 h-7 transition-colors ${dragActive ? 'text-rose-500' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                            </svg>
+                        </div>
+                        <p className="text-gray-700 font-semibold mb-1">
+                            {dragActive ? 'Drop your photos here' : 'Drag & drop photos here'}
+                        </p>
+                        <p className="text-sm text-gray-400">or click to browse. Photos are auto-compressed before upload.</p>
+                        <input ref={fileRef} type="file" accept="image/*" multiple onChange={onSelectFiles} className="hidden" />
                     </div>
-                    <div className="space-y-3">
-                        {persons.map(person => (
-                            <div key={person.id} className={`flex items-center gap-3 p-3 rounded-lg shadow-sm ${selectedPersonIds && selectedPersonIds.includes(person.id) ? 'ring-2 ring-blue-300 bg-blue-50' : 'bg-white'}`}>
-                                <div className="flex-shrink-0">
-                                    {person._thumbUrl ? (
-                                        <img src={person._thumbUrl} alt="face" className="h-12 w-12 rounded-full object-cover" />
-                                    ) : (
-                                        <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-500">?</div>
-                                    )}
+                </section>
+
+                {/* ── Main Layout: Sidebar + Photos ── */}
+                <div className="grid lg:grid-cols-[300px_1fr] gap-8">
+                    {/* ── People Sidebar ── */}
+                    <aside className="lg:sticky lg:top-4 lg:self-start">
+                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                            {/* Sidebar Header */}
+                            <div className="p-4 border-b border-gray-100 bg-gray-50/50">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h2 className="font-bold text-gray-900 flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        People
+                                    </h2>
+                                    <span className="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{totalPersons}</span>
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    {editingPersonId === person.id ? (
-                                        <div onClick={(e) => e.stopPropagation()} className="w-full">
-                                            <input
-                                                autoFocus
-                                                value={editingName}
-                                                onChange={(e) => setEditingName(e.target.value)}
-                                                onKeyDown={(e) => { if (e.key === 'Enter') handleSavePersonName(person.id); if (e.key === 'Escape') { setEditingPersonId(null); setEditingName('') } }}
-                                                className="w-full px-2 py-1 border rounded text-sm"
-                                                placeholder="Person name"
-                                            />
-                                            <div className="mt-2 flex items-center gap-2 justify-end">
-                                                <button onClick={(e) => { e.stopPropagation(); handleSavePersonName(person.id) }} className="px-2 py-1 bg-green-600 text-white rounded text-sm">Save</button>
-                                                <button onClick={(e) => { e.stopPropagation(); setEditingPersonId(null); setEditingName('') }} className="px-2 py-1 bg-gray-100 rounded text-sm">Cancel</button>
+
+                                {/* Search */}
+                                {persons.length > 3 && (
+                                    <div className="relative">
+                                        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                        <input
+                                            type="text"
+                                            value={peopleSearch}
+                                            onChange={e => setPeopleSearch(e.target.value)}
+                                            placeholder="Search people..."
+                                            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 bg-white"
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Clear filter */}
+                                {selectedPersonIds && selectedPersonIds.length > 0 && (
+                                    <button
+                                        onClick={handleClearSelection}
+                                        className="mt-2 w-full text-xs font-semibold text-purple-600 hover:text-purple-700 bg-purple-50 hover:bg-purple-100 py-1.5 rounded-lg transition-colors"
+                                    >
+                                        Clear filter ({selectedPersonIds.length} selected)
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* People List */}
+                            <div className="max-h-[60vh] overflow-y-auto divide-y divide-gray-50">
+                                {filteredPersons.length === 0 ? (
+                                    <div className="p-6 text-center text-sm text-gray-400">
+                                        {persons.length === 0 ? 'No people detected yet. Upload photos to start.' : 'No matching people.'}
+                                    </div>
+                                ) : filteredPersons.map(person => (
+                                    <div
+                                        key={person.id}
+                                        className={`flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors cursor-pointer ${selectedPersonIds && selectedPersonIds.includes(person.id) ? 'bg-purple-50 hover:bg-purple-50' : ''
+                                            }`}
+                                        onClick={() => {
+                                            if (editingPersonId !== person.id) handleSelectPerson(person.id)
+                                        }}
+                                    >
+                                        {/* Avatar */}
+                                        <div className="flex-shrink-0 relative">
+                                            {person._thumbUrl ? (
+                                                <img src={person._thumbUrl} alt="face" className="h-11 w-11 rounded-full object-cover ring-2 ring-white shadow-sm" />
+                                            ) : (
+                                                <div className="h-11 w-11 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-sm text-gray-500 shadow-sm">
+                                                    ?
+                                                </div>
+                                            )}
+                                            {selectedPersonIds && selectedPersonIds.includes(person.id) && (
+                                                <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center">
+                                                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Name / Edit */}
+                                        <div className="flex-1 min-w-0">
+                                            {editingPersonId === person.id ? (
+                                                <div onClick={e => e.stopPropagation()}>
+                                                    <input
+                                                        autoFocus
+                                                        value={editingName}
+                                                        onChange={e => setEditingName(e.target.value)}
+                                                        onKeyDown={e => { if (e.key === 'Enter') handleSavePersonName(person.id); if (e.key === 'Escape') { setEditingPersonId(null); setEditingName('') } }}
+                                                        className="w-full px-2 py-1 border border-purple-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                                                        placeholder="Person name"
+                                                    />
+                                                    <div className="mt-1.5 flex gap-1.5">
+                                                        <button onClick={() => handleSavePersonName(person.id)} className="px-2 py-0.5 bg-purple-600 text-white rounded text-xs font-semibold">Save</button>
+                                                        <button onClick={() => { setEditingPersonId(null); setEditingName('') }} className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">Cancel</button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="font-semibold text-gray-800 text-sm truncate">{person.name || 'Unnamed'}</div>
+                                                    <div className="text-[11px] text-gray-400 truncate">{person.image_count || 0} photos</div>
+                                                </>
+                                            )}
+                                        </div>
+
+                                        {/* Edit button */}
+                                        {editingPersonId !== person.id && (
+                                            <button
+                                                className="flex-shrink-0 w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
+                                                style={{ opacity: 1 }}
+                                                onClick={e => { e.stopPropagation(); handleEditPerson(person) }}
+                                            >
+                                                <svg className="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </aside>
+
+                    {/* ── Photos Area ── */}
+                    <main>
+                        {/* Toolbar */}
+                        <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+                            <div className="flex items-center gap-3">
+                                <h2 className="text-lg font-bold text-gray-900">
+                                    Photos
+                                    <span className="ml-1.5 text-sm font-normal text-gray-400">
+                                        ({displayImages.length}{selectedPersonIds && selectedPersonIds.length > 0 ? ` of ${totalImages}` : ''})
+                                    </span>
+                                </h2>
+
+                                {/* Grid size toggle */}
+                                <div className="hidden sm:flex items-center bg-gray-100 rounded-lg p-0.5">
+                                    {['sm', 'md', 'lg'].map(size => (
+                                        <button
+                                            key={size}
+                                            onClick={() => setGridSize(size)}
+                                            className={`px-2 py-1 rounded-md text-xs font-semibold transition-all ${gridSize === size ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                        >
+                                            {size === 'sm' ? 'Small' : size === 'md' ? 'Medium' : 'Large'}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Download actions */}
+                            <div className="flex items-center gap-2 flex-wrap">
+                                {selectedImageIds && selectedImageIds.length > 0 && (
+                                    <div className="flex items-center gap-2 mr-2">
+                                        <span className="text-xs font-semibold text-gray-500">{selectedImageIds.length} selected</span>
+                                        <button onClick={() => setSelectedImageIds([])} className="text-xs text-gray-400 hover:text-gray-600 underline">Clear</button>
+                                        <button
+                                            disabled={!(images && images.some(i => selectedImageIds.includes(i.id) && (isOwner || i.uploaded_by === user?.id)))}
+                                            onClick={handleDeleteSelectedImages}
+                                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-semibold transition-colors disabled:opacity-40"
+                                        >
+                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            Delete
+                                        </button>
+                                    </div>
+                                )}
+                                <button
+                                    onClick={handleDownloadSelected}
+                                    disabled={downloadingSelection || !((selectedImageIds && selectedImageIds.length) || (selectedPersonIds && selectedPersonIds.length))}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-40 shadow-sm"
+                                >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    ZIP
+                                </button>
+                                <button
+                                    disabled={downloadingSelection || !((selectedImageIds && selectedImageIds.length) || (selectedPersonIds && selectedPersonIds.length))}
+                                    onClick={async () => {
+                                        try {
+                                            setDownloadingSelection(true)
+                                            const imgsToDownload = (selectedImageIds && selectedImageIds.length > 0)
+                                                ? images.filter(img => selectedImageIds.includes(img.id))
+                                                : (selectedPersonIds && selectedPersonIds.length > 0)
+                                                    ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
+                                                    : images
+                                            await downloadImagesSeparately(imgsToDownload)
+                                        } finally { setDownloadingSelection(false) }
+                                    }}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-40 shadow-sm"
+                                >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Separate
+                                </button>
+                                <button
+                                    disabled={downloadingSelection}
+                                    onClick={async () => { try { setDownloadingSelection(true); await downloadImagesZip(images) } finally { setDownloadingSelection(false) } }}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-lg text-xs font-bold hover:shadow-lg hover:-translate-y-0.5 transition-all shadow-sm"
+                                >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Download All
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* ZIP Progress */}
+                        {downloadingSelection && zipProgress != null && (
+                            <div className="mb-5">
+                                <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                    <div className="bg-gradient-to-r from-rose-500 to-purple-600 h-2 rounded-full transition-all duration-300" style={{ width: `${zipProgress}%` }} />
+                                </div>
+                                <p className="text-xs text-gray-500 mt-1.5 font-medium">{zipProgress}% preparing download...</p>
+                            </div>
+                        )}
+
+                        {/* Photo Grid */}
+                        {displayImages.length === 0 ? (
+                            <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
+                                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 flex items-center justify-center">
+                                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <h3 className="font-bold text-gray-900 mb-1">No photos yet</h3>
+                                <p className="text-sm text-gray-400">Upload photos using the drag & drop area above.</p>
+                            </div>
+                        ) : (
+                            <div className={`grid ${gridColsClass} gap-3`}>
+                                {displayImages.map(img => (
+                                    <div
+                                        key={img.id}
+                                        className={`group relative overflow-hidden rounded-xl bg-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer ${selectedImageIds.includes(img.id) ? 'ring-2 ring-purple-500 ring-offset-2' : ''
+                                            }`}
+                                        onClick={e => {
+                                            const t = e.target
+                                            if (!t) return
+                                            const tag = t.tagName
+                                            if (tag === 'INPUT' || tag === 'BUTTON' || tag === 'A' || (t.closest && t.closest('input,button,a'))) return
+                                            // Double-click for lightbox, single for select
+                                            toggleImageSelection(img.id)
+                                        }}
+                                        onDoubleClick={e => {
+                                            e.preventDefault()
+                                            setLightboxImg(img)
+                                        }}
+                                    >
+                                        <img
+                                            src={img._objectUrl || undefined}
+                                            alt={img.filename || 'photo'}
+                                            className={`w-full object-cover transition-transform duration-500 group-hover:scale-105 ${gridSize === 'lg' ? 'h-64' : gridSize === 'md' ? 'h-48' : 'h-32'
+                                                }`}
+                                            loading="lazy"
+                                        />
+
+                                        {/* Bottom info bar */}
+                                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-2.5 pt-8">
+                                            <div className="text-[10px] text-white/70 font-medium truncate">
+                                                {new Date(img.uploaded_at).toLocaleString()}
                                             </div>
                                         </div>
-                                    ) : (
-                                        <button onClick={() => handleSelectPerson(person.id)} className="text-left w-full">
-                                            <div className="flex items-center justify-between">
-                                                <div className="truncate font-medium text-gray-800">{person.name || 'Unnamed'}</div>
-                                                <div className="text-xs text-gray-500">{person.image_count || 0}</div>
+
+                                        {/* Hover action buttons */}
+                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                                        <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+                                            <button
+                                                onClick={e => { e.stopPropagation(); setLightboxImg(img) }}
+                                                className="w-8 h-8 rounded-lg bg-white/90 hover:bg-white shadow-sm flex items-center justify-center transition-colors"
+                                                title="View full size"
+                                            >
+                                                <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                onClick={e => { e.stopPropagation(); downloadImage(img) }}
+                                                className="w-8 h-8 rounded-lg bg-white/90 hover:bg-white shadow-sm flex items-center justify-center transition-colors"
+                                                title="Download"
+                                            >
+                                                <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                onClick={e => { e.stopPropagation(); handleDeleteImage(img) }}
+                                                className="w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 shadow-sm flex items-center justify-center transition-colors"
+                                                title="Delete"
+                                            >
+                                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        {/* Checkbox */}
+                                        <div className={`absolute top-2 left-2 transition-opacity duration-200 ${selectedImageIds.includes(img.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                                            <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${selectedImageIds.includes(img.id) ? 'bg-purple-500 border-purple-500' : 'bg-white/80 border-white/80 shadow-sm'
+                                                }`}
+                                                onClick={e => { e.stopPropagation(); setSelectedImageIds(prev => prev && prev.includes(img.id) ? prev.filter(id => id !== img.id) : [...(prev || []), img.id]) }}
+                                            >
+                                                {selectedImageIds.includes(img.id) && (
+                                                    <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                )}
                                             </div>
-                                            <div className="text-xs text-gray-500 truncate mt-1">{person.latest_filename || ''}</div>
-                                        </button>
-                                    )}
-                                </div>
-                                <div>
-                                    {editingPersonId !== person.id && (
-                                        <button className="px-2 py-1 bg-gray-100 rounded" onClick={(e) => { e.stopPropagation(); handleEditPerson(person) }}>Edit</button>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </aside>
+                                        </div>
 
-                <main className="md:col-span-2">
-                    <div className="flex items-center justify-between mb-3">
-                        <h2 className="font-semibold">Photos</h2>
-                        <div className="flex items-center gap-2">
-                            <button onClick={handleDownloadSelected} disabled={downloadingSelection || !((selectedImageIds && selectedImageIds.length) || (selectedPersonIds && selectedPersonIds.length))} className="px-3 py-1 bg-gray-50 border rounded disabled:opacity-50">Download Selected — ZIP</button>
-                            <button disabled={downloadingSelection || !((selectedImageIds && selectedImageIds.length) || (selectedPersonIds && selectedPersonIds.length))} onClick={async () => {
-                                try {
-                                    setDownloadingSelection(true)
-                                    const imgsToDownload = (selectedImageIds && selectedImageIds.length > 0)
-                                        ? images.filter(img => selectedImageIds.includes(img.id))
-                                        : (selectedPersonIds && selectedPersonIds.length > 0)
-                                            ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
-                                            : images
-                                    await downloadImagesSeparately(imgsToDownload)
-                                } finally { setDownloadingSelection(false) }
-                            }} className="px-3 py-1 bg-gray-50 border rounded disabled:opacity-50">Download Selected — Separate</button>
-                            <button disabled={downloadingSelection} onClick={async () => { try { setDownloadingSelection(true); await downloadImagesZip(images) } finally { setDownloadingSelection(false) } }} className="px-3 py-1 bg-gray-50 border rounded">Download All</button>
-                        </div>
-                    </div>
-
-                    {downloadingSelection && zipProgress != null && (
-                        <div className="mb-4">
-                            <div className="w-full bg-gray-200 h-2 rounded">
-                                <div className="bg-blue-600 h-2 rounded" style={{ width: `${zipProgress}%` }} />
-                            </div>
-                            <div className="text-xs text-gray-600 mt-1">{zipProgress}% preparing ZIP...</div>
-                        </div>
-                    )}
-
-                    {selectedImageIds && selectedImageIds.length > 0 && (
-                        <div className="mb-4 flex items-center gap-2">
-                            <div className="text-sm text-gray-700">{selectedImageIds.length} selected</div>
-                            <button onClick={() => setSelectedImageIds([])} className="px-2 py-1 bg-gray-100 rounded">Clear</button>
-                            <button disabled={!(images && images.some(i => selectedImageIds.includes(i.id) && (isOwner || i.uploaded_by === user?.id)))} onClick={handleDeleteSelectedImages} className="px-3 py-1 bg-red-600 text-white rounded">Delete</button>
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        {(selectedPersonIds && selectedPersonIds.length > 0 ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid))) : images).map(img => (
-                            <div key={img.id} className={`relative overflow-hidden rounded-lg bg-gray-50 shadow-sm group ${selectedImageIds.includes(img.id) ? 'ring-2 ring-blue-400' : ''}`}
-                                onClick={(e) => {
-                                    const t = e.target
-                                    // ignore clicks on inputs, buttons, anchors or their children
-                                    if (!t) return
-                                    const tag = t.tagName
-                                    if (tag === 'INPUT' || tag === 'BUTTON' || tag === 'A' || (t.closest && t.closest('input,button,a'))) return
-                                    toggleImageSelection(img.id)
-                                }}
-                            >
-                                <img src={img._objectUrl || undefined} alt={img.filename || 'image'} className="w-full h-48 object-cover" loading="lazy" />
-                                <div className="p-2 text-xs text-gray-600">{new Date(img.uploaded_at).toLocaleString()}</div>
-                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-end justify-end p-2">
-                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                                        <button onClick={(e) => { e.stopPropagation(); downloadImage(img) }} className="px-2 py-1 bg-white rounded">Download</button>
-                                        <button onClick={(e) => { e.stopPropagation(); handleDeleteImage(img) }} className="px-2 py-1 bg-red-600 text-white rounded">Delete</button>
+                                        {/* Upload progress */}
+                                        {img.temp && (
+                                            <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                                <div className="text-center">
+                                                    <div className="w-10 h-10 border-3 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-2" />
+                                                    <span className="text-white text-xs font-semibold">{img.uploadProgress || 0}%</span>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
-                                {img.temp && (
-                                    <div className="absolute left-2 top-2 bg-white/80 px-2 py-1 rounded text-xs">Uploading {img.uploadProgress || 0}%</div>
-                                )}
-                                <div className="absolute top-2 left-2">
-                                    <input type="checkbox" checked={selectedImageIds.includes(img.id)} onChange={(e) => { e.stopPropagation(); setSelectedImageIds(prev => prev && prev.includes(img.id) ? prev.filter(id => id !== img.id) : [...(prev || []), img.id]) }} className="w-4 h-4" />
-                                </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
-                </main>
+                        )}
+                    </main>
+                </div>
             </div>
         </div>
     )
