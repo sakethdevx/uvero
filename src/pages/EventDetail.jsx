@@ -33,7 +33,7 @@ function LazyImg({ img, auth, objectUrlsRef, gridSize }) {
     }, [blobUrl, observed, img.id])
 
     useEffect(() => {
-        if (!observed || blobUrl) return
+        if (!observed || blobUrl || !auth) return
 
         let active = true
         async function fetchBlob() {
@@ -53,7 +53,7 @@ function LazyImg({ img, auth, objectUrlsRef, gridSize }) {
         }
         fetchBlob()
         return () => { active = false }
-    }, [observed, img.id, auth, objectUrlsRef, blobUrl])
+    }, [observed, img.id, auth, objectUrlsRef])
 
     return (
         <div ref={imgRef} className={`relative bg-gray-100 dark:bg-gray-900 overflow-hidden ${gridSize === 'lg' ? 'h-64' : gridSize === 'md' ? 'h-48' : 'h-32'}`}>
@@ -177,7 +177,7 @@ function LazyPersonThumb({ person, auth, objectUrlsRef }) {
     }, [thumbUrl, observed, person.thumbnail_image_id, person.id])
 
     useEffect(() => {
-        if (!observed || thumbUrl || !person.thumbnail_image_id) return
+        if (!observed || thumbUrl || !person.thumbnail_image_id || !auth) return
         let active = true
         async function fetchThumb() {
             try {
@@ -1179,7 +1179,7 @@ export default function EventDetail() {
                                         <div className="flex-shrink-0 relative">
                                             <LazyPersonThumb
                                                 person={person}
-                                                auth={{ Authorization: `Bearer ${user?.access_token || ''}` }}
+                                                auth={`Bearer ${user?.access_token || ''}`}
                                                 objectUrlsRef={objectUrlsRef}
                                             />
                                             {selectedPersonIds && selectedPersonIds.includes(person.id) && (
