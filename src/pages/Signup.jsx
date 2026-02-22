@@ -11,7 +11,7 @@ export default function Signup() {
     const navigate = useNavigate()
     const location = useLocation()
 
-    const from = location.state?.from?.pathname || '/'
+    const from = location.state?.from?.pathname || (typeof window !== 'undefined' ? localStorage.getItem('postAuthRedirect') : null) || '/'
 
     async function handleSubmit(e) {
         e.preventDefault()
@@ -25,6 +25,7 @@ export default function Signup() {
         }
         // If Supabase returned a session the user is signed in immediately
         if (data?.session) {
+            try { localStorage.removeItem('postAuthRedirect') } catch (e) { }
             navigate(from, { replace: true })
             return
         }

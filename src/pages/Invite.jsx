@@ -36,6 +36,8 @@ export default function InvitePage() {
 
     async function acceptInvite() {
         if (!user) {
+            // persist redirect target so email verification flows (external) can still return
+            try { localStorage.setItem('postAuthRedirect', `/invite/${token}`) } catch (e) { /* ignore */ }
             navigate('/login', { state: { from: { pathname: `/invite/${token}` } } })
             return
         }

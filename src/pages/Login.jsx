@@ -11,7 +11,7 @@ export default function Login() {
     const navigate = useNavigate()
     const location = useLocation()
 
-    const from = location.state?.from?.pathname || '/'
+    const from = location.state?.from?.pathname || (typeof window !== 'undefined' ? localStorage.getItem('postAuthRedirect') : null) || '/'
 
     async function handleSubmit(e) {
         e.preventDefault()
@@ -23,6 +23,8 @@ export default function Login() {
             setError(error.message)
             return
         }
+        // clear persisted redirect after navigating
+        try { localStorage.removeItem('postAuthRedirect') } catch (e) { }
         navigate(from, { replace: true })
     }
 
