@@ -6,6 +6,72 @@ import JSZip from 'jszip'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 
+// New component for on-demand image blob loading
+function LazyImg({ img, auth, objectUrlsRef, gridSize }) {
+    const [blobUrl, setBlobUrl] = useState(img._objectUrl || null)
+    const [loading, setLoading] = useState(!img._objectUrl)
+    const [observed, setObserved] = useState(false)
+    const imgRef = useRef(null)
+
+    useEffect(() => {
+        if (!imgRef.current || blobUrl || observed) return
+
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                setObserved(true)
+                observer.disconnect()
+            }
+        }, { rootMargin: '200px' })
+
+        observer.observe(imgRef.current)
+        return () => observer.disconnect()
+    }, [blobUrl, observed])
+
+    useEffect(() => {
+        if (!observed || blobUrl) return
+
+        let active = true
+        async function fetchBlob() {
+            try {
+                setLoading(true)
+                const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}`, { headers: { Authorization: auth }, cache: 'no-store' })
+                if (!resp.ok) throw new Error('Fetch failed')
+                const blob = await resp.blob()
+                if (!active) return
+                const url = URL.createObjectURL(blob)
+                objectUrlsRef.current.add(url)
+                setBlobUrl(url)
+            } catch (err) {
+                console.warn('Lazy load failed for', img.id, err)
+            } finally {
+                if (active) setLoading(false)
+            }
+        }
+        fetchBlob()
+        return () => { active = false }
+    }, [observed, img.id, auth, objectUrlsRef, blobUrl])
+
+    return (
+        <div ref={imgRef} className={`relative bg-gray-100 dark:bg-gray-900 overflow-hidden ${gridSize === 'lg' ? 'h-64' : gridSize === 'md' ? 'h-48' : 'h-32'}`}>
+            {blobUrl ? (
+                <img
+                    src={blobUrl}
+                    alt=""
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                />
+            ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
+                    {loading && (
+                        <div className="w-8 h-8 border-2 border-gray-300 dark:border-white/10 border-t-purple-500 rounded-full animate-spin mb-2" />
+                    )}
+                    <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500">{loading ? 'Loading...' : 'Waiting...'}</span>
+                </div>
+            )}
+        </div>
+    )
+}
+
 export default function EventDetail() {
     const { id } = useParams()
     const { user } = useAuth()
@@ -14,10 +80,15 @@ export default function EventDetail() {
     const [selectedPersonIds, setSelectedPersonIds] = useState([])
     const [editingPersonId, setEditingPersonId] = useState(null)
     const [editingName, setEditingName] = useState('')
-    // computed stats
-    const totalImages = images ? images.length : 0
-    const totalPersons = persons ? persons.length : 0
-    const processedImages = images ? images.filter(i => i.processed).length : 0
+
+    // Pagination state
+    const [totalImages, setTotalImages] = useState(0)
+    const [totalPersons, setTotalPersons] = useState(0)
+    const [processedImages, setProcessedImages] = useState(0)
+    const [hasMore, setHasMore] = useState(false)
+    const [offset, setOffset] = useState(0)
+    const BATCH_SIZE = 20
+
     const [eventMeta, setEventMeta] = useState(null)
     const [isOwner, setIsOwner] = useState(false)
     const [isParticipant, setIsParticipant] = useState(false)
@@ -34,8 +105,6 @@ export default function EventDetail() {
     const [selectedImageIds, setSelectedImageIds] = useState([])
     const [showPeopleMenu, setShowPeopleMenu] = useState(false)
     const [zipProgress, setZipProgress] = useState(null)
-    const BATCH_SIZE = 12
-    const [visibleCount, setVisibleCount] = useState(BATCH_SIZE)
     const [loadingBatch, setLoadingBatch] = useState(false)
     const loadMoreRef = useRef(null)
 
@@ -146,18 +215,24 @@ export default function EventDetail() {
     }
 
     useEffect(() => {
-        if (!user) return
-        fetch(`/api/events?event_id=${id}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } })
+        if (!id) return
+        setLoadingBatch(true)
+        fetch(`/api/events?event_id=${id}&limit=${BATCH_SIZE}&offset=0`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } })
             .then(r => r.json())
             .then(async d => {
                 const payload = d.data || {}
                 const imgs = payload.images || []
                 setImages(imgs)
-                preloadImageUrls(imgs)
                 setEventMeta(payload.event || null)
                 setIsOwner(Boolean(payload.isOwner))
                 setIsParticipant(Boolean(payload.isParticipant))
+                setTotalImages(payload.total_images_count || 0)
+                setTotalPersons(payload.total_persons_count || 0)
+                setProcessedImages(payload.processed_images_count || 0)
+                setHasMore(Boolean(payload.has_more))
+                setOffset(imgs.length)
             })
+            .finally(() => setLoadingBatch(false))
 
         // initial load
         loadPersons()
@@ -520,63 +595,40 @@ export default function EventDetail() {
         }
     }, [])
 
-    async function fetchSingleImage(img, auth) {
-        try {
-            const resp = await fetch(`/api/images?id=${encodeURIComponent(img.id)}`, { headers: { Authorization: auth }, cache: 'no-store' })
-            if (!resp.ok) return img
-            let blob = await resp.blob()
-            if (blob.size === 0) {
-                const r2 = await fetch(`/api/images/${img.id}`, { headers: { Authorization: auth }, cache: 'reload' })
-                if (r2.ok) blob = await r2.blob()
-            }
-            const url = URL.createObjectURL(blob)
-            objectUrlsRef.current.add(url)
-            return { ...img, _objectUrl: url }
-        } catch (err) {
-            console.warn('Failed to preload image', img.id, err)
-            return img
-        }
-    }
-
-    async function preloadImageUrls(imgs) {
-        if (!imgs || !imgs.length || !user) return
-        const auth = `Bearer ${user?.access_token || ''}`
-        // Load first batch immediately for fast initial render
-        const firstBatch = imgs.slice(0, BATCH_SIZE)
-        const rest = imgs.slice(BATCH_SIZE)
-        const firstResults = await Promise.all(firstBatch.map(img => fetchSingleImage(img, auth)))
-        // Set first batch + placeholders for the rest
-        setImages([...firstResults, ...rest])
-        setVisibleCount(BATCH_SIZE)
-        // Progressive background loading for remaining images in small batches
-        for (let i = 0; i < rest.length; i += BATCH_SIZE) {
-            const chunk = rest.slice(i, i + BATCH_SIZE)
-            const loaded = await Promise.all(chunk.map(img => fetchSingleImage(img, auth)))
-            setImages(prev => {
-                const updated = [...prev]
-                for (let j = 0; j < loaded.length; j++) {
-                    const globalIdx = BATCH_SIZE + i + j
-                    if (globalIdx < updated.length) updated[globalIdx] = loaded[j]
-                }
-                return updated
-            })
-        }
-    }
-
     // IntersectionObserver for infinite scroll — load more images as user scrolls
     useEffect(() => {
-        if (!loadMoreRef.current) return
+        if (!loadMoreRef.current || !hasMore || loadingBatch) return
         const observer = new IntersectionObserver(
             ([entry]) => {
-                if (entry.isIntersecting && !loadingBatch) {
-                    setVisibleCount(prev => Math.min(prev + BATCH_SIZE, images.length))
+                if (entry.isIntersecting && !loadingBatch && hasMore) {
+                    handleLoadMore()
                 }
             },
             { rootMargin: '300px' }
         )
         observer.observe(loadMoreRef.current)
         return () => observer.disconnect()
-    }, [images.length, loadingBatch])
+    }, [hasMore, loadingBatch, offset])
+
+    async function handleLoadMore() {
+        if (loadingBatch || !hasMore) return
+        setLoadingBatch(true)
+        try {
+            const resp = await fetch(`/api/events?event_id=${id}&limit=${BATCH_SIZE}&offset=${offset}`, { headers: { Authorization: `Bearer ${user?.access_token || ''}` } })
+            const d = await resp.json()
+            const payload = d.data || {}
+            const newImgs = payload.images || []
+            if (newImgs.length > 0) {
+                setImages(prev => [...prev, ...newImgs])
+                setOffset(prev => prev + newImgs.length)
+            }
+            setHasMore(Boolean(payload.has_more))
+        } catch (err) {
+            console.error('Fetch more failed', err)
+        } finally {
+            setLoadingBatch(false)
+        }
+    }
 
     async function handleFiles(files) {
         if (!files || !files.length) return
@@ -778,8 +830,7 @@ export default function EventDetail() {
     const allDisplayImages = selectedPersonIds && selectedPersonIds.length > 0
         ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
         : images
-    const displayImages = allDisplayImages.slice(0, visibleCount)
-    const hasMore = displayImages.length < allDisplayImages.length
+    const displayImages = allDisplayImages
 
     const gridColsClass = {
         sm: 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6',
@@ -1218,22 +1269,12 @@ export default function EventDetail() {
                                             setLightboxImg(img)
                                         }}
                                     >
-                                        {img._objectUrl ? (
-                                            <img
-                                                src={img._objectUrl}
-                                                alt=""
-                                                className={`w-full object-cover transition-transform duration-500 group-hover:scale-105 ${gridSize === 'lg' ? 'h-64' : gridSize === 'md' ? 'h-48' : 'h-32'
-                                                    }`}
-                                                loading="lazy"
-                                            />
-                                        ) : (
-                                            /* Skeleton placeholder while loading */
-                                            <div className={`w-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 ${gridSize === 'lg' ? 'h-64' : gridSize === 'md' ? 'h-48' : 'h-32'
-                                                }`}>
-                                                <div className="w-8 h-8 border-2 border-gray-300 dark:border-white/10 border-t-purple-500 rounded-full animate-spin mb-2" />
-                                                <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500">Loading...</span>
-                                            </div>
-                                        )}
+                                        <LazyImg
+                                            img={img}
+                                            auth={`Bearer ${user?.access_token || ''}`}
+                                            objectUrlsRef={objectUrlsRef}
+                                            gridSize={gridSize}
+                                        />
 
                                         {/* Bottom info bar */}
                                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-2.5 pt-8">
@@ -1307,13 +1348,18 @@ export default function EventDetail() {
                             <div className="mt-6 text-center">
                                 <div ref={loadMoreRef} className="h-1" />
                                 <button
-                                    onClick={() => setVisibleCount(prev => Math.min(prev + BATCH_SIZE, allDisplayImages.length))}
-                                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all shadow-sm"
+                                    disabled={loadingBatch}
+                                    onClick={handleLoadMore}
+                                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all shadow-sm disabled:opacity-50"
                                 >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                    Load More ({allDisplayImages.length - displayImages.length} remaining)
+                                    {loadingBatch ? (
+                                        <div className="w-4 h-4 border-2 border-gray-300 border-t-purple-500 rounded-full animate-spin" />
+                                    ) : (
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    )}
+                                    {loadingBatch ? 'Loading...' : 'Load More'}
                                 </button>
                             </div>
                         )}

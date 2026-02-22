@@ -78,13 +78,30 @@ export default async function handler(req, res) {
                 if (!isOwner && !isParticipant)
                     return res.status(403).json({ error: 'Forbidden' })
 
-                const { data, error } = await serverSupabase
+                const { limit = 20, offset = 0 } = req.query || {}
+                const limitNum = parseInt(limit, 10)
+                const offsetNum = parseInt(offset, 10)
+
+                const { data, error, count } = await serverSupabase
                     .from('images')
-                    .select('*')
+                    .select('*', { count: 'exact' })
                     .eq('event_id', event_id)
                     .order('uploaded_at', { ascending: false })
+                    .range(offsetNum, offsetNum + limitNum - 1)
 
                 if (error) return res.status(500).json({ error: error.message })
+
+                // Also get total persons count for this event
+                const { count: personsCount } = await serverSupabase
+                    .from('persons')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('event_id', event_id)
+
+                const { count: processedCount } = await serverSupabase
+                    .from('images')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('event_id', event_id)
+                    .eq('processed', true)
 
                 // Attach person_ids to each image using face_embeddings table
                 try {
@@ -110,11 +127,33 @@ export default async function handler(req, res) {
                         person_ids: Array.from((personsByImage[img.id] && personsByImage[img.id]) || [])
                     }))
 
-                    return res.status(200).json({ data: { event, images: imagesWithPersons, isOwner, isParticipant } })
+                    return res.status(200).json({
+                        data: {
+                            event,
+                            images: imagesWithPersons,
+                            isOwner,
+                            isParticipant,
+                            total_images_count: count,
+                            total_persons_count: personsCount,
+                            processed_images_count: processedCount,
+                            has_more: count > (offsetNum + imagesWithPersons.length)
+                        }
+                    })
                 } catch (e) {
                     console.warn('[api/events] failed to attach person ids', e?.message || String(e))
                     // Fallback to returning images without person_ids
-                    return res.status(200).json({ data: { event, images: data, isOwner, isParticipant } })
+                    return res.status(200).json({
+                        data: {
+                            event,
+                            images: data,
+                            isOwner,
+                            isParticipant,
+                            total_images_count: count,
+                            total_persons_count: personsCount,
+                            processed_images_count: processedCount,
+                            has_more: count > (offsetNum + data.length)
+                        }
+                    })
                 }
             }
 
