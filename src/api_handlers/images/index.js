@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { getImageBuffer } from '../../services/githubStorage.js'
+import { getImageBuffer } from '../../services/photodropGithubStorage.js'
 import mime from 'mime'
 import path from 'path'
 

@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { getImageBuffer } from '../services/githubStorage.js'
+import { getImageBuffer } from '../services/photodropGithubStorage.js'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
