@@ -34,10 +34,11 @@ function AppContent() {
   // Determine if we're on a file processing route (for scoping ModeToggle)
   const isFileProcessingRoute = location.pathname === '/tools' || !!getToolById(location.pathname.slice(1));
 
-  // Close mobile menu on route change
+  // Close mobile menu and scroll to top on route change
   useEffect(() => {
     setIsMenuOpen(false);
     setIsToolsDropdownOpen(false);
+    window.scrollTo(0, 0);
   }, [location.pathname]);
 
   // Track scroll for header styling
