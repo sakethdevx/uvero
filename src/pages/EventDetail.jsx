@@ -4,7 +4,7 @@ import imageCompression from 'browser-image-compression'
 import QRCode from 'qrcode'
 import JSZip from 'jszip'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '../auth/AuthProvider'
+import { useAuth } from '../auth/AuthContext'
 
 // New component for on-demand image blob loading
 function LazyImg({ img, auth, objectUrlsRef, gridSize }) {
