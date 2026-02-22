@@ -1,5 +1,5 @@
 // Centralized auth service for Supabase
-// Exposes helpers used across the app: signIn, signUp, signOut, getCurrentUser, requireAuth
+// Exposes helpers used across the app: signIn, signUp, signOut, getUser, requireAuth
 import { supabase } from '../lib/supabase/client'
 
 export async function signUp({ email, password }) {
@@ -16,7 +16,7 @@ export async function signOut() {
     return await supabase.auth.signOut()
 }
 
-export function getCurrentUser() {
+export function getUser() {
     return supabase.auth.getUser()
 }
 

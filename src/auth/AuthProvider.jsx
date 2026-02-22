@@ -66,15 +66,15 @@ export function AuthProvider({ children }) {
                     // re-check session state
                     supabase.auth.getSession().then(({ data }) => {
                         const session = data?.session ?? null
-                        const currentUser = session ? { ...session.user, access_token: session.access_token } : null
-                        setUser(currentUser)
+                        const refreshedUser = session ? { ...session.user, access_token: session.access_token } : null
+                        setUser(refreshedUser)
 
                         // if user just became signed in, and there is a postAuthRedirect saved,
                         // redirect back to it when currently on auth pages.
                         try {
                             const redirect = localStorage.getItem('postAuthRedirect')
                             const path = window.location.pathname || ''
-                            if (currentUser && redirect && (path === '/signup' || path === '/login' || path.startsWith('/invite') || path === '/')) {
+                            if (refreshedUser && redirect && (path === '/signup' || path === '/login' || path.startsWith('/invite') || path === '/')) {
                                 // clear and navigate
                                 localStorage.removeItem('postAuthRedirect')
                                 window.location.href = redirect
