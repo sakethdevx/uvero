@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useAuth } from '../auth/AuthContext'
+import { useAuth } from '../../../auth/AuthContext'
 import { Link } from 'react-router-dom'
 
 /* ─── Reusable Event Card ─── */
