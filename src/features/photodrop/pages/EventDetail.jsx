@@ -254,6 +254,11 @@ export default function EventDetail() {
     const [zipProgress, setZipProgress] = useState(null)
     const loadMoreRef = useRef(null)
 
+    // Event name editing state
+    const [editingEventName, setEditingEventName] = useState(false)
+    const [editEventNameValue, setEditEventNameValue] = useState('')
+    const [savingEventName, setSavingEventName] = useState(false)
+
     // Meta-data about persons is loaded here. Thumbnails are loaded on-demand by LazyPersonThumb.
 
     async function loadPersons() {
@@ -913,6 +918,36 @@ export default function EventDetail() {
         }
     }
 
+    async function handleSaveEventName() {
+        const trimmed = editEventNameValue.trim()
+        if (!trimmed || trimmed === eventMeta?.event_name) {
+            setEditingEventName(false)
+            return
+        }
+        setSavingEventName(true)
+        try {
+            const resp = await fetch('/api/events', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
+                body: JSON.stringify({ event_id: id, event_name: trimmed })
+            })
+            if (!resp.ok) {
+                const txt = await resp.text()
+                console.error('Update event name failed', resp.status, txt)
+                return
+            }
+            const d = await resp.json()
+            if (d.data) {
+                setEventMeta(prev => ({ ...prev, event_name: d.data.event_name }))
+            }
+            setEditingEventName(false)
+        } catch (err) {
+            console.error('Update event name error', err)
+        } finally {
+            setSavingEventName(false)
+        }
+    }
+
     /* ─── State for new features ─── */
     const [lightboxImg, setLightboxImg] = useState(null)
     const [peopleSearch, setPeopleSearch] = useState('')
@@ -1010,9 +1045,50 @@ export default function EventDetail() {
                                     </span>
                                 )}
                             </div>
-                            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
-                                {eventMeta?.event_name || 'Event'}
-                            </h1>
+                            {editingEventName ? (
+                                <div className="flex items-center gap-2 mb-3">
+                                    <input
+                                        autoFocus
+                                        value={editEventNameValue}
+                                        onChange={e => setEditEventNameValue(e.target.value)}
+                                        onKeyDown={e => { if (e.key === 'Enter') handleSaveEventName(); if (e.key === 'Escape') setEditingEventName(false) }}
+                                        className="text-2xl sm:text-3xl font-black text-white bg-white/10 border border-white/20 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-rose-500/40 focus:border-rose-400 transition-all w-full max-w-md"
+                                        placeholder="Event name"
+                                    />
+                                    <button
+                                        onClick={handleSaveEventName}
+                                        disabled={savingEventName}
+                                        className="flex-shrink-0 w-9 h-9 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 flex items-center justify-center transition-all disabled:opacity-50"
+                                        title="Save"
+                                    >
+                                        {savingEventName ? (
+                                            <div className="w-4 h-4 border-2 border-emerald-300/30 border-t-emerald-300 rounded-full animate-spin" />
+                                        ) : (
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={() => setEditingEventName(false)}
+                                        className="flex-shrink-0 w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-all"
+                                        title="Cancel"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
+                                </div>
+                            ) : (
+                                <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3 group/title flex items-center gap-2">
+                                    {eventMeta?.event_name || 'Event'}
+                                    {ownerCheck && (
+                                        <button
+                                            onClick={() => { setEditEventNameValue(eventMeta?.event_name || ''); setEditingEventName(true) }}
+                                            className="opacity-0 group-hover/title:opacity-100 focus:opacity-100 w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200"
+                                            title="Edit event name"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                        </button>
+                                    )}
+                                </h1>
+                            )}
 
                             {/* Stats */}
                             <div className="flex flex-wrap items-center gap-2.5">
