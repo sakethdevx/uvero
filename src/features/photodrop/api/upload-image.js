@@ -1,6 +1,6 @@
 // Upload image to GitHub repo and record metadata in Supabase
 import { createClient } from '@supabase/supabase-js'
-import { uploadImage } from '../../src/services/photodropGithubStorage.js'
+import { uploadImage } from '../services/photodropGithubStorage.js'
 import path from 'path'
 import sanitize from 'sanitize-filename'
 
