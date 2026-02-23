@@ -10,6 +10,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
+        use_credentials: true,
         name: 'Uvero - Free Online File Tools',
         short_name: 'Uvero',
         description: 'Compress, convert, and process files right in your browser. No uploads, 100% private.',

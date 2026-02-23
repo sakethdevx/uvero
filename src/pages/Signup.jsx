@@ -63,11 +63,11 @@ export default function Signup() {
             <form onSubmit={handleSubmit} className="space-y-4">
                 <label className="block">
                     <span className="text-sm">Email</span>
-                    <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className="w-full border rounded px-3 py-2" />
+                    <input type="email" required value={email} onChange={e => setEmail(e.target.value)} autoComplete="username" className="w-full border rounded px-3 py-2" />
                 </label>
                 <label className="block">
                     <span className="text-sm">Password</span>
-                    <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="w-full border rounded px-3 py-2" />
+                    <input type="password" required value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password" className="w-full border rounded px-3 py-2" />
                 </label>
                 <button type="submit" disabled={loading} className="bg-green-600 text-white px-4 py-2 rounded">
                     {loading ? 'Creating...' : 'Create account'}
