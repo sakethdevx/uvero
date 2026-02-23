@@ -322,11 +322,14 @@ function AppContent() {
                 <div className="pt-4 border-t border-gray-100 px-4 space-y-2">
                   <Link
                     to="/privacy"
-                    className="block text-gray-600 hover:text-primary-600 font-medium py-2"
+                    className="block text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium py-2"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Privacy
                   </Link>
+                  <div className="pt-2">
+                    <AuthStatus isMobile={true} onNav={() => setIsMenuOpen(false)} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -463,7 +466,7 @@ function App() {
 
 export default App;
 
-function AuthStatus() {
+function AuthStatus({ isMobile = false, onNav = () => { } }) {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [signingOut, setSigningOut] = useState(false)
@@ -475,6 +478,7 @@ function AuthStatus() {
       if (res?.error) throw res.error
       // navigate home and show a brief message
       navigate('/', { replace: true })
+      onNav()
       window.alert('Signed out successfully')
     } catch (err) {
       window.alert('Sign out failed: ' + (err?.message || err))
@@ -484,10 +488,32 @@ function AuthStatus() {
   }
 
   if (!user) {
+    if (isMobile) {
+      return (
+        <div className="flex flex-col gap-3 w-full">
+          <Link to="/login" onClick={onNav} className="block w-full text-center text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 py-2.5 rounded-xl font-medium">Sign in</Link>
+          <Link to="/signup" onClick={onNav} className="block w-full text-center btn-primary py-2.5 rounded-xl">Sign up</Link>
+        </div>
+      )
+    }
     return (
       <div className="flex items-center gap-3">
         <Link to="/login" className="text-sm text-gray-700 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400">Sign in</Link>
         <Link to="/signup" className="btn-primary text-sm py-2 px-4">Sign up</Link>
+      </div>
+    )
+  }
+
+  if (isMobile) {
+    return (
+      <div className="flex flex-col gap-3 w-full bg-gray-50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/5">
+        <Link to="/profile" onClick={onNav} className="flex items-center justify-center gap-2 text-primary-600 dark:text-primary-400 font-medium">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+          {user.email}
+        </Link>
+        <button onClick={handleSignOut} disabled={signingOut} className="block w-full text-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white py-2 font-medium">
+          {signingOut ? 'Signing out...' : 'Sign out'}
+        </button>
       </div>
     )
   }
