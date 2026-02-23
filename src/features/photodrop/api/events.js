@@ -181,6 +181,35 @@ export default async function handler(req, res) {
             return res.status(200).json({ data: events })
         }
 
+        // UPDATE EVENT NAME
+        if (method === 'PATCH') {
+            const { event_id, event_name } = req.body || {}
+            if (!event_id || !event_name)
+                return res.status(400).json({ error: 'event_id and event_name required' })
+
+            // verify the user is the event creator
+            const { data: evs, error: evErr } = await serverSupabase
+                .from('events')
+                .select('*')
+                .eq('id', event_id)
+                .limit(1)
+
+            if (evErr) return res.status(500).json({ error: evErr.message })
+            const event = evs?.[0]
+            if (!event) return res.status(404).json({ error: 'Event not found' })
+            if (event.created_by !== user.id)
+                return res.status(403).json({ error: 'Only the event creator can rename this event' })
+
+            const { data: updated, error: updateErr } = await serverSupabase
+                .from('events')
+                .update({ event_name })
+                .eq('id', event_id)
+                .select()
+
+            if (updateErr) return res.status(500).json({ error: updateErr.message })
+            return res.status(200).json({ data: updated?.[0] || null })
+        }
+
         return res.status(405).json({ error: 'Method not allowed' })
     } catch (err) {
         return res.status(500).json({ error: err.message })
