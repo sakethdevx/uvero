@@ -267,19 +267,22 @@ function AppContent() {
               </div>
             </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2.5 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 rounded-xl hover:bg-white/60 dark:hover:bg-white/5 backdrop-blur-sm hover:shadow-lg transition-all duration-300 nav-button-glass"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {isMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
+            {/* Mobile Auth & Menu Button */}
+            <div className="flex md:hidden items-center gap-2">
+              <MobileNavAuth onNav={() => setIsMenuOpen(false)} />
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2.5 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 rounded-xl hover:bg-white/60 dark:hover:bg-white/5 backdrop-blur-sm hover:shadow-lg transition-all duration-300 nav-button-glass"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {isMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* Mobile Menu */}
@@ -297,6 +300,11 @@ function AppContent() {
                     <ModeToggle />
                   </div>
                 )}
+
+                {/* Account Settings - Moved Top */}
+                <div className="px-4 pb-4 border-b border-gray-100 dark:border-white/5">
+                  <AuthStatus isMobile={true} onNav={() => setIsMenuOpen(false)} />
+                </div>
 
                 {isFileProcessingRoute && toolCategories.map((category, idx) => (
                   <div key={idx} className="px-4">
@@ -327,9 +335,6 @@ function AppContent() {
                   >
                     Privacy
                   </Link>
-                  <div className="pt-2">
-                    <AuthStatus isMobile={true} onNav={() => setIsMenuOpen(false)} />
-                  </div>
                 </div>
               </div>
             </div>
@@ -525,5 +530,33 @@ function AuthStatus({ isMobile = false, onNav = () => { } }) {
         {signingOut ? 'Signing out...' : 'Sign out'}
       </button>
     </div>
+  )
+}
+
+function MobileNavAuth({ onNav }) {
+  const { user } = useAuth()
+
+  if (!user) {
+    return (
+      <Link
+        to="/login"
+        onClick={onNav}
+        className="text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 px-4 py-2 rounded-xl transition-colors shadow-sm"
+      >
+        Sign in
+      </Link>
+    )
+  }
+
+  const initial = user.email ? user.email.charAt(0).toUpperCase() : 'U'
+
+  return (
+    <Link
+      to="/profile"
+      onClick={onNav}
+      className="flex items-center justify-center w-9 h-9 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 font-semibold border border-primary-200 dark:border-primary-800/50 shadow-sm"
+    >
+      {initial}
+    </Link>
   )
 }
