@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { saveBoard, getBoard, deleteBoard } from '../../services/clipboardGithubStorage.js'
+import { saveBoard, getBoard, deleteBoard } from '../services/clipboardGithubStorage.js'
 import crypto from 'crypto'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL

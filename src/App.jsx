@@ -1,24 +1,24 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { ModeProvider } from './context/ModeContext';
-import ModeToggle from './components/ModeToggle';
+import { ModeProvider } from './features/file-processing/context/ModeContext';
+import ModeToggle from './features/file-processing/components/ModeToggle';
 import ThemeToggle from './components/ThemeToggle';
-import ServicesHome from './pages/ServicesHome';
-import Home from './pages/Home';
-import ToolPage from './pages/ToolPage';
+import ServicesHome from './features/file-processing/pages/ServicesHome';
+import Home from './features/file-processing/pages/Home';
+import ToolPage from './features/file-processing/pages/ToolPage';
 import Privacy from './pages/Privacy';
-import EventsPage from './pages/Events';
-import EventDetail from './pages/EventDetail';
-import InvitePage from './pages/Invite';
-import Clipboard from './pages/Clipboard';
-import ClipboardBoard from './pages/ClipboardBoard';
+import EventsPage from './features/photodrop/pages/Events';
+import EventDetail from './features/photodrop/pages/EventDetail';
+import InvitePage from './features/photodrop/pages/Invite';
+import Clipboard from './features/clipboard/pages/Clipboard';
+import ClipboardBoard from './features/clipboard/pages/ClipboardBoard';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import { useAuth } from './auth/AuthContext';
 import { signOut } from './auth/authService';
-import { getToolById } from './tools';
+import { getToolById } from './features/file-processing/tools';
 
 /**
  * Main App Component

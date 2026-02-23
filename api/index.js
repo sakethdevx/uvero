@@ -1,5 +1,5 @@
 // Router that receives rewrites from Vercel: /api/:path* -> /api?path=:path*
-// It dispatches to handlers in src/api_handlers based on the original subpath.
+// It dispatches to handlers in src/features/*/api based on the original subpath.
 
 export default async function handler(req, res) {
     try {
@@ -9,80 +9,80 @@ export default async function handler(req, res) {
 
         // map originalPath to handlers
         if (originalPath === '/api/create-profile') {
-            const mod = await import('../src/api_handlers/create-profile.js')
+            const mod = await import('../src/features/photodrop/api/create-profile.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/events') {
-            const mod = await import('../src/api_handlers/events.js')
+            const mod = await import('../src/features/photodrop/api/events.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/compress') {
-            const mod = await import('../src/api_handlers/compress.js')
+            const mod = await import('../src/features/file-processing/api/compress.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/convert-video-to-mp3') {
-            const mod = await import('../src/api_handlers/convert-video-to-mp3.js')
+            const mod = await import('../src/features/file-processing/api/convert-video-to-mp3.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/delete-event') {
-            const mod = await import('../src/api_handlers/delete-event.js')
+            const mod = await import('../src/features/photodrop/api/delete-event.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/delete-image') {
-            const mod = await import('../src/api_handlers/delete-image.js')
+            const mod = await import('../src/features/photodrop/api/delete-image.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/join-event') {
-            const mod = await import('../src/api_handlers/join-event.js')
+            const mod = await import('../src/features/photodrop/api/join-event.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/create-invite') {
-            const mod = await import('../src/api_handlers/create-invite.js')
+            const mod = await import('../src/features/photodrop/api/create-invite.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/invite-info') {
-            const mod = await import('../src/api_handlers/invite-info.js')
+            const mod = await import('../src/features/photodrop/api/invite-info.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/persons') {
-            const mod = await import('../src/api_handlers/persons.js')
+            const mod = await import('../src/features/photodrop/api/persons.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/update-person-name') {
-            const mod = await import('../src/api_handlers/update-person-name.js')
+            const mod = await import('../src/features/photodrop/api/update-person-name.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/process-faces') {
-            const mod = await import('../src/api_handlers/process-faces.js')
+            const mod = await import('../src/features/photodrop/api/process-faces.js')
             return mod.default(req, res)
         }
 
 
 
         if (originalPath === '/api/upload-image') {
-            const mod = await import('../src/api_handlers/upload-image.js')
+            const mod = await import('../src/features/photodrop/api/upload-image.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/clipboard') {
-            const mod = await import('../src/api_handlers/clipboard/index.js')
+            const mod = await import('../src/features/clipboard/api/index.js')
             return mod.default(req, res)
         }
 
         // images collection
         if (originalPath === '/api/images') {
-            const mod = await import('../src/api_handlers/images/index.js')
+            const mod = await import('../src/features/photodrop/api/images/index.js')
             return mod.default(req, res)
         }
 
@@ -91,7 +91,7 @@ export default async function handler(req, res) {
             const id = forwarded.split('/')[1]
             req.query = req.query || {}
             req.query.id = id
-            const mod = await import('../src/api_handlers/images/[id].js')
+            const mod = await import('../src/features/photodrop/api/images/[id].js')
             return mod.default(req, res)
         }
 
@@ -101,3 +101,4 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: String(err?.message || err) })
     }
 }
+

@@ -1,4 +1,4 @@
-import { useMode } from '../context/ModeContext';
+import { useMode } from '../features/file-processing/context/ModeContext';
 
 const ThemeToggle = () => {
     const { theme, toggleTheme } = useMode();
