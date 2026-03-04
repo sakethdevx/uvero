@@ -115,21 +115,21 @@ export default function EditPdf() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50">
+        <div className="min-h-screen bg-gradient-to-br from-violet-50 via-white to-purple-50 dark:to-gray-800">
             {/* Hero Section */}
-            <div className="bg-white border-b">
+            <div className="bg-white dark:bg-gray-800 border-b">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="text-center max-w-3xl mx-auto">
                         <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-500 rounded-2xl mb-6 shadow-lg">
                             <span className="text-3xl">✏️</span>
                         </div>
-                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
                             PDF Editor
                         </h1>
-                        <p className="text-xl text-gray-600 mb-6">
+                        <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
                             Add text annotations to your PDFs. Fast, secure, and completely free.
                         </p>
-                        <div className="flex flex-wrap gap-3 justify-center text-sm text-gray-600">
+                        <div className="flex flex-wrap gap-3 justify-center text-sm text-gray-600 dark:text-gray-300">
                             <div className="flex items-center gap-2">
                                 <span className="text-green-500">✓</span>
                                 <span>100% Client-side</span>
@@ -153,7 +153,7 @@ export default function EditPdf() {
 
             {/* Main Tool Section */}
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                     <div className="p-8">
                         {/* Dropzone */}
                         {!file && (
@@ -172,72 +172,72 @@ export default function EditPdf() {
                         {file && !result && (
                             <div className="space-y-6">
                                 {/* File header */}
-                                <div className="flex items-center justify-between bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                                     <div className="flex items-center gap-3">
                                         <span className="text-2xl">📄</span>
                                         <div>
-                                            <p className="font-medium text-gray-900">{file.name}</p>
-                                            <p className="text-sm text-gray-500">{totalPages} page{totalPages !== 1 ? 's' : ''}</p>
+                                            <p className="font-medium text-gray-900 dark:text-white">{file.name}</p>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">{totalPages} page{totalPages !== 1 ? 's' : ''}</p>
                                         </div>
                                     </div>
-                                    <button onClick={handleReset} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+                                    <button onClick={handleReset} className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:text-gray-300 text-xl">✕</button>
                                 </div>
 
                                 {/* Add Annotation Panel */}
-                                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-4">
+                                <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
                                         Add Text Annotation
                                     </label>
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-sm text-gray-600 mb-1">Text Content</label>
+                                            <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">Text Content</label>
                                             <input
                                                 type="text"
                                                 value={textContent}
                                                 onChange={(e) => setTextContent(e.target.value)}
                                                 placeholder="Enter text to add..."
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none"
+                                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none"
                                                 disabled={isProcessing}
                                             />
                                         </div>
 
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                             <div>
-                                                <label className="block text-sm text-gray-600 mb-1">Font Size</label>
+                                                <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">Font Size</label>
                                                 <input
                                                     type="number"
                                                     min="8"
                                                     max="72"
                                                     value={fontSize}
                                                     onChange={(e) => setFontSize(Number(e.target.value))}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none"
                                                     disabled={isProcessing}
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm text-gray-600 mb-1">Color</label>
+                                                <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">Color</label>
                                                 <input
                                                     type="color"
                                                     value={color}
                                                     onChange={(e) => setColor(e.target.value)}
-                                                    className="w-full h-[42px] px-1 py-1 border border-gray-300 rounded-lg cursor-pointer"
+                                                    className="w-full h-[42px] px-1 py-1 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer"
                                                     disabled={isProcessing}
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm text-gray-600 mb-1">Page</label>
+                                                <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">Page</label>
                                                 <input
                                                     type="number"
                                                     min="1"
                                                     max={totalPages}
                                                     value={page}
                                                     onChange={(e) => setPage(Number(e.target.value))}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none"
                                                     disabled={isProcessing}
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm text-gray-600 mb-1">Position</label>
+                                                <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">Position</label>
                                                 <select
                                                     onChange={(e) => {
                                                         const positions = {
@@ -257,7 +257,7 @@ export default function EditPdf() {
                                                             setPositionY(pos.y);
                                                         }
                                                     }}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none"
                                                     disabled={isProcessing}
                                                 >
                                                     <option value="top-left">Top Left</option>
@@ -275,24 +275,24 @@ export default function EditPdf() {
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-sm text-gray-600 mb-1">X Position</label>
+                                                <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">X Position</label>
                                                 <input
                                                     type="number"
                                                     min="0"
                                                     value={positionX}
                                                     onChange={(e) => setPositionX(Number(e.target.value))}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none"
                                                     disabled={isProcessing}
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm text-gray-600 mb-1">Y Position</label>
+                                                <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">Y Position</label>
                                                 <input
                                                     type="number"
                                                     min="0"
                                                     value={positionY}
                                                     onChange={(e) => setPositionY(Number(e.target.value))}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none"
                                                     disabled={isProcessing}
                                                 />
                                             </div>
@@ -310,22 +310,22 @@ export default function EditPdf() {
 
                                 {/* Annotations List */}
                                 {annotations.length > 0 && (
-                                    <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                                        <label className="block text-sm font-semibold text-gray-700 mb-4">
+                                    <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
                                             Pending Annotations ({annotations.length})
                                         </label>
                                         <div className="space-y-2">
                                             {annotations.map((ann) => (
-                                                <div key={ann.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-gray-200">
+                                                <div key={ann.id} className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
                                                     <div className="flex items-center gap-3 min-w-0">
                                                         <span className="flex-shrink-0 inline-flex items-center justify-center w-8 h-8 bg-violet-100 text-violet-700 rounded-lg text-sm font-medium">
                                                             T
                                                         </span>
                                                         <div className="min-w-0">
-                                                            <p className="text-sm font-medium text-gray-900 truncate">
+                                                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                                                                 {ann.content}
                                                             </p>
-                                                            <p className="text-xs text-gray-500">
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400">
                                                                 Page {ann.page + 1} · {ann.fontSize}px · ({ann.x}, {ann.y})
                                                             </p>
                                                         </div>
@@ -333,7 +333,7 @@ export default function EditPdf() {
                                                     <button
                                                         onClick={() => handleRemoveAnnotation(ann.id)}
                                                         disabled={isProcessing}
-                                                        className="flex-shrink-0 text-gray-400 hover:text-red-500 transition-colors ml-2"
+                                                        className="flex-shrink-0 text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors ml-2"
                                                     >
                                                         ✕
                                                     </button>
@@ -350,8 +350,8 @@ export default function EditPdf() {
 
                                 {/* Error */}
                                 {error && (
-                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                                        <p className="text-red-800 text-sm">{error}</p>
+                                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
+                                        <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
                                     </div>
                                 )}
 
@@ -379,16 +379,16 @@ export default function EditPdf() {
                         {/* Results */}
                         {result && (
                             <div className="space-y-6">
-                                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                                <div className="bg-gradient-to-r from-green-50 dark:from-gray-900 to-emerald-50 border border-green-200 dark:border-green-800/30 rounded-xl p-6">
                                     <div className="flex items-start gap-4">
                                         <div className="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                                             <span className="text-2xl">✓</span>
                                         </div>
                                         <div className="flex-1">
-                                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                                 PDF Edited Successfully!
                                             </h3>
-                                            <p className="text-gray-700">
+                                            <p className="text-gray-700 dark:text-gray-200">
                                                 {annotations.length} annotation{annotations.length !== 1 ? 's' : ''} applied to your PDF.
                                             </p>
                                         </div>
@@ -417,104 +417,104 @@ export default function EditPdf() {
 
                 {/* Features Grid */}
                 <div className="mt-12 grid md:grid-cols-3 gap-6">
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
                         <div className="w-12 h-12 bg-violet-100 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">🔒</span>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Privacy First</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy First</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             All processing happens in your browser. Your PDFs never leave your device.
                         </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">✏️</span>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Rich Annotations</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Rich Annotations</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Add text with custom fonts, sizes, colors, and precise positioning on any page.
                         </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">⚡</span>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Lightning Fast</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Lightning Fast</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Web Worker technology ensures smooth editing without freezing your browser.
                         </p>
                     </div>
                 </div>
 
                 {/* How It Works */}
-                <div className="mt-12 bg-white rounded-xl p-8 border border-gray-200 shadow-sm">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">How It Works</h2>
+                <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">How It Works</h2>
                     <div className="grid md:grid-cols-4 gap-6">
                         <div className="text-center">
                             <div className="w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-violet-600">
                                 1
                             </div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Upload PDF</h3>
-                            <p className="text-sm text-gray-600">Drag & drop or click to select your PDF file</p>
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Upload PDF</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">Drag & drop or click to select your PDF file</p>
                         </div>
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-purple-600">
+                            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-purple-600 dark:text-purple-400">
                                 2
                             </div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Add Annotations</h3>
-                            <p className="text-sm text-gray-600">Add text with custom size, color, and position</p>
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Add Annotations</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">Add text with custom size, color, and position</p>
                         </div>
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-indigo-600">
+                            <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-indigo-600 dark:text-indigo-400">
                                 3
                             </div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Apply</h3>
-                            <p className="text-sm text-gray-600">Click apply to embed all annotations into your PDF</p>
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Apply</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">Click apply to embed all annotations into your PDF</p>
                         </div>
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-green-600">
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-green-600 dark:text-green-400">
                                 4
                             </div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Download</h3>
-                            <p className="text-sm text-gray-600">Get your edited PDF instantly</p>
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Download</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-300">Get your edited PDF instantly</p>
                         </div>
                     </div>
                 </div>
 
                 {/* FAQ Section */}
-                <div className="mt-12 bg-white rounded-xl p-8 border border-gray-200 shadow-sm">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
+                <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-6">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">What kind of edits can I make?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What kind of edits can I make?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 You can add text annotations to any page of your PDF. Customize the font size, color, and exact position
                                 of each annotation. Multiple annotations can be added before applying.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Is my PDF secure?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is my PDF secure?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 Yes! Your PDF never leaves your device. All editing happens locally in your browser,
                                 ensuring complete privacy and security. We don't upload, store, or have access to your files.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Can I add text to specific pages?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Can I add text to specific pages?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 Yes! You can select which page each annotation should be placed on using the page selector.
                                 Different annotations can target different pages.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">What's the maximum file size?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What's the maximum file size?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 You can edit PDFs up to 100MB. Processing time depends on file size and the number of annotations.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Is this tool free to use?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is this tool free to use?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 Yes! Our PDF editor is completely free with unlimited usage. No sign-up, no hidden fees,
                                 no watermarks on your edited PDFs.
                             </p>

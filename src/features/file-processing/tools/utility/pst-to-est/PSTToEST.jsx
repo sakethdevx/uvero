@@ -89,62 +89,62 @@ export default function PSTToEST() {
         <div className="max-w-2xl mx-auto">
             <div className="card">
                 <div className="text-center mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                         🌍 PST to EST Converter
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-300">
                         Convert Pacific Standard Time to Eastern Standard Time
                     </p>
                 </div>
 
                 {/* Current Time Display */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4">
-                        <p className="text-sm text-gray-600 mb-1">Current PST</p>
-                        <p className="text-2xl font-bold text-blue-600">{currentPST}</p>
+                    <div className="bg-gradient-to-br from-blue-50 dark:from-gray-900 to-blue-100 rounded-lg p-4">
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Current PST</p>
+                        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{currentPST}</p>
                     </div>
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4">
-                        <p className="text-sm text-gray-600 mb-1">Current EST</p>
-                        <p className="text-2xl font-bold text-green-600">{currentEST}</p>
+                    <div className="bg-gradient-to-br from-green-50 dark:from-gray-900 to-green-100 rounded-lg p-4">
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Current EST</p>
+                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">{currentEST}</p>
                     </div>
                 </div>
 
                 <div className="space-y-6">
                     {/* Date Input */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                             Date
                         </label>
                         <input
                             type="date"
                             value={inputDate}
                             onChange={(e) => setInputDate(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         />
                     </div>
 
                     {/* Time Input */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                             PST Time
                         </label>
                         <input
                             type="time"
                             value={inputTime}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         />
                     </div>
 
                     {/* Result Section */}
                     {result && (
-                        <div className="bg-gradient-to-r from-primary-50 to-blue-50 rounded-lg p-6">
+                        <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:to-gray-800 rounded-lg p-6">
                             <div className="text-center">
-                                <p className="text-sm text-gray-600 mb-2">EST Time</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">EST Time</p>
                                 <p className="text-4xl font-bold text-primary-600">
                                     {result}
                                 </p>
-                                <p className="text-sm text-gray-500 mt-2">
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                                     {inputTime} PST = {result} EST
                                 </p>
                             </div>
@@ -170,9 +170,9 @@ export default function PSTToEST() {
                     </div>
 
                     {/* Info */}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                        <h3 className="font-semibold text-gray-900 mb-3">Time Zone Information</h3>
-                        <ul className="space-y-2 text-sm text-gray-700">
+                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Time Zone Information</h3>
+                        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-200">
                             <li className="flex items-start gap-2">
                                 <span className="text-primary-600 mt-0.5">•</span>
                                 <span>PST (Pacific Standard Time) is UTC-8</span>

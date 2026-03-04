@@ -102,24 +102,24 @@ export default function ImageConverter() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-b from-gray-50 dark:from-gray-900 to-white dark:to-gray-800 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
                         Image Converter
                     </h1>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
+                    <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
                         Convert images between JPG, PNG, and WebP formats. Resize images while maintaining quality.
                         All processing happens instantly in your browser.
                     </p>
 
                     {/* Privacy Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-full">
-                        <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-full">
+                        <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
-                        <span className="text-sm font-medium text-green-700">
+                        <span className="text-sm font-medium text-green-700 dark:text-green-300">
                             100% Private - Files never leave your device
                         </span>
                     </div>
@@ -145,8 +145,8 @@ export default function ImageConverter() {
                             {/* Preview */}
                             {previewUrl && (
                                 <div className="card">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Preview</h3>
-                                    <div className="flex justify-center bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Preview</h3>
+                                    <div className="flex justify-center bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
                                         <img
                                             src={previewUrl}
                                             alt="Preview"
@@ -158,13 +158,13 @@ export default function ImageConverter() {
 
                             {/* Conversion Options */}
                             <div className="card">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                                     Conversion Options
                                 </h3>
 
                                 {/* Output Format */}
                                 <div className="mb-6">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                         Output Format
                                     </label>
                                     <div className="grid grid-cols-3 gap-3">
@@ -177,7 +177,7 @@ export default function ImageConverter() {
                           px-4 py-3 rounded-lg font-semibold text-sm transition-all
                           ${outputFormat === format
                                                         ? 'bg-primary-600 text-white shadow-md'
-                                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:bg-gray-600'
                                                     }
                           disabled:opacity-50 disabled:cursor-not-allowed
                         `}
@@ -191,7 +191,7 @@ export default function ImageConverter() {
                                 {/* Resize Options */}
                                 <div className="border-t pt-6">
                                     <div className="flex items-center justify-between mb-4">
-                                        <label className="block text-sm font-medium text-gray-700">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                                             Resize Image (Optional)
                                         </label>
                                         <label className="flex items-center gap-2 cursor-pointer">
@@ -202,13 +202,13 @@ export default function ImageConverter() {
                                                 disabled={isProcessing}
                                                 className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
                                             />
-                                            <span className="text-sm text-gray-600">Maintain aspect ratio</span>
+                                            <span className="text-sm text-gray-600 dark:text-gray-300">Maintain aspect ratio</span>
                                         </label>
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm text-gray-600 mb-2">Width (px)</label>
+                                            <label className="block text-sm text-gray-600 dark:text-gray-300 mb-2">Width (px)</label>
                                             <input
                                                 type="number"
                                                 value={width}
@@ -216,11 +216,11 @@ export default function ImageConverter() {
                                                 disabled={isProcessing}
                                                 placeholder="Original"
                                                 min="1"
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50"
+                                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50"
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm text-gray-600 mb-2">Height (px)</label>
+                                            <label className="block text-sm text-gray-600 dark:text-gray-300 mb-2">Height (px)</label>
                                             <input
                                                 type="number"
                                                 value={height}
@@ -228,11 +228,11 @@ export default function ImageConverter() {
                                                 disabled={isProcessing}
                                                 placeholder="Original"
                                                 min="1"
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50"
+                                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50"
                                             />
                                         </div>
                                     </div>
-                                    <p className="text-xs text-gray-500 mt-2">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                                         Leave empty to keep original dimensions
                                     </p>
                                 </div>
@@ -247,8 +247,8 @@ export default function ImageConverter() {
 
                             {/* Error Display */}
                             {error && (
-                                <div className="card bg-red-50 border-red-200">
-                                    <p className="text-red-600 font-medium">⚠️ {error}</p>
+                                <div className="card bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/30">
+                                    <p className="text-red-600 dark:text-red-400 font-medium">⚠️ {error}</p>
                                 </div>
                             )}
 
@@ -283,14 +283,14 @@ export default function ImageConverter() {
                     {result && (
                         <div className="space-y-6">
                             {/* Success Message */}
-                            <div className="card bg-green-50 border-green-200">
+                            <div className="card bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/30">
                                 <div className="flex items-center gap-3">
-                                    <svg className="w-8 h-8 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg className="w-8 h-8 text-green-600 dark:text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                     </svg>
                                     <div>
-                                        <h3 className="text-lg font-semibold text-green-900">Conversion Complete!</h3>
-                                        <p className="text-sm text-green-700">
+                                        <h3 className="text-lg font-semibold text-green-900 dark:text-green-100">Conversion Complete!</h3>
+                                        <p className="text-sm text-green-700 dark:text-green-300">
                                             Your image has been converted to {result.format} format and is ready to download.
                                         </p>
                                     </div>
@@ -299,17 +299,17 @@ export default function ImageConverter() {
 
                             {/* Results Display */}
                             <div className="card">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4">Conversion Results</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Conversion Results</h3>
 
                                 <div className="space-y-4">
                                     {/* Format Change */}
-                                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                        <span className="text-sm font-medium text-gray-700">Format</span>
+                                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Format</span>
                                         <div className="flex items-center gap-2">
-                                            <span className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-semibold">
+                                            <span className="px-3 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-full text-sm font-semibold">
                                                 {file.type.split('/')[1].toUpperCase()}
                                             </span>
-                                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                             </svg>
                                             <span className="px-3 py-1 bg-primary-600 text-white rounded-full text-sm font-semibold">
@@ -320,16 +320,16 @@ export default function ImageConverter() {
 
                                     {/* Dimensions */}
                                     {result.dimensions && (
-                                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                            <span className="text-sm font-medium text-gray-700">Dimensions</span>
+                                        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Dimensions</span>
                                             <div className="flex items-center gap-2">
-                                                <span className="text-sm text-gray-600">
+                                                <span className="text-sm text-gray-600 dark:text-gray-300">
                                                     {result.dimensions.original.width} × {result.dimensions.original.height}
                                                 </span>
                                                 {(result.dimensions.original.width !== result.dimensions.converted.width ||
                                                     result.dimensions.original.height !== result.dimensions.converted.height) && (
                                                         <>
-                                                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                                             </svg>
                                                             <span className="text-sm font-semibold text-primary-600">
@@ -342,16 +342,16 @@ export default function ImageConverter() {
                                     )}
 
                                     {/* File Size */}
-                                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                        <span className="text-sm font-medium text-gray-700">File Size</span>
+                                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">File Size</span>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-sm text-gray-600">
+                                            <span className="text-sm text-gray-600 dark:text-gray-300">
                                                 {(result.originalSize / 1024).toFixed(1)} KB
                                             </span>
-                                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                             </svg>
-                                            <span className="text-sm font-semibold text-gray-900">
+                                            <span className="text-sm font-semibold text-gray-900 dark:text-white">
                                                 {(result.convertedSize / 1024).toFixed(1)} KB
                                             </span>
                                         </div>
@@ -386,7 +386,7 @@ export default function ImageConverter() {
 
                 {/* FAQ Section */}
                 <div className="mt-16 space-y-8">
-                    <h2 className="text-3xl font-bold text-gray-900 text-center">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center">
                         Frequently Asked Questions
                     </h2>
 
@@ -426,10 +426,10 @@ export default function ImageConverter() {
                             }
                         ].map((faq, idx) => (
                             <div key={idx} className="card hover:shadow-lg transition-shadow">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                     {faq.q}
                                 </h3>
-                                <p className="text-gray-600 leading-relaxed">
+                                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                                     {faq.a}
                                 </p>
                             </div>
@@ -438,35 +438,35 @@ export default function ImageConverter() {
                 </div>
 
                 {/* Format Comparison */}
-                <div className="mt-12 p-6 bg-blue-50 border border-blue-200 rounded-xl">
-                    <h3 className="text-xl font-semibold text-blue-900 mb-4">
+                <div className="mt-12 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-xl">
+                    <h3 className="text-xl font-semibold text-blue-900 dark:text-blue-100 mb-4">
                         📊 Format Comparison Guide
                     </h3>
                     <div className="grid md:grid-cols-3 gap-6">
-                        <div className="bg-white p-4 rounded-lg">
-                            <h4 className="font-bold text-gray-900 mb-2">JPG/JPEG</h4>
-                            <p className="text-sm text-gray-600 mb-3">Best for photographs</p>
-                            <ul className="text-sm text-gray-700 space-y-1">
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                            <h4 className="font-bold text-gray-900 dark:text-white mb-2">JPG/JPEG</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Best for photographs</p>
+                            <ul className="text-sm text-gray-700 dark:text-gray-200 space-y-1">
                                 <li>✅ Small file size</li>
                                 <li>✅ Wide compatibility</li>
                                 <li>❌ No transparency</li>
                                 <li>⚠️ Lossy compression</li>
                             </ul>
                         </div>
-                        <div className="bg-white p-4 rounded-lg">
-                            <h4 className="font-bold text-gray-900 mb-2">PNG</h4>
-                            <p className="text-sm text-gray-600 mb-3">Best for graphics & logos</p>
-                            <ul className="text-sm text-gray-700 space-y-1">
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                            <h4 className="font-bold text-gray-900 dark:text-white mb-2">PNG</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Best for graphics & logos</p>
+                            <ul className="text-sm text-gray-700 dark:text-gray-200 space-y-1">
                                 <li>✅ Transparency support</li>
                                 <li>✅ Lossless quality</li>
                                 <li>✅ Sharp text/lines</li>
                                 <li>❌ Larger file size</li>
                             </ul>
                         </div>
-                        <div className="bg-white p-4 rounded-lg">
-                            <h4 className="font-bold text-gray-900 mb-2">WebP</h4>
-                            <p className="text-sm text-gray-600 mb-3">Best for modern web</p>
-                            <ul className="text-sm text-gray-700 space-y-1">
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                            <h4 className="font-bold text-gray-900 dark:text-white mb-2">WebP</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Best for modern web</p>
+                            <ul className="text-sm text-gray-700 dark:text-gray-200 space-y-1">
                                 <li>✅ Superior compression</li>
                                 <li>✅ Transparency support</li>
                                 <li>✅ Better than JPG/PNG</li>

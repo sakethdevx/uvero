@@ -76,20 +76,20 @@ const MP3Converter = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-indigo-50 dark:from-gray-900 to-purple-50 dark:to-gray-800 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         MP3 Converter
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-gray-600 dark:text-gray-300">
                         Convert any audio file to MP3 format with customizable bitrate
                     </p>
                 </div>
 
                 {/* Main Content */}
-                <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
@@ -105,7 +105,7 @@ const MP3Converter = () => {
 
                             {/* Bitrate Selection */}
                             <div className="mb-6">
-                                <label className="block text-sm font-medium text-gray-700 mb-3">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                     MP3 Bitrate Quality
                                 </label>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -116,21 +116,21 @@ const MP3Converter = () => {
                                             className={`py-3 px-4 rounded-lg font-medium transition-all ${
                                                 bitrate === br.value
                                                     ? 'bg-indigo-600 text-white shadow-md'
-                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:bg-gray-600'
                                             }`}
                                         >
                                             {br.label}
                                         </button>
                                     ))}
                                 </div>
-                                <p className="text-xs text-gray-500 mt-2">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                                     Higher bitrate = better quality but larger file size
                                 </p>
                             </div>
 
                             {error && (
-                                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded">
-                                    <p className="text-red-700">{error}</p>
+                                <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded">
+                                    <p className="text-red-700 dark:text-red-300">{error}</p>
                                 </div>
                             )}
 
@@ -141,13 +141,13 @@ const MP3Converter = () => {
                             )}
 
                             {convertedAudio && (
-                                <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded">
+                                <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 rounded">
                                     <div className="flex items-start justify-between">
                                         <div>
-                                            <p className="font-semibold text-green-900 mb-1">
+                                            <p className="font-semibold text-green-900 dark:text-green-100 mb-1">
                                                 Conversion Complete!
                                             </p>
-                                            <p className="text-sm text-green-700">
+                                            <p className="text-sm text-green-700 dark:text-green-300">
                                                 {convertedAudio.filename} • {formatSize(convertedAudio.size)}
                                             </p>
                                         </div>
@@ -189,38 +189,38 @@ const MP3Converter = () => {
 
                 {/* Features */}
                 <div className="grid md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                        <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center mb-4">
+                            <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                             </svg>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Universal Format</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Universal Format</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             MP3 is supported by all devices and players
                         </p>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center mb-4">
+                            <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                             </svg>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Quality Control</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Quality Control</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Choose from multiple bitrate options for optimal quality
                         </p>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center mb-4">
+                            <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">100% Private</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             All processing happens locally in your browser
                         </p>
                     </div>

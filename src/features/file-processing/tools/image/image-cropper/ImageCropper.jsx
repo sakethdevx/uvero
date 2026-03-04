@@ -401,16 +401,16 @@ const ImageCropper = () => {
             <div className="max-w-5xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         Image Cropper
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-gray-600 dark:text-gray-300">
                         Crop images to any size or aspect ratio
                     </p>
                 </div>
 
                 {/* Main Content */}
-                <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
@@ -427,7 +427,7 @@ const ImageCropper = () => {
                                 <>
                                     {/* Aspect Ratio Selection */}
                                     <div className="mt-6">
-                                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                             Aspect Ratio
                                         </label>
                                         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -437,11 +437,11 @@ const ImageCropper = () => {
                                                     onClick={() => handleCropModeChange(ratio.value)}
                                                     className={`p-3 rounded-lg border-2 transition-all ${cropMode === ratio.value
                                                         ? 'border-amber-500 bg-amber-50'
-                                                        : 'border-gray-200 hover:border-amber-300'
+                                                        : 'border-gray-200 dark:border-gray-700 hover:border-amber-300'
                                                         }`}
                                                 >
                                                     <div className="text-2xl mb-1">{ratio.icon}</div>
-                                                    <div className="text-xs font-medium text-gray-700">
+                                                    <div className="text-xs font-medium text-gray-700 dark:text-gray-200">
                                                         {ratio.label}
                                                     </div>
                                                 </button>
@@ -451,15 +451,15 @@ const ImageCropper = () => {
 
                                     {/* Canvas */}
                                     <div className="mt-6" ref={containerRef}>
-                                        <div className="text-sm text-gray-600 mb-2">
+                                        <div className="text-sm text-gray-600 dark:text-gray-300 mb-2">
                                             Drag any corner to resize, or drag inside the area to move it
                                         </div>
                                         <div className="relative flex items-center justify-center min-h-[400px]">
                                             {imageLoading && (
-                                                <div className="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-lg border-2 border-gray-200 z-10">
+                                                <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-900 rounded-lg border-2 border-gray-200 dark:border-gray-700 z-10">
                                                     <div className="text-center">
                                                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
-                                                        <p className="text-gray-600">Loading image...</p>
+                                                        <p className="text-gray-600 dark:text-gray-300">Loading image...</p>
                                                     </div>
                                                 </div>
                                             )}
@@ -469,12 +469,12 @@ const ImageCropper = () => {
                                                 onMouseMove={handleMouseMove}
                                                 onMouseUp={handleMouseUp}
                                                 onMouseLeave={handleMouseUp}
-                                                className="border-2 border-gray-300 rounded-lg cursor-move max-w-full"
+                                                className="border-2 border-gray-300 dark:border-gray-600 rounded-lg cursor-move max-w-full"
                                                 style={{ display: imageDimensions ? 'block' : 'none' }}
                                             />
                                         </div>
                                         {cropArea && imageDimensions && (
-                                            <div className="text-sm text-gray-500 mt-2">
+                                            <div className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                                                 Crop size: {Math.round(cropArea.width / imageDimensions.scale)} × {Math.round(cropArea.height / imageDimensions.scale)} px
                                             </div>
                                         )}
@@ -500,8 +500,8 @@ const ImageCropper = () => {
 
                                     {/* Error */}
                                     {error && (
-                                        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                            <p className="text-red-600 text-sm">{error}</p>
+                                        <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+                                            <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
                                         </div>
                                     )}
                                 </>
@@ -512,15 +512,15 @@ const ImageCropper = () => {
                                 <div className="mt-6">
                                     <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-6">
                                         <div className="flex items-center justify-between mb-4">
-                                            <h3 className="text-lg font-semibold text-gray-900">
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                                                 ✅ Image Cropped!
                                             </h3>
                                         </div>
 
                                         {/* Image Preview */}
-                                        <div className="bg-white rounded-lg p-4 mb-4">
-                                            <div className="text-sm font-medium text-gray-700 mb-2">Preview:</div>
-                                            <div className="flex justify-center bg-gray-100 rounded-lg p-4">
+                                        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+                                            <div className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Preview:</div>
+                                            <div className="flex justify-center bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
                                                 <img
                                                     src={croppedImage.url}
                                                     alt="Cropped"
@@ -529,11 +529,11 @@ const ImageCropper = () => {
                                             </div>
                                             <div className="grid grid-cols-2 gap-4 mt-4">
                                                 <div className="text-center">
-                                                    <div className="text-sm text-gray-500">Original</div>
+                                                    <div className="text-sm text-gray-500 dark:text-gray-400">Original</div>
                                                     <div className="font-semibold">{formatBytes(file.size)}</div>
                                                 </div>
                                                 <div className="text-center">
-                                                    <div className="text-sm text-gray-500">Cropped</div>
+                                                    <div className="text-sm text-gray-500 dark:text-gray-400">Cropped</div>
                                                     <div className="font-semibold text-amber-600">
                                                         {formatBytes(croppedImage.size)}
                                                     </div>
@@ -565,13 +565,13 @@ const ImageCropper = () => {
                 </div>
 
                 {/* Info Section */}
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                         About Image Cropper
                     </h2>
-                    <div className="space-y-4 text-gray-600">
+                    <div className="space-y-4 text-gray-600 dark:text-gray-300">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Aspect Ratios</h3>
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Aspect Ratios</h3>
                             <ul className="list-disc list-inside space-y-1 text-sm">
                                 <li><strong>Freeform:</strong> Crop to any size</li>
                                 <li><strong>Square (1:1):</strong> Perfect for profile pictures, Instagram posts</li>
@@ -581,7 +581,7 @@ const ImageCropper = () => {
                             </ul>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">How to Use</h3>
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">How to Use</h3>
                             <ol className="list-decimal list-inside space-y-1 text-sm">
                                 <li>Upload your image</li>
                                 <li>Select desired aspect ratio</li>
@@ -591,7 +591,7 @@ const ImageCropper = () => {
                             </ol>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Privacy & Security</h3>
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy & Security</h3>
                             <p className="text-sm">
                                 All cropping happens in your browser. Your images never leave your device,
                                 ensuring complete privacy.
@@ -601,43 +601,43 @@ const ImageCropper = () => {
                 </div>
 
                 {/* FAQ */}
-                <div className="mt-8 bg-white rounded-xl shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                         Frequently Asked Questions
                     </h2>
                     <div className="space-y-4">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                 Does cropping reduce image quality?
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                                 No! Cropping removes pixels but doesn't compress the remaining image.
                                 The cropped area maintains its original quality.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                 What aspect ratio should I use?
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                                 It depends on your use case: Square for social media profiles, 16:9 for
                                 YouTube and presentations, 9:16 for mobile Stories, or Freeform for custom needs.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                 Can I crop the same image multiple times?
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                                 Yes! After cropping, click "Crop Another" to upload the same or a different image.
                                 You can also download the cropped version and upload it again for further cropping.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                 What format is the output?
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                                 The cropped image is saved as PNG to preserve quality. If you need a different
                                 format, use our Image Converter tool after cropping.
                             </p>

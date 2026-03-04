@@ -108,20 +108,20 @@ const Watermark = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 dark:to-gray-800 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         Add Watermark to Image
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-gray-600 dark:text-gray-300">
                         Protect your images with text or logo watermarks
                     </p>
                 </div>
 
                 {/* Main Content */}
-                <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
@@ -138,7 +138,7 @@ const Watermark = () => {
                                 <>
                                     {/* Watermark Type */}
                                     <div className="mt-6">
-                                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                             Watermark Type
                                         </label>
                                         <div className="grid grid-cols-2 gap-3">
@@ -146,12 +146,12 @@ const Watermark = () => {
                                                 onClick={() => setWatermarkType('text')}
                                                 className={`p-4 rounded-lg border-2 transition-all ${watermarkType === 'text'
                                                         ? 'border-cyan-500 bg-cyan-50'
-                                                        : 'border-gray-200 hover:border-cyan-300'
+                                                        : 'border-gray-200 dark:border-gray-700 hover:border-cyan-300'
                                                     }`}
                                             >
                                                 <div className="text-3xl mb-2">📝</div>
-                                                <div className="font-semibold text-gray-900">Text Watermark</div>
-                                                <div className="text-xs text-gray-500 mt-1">
+                                                <div className="font-semibold text-gray-900 dark:text-white">Text Watermark</div>
+                                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                     Add custom text
                                                 </div>
                                             </button>
@@ -159,12 +159,12 @@ const Watermark = () => {
                                                 onClick={() => setWatermarkType('image')}
                                                 className={`p-4 rounded-lg border-2 transition-all ${watermarkType === 'image'
                                                         ? 'border-cyan-500 bg-cyan-50'
-                                                        : 'border-gray-200 hover:border-cyan-300'
+                                                        : 'border-gray-200 dark:border-gray-700 hover:border-cyan-300'
                                                     }`}
                                             >
                                                 <div className="text-3xl mb-2">🖼️</div>
-                                                <div className="font-semibold text-gray-900">Logo Watermark</div>
-                                                <div className="text-xs text-gray-500 mt-1">
+                                                <div className="font-semibold text-gray-900 dark:text-white">Logo Watermark</div>
+                                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                     Upload logo image
                                                 </div>
                                             </button>
@@ -176,7 +176,7 @@ const Watermark = () => {
                                         <>
                                             {/* Text Input */}
                                             <div className="mt-6">
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                                     Watermark Text
                                                 </label>
                                                 <input
@@ -184,13 +184,13 @@ const Watermark = () => {
                                                     value={text}
                                                     onChange={(e) => setText(e.target.value)}
                                                     placeholder="Enter watermark text"
-                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                                                 />
                                             </div>
 
                                             {/* Font Size */}
                                             <div className="mt-6">
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                                     Font Size: {fontSize}px
                                                 </label>
                                                 <input
@@ -201,7 +201,7 @@ const Watermark = () => {
                                                     onChange={(e) => setFontSize(parseInt(e.target.value))}
                                                     className="w-full"
                                                 />
-                                                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                     <span>Small (20px)</span>
                                                     <span>Large (120px)</span>
                                                 </div>
@@ -209,7 +209,7 @@ const Watermark = () => {
 
                                             {/* Text Color */}
                                             <div className="mt-6">
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                                     Text Color
                                                 </label>
                                                 <div className="flex items-center gap-4">
@@ -217,27 +217,27 @@ const Watermark = () => {
                                                         type="color"
                                                         value={color}
                                                         onChange={(e) => setColor(e.target.value)}
-                                                        className="h-12 w-20 rounded border border-gray-300 cursor-pointer"
+                                                        className="h-12 w-20 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
                                                     />
                                                     <div className="flex gap-2">
                                                         <button
                                                             onClick={() => setColor('#ffffff')}
-                                                            className="w-8 h-8 rounded border-2 border-gray-300 bg-white"
+                                                            className="w-8 h-8 rounded border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
                                                             title="White"
                                                         />
                                                         <button
                                                             onClick={() => setColor('#000000')}
-                                                            className="w-8 h-8 rounded border-2 border-gray-300 bg-black"
+                                                            className="w-8 h-8 rounded border-2 border-gray-300 dark:border-gray-600 bg-black"
                                                             title="Black"
                                                         />
                                                         <button
                                                             onClick={() => setColor('#ef4444')}
-                                                            className="w-8 h-8 rounded border-2 border-gray-300 bg-red-500"
+                                                            className="w-8 h-8 rounded border-2 border-gray-300 dark:border-gray-600 bg-red-500"
                                                             title="Red"
                                                         />
                                                         <button
                                                             onClick={() => setColor('#3b82f6')}
-                                                            className="w-8 h-8 rounded border-2 border-gray-300 bg-blue-500"
+                                                            className="w-8 h-8 rounded border-2 border-gray-300 dark:border-gray-600 bg-blue-500"
                                                             title="Blue"
                                                         />
                                                     </div>
@@ -249,7 +249,7 @@ const Watermark = () => {
                                     {/* Image Watermark Settings */}
                                     {watermarkType === 'image' && (
                                         <div className="mt-6">
-                                            <label className="block text-sm font-medium text-gray-700 mb-3">
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                                 Watermark Logo
                                             </label>
                                             {!watermarkImage ? (
@@ -261,17 +261,17 @@ const Watermark = () => {
                                                     description="PNG or SVG with transparency (Max 5MB)"
                                                 />
                                             ) : (
-                                                <div className="flex items-center justify-between bg-gray-50 rounded-lg p-4">
+                                                <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
                                                     <div className="flex items-center gap-3">
                                                         <div className="text-2xl">🖼️</div>
                                                         <div>
-                                                            <div className="font-medium text-gray-900">{watermarkImage.name}</div>
-                                                            <div className="text-sm text-gray-500">{formatBytes(watermarkImage.size)}</div>
+                                                            <div className="font-medium text-gray-900 dark:text-white">{watermarkImage.name}</div>
+                                                            <div className="text-sm text-gray-500 dark:text-gray-400">{formatBytes(watermarkImage.size)}</div>
                                                         </div>
                                                     </div>
                                                     <button
                                                         onClick={() => setWatermarkImage(null)}
-                                                        className="text-red-600 hover:text-red-700"
+                                                        className="text-red-600 dark:text-red-400 hover:text-red-700 dark:text-red-300"
                                                     >
                                                         ✕
                                                     </button>
@@ -282,7 +282,7 @@ const Watermark = () => {
 
                                     {/* Opacity */}
                                     <div className="mt-6">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                             Opacity: {Math.round(opacity * 100)}%
                                         </label>
                                         <input
@@ -294,7 +294,7 @@ const Watermark = () => {
                                             onChange={(e) => setOpacity(parseFloat(e.target.value))}
                                             className="w-full"
                                         />
-                                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                                             <span>Transparent (10%)</span>
                                             <span>Opaque (100%)</span>
                                         </div>
@@ -302,7 +302,7 @@ const Watermark = () => {
 
                                     {/* Position */}
                                     <div className="mt-6">
-                                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                             Position
                                         </label>
                                         <div className="grid grid-cols-3 gap-3">
@@ -312,11 +312,11 @@ const Watermark = () => {
                                                     onClick={() => setPosition(pos.value)}
                                                     className={`p-3 rounded-lg border-2 transition-all ${position === pos.value
                                                             ? 'border-cyan-500 bg-cyan-50'
-                                                            : 'border-gray-200 hover:border-cyan-300'
+                                                            : 'border-gray-200 dark:border-gray-700 hover:border-cyan-300'
                                                         }`}
                                                 >
                                                     <div className="text-2xl mb-1">{pos.icon}</div>
-                                                    <div className="text-xs font-medium text-gray-700">{pos.label}</div>
+                                                    <div className="text-xs font-medium text-gray-700 dark:text-gray-200">{pos.label}</div>
                                                 </button>
                                             ))}
                                         </div>
@@ -342,8 +342,8 @@ const Watermark = () => {
 
                                     {/* Error */}
                                     {error && (
-                                        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                            <p className="text-red-600 text-sm">{error}</p>
+                                        <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+                                            <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
                                         </div>
                                     )}
                                 </>
@@ -352,24 +352,24 @@ const Watermark = () => {
                             {/* Results */}
                             {resultImage && (
                                 <div className="mt-6">
-                                    <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg p-6">
+                                    <div className="bg-gradient-to-r from-cyan-50 to-blue-50 dark:to-gray-800 rounded-lg p-6">
                                         <div className="flex items-center justify-between mb-4">
-                                            <h3 className="text-lg font-semibold text-gray-900">
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                                                 ✅ Watermark Added!
                                             </h3>
                                         </div>
 
                                         {/* Image Preview */}
-                                        <div className="bg-white rounded-lg p-4 mb-4">
-                                            <div className="text-sm font-medium text-gray-700 mb-2">Preview:</div>
-                                            <div className="flex justify-center bg-gray-100 rounded-lg p-4">
+                                        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+                                            <div className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Preview:</div>
+                                            <div className="flex justify-center bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
                                                 <img
                                                     src={resultImage.url}
                                                     alt="Watermarked"
                                                     className="max-w-full max-h-96 rounded-lg"
                                                 />
                                             </div>
-                                            <div className="text-center text-sm text-gray-600 mt-2">
+                                            <div className="text-center text-sm text-gray-600 dark:text-gray-300 mt-2">
                                                 Size: {formatBytes(resultImage.size)}
                                             </div>
                                         </div>
@@ -398,13 +398,13 @@ const Watermark = () => {
                 </div>
 
                 {/* Info Section */}
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                         About Watermark Tool
                     </h2>
-                    <div className="space-y-4 text-gray-600">
+                    <div className="space-y-4 text-gray-600 dark:text-gray-300">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Protect Your Images</h3>
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Protect Your Images</h3>
                             <ul className="list-disc list-inside space-y-1 text-sm">
                                 <li><strong>Text Watermark:</strong> Add copyright text, website URL, or custom message</li>
                                 <li><strong>Logo Watermark:</strong> Brand your images with company logo</li>
@@ -412,7 +412,7 @@ const Watermark = () => {
                             </ul>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Best Practices</h3>
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Best Practices</h3>
                             <ul className="list-disc list-inside space-y-1 text-sm">
                                 <li>Use 30-50% opacity for subtle watermarks</li>
                                 <li>Bottom-right corner is the most common position</li>
@@ -421,7 +421,7 @@ const Watermark = () => {
                             </ul>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Privacy & Security</h3>
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy & Security</h3>
                             <p className="text-sm">
                                 All processing happens in your browser. Your images never leave your device,
                                 ensuring complete privacy and security.
@@ -431,43 +431,43 @@ const Watermark = () => {
                 </div>
 
                 {/* FAQ */}
-                <div className="mt-8 bg-white rounded-xl shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                         Frequently Asked Questions
                     </h2>
                     <div className="space-y-4">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                 Can I use a transparent logo?
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                                 Yes! Upload PNG or SVG files with transparency. The transparent areas will
                                 blend naturally with your image.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                 What's the best watermark opacity?
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                                 30-50% is ideal for most images. It's visible enough to protect your work but
                                 doesn't heavily distract from the image content.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                 Does the watermark affect image quality?
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                                 The watermark is overlaid without compressing the original image. However, the
                                 output is saved as PNG for best quality with transparency support.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                 Can I batch watermark multiple images?
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                                 Currently, you can watermark one image at a time. After downloading, simply
                                 upload another image with the same settings applied.
                             </p>

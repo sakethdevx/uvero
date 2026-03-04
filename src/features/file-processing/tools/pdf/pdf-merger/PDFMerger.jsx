@@ -92,30 +92,30 @@ const PDFMerger = () => {
     const totalSize = files.reduce((sum, f) => sum + f.file.size, 0);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-red-50 dark:from-gray-900 to-orange-50 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         PDF Merger
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-gray-600 dark:text-gray-300">
                         Combine multiple PDF files into a single document
                     </p>
                 </div>
 
                 {/* Main Content */}
-                <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!mergedPDF ? (
                         <>
                             {/* File List */}
                             {files.length > 0 && (
                                 <div className="mb-6">
                                     <div className="flex items-center justify-between mb-3">
-                                        <h3 className="font-semibold text-gray-900">
+                                        <h3 className="font-semibold text-gray-900 dark:text-white">
                                             Selected PDFs ({files.length}/20)
                                         </h3>
-                                        <span className="text-sm text-gray-600">
+                                        <span className="text-sm text-gray-600 dark:text-gray-300">
                                             Total: {formatSize(totalSize)}
                                         </span>
                                     </div>
@@ -123,17 +123,17 @@ const PDFMerger = () => {
                                         {files.map((item, index) => (
                                             <div
                                                 key={item.id}
-                                                className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200"
+                                                className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
                                             >
-                                                <span className="text-sm font-medium text-gray-500 w-8">
+                                                <span className="text-sm font-medium text-gray-500 dark:text-gray-400 w-8">
                                                     {index + 1}.
                                                 </span>
                                                 <div className="text-3xl">📄</div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="font-medium text-gray-900 truncate">
+                                                    <p className="font-medium text-gray-900 dark:text-white truncate">
                                                         {item.file.name}
                                                     </p>
-                                                    <p className="text-sm text-gray-600">
+                                                    <p className="text-sm text-gray-600 dark:text-gray-300">
                                                         {formatSize(item.file.size)}
                                                     </p>
                                                 </div>
@@ -141,7 +141,7 @@ const PDFMerger = () => {
                                                     <button
                                                         onClick={() => handleMoveUp(index)}
                                                         disabled={index === 0 || isMerging}
-                                                        className="p-2 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                                                        className="p-2 hover:bg-gray-200 dark:bg-gray-600 rounded disabled:opacity-30 disabled:cursor-not-allowed"
                                                         title="Move up"
                                                     >
                                                         ↑
@@ -149,7 +149,7 @@ const PDFMerger = () => {
                                                     <button
                                                         onClick={() => handleMoveDown(index)}
                                                         disabled={index === files.length - 1 || isMerging}
-                                                        className="p-2 hover:bg-gray-200 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                                                        className="p-2 hover:bg-gray-200 dark:bg-gray-600 rounded disabled:opacity-30 disabled:cursor-not-allowed"
                                                         title="Move down"
                                                     >
                                                         ↓
@@ -157,7 +157,7 @@ const PDFMerger = () => {
                                                     <button
                                                         onClick={() => handleRemoveFile(item.id)}
                                                         disabled={isMerging}
-                                                        className="p-2 text-red-600 hover:bg-red-50 rounded disabled:opacity-30"
+                                                        className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:bg-red-900/20 rounded disabled:opacity-30"
                                                         title="Remove"
                                                     >
                                                         ×
@@ -194,7 +194,7 @@ const PDFMerger = () => {
                             {isMerging && (
                                 <div className="mt-6">
                                     <ProgressBar progress={progress} />
-                                    <p className="text-center text-sm text-gray-600 mt-2">
+                                    <p className="text-center text-sm text-gray-600 dark:text-gray-300 mt-2">
                                         Merging PDFs...
                                     </p>
                                 </div>
@@ -202,21 +202,21 @@ const PDFMerger = () => {
 
                             {/* Error */}
                             {error && (
-                                <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                    <p className="text-red-800">{error}</p>
+                                <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+                                    <p className="text-red-800 dark:text-red-200">{error}</p>
                                 </div>
                             )}
                         </>
                     ) : (
                         /* Result */
                         <div className="space-y-4">
-                            <div className="p-6 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg">
                                 <div className="flex items-start justify-between mb-4">
                                     <div>
-                                        <p className="font-semibold text-green-900 text-lg mb-1">
+                                        <p className="font-semibold text-green-900 dark:text-green-100 text-lg mb-1">
                                             PDFs Merged Successfully!
                                         </p>
-                                        <p className="text-sm text-green-700">
+                                        <p className="text-sm text-green-700 dark:text-green-300">
                                             {mergedPDF.filename} • {formatSize(mergedPDF.size)}
                                         </p>
                                     </div>
@@ -225,21 +225,21 @@ const PDFMerger = () => {
 
                                 {/* Stats */}
                                 <div className="grid grid-cols-3 gap-3 text-sm">
-                                    <div className="p-3 bg-white rounded-lg">
-                                        <p className="text-gray-600">Files Merged</p>
-                                        <p className="font-semibold text-gray-900 text-lg">
+                                    <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                                        <p className="text-gray-600 dark:text-gray-300">Files Merged</p>
+                                        <p className="font-semibold text-gray-900 dark:text-white text-lg">
                                             {files.length}
                                         </p>
                                     </div>
-                                    <div className="p-3 bg-white rounded-lg">
-                                        <p className="text-gray-600">Total Pages</p>
-                                        <p className="font-semibold text-gray-900 text-lg">
+                                    <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                                        <p className="text-gray-600 dark:text-gray-300">Total Pages</p>
+                                        <p className="font-semibold text-gray-900 dark:text-white text-lg">
                                             {mergedPDF.totalPages}
                                         </p>
                                     </div>
-                                    <div className="p-3 bg-white rounded-lg">
-                                        <p className="text-gray-600">File Size</p>
-                                        <p className="font-semibold text-gray-900 text-lg">
+                                    <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                                        <p className="text-gray-600 dark:text-gray-300">File Size</p>
+                                        <p className="font-semibold text-gray-900 dark:text-white text-lg">
                                             {formatSize(mergedPDF.size)}
                                         </p>
                                     </div>
@@ -261,68 +261,68 @@ const PDFMerger = () => {
 
                 {/* Features */}
                 <div className="grid md:grid-cols-3 gap-6 mb-12">
-                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                         <div className="text-3xl mb-3">📑</div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Unlimited Pages</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Unlimited Pages</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Merge up to 20 PDF files with any number of pages
                         </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                         <div className="text-3xl mb-3">🔄</div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Custom Order</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Custom Order</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Reorder files before merging with simple arrow buttons
                         </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                         <div className="text-3xl mb-3">🔒</div>
-                        <h3 className="font-semibold text-gray-900 mb-2">100% Secure</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Secure</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             All merging happens in your browser. Files never uploaded
                         </p>
                     </div>
                 </div>
 
                 {/* FAQ */}
-                <div className="bg-white rounded-2xl shadow-xl p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                         Frequently Asked Questions
                     </h2>
                     <div className="space-y-4">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 How many PDFs can I merge at once?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 You can merge up to 20 PDF files in a single operation. Each file
                                 can be up to 100MB in size.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 Can I change the order of the PDFs?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 Yes! Use the up (↑) and down (↓) arrow buttons next to each file to
                                 reorder them before merging. The order you arrange will be the order
                                 in the final merged PDF.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 Will the merged PDF preserve bookmarks and links?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 The tool preserves the content and pages of your PDFs. However,
                                 internal bookmarks and links may not be preserved during the merge process.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 Are my PDF files uploaded to a server?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 No! All PDF merging happens locally in your browser using Web APIs.
                                 Your files never leave your device, ensuring complete privacy and security.
                             </p>

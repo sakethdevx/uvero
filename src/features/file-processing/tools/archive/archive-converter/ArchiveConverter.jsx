@@ -123,23 +123,23 @@ export default function ArchiveConverter() {
         <div className="max-w-4xl mx-auto">
             <div className="card">
                 <div className="text-center mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                         🗜️ Archive Converter
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-300">
                         Convert and optimize archive files
                     </p>
                 </div>
 
                 {!isOnlineMode && (
-                    <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg p-4">
                         <div className="flex items-start gap-3">
                             <div className="text-2xl">ℹ️</div>
                             <div>
-                                <h3 className="font-semibold text-blue-900 mb-1">
+                                <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
                                     Offline Mode
                                 </h3>
-                                <p className="text-sm text-blue-700">
+                                <p className="text-sm text-blue-700 dark:text-blue-300">
                                     In offline mode, ZIP files can be converted and repackaged. 
                                     Switch to <strong>Online Mode</strong> to enable RAR file conversion.
                                 </p>
@@ -160,28 +160,28 @@ export default function ArchiveConverter() {
                         <div className="mt-8 grid md:grid-cols-3 gap-4">
                             <div className="text-center p-4">
                                 <div className="text-3xl mb-2">📦</div>
-                                <h3 className="font-semibold text-gray-900 mb-1">
+                                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                     Multiple Formats
                                 </h3>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 dark:text-gray-300">
                                     Support for ZIP archives (offline) and RAR (online)
                                 </p>
                             </div>
                             <div className="text-center p-4">
                                 <div className="text-3xl mb-2">🔒</div>
-                                <h3 className="font-semibold text-gray-900 mb-1">
+                                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                     Private Processing
                                 </h3>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 dark:text-gray-300">
                                     ZIP files processed locally in your browser
                                 </p>
                             </div>
                             <div className="text-center p-4">
                                 <div className="text-3xl mb-2">⚡</div>
-                                <h3 className="font-semibold text-gray-900 mb-1">
+                                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                     Fast Conversion
                                 </h3>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 dark:text-gray-300">
                                     Quick archive processing and optimization
                                 </p>
                             </div>
@@ -194,7 +194,7 @@ export default function ArchiveConverter() {
                         <FileInfo file={file} onRemove={() => setFile(null)} />
 
                         {error && (
-                            <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4">
+                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-200 rounded-lg p-4">
                                 <p className="font-medium">Error</p>
                                 <p className="text-sm">{error}</p>
                             </div>
@@ -203,7 +203,7 @@ export default function ArchiveConverter() {
                         {isProcessing && (
                             <div className="space-y-2">
                                 <ProgressBar progress={progress} />
-                                <p className="text-sm text-center text-gray-600">
+                                <p className="text-sm text-center text-gray-600 dark:text-gray-300">
                                     Converting archive... {progress}%
                                 </p>
                             </div>
@@ -231,14 +231,14 @@ export default function ArchiveConverter() {
 
                 {result && (
                     <div className="space-y-4">
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg p-6">
                             <div className="flex items-start gap-4">
                                 <div className="text-3xl">✅</div>
                                 <div className="flex-1">
-                                    <h3 className="font-semibold text-green-900 mb-1">
+                                    <h3 className="font-semibold text-green-900 dark:text-green-100 mb-1">
                                         Conversion Complete!
                                     </h3>
-                                    <p className="text-sm text-green-700 mb-3">
+                                    <p className="text-sm text-green-700 dark:text-green-300 mb-3">
                                         Your archive has been converted successfully.
                                     </p>
                                     <FileInfo file={result.file} />
@@ -265,9 +265,9 @@ export default function ArchiveConverter() {
                 )}
 
                 {/* Info Section */}
-                <div className="mt-8 bg-gray-50 rounded-lg p-6">
-                    <h3 className="font-semibold text-gray-900 mb-3">About Archive Converter</h3>
-                    <div className="space-y-2 text-sm text-gray-700">
+                <div className="mt-8 bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+                    <h3 className="font-semibold text-gray-900 dark:text-white mb-3">About Archive Converter</h3>
+                    <div className="space-y-2 text-sm text-gray-700 dark:text-gray-200">
                         <p>
                             <strong>Supported Formats:</strong>
                         </p>

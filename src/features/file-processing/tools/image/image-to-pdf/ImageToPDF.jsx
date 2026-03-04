@@ -139,21 +139,21 @@ export default function ImageToPDF() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-teal-50">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 dark:from-gray-900 via-white to-teal-50">
             {/* Hero Section */}
-            <div className="bg-white border-b">
+            <div className="bg-white dark:bg-gray-800 border-b">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="text-center max-w-3xl mx-auto">
                         <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-teal-500 rounded-2xl mb-6 shadow-lg">
                             <span className="text-3xl">📄</span>
                         </div>
-                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
                             Image to PDF Converter
                         </h1>
-                        <p className="text-xl text-gray-600 mb-6">
+                        <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
                             Combine multiple images into a single PDF. Drag to reorder, choose page size, and download.
                         </p>
-                        <div className="flex flex-wrap gap-3 justify-center text-sm text-gray-600">
+                        <div className="flex flex-wrap gap-3 justify-center text-sm text-gray-600 dark:text-gray-300">
                             <div className="flex items-center gap-2">
                                 <span className="text-green-500">✓</span>
                                 <span>100% Client-side</span>
@@ -177,7 +177,7 @@ export default function ImageToPDF() {
 
             {/* Main Tool Section */}
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                     <div className="p-8">
                         {/* File Upload */}
                         {!result && (
@@ -185,7 +185,7 @@ export default function ImageToPDF() {
                                 <div
                                     onDrop={handleDrop}
                                     onDragOver={handleDragOver}
-                                    className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200 ${files.length === 0 ? 'border-gray-300 hover:border-green-400 hover:bg-gray-50' : 'border-green-300'
+                                    className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200 ${files.length === 0 ? 'border-gray-300 dark:border-gray-600 hover:border-green-400 hover:bg-gray-50 dark:bg-gray-900' : 'border-green-300'
                                         }`}
                                 >
                                     <input
@@ -199,7 +199,7 @@ export default function ImageToPDF() {
                                     />
                                     <div className="pointer-events-none">
                                         <svg
-                                            className="mx-auto h-16 w-16 text-gray-400 mb-4"
+                                            className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-500 mb-4"
                                             stroke="currentColor"
                                             fill="none"
                                             viewBox="0 0 48 48"
@@ -211,10 +211,10 @@ export default function ImageToPDF() {
                                                 strokeLinejoin="round"
                                             />
                                         </svg>
-                                        <p className="text-xl font-semibold text-gray-700 mb-2">
+                                        <p className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
                                             {files.length === 0 ? 'Drop your images here' : `${files.length} image(s) selected`}
                                         </p>
-                                        <p className="text-sm text-gray-500 mb-4">
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                                             {files.length === 0 ? 'or click to browse' : 'Click to add more images'}
                                         </p>
                                     </div>
@@ -224,13 +224,13 @@ export default function ImageToPDF() {
                                 {files.length > 0 && (
                                     <div className="space-y-4">
                                         <div className="flex items-center justify-between">
-                                            <h3 className="text-sm font-semibold text-gray-700">
+                                            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                                                 Selected Images ({files.length})
                                             </h3>
                                             <button
                                                 onClick={() => fileInputRef.current?.click()}
                                                 disabled={isProcessing || files.length >= 50}
-                                                className="text-sm text-green-600 hover:text-green-700 disabled:opacity-50"
+                                                className="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:text-green-300 disabled:opacity-50"
                                             >
                                                 + Add More
                                             </button>
@@ -239,18 +239,18 @@ export default function ImageToPDF() {
                                             {files.map((file, index) => (
                                                 <div
                                                     key={index}
-                                                    className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200"
+                                                    className="flex items-center gap-3 bg-gray-50 dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700"
                                                 >
                                                     <img
                                                         src={URL.createObjectURL(file)}
                                                         alt={file.name}
-                                                        className="w-16 h-16 object-cover rounded border border-gray-200"
+                                                        className="w-16 h-16 object-cover rounded border border-gray-200 dark:border-gray-700"
                                                     />
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="text-sm font-medium text-gray-900 truncate">
+                                                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                                                             {file.name}
                                                         </p>
-                                                        <p className="text-xs text-gray-500">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">
                                                             {formatFileSize(file.size)} • Page {index + 1}
                                                         </p>
                                                     </div>
@@ -258,21 +258,21 @@ export default function ImageToPDF() {
                                                         <button
                                                             onClick={() => handleReorderFile(index, 'up')}
                                                             disabled={index === 0 || isProcessing}
-                                                            className="p-1 text-gray-600 hover:text-gray-900 disabled:opacity-30"
+                                                            className="p-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:text-white disabled:opacity-30"
                                                         >
                                                             ↑
                                                         </button>
                                                         <button
                                                             onClick={() => handleReorderFile(index, 'down')}
                                                             disabled={index === files.length - 1 || isProcessing}
-                                                            className="p-1 text-gray-600 hover:text-gray-900 disabled:opacity-30"
+                                                            className="p-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:text-white disabled:opacity-30"
                                                         >
                                                             ↓
                                                         </button>
                                                         <button
                                                             onClick={() => handleRemoveFile(index)}
                                                             disabled={isProcessing}
-                                                            className="p-1 text-red-600 hover:text-red-700 disabled:opacity-30"
+                                                            className="p-1 text-red-600 dark:text-red-400 hover:text-red-700 dark:text-red-300 disabled:opacity-30"
                                                         >
                                                             ✕
                                                         </button>
@@ -282,8 +282,8 @@ export default function ImageToPDF() {
                                         </div>
 
                                         {/* Page Size Selector */}
-                                        <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                                            <label className="block text-sm font-semibold text-gray-700 mb-4">
+                                        <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
                                                 Page Size
                                             </label>
                                             <div className="grid grid-cols-3 gap-3">
@@ -291,34 +291,34 @@ export default function ImageToPDF() {
                                                     onClick={() => setPageSize('fit')}
                                                     disabled={isProcessing}
                                                     className={`p-3 rounded-lg border-2 transition-all ${pageSize === 'fit'
-                                                        ? 'border-green-500 bg-green-50'
-                                                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                                                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                                                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
                                                         } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                                 >
-                                                    <div className="font-semibold text-gray-900 mb-1">Fit to Image</div>
-                                                    <div className="text-xs text-gray-500">Original size</div>
+                                                    <div className="font-semibold text-gray-900 dark:text-white mb-1">Fit to Image</div>
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400">Original size</div>
                                                 </button>
                                                 <button
                                                     onClick={() => setPageSize('a4')}
                                                     disabled={isProcessing}
                                                     className={`p-3 rounded-lg border-2 transition-all ${pageSize === 'a4'
-                                                        ? 'border-green-500 bg-green-50'
-                                                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                                                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                                                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
                                                         } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                                 >
-                                                    <div className="font-semibold text-gray-900 mb-1">A4</div>
-                                                    <div className="text-xs text-gray-500">210 × 297 mm</div>
+                                                    <div className="font-semibold text-gray-900 dark:text-white mb-1">A4</div>
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400">210 × 297 mm</div>
                                                 </button>
                                                 <button
                                                     onClick={() => setPageSize('letter')}
                                                     disabled={isProcessing}
                                                     className={`p-3 rounded-lg border-2 transition-all ${pageSize === 'letter'
-                                                        ? 'border-green-500 bg-green-50'
-                                                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                                                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                                                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
                                                         } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                                 >
-                                                    <div className="font-semibold text-gray-900 mb-1">Letter</div>
-                                                    <div className="text-xs text-gray-500">8.5 × 11 in</div>
+                                                    <div className="font-semibold text-gray-900 dark:text-white mb-1">Letter</div>
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400">8.5 × 11 in</div>
                                                 </button>
                                             </div>
                                         </div>
@@ -330,8 +330,8 @@ export default function ImageToPDF() {
 
                                         {/* Error */}
                                         {error && (
-                                            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                                                <p className="text-red-800 text-sm">{error}</p>
+                                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
+                                                <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
                                             </div>
                                         )}
 
@@ -362,21 +362,21 @@ export default function ImageToPDF() {
                         {result && (
                             <div className="space-y-6">
                                 {/* Success Message */}
-                                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                                <div className="bg-gradient-to-r from-green-50 dark:from-gray-900 to-emerald-50 border border-green-200 dark:border-green-800/30 rounded-xl p-6">
                                     <div className="flex items-start gap-4">
                                         <div className="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                                             <span className="text-2xl">✓</span>
                                         </div>
                                         <div className="flex-1">
-                                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                                 PDF Created Successfully!
                                             </h3>
-                                            <p className="text-gray-700 mb-4">
-                                                Your PDF contains <span className="font-bold text-green-700">{result.pageCount}</span> {result.pageCount === 1 ? 'page' : 'pages'}
+                                            <p className="text-gray-700 dark:text-gray-200 mb-4">
+                                                Your PDF contains <span className="font-bold text-green-700 dark:text-green-300">{result.pageCount}</span> {result.pageCount === 1 ? 'page' : 'pages'}
                                             </p>
-                                            <div className="bg-white bg-opacity-60 rounded-lg p-3 border border-green-100 inline-block">
-                                                <div className="text-xs text-gray-600 mb-1">File Size</div>
-                                                <div className="font-semibold text-gray-900">{formatFileSize(result.size)}</div>
+                                            <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100 inline-block">
+                                                <div className="text-xs text-gray-600 dark:text-gray-300 mb-1">File Size</div>
+                                                <div className="font-semibold text-gray-900 dark:text-white">{formatFileSize(result.size)}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -405,74 +405,74 @@ export default function ImageToPDF() {
 
                 {/* Features Grid */}
                 <div className="mt-12 grid md:grid-cols-3 gap-6">
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">📱</span>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Multiple Images</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Multiple Images</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Combine up to 50 images into a single PDF document. Perfect for reports and presentations.
                         </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
                         <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">🔄</span>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Reorder Pages</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Reorder Pages</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Easily rearrange images before creating the PDF using simple up/down controls.
                         </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
                         <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">📏</span>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Custom Page Sizes</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Custom Page Sizes</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Choose from fit-to-image, A4, or Letter page sizes for your PDF output.
                         </p>
                     </div>
                 </div>
 
                 {/* FAQ Section */}
-                <div className="mt-12 bg-white rounded-xl p-8 border border-gray-200 shadow-sm">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
+                <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-6">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">How many images can I add?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">How many images can I add?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 You can combine up to 50 images in a single PDF. Each image should be under 10MB.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Which image formats are supported?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Which image formats are supported?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 JPG, PNG, and WebP image formats are supported. Most common image files will work.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">What page size should I choose?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What page size should I choose?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 <strong>Fit to Image:</strong> Each PDF page matches the image dimensions (best for mixed sizes).<br />
                                 <strong>A4:</strong> Standard international paper size, great for printing.<br />
                                 <strong>Letter:</strong> Standard US paper size (8.5" × 11").
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Can I reorder the images?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Can I reorder the images?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 Yes! Use the up/down arrow buttons next to each image to change the page order before creating the PDF.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Is my data secure?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is my data secure?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 Absolutely! All processing happens locally in your browser. Your images never leave your device.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Is this tool free?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is this tool free?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 Yes! Our image to PDF converter is completely free with unlimited usage. No sign-up required.
                             </p>
                         </div>

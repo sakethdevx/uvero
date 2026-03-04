@@ -86,20 +86,20 @@ const VideoCompressor = () => {
         : 0;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 dark:from-gray-900 to-teal-50 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         Video Compressor
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-gray-600 dark:text-gray-300">
                         Reduce video file size while maintaining quality
                     </p>
                 </div>
 
                 {/* Main Content */}
-                <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
@@ -116,7 +116,7 @@ const VideoCompressor = () => {
                                 <>
                                     {/* Quality Selection */}
                                     <div className="mt-6">
-                                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                             Compression Quality
                                         </label>
                                         <div className="space-y-3">
@@ -125,15 +125,15 @@ const VideoCompressor = () => {
                                                     key={option.value}
                                                     onClick={() => setQuality(option.value)}
                                                     className={`w-full p-4 rounded-lg border-2 transition-all text-left ${quality === option.value
-                                                            ? 'border-green-600 bg-green-50'
-                                                            : 'border-gray-200 hover:border-green-300'
+                                                            ? 'border-green-600 bg-green-50 dark:bg-green-900/20'
+                                                            : 'border-gray-200 dark:border-gray-700 hover:border-green-300'
                                                         }`}
                                                     disabled={isCompressing}
                                                 >
-                                                    <div className="font-semibold text-gray-900 mb-1">
+                                                    <div className="font-semibold text-gray-900 dark:text-white mb-1">
                                                         {option.label}
                                                     </div>
-                                                    <div className="text-sm text-gray-600">
+                                                    <div className="text-sm text-gray-600 dark:text-gray-300">
                                                         {option.description}
                                                     </div>
                                                 </button>
@@ -143,7 +143,7 @@ const VideoCompressor = () => {
 
                                     {/* Resolution Selection */}
                                     <div className="mt-6">
-                                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                             Output Resolution
                                         </label>
                                         <div className="grid grid-cols-2 gap-3">
@@ -152,15 +152,15 @@ const VideoCompressor = () => {
                                                     key={option.value}
                                                     onClick={() => setResolution(option.value)}
                                                     className={`p-3 rounded-lg border-2 transition-all ${resolution === option.value
-                                                            ? 'border-green-600 bg-green-50'
-                                                            : 'border-gray-200 hover:border-green-300'
+                                                            ? 'border-green-600 bg-green-50 dark:bg-green-900/20'
+                                                            : 'border-gray-200 dark:border-gray-700 hover:border-green-300'
                                                         }`}
                                                     disabled={isCompressing}
                                                 >
-                                                    <div className="font-semibold text-gray-900 mb-1">
+                                                    <div className="font-semibold text-gray-900 dark:text-white mb-1">
                                                         {option.label}
                                                     </div>
-                                                    <div className="text-xs text-gray-600">
+                                                    <div className="text-xs text-gray-600 dark:text-gray-300">
                                                         {option.description}
                                                     </div>
                                                 </button>
@@ -181,7 +181,7 @@ const VideoCompressor = () => {
                             {isCompressing && (
                                 <div className="mt-6">
                                     <ProgressBar progress={progress} />
-                                    <p className="text-center text-sm text-gray-600 mt-2">
+                                    <p className="text-center text-sm text-gray-600 dark:text-gray-300 mt-2">
                                         This may take a while depending on video size...
                                     </p>
                                 </div>
@@ -189,21 +189,21 @@ const VideoCompressor = () => {
 
                             {/* Error */}
                             {error && (
-                                <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                    <p className="text-red-800 text-sm">{error}</p>
+                                <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+                                    <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
                                 </div>
                             )}
 
                             {/* Result */}
                             {compressedVideo && (
                                 <div className="mt-6 space-y-4">
-                                    <div className="p-6 bg-green-50 border border-green-200 rounded-lg">
+                                    <div className="p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg">
                                         <div className="flex items-center justify-between mb-4">
                                             <div>
-                                                <p className="font-semibold text-green-900 text-lg mb-1">
+                                                <p className="font-semibold text-green-900 dark:text-green-100 text-lg mb-1">
                                                     Compression Complete!
                                                 </p>
-                                                <p className="text-sm text-green-700">
+                                                <p className="text-sm text-green-700 dark:text-green-300">
                                                     Saved {savedPercentage}% • {formatSize(file.size - compressedVideo.size)}
                                                 </p>
                                             </div>
@@ -221,15 +221,15 @@ const VideoCompressor = () => {
 
                                         {/* Size Comparison */}
                                         <div className="grid grid-cols-2 gap-4 text-sm">
-                                            <div className="p-3 bg-white rounded-lg">
-                                                <p className="text-gray-600">Original</p>
-                                                <p className="font-semibold text-gray-900 text-lg">
+                                            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                                                <p className="text-gray-600 dark:text-gray-300">Original</p>
+                                                <p className="font-semibold text-gray-900 dark:text-white text-lg">
                                                     {formatSize(file.size)}
                                                 </p>
                                             </div>
-                                            <div className="p-3 bg-white rounded-lg">
-                                                <p className="text-gray-600">Compressed</p>
-                                                <p className="font-semibold text-green-600 text-lg">
+                                            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                                                <p className="text-gray-600 dark:text-gray-300">Compressed</p>
+                                                <p className="font-semibold text-green-600 dark:text-green-400 text-lg">
                                                     {formatSize(compressedVideo.size)}
                                                 </p>
                                             </div>
@@ -252,9 +252,9 @@ const VideoCompressor = () => {
                 </div>
 
                 {/* Important Note */}
-                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
-                    <h3 className="font-semibold text-yellow-900 mb-2">⚠️ Important Note</h3>
-                    <p className="text-sm text-yellow-800">
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 rounded-xl p-6 mb-8">
+                    <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">⚠️ Important Note</h3>
+                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
                         Video compression in the browser is experimental and uses FFmpeg.wasm.
                         First-time use may take longer as it loads necessary libraries (~30MB).
                         For large videos, consider using desktop software for better performance.
@@ -263,67 +263,67 @@ const VideoCompressor = () => {
 
                 {/* Features */}
                 <div className="grid md:grid-cols-3 gap-6 mb-12">
-                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                         <div className="text-3xl mb-3">🎬</div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Multiple Formats</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Multiple Formats</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Support for MP4, WebM, OGG, and MOV video files
                         </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                         <div className="text-3xl mb-3">⚙️</div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Customizable</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Customizable</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Choose quality level and output resolution
                         </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                         <div className="text-3xl mb-3">🔒</div>
-                        <h3 className="font-semibold text-gray-900 mb-2">100% Private</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             All compression happens in your browser
                         </p>
                     </div>
                 </div>
 
                 {/* FAQ */}
-                <div className="bg-white rounded-2xl shadow-xl p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                         Frequently Asked Questions
                     </h2>
                     <div className="space-y-4">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 How much can I reduce the file size?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 Typical compression saves 30-70% depending on the original video and settings chosen.
                                 Higher quality settings preserve more detail but result in larger files.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 Why does the first compression take longer?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 The first time you use this tool, it needs to download FFmpeg.wasm (~30MB) which
                                 enables video processing in the browser. Subsequent compressions will be faster.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 What's the maximum video size?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 The tool accepts videos up to 500MB. For larger videos, browser-based compression
                                 may be slow or fail. Consider using desktop software for very large files.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 Are my videos uploaded to a server?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 No! All video compression happens locally in your browser using FFmpeg.wasm.
                                 Your videos never leave your device.
                             </p>
