@@ -46,7 +46,17 @@ const MP4ToMP3 = () => {
                 (progressValue) => setProgress(progressValue)
             );
 
-            setConvertedAudio(result);
+            // Normalize result: processor returns { file, blob, size, duration }
+            // but we need { url, filename, size } for download
+            const url = URL.createObjectURL(result.blob || result.file);
+            const filename = result.file?.name || file.name.replace(/\.[^/.]+$/, '') + '.mp3';
+
+            setConvertedAudio({
+                url,
+                filename,
+                size: result.size || result.blob?.size || 0,
+                duration: result.duration
+            });
         } catch (err) {
             setError(err.message || 'Conversion failed');
         } finally {
@@ -116,11 +126,10 @@ const MP4ToMP3 = () => {
                                         <button
                                             key={br.value}
                                             onClick={() => setBitrate(br.value)}
-                                            className={`py-3 px-4 rounded-lg font-medium transition-all ${
-                                                bitrate === br.value
+                                            className={`py-3 px-4 rounded-lg font-medium transition-all ${bitrate === br.value
                                                     ? 'bg-blue-600 text-white shadow-md'
                                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                            }`}
+                                                }`}
                                         >
                                             {br.label}
                                         </button>

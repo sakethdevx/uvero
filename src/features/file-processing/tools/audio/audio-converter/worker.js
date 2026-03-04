@@ -27,10 +27,8 @@ self.addEventListener('message', async (e) => {
             blob = await convertToMP3(audioBuffer, bitrate);
         } else if (format === 'wav') {
             blob = await convertToWAV(audioBuffer);
-        } else if (format === 'ogg') {
-            blob = await convertToOGG(audioBuffer, bitrate);
         } else {
-            throw new Error('Unsupported format');
+            throw new Error('Unsupported format. Supported: mp3, wav');
         }
 
         self.postMessage({ type: 'progress', progress: 100 });
@@ -147,18 +145,6 @@ async function convertToWAV(audioBuffer) {
     self.postMessage({ type: 'progress', progress: 90 });
 
     return new Blob([buffer], { type: 'audio/wav' });
-}
-
-/**
- * Convert AudioBuffer to OGG (using MP3 encoder as fallback)
- * Note: True OGG encoding requires libvorbis.js which is large
- * This creates MP3 and labels as OGG for simplicity
- */
-async function convertToOGG(audioBuffer, bitrate) {
-    // For true OGG support, you would need to integrate libvorbis.js
-    // For now, we'll use MP3 encoding as OGG is not natively supported in browsers
-    const mp3Blob = await convertToMP3(audioBuffer, bitrate);
-    return new Blob([mp3Blob], { type: 'audio/ogg' });
 }
 
 /**

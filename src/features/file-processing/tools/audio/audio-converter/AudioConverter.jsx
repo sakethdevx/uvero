@@ -16,8 +16,7 @@ const AudioConverter = () => {
 
     const formats = [
         { value: 'mp3', label: 'MP3' },
-        { value: 'wav', label: 'WAV' },
-        { value: 'ogg', label: 'OGG' }
+        { value: 'wav', label: 'WAV' }
     ];
 
     const bitrates = [
@@ -91,7 +90,7 @@ const AudioConverter = () => {
                         Audio Converter
                     </h1>
                     <p className="text-lg text-gray-600">
-                        Convert your audio files between MP3, WAV, and OGG formats
+                        Convert your audio files between MP3 and WAV formats
                     </p>
                 </div>
 
@@ -104,14 +103,14 @@ const AudioConverter = () => {
                                 'audio/mpeg': ['.mp3'],
                                 'audio/wav': ['.wav'],
                                 'audio/wave': ['.wav'],
-                                'audio/ogg': ['.ogg'],
                                 'audio/webm': ['.webm'],
                                 'audio/x-m4a': ['.m4a'],
-                                'audio/aac': ['.aac']
+                                'audio/aac': ['.aac'],
+                                'audio/flac': ['.flac']
                             }}
                             maxSize={100 * 1024 * 1024}
                             label="Drop your audio file here or click to browse"
-                            description="Supports MP3, WAV, OGG, WebM, M4A, AAC (Max 100MB)"
+                            description="Supports MP3, WAV, WebM, M4A, AAC, FLAC (Max 100MB)"
                         />
                     ) : (
                         <>
@@ -123,14 +122,14 @@ const AudioConverter = () => {
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Output Format
                                     </label>
-                                    <div className="grid grid-cols-3 gap-3">
+                                    <div className="grid grid-cols-2 gap-3">
                                         {formats.map((fmt) => (
                                             <button
                                                 key={fmt.value}
                                                 onClick={() => setFormat(fmt.value)}
                                                 className={`py-3 px-4 rounded-lg border-2 transition-all ${format === fmt.value
-                                                        ? 'border-purple-600 bg-purple-50 text-purple-700'
-                                                        : 'border-gray-200 hover:border-purple-300'
+                                                    ? 'border-purple-600 bg-purple-50 text-purple-700'
+                                                    : 'border-gray-200 hover:border-purple-300'
                                                     }`}
                                                 disabled={isConverting}
                                             >
@@ -140,8 +139,8 @@ const AudioConverter = () => {
                                     </div>
                                 </div>
 
-                                {/* Bitrate Selection (only for MP3 and OGG) */}
-                                {(format === 'mp3' || format === 'ogg') && (
+                                {/* Bitrate Selection (only for MP3) */}
+                                {format === 'mp3' && (
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Bitrate (Quality)
@@ -254,7 +253,7 @@ const AudioConverter = () => {
                         <div className="text-3xl mb-3">🎵</div>
                         <h3 className="font-semibold text-gray-900 mb-2">Multiple Formats</h3>
                         <p className="text-gray-600 text-sm">
-                            Convert between MP3, WAV, and OGG audio formats easily
+                            Convert between MP3 and WAV audio formats easily
                         </p>
                     </div>
                     <div className="bg-white rounded-xl p-6 shadow-lg">
@@ -284,8 +283,8 @@ const AudioConverter = () => {
                                 What audio formats are supported?
                             </h3>
                             <p className="text-gray-600">
-                                You can upload MP3, WAV, OGG, WebM, M4A, and AAC files.
-                                You can convert to MP3, WAV, or OGG format.
+                                You can upload MP3, WAV, WebM, M4A, AAC, and FLAC files.
+                                You can convert to MP3 or WAV format.
                             </p>
                         </div>
                         <div>
@@ -293,7 +292,7 @@ const AudioConverter = () => {
                                 What bitrate should I choose?
                             </h3>
                             <p className="text-gray-600">
-                                For MP3/OGG: 128 kbps for decent quality, 192 kbps for good quality,
+                                For MP3: 128 kbps for decent quality, 192 kbps for good quality,
                                 320 kbps for maximum quality. Higher bitrates result in larger files.
                             </p>
                         </div>
