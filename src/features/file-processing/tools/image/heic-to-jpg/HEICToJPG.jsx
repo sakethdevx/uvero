@@ -86,7 +86,18 @@ export default function HEICToJPG() {
             setResults(converted);
         } catch (err) {
             console.error('HEIC conversion error:', err);
-            setError(err.message || 'Conversion failed. Please ensure the files are valid HEIC/HEIF images.');
+
+            // Check for specific libheif format errors (common with newer iOS HEIC formats)
+            const errorMsg = err.message || JSON.stringify(err);
+            if (errorMsg.includes('ERR_LIBHEIF format not supported') || errorMsg.includes('Could not parse HEIF')) {
+                setError(
+                    'This specific HEIC format is not currently supported by your browser. ' +
+                    'This often happens with newer iPhone formats (like Live Photos, HDR, or AV1/HEVC variations). ' +
+                    'Please try using our online/server-side conversion tools instead.'
+                );
+            } else {
+                setError('Conversion failed. Please ensure the files are valid HEIC/HEIF images.');
+            }
         } finally {
             setIsProcessing(false);
         }
