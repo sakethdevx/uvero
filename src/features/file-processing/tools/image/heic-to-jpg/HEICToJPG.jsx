@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import heic2any from 'heic2any';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 
@@ -8,16 +9,17 @@ export default function HEICToJPG() {
     const [progress, setProgress] = useState(0);
     const [results, setResults] = useState([]);
     const [error, setError] = useState(null);
+    const [quality, setQuality] = useState(0.92);
     const fileInputRef = useRef(null);
 
     const handleFileSelect = (e) => {
         const selectedFiles = Array.from(e.target.files || []);
         const validFiles = selectedFiles.filter(file => {
-            return file.name.match(/\.heic$/i) || file.type === 'image/heic';
+            return file.name.match(/\.(heic|heif)$/i) || file.type === 'image/heic' || file.type === 'image/heif';
         });
 
         if (validFiles.length === 0) {
-            setError('Please select valid HEIC files');
+            setError('Please select valid HEIC/HEIF files');
             return;
         }
 
@@ -30,11 +32,11 @@ export default function HEICToJPG() {
         e.preventDefault();
         const droppedFiles = Array.from(e.dataTransfer.files || []);
         const validFiles = droppedFiles.filter(file => {
-            return file.name.match(/\.heic$/i) || file.type === 'image/heic';
+            return file.name.match(/\.(heic|heif)$/i) || file.type === 'image/heic' || file.type === 'image/heif';
         });
 
         if (validFiles.length === 0) {
-            setError('Please drop valid HEIC files');
+            setError('Please drop valid HEIC/HEIF files');
             return;
         }
 
@@ -59,21 +61,57 @@ export default function HEICToJPG() {
         setProgress(0);
         setResults([]);
 
+        const converted = [];
+
         try {
-            // IMPORTANT: This is a demonstration implementation
-            // Real HEIC to JPG conversion requires the heic2any library or similar
-            // To implement properly:
-            // 1. Install: npm install heic2any
-            // 2. Import: import heic2any from 'heic2any';
-            // 3. Use: const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.9 });
-            
-            throw new Error(
-                'HEIC to JPG conversion is not yet fully implemented. ' +
-                'This tool requires the heic2any library to perform actual image conversion. ' +
-                'Currently showing placeholder functionality only.'
-            );
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                setProgress(Math.round(((i) / files.length) * 100));
+
+                let blob;
+                try {
+                    // Try client-side conversion first (fastest, private)
+                    const jpegBlob = await heic2any({
+                        blob: file,
+                        toType: 'image/jpeg',
+                        quality
+                    });
+
+                    // heic2any may return an array for multi-image HEIC files
+                    blob = Array.isArray(jpegBlob) ? jpegBlob[0] : jpegBlob;
+                } catch (err) {
+                    // If it fails (usually due to newer iPhone formats libheif hasn't compiled in),
+                    // fallback to our server endpoint which uses Sharp
+                    console.log('Client-side HEIC conversion failed, falling back to server...', err);
+
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    formData.append('quality', quality.toString());
+
+                    const response = await fetch('/api/convert-heic', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.error || errorData.message || 'Server conversion failed');
+                    }
+
+                    blob = await response.blob();
+                }
+
+                const url = URL.createObjectURL(blob);
+                const name = file.name.replace(/\.(heic|heif)$/i, '.jpg');
+
+                converted.push({ url, name, size: blob.size, originalSize: file.size });
+            }
+
+            setProgress(100);
+            setResults(converted);
         } catch (err) {
-            setError(err.message || 'Conversion failed. HEIC conversion requires additional libraries that are not yet fully integrated.');
+            console.error('HEIC conversion error:', err);
+            setError(err.message || 'Conversion failed. Please ensure the files are valid HEIC/HEIF images.');
         } finally {
             setIsProcessing(false);
         }
@@ -130,11 +168,6 @@ export default function HEICToJPG() {
                     <p className="text-lg text-gray-600">
                         Convert Apple HEIC/HEIF images to JPG/JPEG format
                     </p>
-                    <div className="mt-4 inline-block px-4 py-2 bg-yellow-100 border border-yellow-400 rounded-lg">
-                        <p className="text-sm text-yellow-800">
-                            ⚠️ This tool requires additional libraries for full HEIC support. Currently in development.
-                        </p>
-                    </div>
                 </div>
 
                 {/* Main Converter */}
@@ -238,6 +271,28 @@ export default function HEICToJPG() {
                                 </div>
                             )}
 
+                            {/* Quality Slider */}
+                            {results.length === 0 && (
+                                <div className="mb-6">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        JPEG Quality: {Math.round(quality * 100)}%
+                                    </label>
+                                    <input
+                                        type="range"
+                                        min="0.1"
+                                        max="1"
+                                        step="0.05"
+                                        value={quality}
+                                        onChange={(e) => setQuality(parseFloat(e.target.value))}
+                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                                    />
+                                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                        <span>Smaller file</span>
+                                        <span>Higher quality</span>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Action Buttons */}
                             <div className="flex gap-4">
                                 {results.length === 0 ? (
@@ -322,12 +377,6 @@ export default function HEICToJPG() {
                             Converting HEIC to JPG makes your images compatible with virtually all devices, browsers, and applications.
                             JPG is the most widely supported image format and works everywhere.
                         </p>
-                        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                            <p className="text-sm text-blue-800">
-                                <strong>Note:</strong> Full HEIC conversion support requires the heic2any library.
-                                This tool is currently in development and may have limited functionality.
-                            </p>
-                        </div>
                     </div>
                 </div>
             </div>

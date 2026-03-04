@@ -19,6 +19,7 @@
     "epubjs": "^0.3.93",
     "formidable": "^3.5.4",
     "gif.js": "^0.2.0",
+    "heic2any": "^0.0.4",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.1.0",
     "jspdf-autotable": "^5.0.7",

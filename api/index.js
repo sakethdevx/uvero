@@ -28,6 +28,11 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/convert-heic') {
+            const mod = await import('../src/features/file-processing/api/convert-heic.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/delete-event') {
             const mod = await import('../src/features/photodrop/api/delete-event.js')
             return mod.default(req, res)

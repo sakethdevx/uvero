@@ -1,15 +1,18 @@
 /**
  * Video to MP3 Conversion Processor
- * Handles audio extraction from video files
+ * Handles audio extraction from video files using Web Audio API + lamejs
  */
+
+import lamejs from 'lamejs';
 
 class VideoToMP3Processor {
     constructor() {
-        // No longer using Web Worker since we need DOM access
+        // No Web Worker needed - uses main thread AudioContext for decoding
     }
 
     /**
      * Convert video to MP3 (offline mode - client-side)
+     * Uses OfflineAudioContext to decode audio, then encodes with lamejs
      * @param {File} file - The video file
      * @param {number} bitrate - Target MP3 bitrate in kbps
      * @param {Function} onProgress - Progress callback
@@ -17,95 +20,74 @@ class VideoToMP3Processor {
      */
     async convert(file, bitrate, onProgress) {
         try {
-            if (onProgress) onProgress(10);
+            if (onProgress) onProgress(5);
 
-            // Create object URL for video
-            const videoUrl = URL.createObjectURL(file);
+            // Read file as ArrayBuffer
+            const arrayBuffer = await file.arrayBuffer();
 
-            // Create video element
-            const video = document.createElement('video');
-            video.src = videoUrl;
-            video.muted = true;
+            if (onProgress) onProgress(15);
 
-            // Wait for video metadata to load
-            await new Promise((resolveLoad, rejectLoad) => {
-                video.onloadedmetadata = resolveLoad;
-                video.onerror = rejectLoad;
-                video.load();
-            });
-
-            if (onProgress) onProgress(20);
-
-            const duration = video.duration;
-
-            // Create AudioContext for processing
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)({
-                sampleRate: bitrate >= 192 ? 48000 : 44100
-            });
-
-            // Create media element source
-            const source = audioContext.createMediaElementSource(video);
-            const destination = audioContext.createMediaStreamDestination();
-            source.connect(destination);
+            // Decode audio data using AudioContext
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            await audioContext.close();
 
             if (onProgress) onProgress(30);
 
-            // Create MediaRecorder for audio encoding
-            const mediaRecorder = new MediaRecorder(destination.stream, {
-                mimeType: 'audio/webm', // Browser will encode to WebM/Opus
-                audioBitsPerSecond: bitrate * 1000
-            });
+            const duration = audioBuffer.duration;
+            const sampleRate = audioBuffer.sampleRate;
+            const channels = Math.min(audioBuffer.numberOfChannels, 2); // Max stereo
 
-            const chunks = [];
-
-            mediaRecorder.ondataavailable = (event) => {
-                if (event.data.size > 0) {
-                    chunks.push(event.data);
-                }
-            };
+            // Get audio channel data
+            const leftChannel = audioBuffer.getChannelData(0);
+            const rightChannel = channels > 1 ? audioBuffer.getChannelData(1) : leftChannel;
 
             if (onProgress) onProgress(40);
 
-            // Start recording and playing video
-            mediaRecorder.start();
-            video.play();
+            // Convert float32 to int16 PCM
+            const leftPCM = this._float32ToInt16(leftChannel);
+            const rightPCM = channels > 1 ? this._float32ToInt16(rightChannel) : leftPCM;
 
             if (onProgress) onProgress(50);
 
-            // Update progress during playback
-            const progressInterval = setInterval(() => {
-                if (video.currentTime > 0 && video.duration > 0) {
-                    const playbackProgress = (video.currentTime / video.duration) * 40; // 40% of progress
-                    if (onProgress) onProgress(50 + playbackProgress);
+            // Encode to MP3 using lamejs
+            const mp3encoder = new lamejs.Mp3Encoder(channels, sampleRate, bitrate);
+            const mp3Data = [];
+            const sampleBlockSize = 1152; // Standard MP3 frame size
+            const totalSamples = leftPCM.length;
+
+            for (let i = 0; i < totalSamples; i += sampleBlockSize) {
+                const leftChunk = leftPCM.subarray(i, i + sampleBlockSize);
+                const rightChunk = channels > 1
+                    ? rightPCM.subarray(i, i + sampleBlockSize)
+                    : leftChunk;
+
+                const mp3buf = mp3encoder.encodeBuffer(leftChunk, rightChunk);
+                if (mp3buf.length > 0) {
+                    mp3Data.push(mp3buf);
                 }
-            }, 500);
 
-            // Wait for video to finish
-            await new Promise((resolveEnd) => {
-                video.onended = resolveEnd;
-            });
+                // Update progress (50% to 90% during encoding)
+                if (i % (sampleBlockSize * 20) === 0 && onProgress) {
+                    const encodeProgress = 50 + (i / totalSamples) * 40;
+                    onProgress(Math.round(encodeProgress));
+                }
+            }
 
-            clearInterval(progressInterval);
-            if (onProgress) onProgress(90);
+            // Flush remaining data
+            const mp3buf = mp3encoder.flush();
+            if (mp3buf.length > 0) {
+                mp3Data.push(mp3buf);
+            }
 
-            // Stop recording
-            mediaRecorder.stop();
+            if (onProgress) onProgress(95);
 
-            // Wait for final data
-            await new Promise((resolveStop) => {
-                mediaRecorder.onstop = resolveStop;
-            });
-
-            // Create blob from chunks
-            const audioBlob = new Blob(chunks, { type: 'audio/mpeg' });
-
-            // Clean up
-            URL.revokeObjectURL(videoUrl);
-            await audioContext.close();
+            // Create MP3 blob
+            const audioBlob = new Blob(mp3Data, { type: 'audio/mpeg' });
 
             if (onProgress) onProgress(100);
 
-            // Create a new File object from the blob
+            // Create result
             const baseName = file.name.replace(/\.[^/.]+$/, '');
             const newFileName = `${baseName}.mp3`;
             const convertedFile = new File([audioBlob], newFileName, { type: 'audio/mpeg' });
@@ -181,6 +163,19 @@ class VideoToMP3Processor {
             console.error('Online conversion failed:', error);
             throw new Error('Server conversion unavailable. ' + error.message);
         }
+    }
+
+    /**
+     * Convert Float32Array to Int16Array for PCM encoding
+     */
+    _float32ToInt16(buffer) {
+        const l = buffer.length;
+        const buf = new Int16Array(l);
+        for (let i = 0; i < l; i++) {
+            const s = Math.max(-1, Math.min(1, buffer[i]));
+            buf[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        }
+        return buf;
     }
 }
 

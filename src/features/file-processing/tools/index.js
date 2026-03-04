@@ -92,12 +92,8 @@ import TimeZoneConverter from './utility/timezone-converter/TimeZoneConverter';
 import timezoneConverterSEO from './utility/timezone-converter/seo.json';
 import EPUBToPDF from './document/epub-to-pdf/EPUBToPDF';
 import epubToPdfSEO from './document/epub-to-pdf/seo.json';
-import EPUBToMOBI from './document/epub-to-mobi/EPUBToMOBI';
-import epubToMobiSEO from './document/epub-to-mobi/seo.json';
 import DocumentConverter from './document/document-converter/DocumentConverter';
 import documentConverterSEO from './document/document-converter/seo.json';
-import RARToZip from './archive/rar-to-zip/RARToZip';
-import rarToZipSEO from './archive/rar-to-zip/seo.json';
 import ArchiveConverter from './archive/archive-converter/ArchiveConverter';
 import archiveConverterSEO from './archive/archive-converter/seo.json';
 import RotatePdf from './pdf/rotate-pdf/RotatePdf';
@@ -596,16 +592,6 @@ export const tools = {
         icon: '📚',
         modes: ['offline', 'online']
     },
-    'epub-to-mobi': {
-        id: 'epub-to-mobi',
-        name: 'EPUB to MOBI',
-        description: 'Convert EPUB ebooks to MOBI format for Kindle',
-        component: EPUBToMOBI,
-        category: 'document',
-        seo: epubToMobiSEO,
-        icon: '📚',
-        modes: ['online']
-    },
     'document-converter': {
         id: 'document-converter',
         name: 'Document Converter',
@@ -615,16 +601,6 @@ export const tools = {
         seo: documentConverterSEO,
         icon: '📄',
         modes: ['offline', 'online']
-    },
-    'rar-to-zip': {
-        id: 'rar-to-zip',
-        name: 'RAR to ZIP',
-        description: 'Convert RAR archives to ZIP format',
-        component: RARToZip,
-        category: 'archive',
-        seo: rarToZipSEO,
-        icon: '🗜️',
-        modes: ['online']
     },
     'archive-converter': {
         id: 'archive-converter',
