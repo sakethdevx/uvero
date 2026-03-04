@@ -1,16 +1,25 @@
 // GitHub storage service for Online Clipboard
 // Stores board content as text files in a private GitHub repo
 // Uses CLIPBOARD_STORAGE_GITHUB_* env vars (separate from PhotoDrop)
+// Public and private boards are stored on separate branches
 
 import { Buffer } from 'buffer'
 
 const GITHUB_TOKEN = process.env.CLIPBOARD_STORAGE_GITHUB_TOKEN
 const GITHUB_OWNER = process.env.CLIPBOARD_STORAGE_GITHUB_OWNER
 const GITHUB_REPO = process.env.CLIPBOARD_STORAGE_GITHUB_REPO
-const GITHUB_BRANCH = process.env.CLIPBOARD_STORAGE_GITHUB_BRANCH || 'main'
+const GITHUB_PUBLIC_BRANCH = process.env.CLIPBOARD_STORAGE_GITHUB_PUBLIC_BRANCH || 'public_boards'
+const GITHUB_PRIVATE_BRANCH = process.env.CLIPBOARD_STORAGE_GITHUB_PRIVATE_BRANCH || 'private_boards'
 
 if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
     console.warn('Clipboard GitHub storage env vars are not set (CLIPBOARD_STORAGE_GITHUB_TOKEN etc)')
+}
+
+/**
+ * Get the target branch for a given board type.
+ */
+function branchForType(type) {
+    return type === 'private' ? GITHUB_PRIVATE_BRANCH : GITHUB_PUBLIC_BRANCH
 }
 
 function apiUrl(path) {
@@ -27,9 +36,14 @@ const headers = () => ({
  * Save board content to GitHub.
  * Stores as boards/{boardId}.json containing { content, metadata }
  * If file already exists, fetches its SHA first to update.
+ * @param {string} boardId
+ * @param {string} content
+ * @param {object} metadata
+ * @param {string} type - 'public' or 'private', determines which branch to use
  */
-async function saveBoard(boardId, content, metadata = {}) {
+async function saveBoard(boardId, content, metadata = {}, type = 'public') {
     if (!GITHUB_TOKEN) throw new Error('Missing CLIPBOARD_STORAGE_GITHUB_TOKEN')
+    const branch = branchForType(type)
     const path = `boards/${boardId}.json`
     const payload = JSON.stringify({ content, metadata, updated_at: new Date().toISOString() })
     const base64 = Buffer.from(payload).toString('base64')
@@ -37,7 +51,7 @@ async function saveBoard(boardId, content, metadata = {}) {
     // Check if file already exists to get SHA (required for updates)
     let sha = null
     try {
-        const existingRes = await fetch(apiUrl(path) + `?ref=${encodeURIComponent(GITHUB_BRANCH)}`, {
+        const existingRes = await fetch(apiUrl(path) + `?ref=${encodeURIComponent(branch)}`, {
             method: 'GET',
             headers: headers()
         })
@@ -52,7 +66,7 @@ async function saveBoard(boardId, content, metadata = {}) {
     const body = {
         message: sha ? `update board: ${boardId}` : `create board: ${boardId}`,
         content: base64,
-        branch: GITHUB_BRANCH,
+        branch,
         ...(sha ? { sha } : {})
     }
 
@@ -73,12 +87,15 @@ async function saveBoard(boardId, content, metadata = {}) {
 /**
  * Get board content from GitHub.
  * Returns { content, metadata } or null if not found.
+ * @param {string} boardId
+ * @param {string} type - 'public' or 'private', determines which branch to use
  */
-async function getBoard(boardId) {
+async function getBoard(boardId, type = 'public') {
     if (!GITHUB_TOKEN) throw new Error('Missing CLIPBOARD_STORAGE_GITHUB_TOKEN')
+    const branch = branchForType(type)
     const path = `boards/${boardId}.json`
 
-    const res = await fetch(apiUrl(path) + `?ref=${encodeURIComponent(GITHUB_BRANCH)}`, {
+    const res = await fetch(apiUrl(path) + `?ref=${encodeURIComponent(branch)}`, {
         method: 'GET',
         headers: {
             ...headers(),
@@ -102,13 +119,16 @@ async function getBoard(boardId) {
 
 /**
  * Delete board content from GitHub.
+ * @param {string} boardId
+ * @param {string} type - 'public' or 'private', determines which branch to use
  */
-async function deleteBoard(boardId) {
+async function deleteBoard(boardId, type = 'public') {
     if (!GITHUB_TOKEN) throw new Error('Missing CLIPBOARD_STORAGE_GITHUB_TOKEN')
+    const branch = branchForType(type)
     const path = `boards/${boardId}.json`
 
     // Get SHA first
-    const metaRes = await fetch(apiUrl(path) + `?ref=${encodeURIComponent(GITHUB_BRANCH)}`, {
+    const metaRes = await fetch(apiUrl(path) + `?ref=${encodeURIComponent(branch)}`, {
         method: 'GET',
         headers: headers()
     })
@@ -125,7 +145,7 @@ async function deleteBoard(boardId) {
         body: JSON.stringify({
             message: `delete board: ${boardId}`,
             sha: meta.sha,
-            branch: GITHUB_BRANCH
+            branch
         })
     })
 

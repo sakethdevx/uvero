@@ -31,7 +31,7 @@ async function assignPublicCode() {
         if (oldest && oldest.length > 0) {
             const recycledCode = oldest[0].id
             // Delete old content from GitHub
-            try { await deleteBoard(recycledCode) } catch (e) { console.warn('Failed to delete recycled board from GitHub', e) }
+            try { await deleteBoard(recycledCode, 'public') } catch (e) { console.warn('Failed to delete recycled board from GitHub', e) }
             // Delete old row
             await supabase.from('clipboard_boards').delete().eq('id', recycledCode)
             return recycledCode
@@ -92,7 +92,7 @@ export default async function handler(req, res) {
             // Check expiration
             if (meta.expires_at && new Date(meta.expires_at) < new Date()) {
                 // Board expired — clean up
-                try { await deleteBoard(boardId) } catch (e) { }
+                try { await deleteBoard(boardId, meta.type) } catch (e) { }
                 await supabase.from('clipboard_boards').delete().eq('id', boardId)
                 return res.status(410).json({ error: 'Board has expired' })
             }
@@ -108,12 +108,12 @@ export default async function handler(req, res) {
             }
 
             // Fetch content from GitHub
-            const boardData = await getBoard(boardId)
+            const boardData = await getBoard(boardId, meta.type)
             if (!boardData) return res.status(404).json({ error: 'Board content not found' })
 
             // Burn after read — delete after successful retrieval
             if (meta.burn_after_read) {
-                try { await deleteBoard(boardId) } catch (e) { }
+                try { await deleteBoard(boardId, meta.type) } catch (e) { }
                 await supabase.from('clipboard_boards').delete().eq('id', boardId)
             }
 
@@ -191,7 +191,7 @@ export default async function handler(req, res) {
             }
 
             // Save content to GitHub
-            await saveBoard(boardId, content, { language, type })
+            await saveBoard(boardId, content, { language, type }, type)
 
             // Upsert metadata in Supabase
             const metaRow = {
@@ -226,7 +226,15 @@ export default async function handler(req, res) {
             const boardId = board || code
             if (!boardId) return res.status(400).json({ error: 'Missing board/code parameter' })
 
-            try { await deleteBoard(boardId) } catch (e) { console.warn('GitHub delete failed', e) }
+            // Look up metadata to determine which branch to delete from
+            const { data: delMeta } = await supabase
+                .from('clipboard_boards')
+                .select('type')
+                .eq('id', boardId)
+                .single()
+            const delType = delMeta?.type || 'public'
+
+            try { await deleteBoard(boardId, delType) } catch (e) { console.warn('GitHub delete failed', e) }
             await supabase.from('clipboard_boards').delete().eq('id', boardId)
 
             return res.status(200).json({ success: true })
