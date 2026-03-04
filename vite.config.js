@@ -39,7 +39,7 @@ export default defineConfig({
       },
       workbox: {
         // Exclude worker files and other chunks from precaching if they are too large or loaded dynamically
-        maximumFileSizeToCacheInBytes: 5000000,
+        maximumFileSizeToCacheInBytes: 10000000,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}']
       }
     })
