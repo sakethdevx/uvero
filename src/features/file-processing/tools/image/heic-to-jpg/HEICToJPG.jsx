@@ -68,14 +68,39 @@ export default function HEICToJPG() {
                 const file = files[i];
                 setProgress(Math.round(((i) / files.length) * 100));
 
-                const jpegBlob = await heic2any({
-                    blob: file,
-                    toType: 'image/jpeg',
-                    quality
-                });
+                let blob;
+                try {
+                    // Try client-side conversion first (fastest, private)
+                    const jpegBlob = await heic2any({
+                        blob: file,
+                        toType: 'image/jpeg',
+                        quality
+                    });
 
-                // heic2any may return an array for multi-image HEIC files
-                const blob = Array.isArray(jpegBlob) ? jpegBlob[0] : jpegBlob;
+                    // heic2any may return an array for multi-image HEIC files
+                    blob = Array.isArray(jpegBlob) ? jpegBlob[0] : jpegBlob;
+                } catch (err) {
+                    // If it fails (usually due to newer iPhone formats libheif hasn't compiled in),
+                    // fallback to our server endpoint which uses Sharp
+                    console.log('Client-side HEIC conversion failed, falling back to server...', err);
+
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    formData.append('quality', quality.toString());
+
+                    const response = await fetch('/api/convert-heic', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.error || errorData.message || 'Server conversion failed');
+                    }
+
+                    blob = await response.blob();
+                }
+
                 const url = URL.createObjectURL(blob);
                 const name = file.name.replace(/\.(heic|heif)$/i, '.jpg');
 
@@ -86,18 +111,7 @@ export default function HEICToJPG() {
             setResults(converted);
         } catch (err) {
             console.error('HEIC conversion error:', err);
-
-            // Check for specific libheif format errors (common with newer iOS HEIC formats)
-            const errorMsg = err.message || JSON.stringify(err);
-            if (errorMsg.includes('ERR_LIBHEIF format not supported') || errorMsg.includes('Could not parse HEIF')) {
-                setError(
-                    'This specific HEIC format is not currently supported by your browser. ' +
-                    'This often happens with newer iPhone formats (like Live Photos, HDR, or AV1/HEVC variations). ' +
-                    'Please try using our online/server-side conversion tools instead.'
-                );
-            } else {
-                setError('Conversion failed. Please ensure the files are valid HEIC/HEIF images.');
-            }
+            setError(err.message || 'Conversion failed. Please ensure the files are valid HEIC/HEIF images.');
         } finally {
             setIsProcessing(false);
         }
