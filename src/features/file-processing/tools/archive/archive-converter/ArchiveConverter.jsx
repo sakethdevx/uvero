@@ -123,10 +123,10 @@ export default function ArchiveConverter() {
         <div className="max-w-4xl mx-auto">
             <div className="card">
                 <div className="text-center mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                         🗜️ Archive Converter
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-300">
                         Convert and optimize archive files
                     </p>
                 </div>
@@ -160,28 +160,28 @@ export default function ArchiveConverter() {
                         <div className="mt-8 grid md:grid-cols-3 gap-4">
                             <div className="text-center p-4">
                                 <div className="text-3xl mb-2">📦</div>
-                                <h3 className="font-semibold text-gray-900 mb-1">
+                                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                     Multiple Formats
                                 </h3>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 dark:text-gray-300">
                                     Support for ZIP archives (offline) and RAR (online)
                                 </p>
                             </div>
                             <div className="text-center p-4">
                                 <div className="text-3xl mb-2">🔒</div>
-                                <h3 className="font-semibold text-gray-900 mb-1">
+                                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                     Private Processing
                                 </h3>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 dark:text-gray-300">
                                     ZIP files processed locally in your browser
                                 </p>
                             </div>
                             <div className="text-center p-4">
                                 <div className="text-3xl mb-2">⚡</div>
-                                <h3 className="font-semibold text-gray-900 mb-1">
+                                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                     Fast Conversion
                                 </h3>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 dark:text-gray-300">
                                     Quick archive processing and optimization
                                 </p>
                             </div>
@@ -203,7 +203,7 @@ export default function ArchiveConverter() {
                         {isProcessing && (
                             <div className="space-y-2">
                                 <ProgressBar progress={progress} />
-                                <p className="text-sm text-center text-gray-600">
+                                <p className="text-sm text-center text-gray-600 dark:text-gray-300">
                                     Converting archive... {progress}%
                                 </p>
                             </div>
@@ -265,9 +265,9 @@ export default function ArchiveConverter() {
                 )}
 
                 {/* Info Section */}
-                <div className="mt-8 bg-gray-50 rounded-lg p-6">
-                    <h3 className="font-semibold text-gray-900 mb-3">About Archive Converter</h3>
-                    <div className="space-y-2 text-sm text-gray-700">
+                <div className="mt-8 bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+                    <h3 className="font-semibold text-gray-900 dark:text-white mb-3">About Archive Converter</h3>
+                    <div className="space-y-2 text-sm text-gray-700 dark:text-gray-200">
                         <p>
                             <strong>Supported Formats:</strong>
                         </p>

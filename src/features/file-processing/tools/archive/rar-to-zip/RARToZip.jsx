@@ -37,10 +37,10 @@ export default function RARToZip() {
         <div className="max-w-4xl mx-auto">
             <div className="card">
                 <div className="text-center mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                         🗜️ RAR to ZIP Converter
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-300">
                         Convert RAR archives to ZIP format
                     </p>
                 </div>
@@ -74,28 +74,28 @@ export default function RARToZip() {
                         <div className="mt-8 grid md:grid-cols-3 gap-4">
                             <div className="text-center p-4">
                                 <div className="text-3xl mb-2">📦</div>
-                                <h3 className="font-semibold text-gray-900 mb-1">
+                                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                     Universal Format
                                 </h3>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 dark:text-gray-300">
                                     ZIP files work everywhere without special software
                                 </p>
                             </div>
                             <div className="text-center p-4">
                                 <div className="text-3xl mb-2">🔓</div>
-                                <h3 className="font-semibold text-gray-900 mb-1">
+                                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                     Extract & Repack
                                 </h3>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 dark:text-gray-300">
                                     Extracts RAR and repacks as ZIP
                                 </p>
                             </div>
                             <div className="text-center p-4">
                                 <div className="text-3xl mb-2">⚡</div>
-                                <h3 className="font-semibold text-gray-900 mb-1">
+                                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                     Fast Processing
                                 </h3>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 dark:text-gray-300">
                                     Quick conversion with online processing
                                 </p>
                             </div>
@@ -134,9 +134,9 @@ export default function RARToZip() {
                 )}
 
                 {/* Info Section */}
-                <div className="mt-8 bg-gray-50 rounded-lg p-6">
-                    <h3 className="font-semibold text-gray-900 mb-3">About RAR to ZIP Conversion</h3>
-                    <div className="space-y-2 text-sm text-gray-700">
+                <div className="mt-8 bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+                    <h3 className="font-semibold text-gray-900 dark:text-white mb-3">About RAR to ZIP Conversion</h3>
+                    <div className="space-y-2 text-sm text-gray-700 dark:text-gray-200">
                         <p>
                             <strong>RAR</strong> is a proprietary archive format that requires special software to extract.
                         </p>
@@ -147,7 +147,7 @@ export default function RARToZip() {
                             <strong>Why online mode?</strong> RAR uses a proprietary compression algorithm that requires 
                             server-side processing. Your files are processed securely and deleted immediately after conversion.
                         </p>
-                        <p className="text-xs text-gray-500 mt-4">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
                             Note: For offline RAR extraction, consider using 7-Zip or WinRAR desktop applications.
                         </p>
                     </div>

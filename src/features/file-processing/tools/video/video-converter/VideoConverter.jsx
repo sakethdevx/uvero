@@ -89,16 +89,16 @@ const VideoConverter = () => {
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         Video Converter
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-gray-600 dark:text-gray-300">
                         Convert videos between different formats easily
                     </p>
                 </div>
 
                 {/* Main Content */}
-                <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
@@ -115,7 +115,7 @@ const VideoConverter = () => {
                                 <>
                                     {/* Format Selection */}
                                     <div className="mt-6">
-                                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                             Output Format
                                         </label>
                                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -125,13 +125,13 @@ const VideoConverter = () => {
                                                     onClick={() => setOutputFormat(format.value)}
                                                     className={`p-4 rounded-lg border-2 transition-all ${outputFormat === format.value
                                                             ? 'border-purple-500 bg-purple-50'
-                                                            : 'border-gray-200 hover:border-purple-300'
+                                                            : 'border-gray-200 dark:border-gray-700 hover:border-purple-300'
                                                         }`}
                                                 >
-                                                    <div className="text-lg font-semibold text-gray-900">
+                                                    <div className="text-lg font-semibold text-gray-900 dark:text-white">
                                                         {format.label}
                                                     </div>
-                                                    <div className="text-xs text-gray-500 mt-1">
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                         {format.description}
                                                     </div>
                                                 </button>
@@ -141,7 +141,7 @@ const VideoConverter = () => {
 
                                     {/* Quality Selection */}
                                     <div className="mt-6">
-                                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                             Conversion Quality
                                         </label>
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -151,13 +151,13 @@ const VideoConverter = () => {
                                                     onClick={() => setQuality(qual.value)}
                                                     className={`p-4 rounded-lg border-2 transition-all ${quality === qual.value
                                                             ? 'border-purple-500 bg-purple-50'
-                                                            : 'border-gray-200 hover:border-purple-300'
+                                                            : 'border-gray-200 dark:border-gray-700 hover:border-purple-300'
                                                         }`}
                                                 >
-                                                    <div className="font-semibold text-gray-900">
+                                                    <div className="font-semibold text-gray-900 dark:text-white">
                                                         {qual.label}
                                                     </div>
-                                                    <div className="text-sm text-gray-500 mt-1">
+                                                    <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                                         {qual.description}
                                                     </div>
                                                 </button>
@@ -180,7 +180,7 @@ const VideoConverter = () => {
                                     {isConverting && (
                                         <div className="mt-6">
                                             <ProgressBar progress={progress} />
-                                            <p className="text-sm text-gray-500 text-center mt-2">
+                                            <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-2">
                                                 {progress < 15
                                                     ? 'Initializing FFmpeg...'
                                                     : progress < 90
@@ -204,36 +204,36 @@ const VideoConverter = () => {
                                 <div className="mt-6">
                                     <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-6">
                                         <div className="flex items-center justify-between mb-4">
-                                            <h3 className="text-lg font-semibold text-gray-900">
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                                                 ✅ Conversion Complete!
                                             </h3>
                                         </div>
 
                                         {/* File Comparison */}
                                         <div className="grid grid-cols-2 gap-4 mb-4">
-                                            <div className="bg-white rounded-lg p-4">
-                                                <div className="text-sm text-gray-500 mb-1">Original</div>
-                                                <div className="font-semibold text-gray-900">
+                                            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                                                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Original</div>
+                                                <div className="font-semibold text-gray-900 dark:text-white">
                                                     {formatBytes(file.size)}
                                                 </div>
-                                                <div className="text-xs text-gray-500 mt-1">
+                                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                     {file.name.split('.').pop().toUpperCase()}
                                                 </div>
                                             </div>
-                                            <div className="bg-white rounded-lg p-4">
-                                                <div className="text-sm text-gray-500 mb-1">Converted</div>
+                                            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                                                <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Converted</div>
                                                 <div className="font-semibold text-purple-600">
                                                     {formatBytes(convertedVideo.size)}
                                                 </div>
-                                                <div className="text-xs text-gray-500 mt-1">
+                                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                     {outputFormat.toUpperCase()}
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Video Preview */}
-                                        <div className="bg-white rounded-lg p-4 mb-4">
-                                            <div className="text-sm font-medium text-gray-700 mb-2">Preview:</div>
+                                        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+                                            <div className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Preview:</div>
                                             <video
                                                 src={convertedVideo.url}
                                                 controls
@@ -265,13 +265,13 @@ const VideoConverter = () => {
                 </div>
 
                 {/* Info Section */}
-                <div className="bg-white rounded-xl shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                         About Video Converter
                     </h2>
-                    <div className="space-y-4 text-gray-600">
+                    <div className="space-y-4 text-gray-600 dark:text-gray-300">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Supported Formats</h3>
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Supported Formats</h3>
                             <ul className="list-disc list-inside space-y-1 text-sm">
                                 <li><strong>MP4:</strong> Universal format, works on all devices</li>
                                 <li><strong>WebM:</strong> Web-optimized, great for websites</li>
@@ -281,7 +281,7 @@ const VideoConverter = () => {
                             </ul>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Quality Settings</h3>
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Quality Settings</h3>
                             <ul className="list-disc list-inside space-y-1 text-sm">
                                 <li><strong>Low:</strong> Faster conversion, smaller files</li>
                                 <li><strong>Medium:</strong> Balanced quality and file size</li>
@@ -289,7 +289,7 @@ const VideoConverter = () => {
                             </ul>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Privacy & Security</h3>
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy & Security</h3>
                             <p className="text-sm">
                                 All video conversion happens directly in your browser using FFmpeg.wasm.
                                 Your videos never leave your device, ensuring complete privacy.
@@ -299,43 +299,43 @@ const VideoConverter = () => {
                 </div>
 
                 {/* FAQ */}
-                <div className="mt-8 bg-white rounded-xl shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                         Frequently Asked Questions
                     </h2>
                     <div className="space-y-4">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                 Which format should I choose?
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                                 MP4 is recommended for maximum compatibility across all devices and platforms.
                                 WebM is great for web use. Choose AVI or MKV for archiving high-quality videos.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                 How long does conversion take?
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                                 Conversion time depends on file size and your device performance.
                                 A 100MB video typically takes 2-5 minutes on modern devices.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                 Is my video uploaded to a server?
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                                 No! All conversion happens in your browser using WebAssembly.
                                 Your video never leaves your device, ensuring complete privacy.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                                 What's the maximum file size?
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-300">
                                 You can convert videos up to 500MB. For larger files, consider using
                                 desktop software or splitting your video into smaller parts.
                             </p>

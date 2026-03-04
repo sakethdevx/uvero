@@ -108,16 +108,16 @@ const PDFSplitter = () => {
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         PDF Splitter
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-gray-600 dark:text-gray-300">
                         Split PDF into separate pages or extract specific pages
                     </p>
                 </div>
 
                 {/* Main Content */}
-                <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
@@ -142,7 +142,7 @@ const PDFSplitter = () => {
                                 <>
                                     {/* Split Mode Selection */}
                                     <div className="mt-6">
-                                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                             Split Method
                                         </label>
                                         <div className="space-y-3">
@@ -152,14 +152,14 @@ const PDFSplitter = () => {
                                                     onClick={() => setSplitMode(mode.value)}
                                                     className={`w-full p-4 rounded-lg border-2 transition-all text-left ${splitMode === mode.value
                                                         ? 'border-blue-600 bg-blue-50'
-                                                        : 'border-gray-200 hover:border-blue-300'
+                                                        : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
                                                         }`}
                                                     disabled={isSplitting}
                                                 >
-                                                    <div className="font-semibold text-gray-900 mb-1">
+                                                    <div className="font-semibold text-gray-900 dark:text-white mb-1">
                                                         {mode.label}
                                                     </div>
-                                                    <div className="text-sm text-gray-600">
+                                                    <div className="text-sm text-gray-600 dark:text-gray-300">
                                                         {mode.description}
                                                     </div>
                                                 </button>
@@ -170,7 +170,7 @@ const PDFSplitter = () => {
                                     {/* Input based on mode */}
                                     {splitMode === 'pages' && (
                                         <div className="mt-6">
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                                 Page Numbers
                                             </label>
                                             <input
@@ -178,10 +178,10 @@ const PDFSplitter = () => {
                                                 value={selectedPages}
                                                 onChange={(e) => setSelectedPages(e.target.value)}
                                                 placeholder="e.g., 1,3,5-7,10"
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                 disabled={isSplitting}
                                             />
-                                            <p className="mt-1 text-sm text-gray-500">
+                                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                                 Separate page numbers with commas. Use hyphens for ranges (e.g., 1,3,5-7)
                                             </p>
                                         </div>
@@ -189,7 +189,7 @@ const PDFSplitter = () => {
 
                                     {splitMode === 'ranges' && (
                                         <div className="mt-6">
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                                 Page Ranges
                                             </label>
                                             <input
@@ -197,10 +197,10 @@ const PDFSplitter = () => {
                                                 value={ranges}
                                                 onChange={(e) => setRanges(e.target.value)}
                                                 placeholder="e.g., 1-5,6-10,11-15"
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                 disabled={isSplitting}
                                             />
-                                            <p className="mt-1 text-sm text-gray-500">
+                                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                                 Separate ranges with commas. Each range will become a separate PDF
                                             </p>
                                         </div>
@@ -259,15 +259,15 @@ const PDFSplitter = () => {
                                         {splitPDFs.files.map((pdf, index) => (
                                             <div
                                                 key={index}
-                                                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+                                                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
                                             >
                                                 <div className="flex items-center gap-3">
                                                     <div className="text-2xl">📄</div>
                                                     <div>
-                                                        <p className="font-medium text-gray-900">
+                                                        <p className="font-medium text-gray-900 dark:text-white">
                                                             {pdf.filename}
                                                         </p>
-                                                        <p className="text-sm text-gray-600">
+                                                        <p className="text-sm text-gray-600 dark:text-gray-300">
                                                             {pdf.pages} page(s) • {formatSize(pdf.size)}
                                                         </p>
                                                     </div>
@@ -298,68 +298,68 @@ const PDFSplitter = () => {
 
                 {/* Features */}
                 <div className="grid md:grid-cols-3 gap-6 mb-12">
-                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                         <div className="text-3xl mb-3">✂️</div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Flexible Splitting</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Flexible Splitting</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Split all pages, extract specific pages, or split by ranges
                         </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                         <div className="text-3xl mb-3">⚡</div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Fast Processing</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Fast Processing</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Quick splitting with progress tracking for large PDFs
                         </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                         <div className="text-3xl mb-3">🔒</div>
-                        <h3 className="font-semibold text-gray-900 mb-2">100% Private</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             All splitting happens in your browser. No uploads required
                         </p>
                     </div>
                 </div>
 
                 {/* FAQ */}
-                <div className="bg-white rounded-2xl shadow-xl p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                         Frequently Asked Questions
                     </h2>
                     <div className="space-y-4">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 What's the difference between the split methods?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 <strong>Split All Pages:</strong> Creates one PDF per page.
                                 <strong> Extract Pages:</strong> Creates a single PDF with only selected pages.
                                 <strong> Split by Ranges:</strong> Creates multiple PDFs based on page ranges you specify.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 How do I specify page numbers?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 Use commas to separate individual pages (1,3,5) and hyphens for ranges (1-5).
                                 You can combine both: "1,3,5-7,10" will select pages 1, 3, 5, 6, 7, and 10.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 Can I split password-protected PDFs?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 No, password-protected or encrypted PDFs cannot be split. You'll need to remove
                                 the password protection first before using this tool.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 Are my PDF files uploaded to a server?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 No! All PDF splitting happens locally in your browser. Your files never leave
                                 your device, ensuring complete privacy and security.
                             </p>

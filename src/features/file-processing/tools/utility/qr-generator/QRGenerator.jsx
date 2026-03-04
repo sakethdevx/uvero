@@ -132,19 +132,19 @@ const QRGenerator = () => {
             <div className="max-w-5xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         QR Code Generator
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-gray-600 dark:text-gray-300">
                         Create custom QR codes for URLs, text, WiFi, and more
                     </p>
                 </div>
 
                 {/* Main Content */}
-                <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {/* Input Type Selection */}
                     <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                             QR Code Type
                         </label>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -158,11 +158,11 @@ const QRGenerator = () => {
                                     }}
                                     className={`p-3 rounded-lg border-2 transition-all ${inputType === type.value
                                             ? 'border-indigo-500 bg-indigo-50'
-                                            : 'border-gray-200 hover:border-indigo-300'
+                                            : 'border-gray-200 dark:border-gray-700 hover:border-indigo-300'
                                         }`}
                                 >
                                     <div className="text-2xl mb-1">{type.icon}</div>
-                                    <div className="text-xs font-medium text-gray-700">
+                                    <div className="text-xs font-medium text-gray-700 dark:text-gray-200">
                                         {type.label}
                                     </div>
                                 </button>
@@ -172,7 +172,7 @@ const QRGenerator = () => {
 
                     {/* Input Data */}
                     <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                             {selectedType?.label} Content
                         </label>
                         <textarea
@@ -180,15 +180,15 @@ const QRGenerator = () => {
                             onChange={(e) => setInputData(e.target.value)}
                             placeholder={selectedType?.placeholder}
                             rows={inputType === 'text' ? 4 : 2}
-                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none transition-colors"
+                            className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-indigo-500 focus:outline-none transition-colors"
                         />
                         {inputType === 'wifi' && (
-                            <p className="text-xs text-gray-500 mt-2">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                                 Format: NetworkName:Password:SecurityType (e.g., MyWiFi:password123:WPA)
                             </p>
                         )}
                         {inputType === 'sms' && (
-                            <p className="text-xs text-gray-500 mt-2">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                                 Format: PhoneNumber:Message (e.g., +1234567890:Hello!)
                             </p>
                         )}
@@ -198,7 +198,7 @@ const QRGenerator = () => {
                     <div className="grid md:grid-cols-2 gap-6 mb-6">
                         {/* Size */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                 Size: {qrSize}px
                             </label>
                             <input
@@ -208,9 +208,9 @@ const QRGenerator = () => {
                                 step="64"
                                 value={qrSize}
                                 onChange={(e) => setQrSize(parseInt(e.target.value))}
-                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                             />
-                            <div className="flex justify-between text-xs text-gray-500 mt-1">
+                            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 <span>Small</span>
                                 <span>Large</span>
                             </div>
@@ -218,13 +218,13 @@ const QRGenerator = () => {
 
                         {/* Error Correction Level */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                 Error Correction
                             </label>
                             <select
                                 value={errorLevel}
                                 onChange={(e) => setErrorLevel(e.target.value)}
-                                className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
+                                className="w-full px-4 py-2 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-indigo-500 focus:outline-none"
                             >
                                 {errorLevels.map((level) => (
                                     <option key={level.value} value={level.value}>
@@ -236,7 +236,7 @@ const QRGenerator = () => {
 
                         {/* Foreground Color */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                 QR Code Color
                             </label>
                             <div className="flex gap-3 items-center">
@@ -244,20 +244,20 @@ const QRGenerator = () => {
                                     type="color"
                                     value={foregroundColor}
                                     onChange={(e) => setForegroundColor(e.target.value)}
-                                    className="w-16 h-10 rounded-lg cursor-pointer border-2 border-gray-200"
+                                    className="w-16 h-10 rounded-lg cursor-pointer border-2 border-gray-200 dark:border-gray-700"
                                 />
                                 <input
                                     type="text"
                                     value={foregroundColor}
                                     onChange={(e) => setForegroundColor(e.target.value)}
-                                    className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
+                                    className="flex-1 px-4 py-2 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-indigo-500 focus:outline-none"
                                 />
                             </div>
                         </div>
 
                         {/* Background Color */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                 Background Color
                             </label>
                             <div className="flex gap-3 items-center">
@@ -265,13 +265,13 @@ const QRGenerator = () => {
                                     type="color"
                                     value={backgroundColor}
                                     onChange={(e) => setBackgroundColor(e.target.value)}
-                                    className="w-16 h-10 rounded-lg cursor-pointer border-2 border-gray-200"
+                                    className="w-16 h-10 rounded-lg cursor-pointer border-2 border-gray-200 dark:border-gray-700"
                                 />
                                 <input
                                     type="text"
                                     value={backgroundColor}
                                     onChange={(e) => setBackgroundColor(e.target.value)}
-                                    className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
+                                    className="flex-1 px-4 py-2 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-indigo-500 focus:outline-none"
                                 />
                             </div>
                         </div>
@@ -298,12 +298,12 @@ const QRGenerator = () => {
                     {/* QR Code Result */}
                     {qrCode && (
                         <div className="border-t pt-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Your QR Code</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Your QR Code</h3>
 
                             <div className="flex flex-col md:flex-row gap-6">
                                 {/* QR Code Preview */}
                                 <div className="flex-1">
-                                    <div className="bg-gray-50 rounded-lg p-8 flex items-center justify-center">
+                                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-8 flex items-center justify-center">
                                         <img
                                             src={qrCode}
                                             alt="Generated QR Code"
@@ -355,7 +355,7 @@ const QRGenerator = () => {
 
                 {/* Info Section */}
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
-                    <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                         <div className="flex items-start gap-4">
                             <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
                                 <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -363,15 +363,15 @@ const QRGenerator = () => {
                                 </svg>
                             </div>
                             <div>
-                                <h3 className="font-semibold text-gray-900 mb-2">Customize Your QR Code</h3>
-                                <p className="text-gray-600 text-sm">
+                                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Customize Your QR Code</h3>
+                                <p className="text-gray-600 dark:text-gray-300 text-sm">
                                     Choose from multiple types, adjust size, colors, and error correction level. Perfect for business cards, posters, products, and more.
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                         <div className="flex items-start gap-4">
                             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
                                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -379,8 +379,8 @@ const QRGenerator = () => {
                                 </svg>
                             </div>
                             <div>
-                                <h3 className="font-semibold text-gray-900 mb-2">100% Private & Secure</h3>
-                                <p className="text-gray-600 text-sm">
+                                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private & Secure</h3>
+                                <p className="text-gray-600 dark:text-gray-300 text-sm">
                                     All QR codes are generated locally in your browser. Your data never leaves your device, ensuring complete privacy and security.
                                 </p>
                             </div>
@@ -389,41 +389,41 @@ const QRGenerator = () => {
                 </div>
 
                 {/* FAQ Section */}
-                <div className="bg-white rounded-xl shadow-md p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
 
                     <div className="space-y-6">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">What types of QR codes can I create?</h3>
-                            <p className="text-gray-600">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What types of QR codes can I create?</h3>
+                            <p className="text-gray-600 dark:text-gray-300">
                                 You can create QR codes for URLs, plain text, emails, phone numbers, SMS messages, and WiFi credentials. Each type is optimized for its specific use case.
                             </p>
                         </div>
 
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">What's the difference between PNG and SVG?</h3>
-                            <p className="text-gray-600">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What's the difference between PNG and SVG?</h3>
+                            <p className="text-gray-600 dark:text-gray-300">
                                 PNG is a raster format perfect for web and print at a specific size. SVG is a vector format that scales infinitely without quality loss - ideal for large prints or when you need flexibility.
                             </p>
                         </div>
 
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">What is error correction?</h3>
-                            <p className="text-gray-600">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What is error correction?</h3>
+                            <p className="text-gray-600 dark:text-gray-300">
                                 Error correction allows the QR code to be readable even if partially damaged or obscured. Higher levels (H) are more durable but create larger, more complex codes. Medium (M) or Quartile (Q) are recommended for most uses.
                             </p>
                         </div>
 
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Do QR codes expire?</h3>
-                            <p className="text-gray-600">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Do QR codes expire?</h3>
+                            <p className="text-gray-600 dark:text-gray-300">
                                 No! QR codes generated here never expire and will work forever. Since they're static codes created locally, there's no tracking or expiration - they contain the data directly.
                             </p>
                         </div>
 
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Can I use custom colors?</h3>
-                            <p className="text-gray-600">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Can I use custom colors?</h3>
+                            <p className="text-gray-600 dark:text-gray-300">
                                 Yes! You can customize both the QR code color and background color. For best scanning reliability, ensure high contrast between the two colors (dark code on light background works best).
                             </p>
                         </div>

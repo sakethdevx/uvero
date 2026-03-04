@@ -89,19 +89,19 @@ export default function PDFToJPG() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50">
             {/* Hero Section */}
-            <div className="bg-white border-b">
+            <div className="bg-white dark:bg-gray-800 border-b">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="text-center max-w-3xl mx-auto">
                         <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl mb-6 shadow-lg">
                             <span className="text-3xl">🖼️</span>
                         </div>
-                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
                             PDF to JPG Converter
                         </h1>
-                        <p className="text-xl text-gray-600 mb-6">
+                        <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
                             Convert PDF pages to high-quality JPG images. Extract all pages or specific ones.
                         </p>
-                        <div className="flex flex-wrap gap-3 justify-center text-sm text-gray-600">
+                        <div className="flex flex-wrap gap-3 justify-center text-sm text-gray-600 dark:text-gray-300">
                             <div className="flex items-center gap-2">
                                 <span className="text-green-500">✓</span>
                                 <span>100% Client-side</span>
@@ -125,7 +125,7 @@ export default function PDFToJPG() {
 
             {/* Main Tool Section */}
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                     <div className="p-8">
                         {/* Dropzone */}
                         {!file && (
@@ -150,11 +150,11 @@ export default function PDFToJPG() {
 
                                 {/* Page Range Options */}
                                 <div className="mb-6">
-                                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                         Select Pages to Convert
                                     </label>
                                     <div className="space-y-3">
-                                        <label className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                        <label className="flex items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:bg-gray-900 transition-colors">
                                             <input
                                                 type="radio"
                                                 name="pageRange"
@@ -164,11 +164,11 @@ export default function PDFToJPG() {
                                                 className="w-4 h-4 text-blue-600"
                                             />
                                             <div>
-                                                <div className="font-medium text-gray-900">All Pages</div>
-                                                <div className="text-sm text-gray-500">Convert every page to JPG</div>
+                                                <div className="font-medium text-gray-900 dark:text-white">All Pages</div>
+                                                <div className="text-sm text-gray-500 dark:text-gray-400">Convert every page to JPG</div>
                                             </div>
                                         </label>
-                                        <label className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                        <label className="flex items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:bg-gray-900 transition-colors">
                                             <input
                                                 type="radio"
                                                 name="pageRange"
@@ -178,11 +178,11 @@ export default function PDFToJPG() {
                                                 className="w-4 h-4 text-blue-600"
                                             />
                                             <div>
-                                                <div className="font-medium text-gray-900">First Page Only</div>
-                                                <div className="text-sm text-gray-500">Convert only the first page</div>
+                                                <div className="font-medium text-gray-900 dark:text-white">First Page Only</div>
+                                                <div className="text-sm text-gray-500 dark:text-gray-400">Convert only the first page</div>
                                             </div>
                                         </label>
-                                        <label className="flex items-start gap-3 p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                        <label className="flex items-start gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:bg-gray-900 transition-colors">
                                             <input
                                                 type="radio"
                                                 name="pageRange"
@@ -192,16 +192,16 @@ export default function PDFToJPG() {
                                                 className="w-4 h-4 text-blue-600 mt-1"
                                             />
                                             <div className="flex-1">
-                                                <div className="font-medium text-gray-900 mb-2">Custom Pages</div>
+                                                <div className="font-medium text-gray-900 dark:text-white mb-2">Custom Pages</div>
                                                 <input
                                                     type="text"
                                                     value={customPages}
                                                     onChange={(e) => setCustomPages(e.target.value)}
                                                     placeholder="e.g., 1,3-5,8"
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                     disabled={pageRange !== 'custom'}
                                                 />
-                                                <div className="text-sm text-gray-500 mt-1">
+                                                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                                     Enter page numbers or ranges (e.g., 1,3-5,8)
                                                 </div>
                                             </div>
@@ -257,7 +257,7 @@ export default function PDFToJPG() {
                                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                         {results.images.map((image, index) => (
                                             <div key={index} className="group relative">
-                                                <div className="aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                                                <div className="aspect-[3/4] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                                                     <img
                                                         src={image.url}
                                                         alt={`Page ${index + 1}`}
@@ -265,7 +265,7 @@ export default function PDFToJPG() {
                                                     />
                                                 </div>
                                                 <div className="mt-2 flex items-center justify-between">
-                                                    <span className="text-sm text-gray-600">
+                                                    <span className="text-sm text-gray-600 dark:text-gray-300">
                                                         Page {index + 1}
                                                     </span>
                                                     <button
@@ -298,38 +298,38 @@ export default function PDFToJPG() {
 
                 {/* Features */}
                 <div className="mt-12 grid md:grid-cols-3 gap-6">
-                    <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                         <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
                             <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">High Quality JPG</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">High Quality JPG</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Extract pages as high-quality JPG images with excellent compression
                         </p>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                         <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
                             <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Page Selection</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Page Selection</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Convert all pages, first page only, or specific page ranges
                         </p>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                         <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
                             <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">100% Private</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             All conversion happens in your browser - files never leave your device
                         </p>
                     </div>

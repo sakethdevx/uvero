@@ -98,19 +98,19 @@ export default function PDFConverter() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
             {/* Hero Section */}
-            <div className="bg-white border-b">
+            <div className="bg-white dark:bg-gray-800 border-b">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <div className="text-center max-w-3xl mx-auto">
                         <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl mb-6 shadow-lg">
                             <span className="text-3xl">📄</span>
                         </div>
-                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
                             PDF to Image Converter
                         </h1>
-                        <p className="text-xl text-gray-600 mb-6">
+                        <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
                             Convert PDF pages to high-quality PNG or JPG images. Extract all pages or specific ones.
                         </p>
-                        <div className="flex flex-wrap gap-3 justify-center text-sm text-gray-600">
+                        <div className="flex flex-wrap gap-3 justify-center text-sm text-gray-600 dark:text-gray-300">
                             <div className="flex items-center gap-2">
                                 <span className="text-green-500">✓</span>
                                 <span>100% Client-side</span>
@@ -134,7 +134,7 @@ export default function PDFConverter() {
 
             {/* Main Tool Section */}
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                     <div className="p-8">
                         {/* Dropzone */}
                         {!file && (
@@ -158,8 +158,8 @@ export default function PDFConverter() {
                                 />
 
                                 {/* Output Format Selector */}
-                                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-4">
+                                <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
                                         Output Format
                                     </label>
                                     <div className="grid grid-cols-2 gap-3">
@@ -168,31 +168,31 @@ export default function PDFConverter() {
                                             disabled={isProcessing}
                                             className={`p-4 rounded-lg border-2 transition-all text-left ${outputFormat === 'png'
                                                     ? 'border-blue-500 bg-blue-50'
-                                                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                                                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
                                                 } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                         >
-                                            <div className="font-semibold text-gray-900 mb-1">PNG</div>
-                                            <div className="text-sm text-gray-600">Lossless quality</div>
-                                            <div className="text-xs text-gray-500 mt-1">Best for text & diagrams</div>
+                                            <div className="font-semibold text-gray-900 dark:text-white mb-1">PNG</div>
+                                            <div className="text-sm text-gray-600 dark:text-gray-300">Lossless quality</div>
+                                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Best for text & diagrams</div>
                                         </button>
                                         <button
                                             onClick={() => setOutputFormat('jpg')}
                                             disabled={isProcessing}
                                             className={`p-4 rounded-lg border-2 transition-all text-left ${outputFormat === 'jpg'
                                                     ? 'border-blue-500 bg-blue-50'
-                                                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                                                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
                                                 } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                         >
-                                            <div className="font-semibold text-gray-900 mb-1">JPG</div>
-                                            <div className="text-sm text-gray-600">Smaller file size</div>
-                                            <div className="text-xs text-gray-500 mt-1">Best for photos</div>
+                                            <div className="font-semibold text-gray-900 dark:text-white mb-1">JPG</div>
+                                            <div className="text-sm text-gray-600 dark:text-gray-300">Smaller file size</div>
+                                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Best for photos</div>
                                         </button>
                                     </div>
                                 </div>
 
                                 {/* Page Range Selector */}
-                                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-4">
+                                <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">
                                         Pages to Convert
                                     </label>
                                     <div className="space-y-3">
@@ -206,7 +206,7 @@ export default function PDFConverter() {
                                                 disabled={isProcessing}
                                                 className="w-4 h-4 text-blue-500"
                                             />
-                                            <span className="text-gray-700">All pages</span>
+                                            <span className="text-gray-700 dark:text-gray-200">All pages</span>
                                         </label>
                                         <label className="flex items-center gap-3 cursor-pointer">
                                             <input
@@ -218,7 +218,7 @@ export default function PDFConverter() {
                                                 disabled={isProcessing}
                                                 className="w-4 h-4 text-blue-500"
                                             />
-                                            <span className="text-gray-700">First page only</span>
+                                            <span className="text-gray-700 dark:text-gray-200">First page only</span>
                                         </label>
                                         <label className="flex items-center gap-3 cursor-pointer">
                                             <input
@@ -230,7 +230,7 @@ export default function PDFConverter() {
                                                 disabled={isProcessing}
                                                 className="w-4 h-4 text-blue-500"
                                             />
-                                            <span className="text-gray-700">Custom pages</span>
+                                            <span className="text-gray-700 dark:text-gray-200">Custom pages</span>
                                         </label>
                                         {pageRange === 'custom' && (
                                             <input
@@ -239,11 +239,11 @@ export default function PDFConverter() {
                                                 onChange={(e) => setCustomPages(e.target.value)}
                                                 placeholder="e.g., 1,3,5-7"
                                                 disabled={isProcessing}
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                         )}
                                     </div>
-                                    <div className="mt-3 text-xs text-gray-600">
+                                    <div className="mt-3 text-xs text-gray-600 dark:text-gray-300">
                                         <strong>Tip:</strong> For custom pages, use commas and ranges (e.g., "1,3,5-7" converts pages 1, 3, 5, 6, and 7)
                                     </div>
                                 </div>
@@ -291,10 +291,10 @@ export default function PDFConverter() {
                                             <span className="text-2xl">✓</span>
                                         </div>
                                         <div className="flex-1">
-                                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                                 Conversion Successful!
                                             </h3>
-                                            <p className="text-gray-700">
+                                            <p className="text-gray-700 dark:text-gray-200">
                                                 Generated <span className="font-bold text-green-700">{results.count}</span> {results.format.toUpperCase()} {results.count === 1 ? 'image' : 'images'}
                                             </p>
                                         </div>
@@ -302,9 +302,9 @@ export default function PDFConverter() {
                                 </div>
 
                                 {/* Image Gallery */}
-                                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                                <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                                     <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-sm font-semibold text-gray-700">Converted Images</h3>
+                                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Converted Images</h3>
                                         <Button
                                             onClick={handleDownloadAll}
                                             variant="secondary"
@@ -315,16 +315,16 @@ export default function PDFConverter() {
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
                                         {results.images.map((image, index) => (
-                                            <div key={index} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                            <div key={index} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                                                 <img
                                                     src={image.url}
                                                     alt={`Page ${index + 1}`}
-                                                    className="w-full h-48 object-contain bg-gray-100"
+                                                    className="w-full h-48 object-contain bg-gray-100 dark:bg-gray-700"
                                                 />
                                                 <div className="p-3 flex items-center justify-between">
                                                     <div className="text-sm">
-                                                        <div className="font-medium text-gray-900">Page {index + 1}</div>
-                                                        <div className="text-xs text-gray-500">{formatFileSize(image.size)}</div>
+                                                        <div className="font-medium text-gray-900 dark:text-white">Page {index + 1}</div>
+                                                        <div className="text-xs text-gray-500 dark:text-gray-400">{formatFileSize(image.size)}</div>
                                                     </div>
                                                     <Button
                                                         onClick={() => handleDownloadSingle(image, index)}
@@ -354,61 +354,61 @@ export default function PDFConverter() {
 
                 {/* Features Grid */}
                 <div className="mt-12 grid md:grid-cols-3 gap-6">
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
                         <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">🔒</span>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Privacy First</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy First</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             All processing happens in your browser. Your PDFs never leave your device.
                         </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
                         <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">⚡</span>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">High Quality</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">High Quality</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             PDF.js rendering ensures crisp, high-resolution images from your PDF pages.
                         </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
                         <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">🎯</span>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Flexible Selection</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Flexible Selection</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Convert all pages, just the first, or specific pages you choose.
                         </p>
                     </div>
                 </div>
 
                 {/* FAQ Section */}
-                <div className="mt-12 bg-white rounded-xl p-8 border border-gray-200 shadow-sm">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
+                <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
                     <div className="space-y-6">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">PNG or JPG - which should I choose?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">PNG or JPG - which should I choose?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 <strong>PNG:</strong> Best for PDFs with text, diagrams, or graphics. Lossless quality with transparency support.<br />
                                 <strong>JPG:</strong> Best for PDFs with photos or scanned documents. Smaller file sizes, good for web use.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">What resolution are the images?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What resolution are the images?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 Images are rendered at 2x scale (192 DPI) for high quality output suitable for printing and professional use.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Can I convert password-protected PDFs?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Can I convert password-protected PDFs?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 Currently, password-protected PDFs cannot be converted. Please remove the password protection first.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">How do I specify custom pages?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">How do I specify custom pages?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 Use commas to separate individual pages and hyphens for ranges. Examples:<br />
                                 "1,3,5" - converts pages 1, 3, and 5<br />
                                 "1-5" - converts pages 1 through 5<br />
@@ -416,14 +416,14 @@ export default function PDFConverter() {
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Is there a page limit?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is there a page limit?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 You can convert PDFs up to 50MB. For very large PDFs, consider converting specific pages rather than all pages.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Is this tool free?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is this tool free?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 Yes! Our PDF to image converter is completely free with unlimited usage. No sign-up required.
                             </p>
                         </div>

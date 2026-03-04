@@ -118,10 +118,10 @@ export default function TimeZoneConverter() {
         <div className="max-w-3xl mx-auto">
             <div className="card">
                 <div className="text-center mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                         🌍 Time Zone Converter
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-300">
                         Convert time between different time zones around the world
                     </p>
                 </div>
@@ -129,13 +129,13 @@ export default function TimeZoneConverter() {
                 {/* Current Time Display */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
                     <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4">
-                        <p className="text-sm text-gray-600 mb-1 truncate">
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-1 truncate">
                             {timeZones.find(tz => tz.value === fromZone)?.label}
                         </p>
                         <p className="text-2xl font-bold text-blue-600">{currentFromTime}</p>
                     </div>
                     <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4">
-                        <p className="text-sm text-gray-600 mb-1 truncate">
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-1 truncate">
                             {timeZones.find(tz => tz.value === toZone)?.label}
                         </p>
                         <p className="text-2xl font-bold text-green-600">{currentToTime}</p>
@@ -145,26 +145,26 @@ export default function TimeZoneConverter() {
                 <div className="space-y-6">
                     {/* Date Input */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                             Date
                         </label>
                         <input
                             type="date"
                             value={inputDate}
                             onChange={(e) => setInputDate(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         />
                     </div>
 
                     {/* From Zone */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                             From Time Zone
                         </label>
                         <select
                             value={fromZone}
                             onChange={(e) => setFromZone(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         >
                             {timeZones.map(tz => (
                                 <option key={tz.value} value={tz.value}>
@@ -176,14 +176,14 @@ export default function TimeZoneConverter() {
 
                     {/* Time Input */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                             Time
                         </label>
                         <input
                             type="time"
                             value={inputTime}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         />
                     </div>
 
@@ -203,13 +203,13 @@ export default function TimeZoneConverter() {
 
                     {/* To Zone */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                             To Time Zone
                         </label>
                         <select
                             value={toZone}
                             onChange={(e) => setToZone(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         >
                             {timeZones.map(tz => (
                                 <option key={tz.value} value={tz.value}>
@@ -223,11 +223,11 @@ export default function TimeZoneConverter() {
                     {result && (
                         <div className="bg-gradient-to-r from-primary-50 to-blue-50 rounded-lg p-6">
                             <div className="text-center">
-                                <p className="text-sm text-gray-600 mb-2">Converted Time</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Converted Time</p>
                                 <p className="text-4xl font-bold text-primary-600">
                                     {result}
                                 </p>
-                                <p className="text-sm text-gray-500 mt-2">
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                                     {inputTime} ({timeZones.find(tz => tz.value === fromZone)?.label}) 
                                     <br />= {result} ({timeZones.find(tz => tz.value === toZone)?.label})
                                 </p>
@@ -254,9 +254,9 @@ export default function TimeZoneConverter() {
                     </div>
 
                     {/* Info */}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                        <h3 className="font-semibold text-gray-900 mb-3">Features</h3>
-                        <ul className="space-y-2 text-sm text-gray-700">
+                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Features</h3>
+                        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-200">
                             <li className="flex items-start gap-2">
                                 <span className="text-primary-600 mt-0.5">•</span>
                                 <span>Supports 17 major time zones worldwide</span>

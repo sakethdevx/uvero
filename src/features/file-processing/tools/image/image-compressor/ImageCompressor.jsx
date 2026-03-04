@@ -130,10 +130,10 @@ export default function ImageCompressor() {
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
                         Image Compressor
                     </h1>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
+                    <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
                         Reduce your image file size without sacrificing quality.
                         Perfect for web optimization, email attachments, and faster loading times.
                     </p>
@@ -161,11 +161,11 @@ export default function ImageCompressor() {
                                 </span>
                             </div>
                         ) : (
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-full">
-                                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-full">
+                                <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
-                                <span className="text-sm font-medium text-gray-700">
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                                     Offline Mode (Client-Side)
                                 </span>
                             </div>
@@ -193,8 +193,8 @@ export default function ImageCompressor() {
                             {/* Preview */}
                             {previewUrl && (
                                 <div className="card">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Preview</h3>
-                                    <div className="flex justify-center bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Preview</h3>
+                                    <div className="flex justify-center bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
                                         <img
                                             src={previewUrl}
                                             alt="Preview"
@@ -207,7 +207,7 @@ export default function ImageCompressor() {
                             {/* Quality Slider */}
                             <div className="card">
                                 <div className="flex justify-between items-center mb-4">
-                                    <label className="text-lg font-semibold text-gray-900">
+                                    <label className="text-lg font-semibold text-gray-900 dark:text-white">
                                         Compression Quality
                                     </label>
                                     <span className="text-2xl font-bold text-primary-600">
@@ -222,13 +222,13 @@ export default function ImageCompressor() {
                                     value={quality}
                                     onChange={(e) => setQuality(parseInt(e.target.value))}
                                     disabled={isProcessing}
-                                    className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                                    className="w-full h-3 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
                                     style={{
                                         background: `linear-gradient(to right, #0ea5e9 0%, #0ea5e9 ${quality}%, #e5e7eb ${quality}%, #e5e7eb 100%)`
                                     }}
                                 />
 
-                                <div className="flex justify-between text-sm text-gray-500 mt-2">
+                                <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mt-2">
                                     <span>Smaller file</span>
                                     <span>Better quality</span>
                                 </div>
@@ -327,7 +327,7 @@ export default function ImageCompressor() {
 
                 {/* FAQ Section */}
                 <div className="mt-16 space-y-8">
-                    <h2 className="text-3xl font-bold text-gray-900 text-center">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center">
                         Frequently Asked Questions
                     </h2>
 
@@ -359,10 +359,10 @@ export default function ImageCompressor() {
                             }
                         ].map((faq, idx) => (
                             <div key={idx} className="card hover:shadow-lg transition-shadow">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                     {faq.q}
                                 </h3>
-                                <p className="text-gray-600 leading-relaxed">
+                                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                                     {faq.a}
                                 </p>
                             </div>

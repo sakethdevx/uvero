@@ -142,31 +142,31 @@ const PDFToPDFA = () => {
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         PDF to PDF/A Converter
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-gray-600 dark:text-gray-300">
                         Convert PDF to PDF/A archival format for long-term preservation
                     </p>
                 </div>
 
                 {/* Main Converter */}
-                <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <div
                             onDrop={handleDrop}
                             onDragOver={handleDragOver}
-                            className="border-3 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-purple-400 transition-colors cursor-pointer"
+                            className="border-3 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-12 text-center hover:border-purple-400 transition-colors cursor-pointer"
                             onClick={() => fileInputRef.current?.click()}
                         >
                             <div className="flex flex-col items-center">
-                                <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-16 h-16 text-gray-400 dark:text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
-                                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                                <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
                                     Drop PDF file here or click to browse
                                 </h3>
-                                <p className="text-gray-500 mb-4">
+                                <p className="text-gray-500 dark:text-gray-400 mb-4">
                                     Convert to PDF/A archival format
                                 </p>
                                 <input
@@ -184,7 +184,7 @@ const PDFToPDFA = () => {
                     ) : (
                         <div>
                             {/* File Info */}
-                            <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 mb-6">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
@@ -193,13 +193,13 @@ const PDFToPDFA = () => {
                                             </svg>
                                         </div>
                                         <div>
-                                            <h3 className="font-semibold text-gray-900">{file.name}</h3>
-                                            <p className="text-sm text-gray-500">{formatFileSize(file.size)}</p>
+                                            <h3 className="font-semibold text-gray-900 dark:text-white">{file.name}</h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">{formatFileSize(file.size)}</p>
                                         </div>
                                     </div>
                                     <button
                                         onClick={handleReset}
-                                        className="text-gray-400 hover:text-gray-600"
+                                        className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:text-gray-300"
                                     >
                                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -219,10 +219,10 @@ const PDFToPDFA = () => {
                             {converting && (
                                 <div className="mb-6">
                                     <div className="flex items-center justify-between mb-2">
-                                        <span className="text-sm font-medium text-gray-700">Converting to PDF/A...</span>
-                                        <span className="text-sm font-medium text-gray-700">{progress}%</span>
+                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Converting to PDF/A...</span>
+                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{progress}%</span>
                                     </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                                         <div
                                             className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all duration-300"
                                             style={{ width: `${progress}%` }}
@@ -282,72 +282,72 @@ const PDFToPDFA = () => {
 
                 {/* Features */}
                 <div className="grid md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                         <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
                             <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                             </svg>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Long-Term Preservation</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Long-Term Preservation</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             PDF/A format ensures your documents remain accessible for decades
                         </p>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                         <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                             <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">ISO Standard</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">ISO Standard</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Follows ISO 19005 standard for electronic document archival
                         </p>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-md p-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                         <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
                             <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Privacy First</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy First</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             All conversion happens locally - your PDFs never leave your device
                         </p>
                     </div>
                 </div>
 
                 {/* FAQ */}
-                <div className="bg-white rounded-xl shadow-md p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
 
                     <div className="space-y-6">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">What is PDF/A?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What is PDF/A?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 PDF/A is an ISO-standardized version of PDF specialized for archival and long-term preservation of electronic documents. It ensures documents can be reproduced exactly the same way in the future.
                             </p>
                         </div>
 
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Why convert to PDF/A?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Why convert to PDF/A?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 PDF/A is ideal for documents that need to be preserved for long periods, such as legal documents, government records, and corporate archives. It ensures content remains accessible regardless of future software changes.
                             </p>
                         </div>
 
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Is this true PDF/A compliance?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is this true PDF/A compliance?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 This tool adds PDF/A metadata and optimizations. Full PDF/A-1b or PDF/A-2b compliance requires additional font embedding and color space conversions best done with specialized software.
                             </p>
                         </div>
 
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">Will my documents look the same?</h3>
-                            <p className="text-gray-600 text-sm">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Will my documents look the same?</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                                 Yes, the visual appearance of your documents will remain unchanged. PDF/A adds metadata and ensures long-term compatibility without altering the document's appearance.
                             </p>
                         </div>

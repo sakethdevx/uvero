@@ -109,10 +109,10 @@ export default function VideoToMP3() {
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
                         Video to MP3 Converter
                     </h1>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
+                    <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
                         Extract audio from video files and convert to MP3. Supports MP4, MOV, AVI, WebM, and more.
                         Choose your preferred bitrate for quality control.
                     </p>
@@ -140,11 +140,11 @@ export default function VideoToMP3() {
                                 </span>
                             </div>
                         ) : (
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-full">
-                                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-full">
+                                <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
-                                <span className="text-sm font-medium text-gray-700">
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                                     Offline Mode (Client-Side)
                                 </span>
                             </div>
@@ -172,8 +172,8 @@ export default function VideoToMP3() {
                             {/* Video Preview */}
                             {previewUrl && (
                                 <div className="card">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Video Preview</h3>
-                                    <div className="flex justify-center bg-gray-50 rounded-lg p-4">
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Video Preview</h3>
+                                    <div className="flex justify-center bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
                                         <video
                                             src={previewUrl}
                                             controls
@@ -186,7 +186,7 @@ export default function VideoToMP3() {
                             {/* Bitrate Selector */}
                             <div className="card">
                                 <div className="flex justify-between items-center mb-4">
-                                    <label className="text-lg font-semibold text-gray-900">
+                                    <label className="text-lg font-semibold text-gray-900 dark:text-white">
                                         Audio Quality (Bitrate)
                                     </label>
                                     <span className="text-2xl font-bold text-primary-600">
@@ -202,13 +202,13 @@ export default function VideoToMP3() {
                                     value={bitrate}
                                     onChange={(e) => setBitrate(parseInt(e.target.value))}
                                     disabled={isProcessing}
-                                    className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                                    className="w-full h-3 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
                                     style={{
                                         background: `linear-gradient(to right, #0ea5e9 0%, #0ea5e9 ${((bitrate - 64) / (320 - 64)) * 100}%, #e5e7eb ${((bitrate - 64) / (320 - 64)) * 100}%, #e5e7eb 100%)`
                                     }}
                                 />
 
-                                <div className="flex justify-between text-sm text-gray-500 mt-2">
+                                <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mt-2">
                                     <span>64 kbps (Smaller)</span>
                                     <span>320 kbps (Better Quality)</span>
                                 </div>
@@ -285,11 +285,11 @@ export default function VideoToMP3() {
 
                             {/* File Comparison */}
                             <div className="card">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-4">Conversion Results</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Conversion Results</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="p-4 bg-gray-50 rounded-lg">
-                                        <p className="text-sm text-gray-500 mb-1">Original Video</p>
-                                        <p className="text-2xl font-bold text-gray-900">{formatFileSize(file.size)}</p>
+                                    <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Original Video</p>
+                                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatFileSize(file.size)}</p>
                                     </div>
                                     <div className="p-4 bg-primary-50 rounded-lg">
                                         <p className="text-sm text-primary-600 mb-1">MP3 Audio</p>
@@ -307,7 +307,7 @@ export default function VideoToMP3() {
                             {/* Audio Player */}
                             {result.blob && (
                                 <div className="card">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Preview Audio</h3>
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Preview Audio</h3>
                                     <audio
                                         src={URL.createObjectURL(result.blob)}
                                         controls
@@ -343,45 +343,45 @@ export default function VideoToMP3() {
 
                 {/* FAQ Section */}
                 <div className="mt-16 card">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                         Frequently Asked Questions
                     </h2>
 
                     <div className="space-y-6">
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                 What video formats are supported?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 We support all common video formats including MP4, MOV, AVI, WebM, MKV, FLV, and WMV.
                                 The audio track will be extracted and converted to MP3.
                             </p>
                         </div>
 
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                 What bitrate should I choose?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 For speech/podcasts: 64-128 kbps is sufficient. For music: 192 kbps provides good quality.
                                 For archival/high quality: use 320 kbps.
                             </p>
                         </div>
 
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                 Is there a file size limit?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 In offline mode, limits depend on your device's memory. In online mode, the maximum file size is 500MB.
                             </p>
                         </div>
 
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                                 Are my videos stored anywhere?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 No! In offline mode, everything happens in your browser. In online mode, videos are processed
                                 and immediately deleted from our servers after conversion.
                             </p>

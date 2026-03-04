@@ -129,16 +129,16 @@ const ImageResizer = () => {
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
                         Image Resizer
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-gray-600 dark:text-gray-300">
                         Resize images by dimensions or percentage
                     </p>
                 </div>
 
                 {/* Main Content */}
-                <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
@@ -163,7 +163,7 @@ const ImageResizer = () => {
                                 <>
                                     {/* Resize Mode */}
                                     <div className="mt-6">
-                                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                                             Resize Method
                                         </label>
                                         <div className="grid grid-cols-2 gap-3">
@@ -171,23 +171,23 @@ const ImageResizer = () => {
                                                 onClick={() => setResizeMode('dimensions')}
                                                 className={`p-3 rounded-lg border-2 transition-all ${resizeMode === 'dimensions'
                                                         ? 'border-blue-600 bg-blue-50'
-                                                        : 'border-gray-200 hover:border-blue-300'
+                                                        : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
                                                     }`}
                                                 disabled={isResizing}
                                             >
-                                                <div className="font-semibold text-gray-900">By Dimensions</div>
-                                                <div className="text-xs text-gray-600">Set width & height</div>
+                                                <div className="font-semibold text-gray-900 dark:text-white">By Dimensions</div>
+                                                <div className="text-xs text-gray-600 dark:text-gray-300">Set width & height</div>
                                             </button>
                                             <button
                                                 onClick={() => setResizeMode('percentage')}
                                                 className={`p-3 rounded-lg border-2 transition-all ${resizeMode === 'percentage'
                                                         ? 'border-blue-600 bg-blue-50'
-                                                        : 'border-gray-200 hover:border-blue-300'
+                                                        : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
                                                     }`}
                                                 disabled={isResizing}
                                             >
-                                                <div className="font-semibold text-gray-900">By Percentage</div>
-                                                <div className="text-xs text-gray-600">Scale proportionally</div>
+                                                <div className="font-semibold text-gray-900 dark:text-white">By Percentage</div>
+                                                <div className="text-xs text-gray-600 dark:text-gray-300">Scale proportionally</div>
                                             </button>
                                         </div>
                                     </div>
@@ -197,28 +197,28 @@ const ImageResizer = () => {
                                         <div className="mt-6 space-y-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="flex-1">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                                         Width (px)
                                                     </label>
                                                     <input
                                                         type="number"
                                                         value={width}
                                                         onChange={(e) => handleWidthChange(e.target.value)}
-                                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                         disabled={isResizing}
                                                         min="1"
                                                     />
                                                 </div>
-                                                <div className="text-2xl text-gray-400 mt-7">×</div>
+                                                <div className="text-2xl text-gray-400 dark:text-gray-500 mt-7">×</div>
                                                 <div className="flex-1">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                                         Height (px)
                                                     </label>
                                                     <input
                                                         type="number"
                                                         value={height}
                                                         onChange={(e) => handleHeightChange(e.target.value)}
-                                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                         disabled={isResizing}
                                                         min="1"
                                                     />
@@ -233,7 +233,7 @@ const ImageResizer = () => {
                                                     className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                                                     disabled={isResizing}
                                                 />
-                                                <label htmlFor="aspectRatio" className="ml-2 text-sm text-gray-700">
+                                                <label htmlFor="aspectRatio" className="ml-2 text-sm text-gray-700 dark:text-gray-200">
                                                     Maintain aspect ratio
                                                 </label>
                                             </div>
@@ -243,19 +243,19 @@ const ImageResizer = () => {
                                     {/* Percentage Mode */}
                                     {resizeMode === 'percentage' && (
                                         <div className="mt-6">
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                                                 Scale Percentage
                                             </label>
                                             <input
                                                 type="number"
                                                 value={percentage}
                                                 onChange={(e) => setPercentage(e.target.value)}
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                 disabled={isResizing}
                                                 min="1"
                                                 max="500"
                                             />
-                                            <p className="mt-2 text-sm text-gray-600">
+                                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
                                                 New size: {Math.round(originalDimensions.width * parseFloat(percentage || 100) / 100)} × {Math.round(originalDimensions.height * parseFloat(percentage || 100) / 100)} px
                                             </p>
                                             <div className="mt-3 flex gap-2">
@@ -263,7 +263,7 @@ const ImageResizer = () => {
                                                     <button
                                                         key={val}
                                                         onClick={() => setPercentage(val.toString())}
-                                                        className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded"
+                                                        className="px-3 py-1 text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:bg-gray-600 rounded"
                                                         disabled={isResizing}
                                                     >
                                                         {val}%
@@ -313,7 +313,7 @@ const ImageResizer = () => {
                                         </div>
 
                                         {/* Image Preview */}
-                                        <div className="mb-3 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center" style={{ maxHeight: '300px' }}>
+                                        <div className="mb-3 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center" style={{ maxHeight: '300px' }}>
                                             <img
                                                 src={resizedImage.url}
                                                 alt="Resized"
@@ -323,19 +323,19 @@ const ImageResizer = () => {
 
                                         {/* Stats */}
                                         <div className="grid grid-cols-2 gap-3 text-sm">
-                                            <div className="p-3 bg-white rounded-lg">
-                                                <p className="text-gray-600">Original</p>
-                                                <p className="font-semibold text-gray-900">
+                                            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                                                <p className="text-gray-600 dark:text-gray-300">Original</p>
+                                                <p className="font-semibold text-gray-900 dark:text-white">
                                                     {originalDimensions.width} × {originalDimensions.height}
                                                 </p>
-                                                <p className="text-xs text-gray-500">{formatSize(file.size)}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">{formatSize(file.size)}</p>
                                             </div>
-                                            <div className="p-3 bg-white rounded-lg">
-                                                <p className="text-gray-600">Resized</p>
-                                                <p className="font-semibold text-gray-900">
+                                            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
+                                                <p className="text-gray-600 dark:text-gray-300">Resized</p>
+                                                <p className="font-semibold text-gray-900 dark:text-white">
                                                     {resizedImage.width} × {resizedImage.height}
                                                 </p>
-                                                <p className="text-xs text-gray-500">{formatSize(resizedImage.size)}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">{formatSize(resizedImage.size)}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -357,67 +357,67 @@ const ImageResizer = () => {
 
                 {/* Features */}
                 <div className="grid md:grid-cols-3 gap-6 mb-12">
-                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                         <div className="text-3xl mb-3">📏</div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Precise Control</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Precise Control</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Set exact dimensions or scale by percentage
                         </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                         <div className="text-3xl mb-3">🔒</div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Aspect Ratio Lock</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Aspect Ratio Lock</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             Maintain proportions or resize freely
                         </p>
                     </div>
-                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
                         <div className="text-3xl mb-3">⚡</div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Instant Preview</h3>
-                        <p className="text-gray-600 text-sm">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Instant Preview</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                             See results immediately before download
                         </p>
                     </div>
                 </div>
 
                 {/* FAQ */}
-                <div className="bg-white rounded-2xl shadow-xl p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                         Frequently Asked Questions
                     </h2>
                     <div className="space-y-4">
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 What's the difference between the two resize methods?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 <strong>By Dimensions:</strong> Set exact width and height in pixels.
                                 <strong> By Percentage:</strong> Scale proportionally (e.g., 50% makes it half the size).
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 Will resizing reduce image quality?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 Enlarging images (scaling up) may reduce quality. Reducing size generally maintains quality.
                                 The tool uses high-quality resampling algorithms for best results.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 Can I resize multiple images at once?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 Currently, images are resized one at a time. Process each image individually for
                                 precise control over dimensions.
                             </p>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                                 Are my images uploaded to a server?
                             </h3>
-                            <p className="text-gray-600">
+                            <p className="text-gray-600 dark:text-gray-300">
                                 No! All image resizing happens locally in your browser using Canvas API.
                                 Your images never leave your device.
                             </p>
