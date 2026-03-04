@@ -141,24 +141,7 @@ The app will be available at `http://localhost:5173`
 
 ### Environment Variables
 
-| Variable | Purpose |
-|----------|---------|
-| `VITE_SUPABASE_URL` | Supabase project URL (client) |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anon key (client) |
-| `SUPABASE_SERVICE_KEY` | Supabase service key (server) |
-| `PHOTODROP_STORAGE_GITHUB_TOKEN` | GitHub PAT for PhotoDrop image storage |
-| `PHOTODROP_STORAGE_GITHUB_OWNER` | GitHub owner for PhotoDrop repo |
-| `PHOTODROP_STORAGE_GITHUB_REPO` | GitHub repo for PhotoDrop images |
-| `PHOTODROP_STORAGE_GITHUB_BRANCH` | Branch for PhotoDrop images |
-| `CLIPBOARD_STORAGE_GITHUB_TOKEN` | GitHub PAT for Clipboard storage |
-| `CLIPBOARD_STORAGE_GITHUB_OWNER` | GitHub owner for Clipboard repo |
-| `CLIPBOARD_STORAGE_GITHUB_REPO` | GitHub repo for Clipboard data |
-| `CLIPBOARD_STORAGE_GITHUB_PUBLIC_BRANCH` | Branch for public clipboard boards |
-| `CLIPBOARD_STORAGE_GITHUB_PRIVATE_BRANCH` | Branch for private clipboard boards |
-| `HF_TOKEN` | Hugging Face API token (face detection) |
-| `HF_SPACE_URL` | Hugging Face Space URL |
-| `FACE_MATCH_THRESHOLD` | Face matching sensitivity (default 1.2) |
-| `INVITE_SECRET` | Secret for invite token signing |
+Copy `.env.example` to `.env` and fill in the required credentials. See the example file for all available variables.
 
 ### Build for Production
 
