@@ -1,81 +1,137 @@
-# Uvero - Professional File Processing Platform
+# Uvero
 
-> 🚀 A production-ready, privacy-first file processing web application that runs entirely in the browser
+> Professional digital tools — file processing, photo sharing, and online clipboard — built with privacy and speed in mind.
 
-## 🎯 Project Overview
+## Features
 
-Uvero is a FreeConvert-like platform built with modern web technologies. All file processing happens **client-side** - no uploads, no servers, completely private.
+Uvero is a multi-service platform deployed on **Vercel**, combining client-side file processing with cloud-powered collaboration tools.
 
-### ✨ Key Features
+### 🛠️ File Processing — 63+ Tools
 
-- **100% Privacy-First**: All processing happens in your browser
-- **Offline-Ready**: Works without internet after initial load
-- **Production-Ready**: Built with scalability and performance in mind
-- **SEO Optimized**: Proper meta tags, structured data, and routing
-- **Web Worker Processing**: No UI freezing, even on large files
-- **Responsive Design**: Works perfectly on all devices
-- **Free & Open Source**: No hidden costs, transparent code
+All file processing runs **100% client-side** in the browser. No uploads, no servers, completely private.
 
-## 🛠️ Tech Stack
+| Category | Tools |
+|----------|-------|
+| **PDF** (27) | Compress, Merge, Split, Convert (to/from Word, PowerPoint, Excel, Image, HTML, PDF/A), Edit, Sign, Rotate, Watermark, Protect, Unlock, Organize, Page Numbers, Repair, Crop, Redact, OCR, Compare, Scan to PDF, Translate |
+| **Image** (11) | Compress, Convert, Resize, Crop, Image to PDF, JPG to PDF, PDF to JPG, HEIC to JPG, GIF Maker, Add Watermark, Background Remover |
+| **Video** (5) | Compress, Convert, MP4 Converter, Video to GIF, MOV to MP4 |
+| **Audio** (5) | Compress, Convert, Video to MP3, MP3 Converter, MP4 to MP3 |
+| **Document** (3) | Document Converter, EPUB to PDF, EPUB to MOBI |
+| **Utility** (10) | QR Generator, Password Generator, Hash Generator, Unit Converter, Timezone Converter, Lbs↔Kg, Feet↔Meters, PST/CST→EST |
+| **Archive** (2) | RAR to ZIP, Archive Converter |
 
-- **React 18** - Modern UI framework
-- **Vite** - Lightning-fast build tool
-- **Tailwind CSS v3** - Utility-first styling
-- **React Router** - Client-side routing
-- **Web Workers** - Heavy processing off main thread
-- **Canvas API** - Image processing
-- **JavaScript (ES6+)** - No TypeScript dependency
+---
 
-## 📁 Project Structure
+### 📸 PhotoDrop
+
+Event-based photo sharing platform with AI-powered face detection.
+
+- Create events & upload photos (stored on GitHub via API)
+- **AI face detection** — automatically identifies and groups people in photos (Hugging Face inference)
+- Invite system with unique shareable links & tokens
+- Event management — create, browse, delete events & images
+- Person tagging and name management
+- Auth-gated access via Supabase
+
+---
+
+### 📋 Online Clipboard
+
+Instant text sharing — no login required.
+
+- **Quick Share** — Paste text, get a 4-digit code. Share the code for instant retrieval.
+- **Private Boards** — Named boards (`/clipboard/my-notes`) with rich features:
+  - Syntax highlighting (25+ languages)
+  - Markdown preview (edit / preview / split view)
+  - Password protection
+  - Burn after read & auto-expiry (1h to 30d)
+  - QR code sharing
+  - Auto-save & download (.txt, .md, .py, .js, etc.)
+- **Separated storage** — Public and private board data stored on different GitHub branches (`public_boards` / `private_boards`)
+- Metadata tracked in Supabase, content stored in GitHub
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 19, Vite 7, Tailwind CSS 3 |
+| Routing | React Router 7 |
+| Auth | Supabase (email/password) |
+| Backend API | Vercel Serverless Functions |
+| File Processing | Web Workers, Canvas API, FFmpeg WASM, pdf-lib, pdfjs, jsPDF, SheetJS, Mammoth, Sharp |
+| Image Storage | GitHub Contents API (PhotoDrop + Clipboard) |
+| AI / ML | Hugging Face Inference API (face detection), @imgly/background-removal |
+| QR | qrcode library |
+| Deployment | Vercel |
+
+---
+
+## Project Structure
 
 ```
 uvero/
+├── api/
+│   └── index.js                          # Vercel serverless router → dispatches to feature APIs
 ├── src/
-│   ├── tools/                      # All tool modules
-│   │   ├── image/
-│   │   │   ├── image-compressor/
-│   │   │   │   ├── ImageCompressor.jsx   # Main component
-│   │   │   │   ├── processor.js          # Worker manager
-│   │   │   │   ├── worker.js             # Web Worker
-│   │   │   │   └── seo.json              # SEO metadata
-│   │   │   └── image-converter/  # (coming soon)
-│   │   ├── pdf/                   # (coming soon)
-│   │   ├── audio/                 # (coming soon)
-│   │   └── index.js               # Tool registry
-│   ├── shared/                    # Reusable components
-│   │   ├── Dropzone.jsx           # File upload
-│   │   ├── Button.jsx             # Styled buttons
-│   │   ├── ProgressBar.jsx        # Progress indicator
-│   │   └── FileInfo.jsx           # File details display
-│   ├── pages/                     # Route pages
-│   │   ├── Home.jsx               # Landing page
-│   │   ├── ToolPage.jsx           # Dynamic tool loader
-│   │   └── Privacy.jsx            # Privacy policy
-│   ├── App.jsx                    # Main app with routing
-│   ├── main.jsx                   # Entry point
-│   └── index.css                  # Global styles
-├── public/
-├── index.html                     # HTML template with SEO
-├── tailwind.config.js             # Tailwind configuration
-├── postcss.config.js              # PostCSS configuration
-├── vite.config.js                 # Vite configuration
+│   ├── auth/                             # Supabase auth (AuthProvider, RequireAuth, authService)
+│   ├── components/                       # Global UI (ThemeToggle)
+│   ├── pages/                            # Login, Signup, ResetPassword, Profile, Privacy
+│   ├── features/
+│   │   ├── file-processing/
+│   │   │   ├── tools/                    # 63+ tools organized by category
+│   │   │   │   ├── image/               # 11 image tools
+│   │   │   │   ├── pdf/                 # 27 PDF tools
+│   │   │   │   ├── audio/               # 5 audio tools
+│   │   │   │   ├── video/               # 5 video tools
+│   │   │   │   ├── document/            # 3 document/ebook tools
+│   │   │   │   ├── utility/             # 10 utility tools
+│   │   │   │   ├── archive/             # 2 archive tools
+│   │   │   │   └── index.js             # Tool registry
+│   │   │   ├── pages/                   # Home, ServicesHome, ToolPage
+│   │   │   ├── components/              # ModeToggle, Dropzone, etc.
+│   │   │   ├── shared/                  # Reusable UI (Button, ProgressBar, FileInfo)
+│   │   │   ├── services/                # Processing services
+│   │   │   ├── context/                 # ModeContext
+│   │   │   └── api/                     # compress, convert-video-to-mp3
+│   │   ├── photodrop/
+│   │   │   ├── pages/                   # Events, EventDetail, Invite
+│   │   │   ├── api/                     # 13 API endpoints (events, images, faces, invites)
+│   │   │   └── services/               # GitHub image storage
+│   │   └── clipboard/
+│   │       ├── pages/                   # Clipboard (public), ClipboardBoard (private)
+│   │       ├── api/                     # Clipboard API (CRUD + code assignment)
+│   │       └── services/               # GitHub storage (branch-separated)
+│   ├── App.jsx                          # Root layout, routing, navigation
+│   ├── main.jsx                         # Entry point
+│   └── index.css                        # Global styles
+├── supabase/                            # Database schema (clipboard_tables.sql)
+├── vercel.json                          # Rewrite rules
 └── package.json
 ```
 
-## 🚀 Getting Started
+---
+
+## Getting Started
 
 ### Prerequisites
 
-- Node.js 16+ and npm
+- Node.js 18+ and npm
 
 ### Installation
 
 ```bash
-# Navigate to project directory
+# Clone the repo
+git clone https://github.com/sakethdevx/uvero.git
 cd uvero
 
 # Install dependencies
 npm install
+
+# Set up environment variables
+cp .env.example .env
+# Fill in your Supabase, GitHub, and Hugging Face credentials
 
 # Start development server
 npm run dev
@@ -83,188 +139,54 @@ npm run dev
 
 The app will be available at `http://localhost:5173`
 
+### Environment Variables
+
+Copy `.env.example` to `.env` and fill in the required credentials. See the example file for all available variables.
+
 ### Build for Production
 
 ```bash
-# Create optimized production build
 npm run build
-
-# Preview production build
 npm run preview
 ```
 
-## 🎨 Current Features
+---
 
-### ✅ Phase 1 Complete: Image Compressor
+## Routes
 
-A fully functional image compression tool with:
-
-- **Supported Formats**: JPG, PNG, WebP
-- **Adjustable Quality**: 10-100% compression slider
-- **Real-time Preview**: See your image before compressing
-- **Size Comparison**: Visual before/after file size comparison
-- **Download**: One-click download of compressed image
-- **Progress Indicator**: Real-time processing feedback
-- **Error Handling**: User-friendly error messages
-- **Web Worker**: Smooth performance, no UI freezing
-- **Privacy Message**: Clear communication about data handling
-- **SEO Optimized**: Dedicated route with metadata
-- **FAQ Section**: Comprehensive information for users
-
-## 🔮 Roadmap
-
-### Phase 2: Image Converter
-
-- Convert between JPG, PNG, WebP, GIF
-- Batch conversion support
-- Custom dimension settings
-
-### Phase 3: PDF Tools
-
-- PDF compression
-- PDF merge/split
-- PDF to image conversion
-
-### Phase 4: Audio Tools
-
-- Audio compression
-- Format conversion
-- Audio trimming
-
-### Phase 5: Advanced Features
-
-- Batch processing (Pro plan)
-- Google AdSense integration
-- User preferences storage
-- PWA support for offline use
-
-## 🏗️ Architecture Principles
-
-### Scalability
-
-- **Modular Tool System**: Each tool is self-contained
-- **Easy Tool Addition**: Drop new tools into `/tools` directory
-- **Shared Components**: Reusable UI components
-- **Tool Registry**: Central management in `tools/index.js`
-
-### Performance
-
-- **Web Workers**: Heavy processing off main thread
-- **Code Splitting**: Dynamic imports for tools
-- **Optimized Images**: Lazy loading and compression
-- **Minimal Bundle**: Tree-shaking unused code
-
-### Privacy
-
-- **No Server Uploads**: All processing client-side
-- **No Analytics by Default**: Privacy-focused
-- **Clear Communication**: Privacy badges and messages
-- **Open Source**: Transparent and auditable
-
-### SEO
-
-- **Dedicated Routes**: Each tool has its own URL
-- **Meta Tags**: Title, description, OG tags
-- **Structured Data**: SEO.json for each tool
-- **FAQ Sections**: Rich content for search engines
-
-## 📝 Adding New Tools
-
-To add a new tool, follow this pattern:
-
-1. **Create Tool Directory**:
-
-   ```
-   src/tools/<category>/<tool-name>/
-   ```
-
-2. **Required Files**:
-   - `ToolName.jsx` - Main component
-   - `processor.js` - Business logic
-   - `worker.js` - Web Worker (if needed)
-   - `seo.json` - SEO metadata
-
-3. **Register Tool** in `src/tools/index.js`:
-
-   ```javascript
-   import NewTool from './category/new-tool/NewTool';
-   import newToolSEO from './category/new-tool/seo.json';
-
-   export const tools = {
-     'new-tool': {
-       id: 'new-tool',
-       name: 'New Tool',
-       description: 'Tool description',
-       component: NewTool,
-       category: 'category',
-       seo: newToolSEO,
-       icon: '🔧',
-       popular: false
-     },
-     // ... other tools
-   };
-   ```
-
-4. **SEO Configuration** (`seo.json`):
-
-   ```json
-   {
-     "title": "Tool Name - Description",
-     "description": "Detailed description for search engines",
-     "keywords": ["keyword1", "keyword2"],
-     "route": "/tool-route"
-   }
-   ```
-
-## 🎨 Design System
-
-### Colors
-
-- **Primary**: Blue (#0ea5e9)
-- **Success**: Green (#10b981)
-- **Error**: Red (#ef4444)
-- **Gray Scale**: Tailwind default
-
-### Components
-
-- All components in `src/shared/`
-- Follow existing patterns for consistency
-- Use Tailwind utility classes only
-
-## 🔐 Privacy & Security
-
-- **No data collection**: Files never leave the browser
-- **No server**: Static hosting only
-- **No cookies**: Except for essential preferences
-- **Open source**: Code is transparent and auditable
-- **HTTPS**: All connections encrypted
-
-## 🤝 Contributing
-
-This is a production project. When adding features:
-
-1. Follow the existing code structure
-2. Add proper comments and documentation
-3. Test thoroughly on different devices
-4. Ensure privacy principles are maintained
-5. Update this README if needed
-
-## 📄 License
-
-MIT License - Feel free to use for your own projects
-
-## 🙏 Credits
-
-Built with modern web technologies and a focus on user privacy.
+| Path | Page |
+|------|------|
+| `/` | Services home (landing page) |
+| `/tools` | File processing tools hub |
+| `/:toolId` | Individual tool (e.g. `/compress-image`, `/merge-pdf`) |
+| `/photodrop` | PhotoDrop events |
+| `/photodrop/:id` | Event detail + photos |
+| `/invite/:token` | Accept event invite |
+| `/clipboard` | Online Clipboard (quick share + board entry) |
+| `/clipboard/:boardId` | Private clipboard board |
+| `/login` | Sign in |
+| `/signup` | Sign up |
+| `/reset-password` | Password reset |
+| `/profile` | User profile |
+| `/privacy` | Privacy policy |
 
 ---
 
-**Status**: Phase 1 Complete ✅  
-**Next**: Waiting for instruction to continue development
+## Architecture
 
-## 🐛 Known Issues
+- **Feature-based structure** — Each service (file-processing, photodrop, clipboard) is self-contained under `src/features/`
+- **Client-side file processing** — Web Workers, Canvas API, and WASM keep the main thread free
+- **Serverless API** — Vercel functions with a single router dispatching to feature-specific handlers
+- **GitHub as storage** — PhotoDrop images and clipboard boards stored via the GitHub Contents API
+- **Supabase for metadata & auth** — Board metadata, event data, and user auth managed through Supabase
+- **Dark mode** — Full dark/light theme support with ThemeToggle
+- **Responsive** — Mobile-first design with mega-menu navigation on desktop
 
-None currently. All Phase 1 features are working as expected.
+---
+
+## License
+
+MIT License
 
 ---
 
