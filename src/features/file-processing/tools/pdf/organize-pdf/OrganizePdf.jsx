@@ -213,7 +213,7 @@ export default function OrganizePdf() {
                                                     <button
                                                         onClick={() => handleRemovePage(index)}
                                                         disabled={pages.length <= 1 || isProcessing}
-                                                        className="p-1.5 rounded hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed text-red-500"
+                                                        className="p-1.5 rounded hover:bg-red-50 dark:bg-red-900/20 disabled:opacity-30 disabled:cursor-not-allowed text-red-500"
                                                         title="Remove page"
                                                     >
                                                         ✕
@@ -231,8 +231,8 @@ export default function OrganizePdf() {
 
                                 {/* Error */}
                                 {error && (
-                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                                        <p className="text-red-800 text-sm">{error}</p>
+                                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
+                                        <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
                                     </div>
                                 )}
 
@@ -260,7 +260,7 @@ export default function OrganizePdf() {
                         {/* Results */}
                         {result && (
                             <div className="space-y-6">
-                                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                                <div className="bg-gradient-to-r from-green-50 dark:from-gray-900 to-emerald-50 border border-green-200 dark:border-green-800/30 rounded-xl p-6">
                                     <div className="flex items-start gap-4">
                                         <div className="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                                             <span className="text-2xl">✓</span>
@@ -353,7 +353,7 @@ export default function OrganizePdf() {
                             <p className="text-sm text-gray-600 dark:text-gray-300">Click Apply Changes to create the new PDF</p>
                         </div>
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-green-600">
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-green-600 dark:text-green-400">
                                 4
                             </div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Download</h3>

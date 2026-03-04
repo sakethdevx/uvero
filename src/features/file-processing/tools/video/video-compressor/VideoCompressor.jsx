@@ -86,7 +86,7 @@ const VideoCompressor = () => {
         : 0;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-green-50 dark:from-gray-900 to-teal-50 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -125,7 +125,7 @@ const VideoCompressor = () => {
                                                     key={option.value}
                                                     onClick={() => setQuality(option.value)}
                                                     className={`w-full p-4 rounded-lg border-2 transition-all text-left ${quality === option.value
-                                                            ? 'border-green-600 bg-green-50'
+                                                            ? 'border-green-600 bg-green-50 dark:bg-green-900/20'
                                                             : 'border-gray-200 dark:border-gray-700 hover:border-green-300'
                                                         }`}
                                                     disabled={isCompressing}
@@ -152,7 +152,7 @@ const VideoCompressor = () => {
                                                     key={option.value}
                                                     onClick={() => setResolution(option.value)}
                                                     className={`p-3 rounded-lg border-2 transition-all ${resolution === option.value
-                                                            ? 'border-green-600 bg-green-50'
+                                                            ? 'border-green-600 bg-green-50 dark:bg-green-900/20'
                                                             : 'border-gray-200 dark:border-gray-700 hover:border-green-300'
                                                         }`}
                                                     disabled={isCompressing}
@@ -189,21 +189,21 @@ const VideoCompressor = () => {
 
                             {/* Error */}
                             {error && (
-                                <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                    <p className="text-red-800 text-sm">{error}</p>
+                                <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+                                    <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
                                 </div>
                             )}
 
                             {/* Result */}
                             {compressedVideo && (
                                 <div className="mt-6 space-y-4">
-                                    <div className="p-6 bg-green-50 border border-green-200 rounded-lg">
+                                    <div className="p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg">
                                         <div className="flex items-center justify-between mb-4">
                                             <div>
-                                                <p className="font-semibold text-green-900 text-lg mb-1">
+                                                <p className="font-semibold text-green-900 dark:text-green-100 text-lg mb-1">
                                                     Compression Complete!
                                                 </p>
-                                                <p className="text-sm text-green-700">
+                                                <p className="text-sm text-green-700 dark:text-green-300">
                                                     Saved {savedPercentage}% • {formatSize(file.size - compressedVideo.size)}
                                                 </p>
                                             </div>
@@ -229,7 +229,7 @@ const VideoCompressor = () => {
                                             </div>
                                             <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
                                                 <p className="text-gray-600 dark:text-gray-300">Compressed</p>
-                                                <p className="font-semibold text-green-600 text-lg">
+                                                <p className="font-semibold text-green-600 dark:text-green-400 text-lg">
                                                     {formatSize(compressedVideo.size)}
                                                 </p>
                                             </div>
@@ -252,9 +252,9 @@ const VideoCompressor = () => {
                 </div>
 
                 {/* Important Note */}
-                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
-                    <h3 className="font-semibold text-yellow-900 mb-2">⚠️ Important Note</h3>
-                    <p className="text-sm text-yellow-800">
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 rounded-xl p-6 mb-8">
+                    <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">⚠️ Important Note</h3>
+                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
                         Video compression in the browser is experimental and uses FFmpeg.wasm.
                         First-time use may take longer as it loads necessary libraries (~30MB).
                         For large videos, consider using desktop software for better performance.

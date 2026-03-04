@@ -84,7 +84,7 @@ const GIFMaker = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-pink-50 to-rose-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-pink-50 dark:from-gray-900 to-rose-50 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -109,7 +109,7 @@ const GIFMaker = () => {
                                     <button
                                         onClick={() => setInputType('images')}
                                         className={`p-4 rounded-lg border-2 transition-all ${inputType === 'images'
-                                                ? 'border-pink-500 bg-pink-50'
+                                                ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20'
                                                 : 'border-gray-200 dark:border-gray-700 hover:border-pink-300'
                                             }`}
                                     >
@@ -122,7 +122,7 @@ const GIFMaker = () => {
                                     <button
                                         onClick={() => setInputType('video')}
                                         className={`p-4 rounded-lg border-2 transition-all ${inputType === 'video'
-                                                ? 'border-pink-500 bg-pink-50'
+                                                ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20'
                                                 : 'border-gray-200 dark:border-gray-700 hover:border-pink-300'
                                             }`}
                                     >
@@ -166,7 +166,7 @@ const GIFMaker = () => {
                                     </h3>
                                     <button
                                         onClick={handleReset}
-                                        className="text-sm text-red-600 hover:text-red-700"
+                                        className="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:text-red-300"
                                     >
                                         Clear All
                                     </button>
@@ -190,7 +190,7 @@ const GIFMaker = () => {
                                             {inputType === 'images' && files.length > 1 && (
                                                 <button
                                                     onClick={() => handleRemoveFile(index)}
-                                                    className="ml-2 text-red-600 hover:text-red-700"
+                                                    className="ml-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:text-red-300"
                                                 >
                                                     ✕
                                                 </button>
@@ -276,7 +276,7 @@ const GIFMaker = () => {
                                                 <button
                                                     onClick={() => setLoop(0)}
                                                     className={`p-3 rounded-lg border-2 transition-all ${loop === 0
-                                                            ? 'border-pink-500 bg-pink-50'
+                                                            ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20'
                                                             : 'border-gray-200 dark:border-gray-700 hover:border-pink-300'
                                                         }`}
                                                 >
@@ -285,7 +285,7 @@ const GIFMaker = () => {
                                                 <button
                                                     onClick={() => setLoop(1)}
                                                     className={`p-3 rounded-lg border-2 transition-all ${loop === 1
-                                                            ? 'border-pink-500 bg-pink-50'
+                                                            ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20'
                                                             : 'border-gray-200 dark:border-gray-700 hover:border-pink-300'
                                                         }`}
                                                 >
@@ -294,7 +294,7 @@ const GIFMaker = () => {
                                                 <button
                                                     onClick={() => setLoop(3)}
                                                     className={`p-3 rounded-lg border-2 transition-all ${loop === 3
-                                                            ? 'border-pink-500 bg-pink-50'
+                                                            ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20'
                                                             : 'border-gray-200 dark:border-gray-700 hover:border-pink-300'
                                                         }`}
                                                 >
@@ -314,7 +314,7 @@ const GIFMaker = () => {
                                             {isProcessing ? 'Creating GIF...' : 'Create GIF'}
                                         </Button>
                                         {inputType === 'images' && files.length < 2 && (
-                                            <p className="text-sm text-red-600 text-center mt-2">
+                                            <p className="text-sm text-red-600 dark:text-red-400 text-center mt-2">
                                                 Please select at least 2 images
                                             </p>
                                         )}
@@ -336,8 +336,8 @@ const GIFMaker = () => {
 
                                     {/* Error */}
                                     {error && (
-                                        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                                            <p className="text-red-600 text-sm">{error}</p>
+                                        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+                                            <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
                                         </div>
                                     )}
                                 </>
@@ -346,7 +346,7 @@ const GIFMaker = () => {
                             {/* Results */}
                             {resultGIF && (
                                 <div className="mt-6">
-                                    <div className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg p-6">
+                                    <div className="bg-gradient-to-r from-pink-50 dark:from-gray-900 to-rose-50 rounded-lg p-6">
                                         <div className="flex items-center justify-between mb-4">
                                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                                                 ✅ GIF Created Successfully!

@@ -112,7 +112,7 @@ export default function DocumentConverter() {
 
                 {/* Features */}
                 <div className="grid md:grid-cols-3 gap-6 mb-8">
-                    <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+                    <div className="text-center p-6 bg-gradient-to-br from-blue-50 dark:from-gray-900 to-blue-100 rounded-xl">
                         <div className="text-4xl mb-3">🔒</div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                             100% Private
@@ -121,7 +121,7 @@ export default function DocumentConverter() {
                             All conversions happen in your browser
                         </p>
                     </div>
-                    <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+                    <div className="text-center p-6 bg-gradient-to-br from-green-50 dark:from-gray-900 to-green-100 rounded-xl">
                         <div className="text-4xl mb-3">⚡</div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                             Fast Processing
@@ -130,7 +130,7 @@ export default function DocumentConverter() {
                             Quick and efficient document conversion
                         </p>
                     </div>
-                    <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
+                    <div className="text-center p-6 bg-gradient-to-br from-purple-50 dark:from-gray-900 to-purple-100 rounded-xl">
                         <div className="text-4xl mb-3">🆓</div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
                             Completely Free

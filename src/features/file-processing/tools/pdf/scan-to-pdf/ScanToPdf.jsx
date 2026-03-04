@@ -211,7 +211,7 @@ export default function ScanToPdf() {
                                                         <button
                                                             onClick={() => handleRemoveImage(item.id)}
                                                             disabled={isProcessing}
-                                                            className="p-2 text-red-600 hover:bg-red-50 rounded disabled:opacity-30"
+                                                            className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:bg-red-900/20 rounded disabled:opacity-30"
                                                             title="Remove"
                                                         >
                                                             ×
@@ -324,8 +324,8 @@ export default function ScanToPdf() {
 
                                 {/* Error */}
                                 {error && (
-                                    <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                        <p className="text-red-800 text-sm">{error}</p>
+                                    <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+                                        <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
                                     </div>
                                 )}
 
@@ -353,7 +353,7 @@ export default function ScanToPdf() {
                         ) : (
                             /* Results */
                             <div className="space-y-6">
-                                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                                <div className="bg-gradient-to-r from-green-50 dark:from-gray-900 to-emerald-50 border border-green-200 dark:border-green-800/30 rounded-xl p-6">
                                     <div className="flex items-start gap-4">
                                         <div className="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                                             <span className="text-2xl">✓</span>
@@ -363,7 +363,7 @@ export default function ScanToPdf() {
                                                 PDF Created Successfully!
                                             </h3>
                                             <p className="text-gray-700 dark:text-gray-200 mb-4">
-                                                Your scanned images have been converted to a <span className="font-bold text-green-700">{result.totalPages}-page</span> PDF.
+                                                Your scanned images have been converted to a <span className="font-bold text-green-700 dark:text-green-300">{result.totalPages}-page</span> PDF.
                                             </p>
                                             <div className="grid grid-cols-2 gap-4 text-sm">
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
@@ -372,7 +372,7 @@ export default function ScanToPdf() {
                                                 </div>
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">File Size</div>
-                                                    <div className="font-semibold text-green-700">{formatSize(result.blob.size)}</div>
+                                                    <div className="font-semibold text-green-700 dark:text-green-300">{formatSize(result.blob.size)}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -421,7 +421,7 @@ export default function ScanToPdf() {
                         </p>
                     </div>
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">⚡</span>
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Fast Conversion</h3>
@@ -450,7 +450,7 @@ export default function ScanToPdf() {
                             <p className="text-sm text-gray-600 dark:text-gray-300">Reorder your scanned images to get the pages in the right order</p>
                         </div>
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-green-600">
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-green-600 dark:text-green-400">
                                 3
                             </div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Set Options</h3>

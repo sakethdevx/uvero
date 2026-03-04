@@ -132,14 +132,14 @@ export default function ArchiveConverter() {
                 </div>
 
                 {!isOnlineMode && (
-                    <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg p-4">
                         <div className="flex items-start gap-3">
                             <div className="text-2xl">ℹ️</div>
                             <div>
-                                <h3 className="font-semibold text-blue-900 mb-1">
+                                <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
                                     Offline Mode
                                 </h3>
-                                <p className="text-sm text-blue-700">
+                                <p className="text-sm text-blue-700 dark:text-blue-300">
                                     In offline mode, ZIP files can be converted and repackaged. 
                                     Switch to <strong>Online Mode</strong> to enable RAR file conversion.
                                 </p>
@@ -194,7 +194,7 @@ export default function ArchiveConverter() {
                         <FileInfo file={file} onRemove={() => setFile(null)} />
 
                         {error && (
-                            <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4">
+                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-200 rounded-lg p-4">
                                 <p className="font-medium">Error</p>
                                 <p className="text-sm">{error}</p>
                             </div>
@@ -231,14 +231,14 @@ export default function ArchiveConverter() {
 
                 {result && (
                     <div className="space-y-4">
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg p-6">
                             <div className="flex items-start gap-4">
                                 <div className="text-3xl">✅</div>
                                 <div className="flex-1">
-                                    <h3 className="font-semibold text-green-900 mb-1">
+                                    <h3 className="font-semibold text-green-900 dark:text-green-100 mb-1">
                                         Conversion Complete!
                                     </h3>
-                                    <p className="text-sm text-green-700 mb-3">
+                                    <p className="text-sm text-green-700 dark:text-green-300 mb-3">
                                         Your archive has been converted successfully.
                                     </p>
                                     <FileInfo file={result.file} />

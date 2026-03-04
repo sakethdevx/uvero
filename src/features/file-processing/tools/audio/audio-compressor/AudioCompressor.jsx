@@ -96,7 +96,7 @@ export default function AudioCompressor() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 dark:from-gray-900 via-white to-pink-50 dark:to-gray-800">
             {/* Hero Section */}
             <div className="bg-white dark:bg-gray-800 border-b">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -169,7 +169,7 @@ export default function AudioCompressor() {
                                                 onClick={() => setBitrate(rate)}
                                                 disabled={isProcessing}
                                                 className={`p-4 rounded-lg border-2 transition-all ${bitrate === rate
-                                                        ? 'border-purple-500 bg-purple-50'
+                                                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
                                                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
                                                     } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                             >
@@ -196,8 +196,8 @@ export default function AudioCompressor() {
 
                                 {/* Error */}
                                 {error && (
-                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                                        <p className="text-red-800 text-sm">{error}</p>
+                                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
+                                        <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
                                     </div>
                                 )}
 
@@ -226,7 +226,7 @@ export default function AudioCompressor() {
                         {result && (
                             <div className="space-y-6">
                                 {/* Success Message */}
-                                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                                <div className="bg-gradient-to-r from-green-50 dark:from-gray-900 to-emerald-50 border border-green-200 dark:border-green-800/30 rounded-xl p-6">
                                     <div className="flex items-start gap-4">
                                         <div className="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                                             <span className="text-2xl">✓</span>
@@ -236,7 +236,7 @@ export default function AudioCompressor() {
                                                 Audio Compressed Successfully!
                                             </h3>
                                             <p className="text-gray-700 dark:text-gray-200 mb-4">
-                                                Your audio has been compressed by <span className="font-bold text-green-700">{result.savings}%</span>
+                                                Your audio has been compressed by <span className="font-bold text-green-700 dark:text-green-300">{result.savings}%</span>
                                             </p>
                                             <div className="grid grid-cols-2 gap-4 text-sm">
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
@@ -245,7 +245,7 @@ export default function AudioCompressor() {
                                                 </div>
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">Compressed Size</div>
-                                                    <div className="font-semibold text-green-700">{formatFileSize(result.compressedSize)}</div>
+                                                    <div className="font-semibold text-green-700 dark:text-green-300">{formatFileSize(result.compressedSize)}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -286,7 +286,7 @@ export default function AudioCompressor() {
                 {/* Features Grid */}
                 <div className="mt-12 grid md:grid-cols-3 gap-6">
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">🔒</span>
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy First</h3>
@@ -295,7 +295,7 @@ export default function AudioCompressor() {
                         </p>
                     </div>
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mb-4">
+                        <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900/40 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">⚡</span>
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Fast Processing</h3>
@@ -304,7 +304,7 @@ export default function AudioCompressor() {
                         </p>
                     </div>
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                        <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">🎯</span>
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Flexible Bitrates</h3>

@@ -108,7 +108,7 @@ const Watermark = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 dark:to-gray-800 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -271,7 +271,7 @@ const Watermark = () => {
                                                     </div>
                                                     <button
                                                         onClick={() => setWatermarkImage(null)}
-                                                        className="text-red-600 hover:text-red-700"
+                                                        className="text-red-600 dark:text-red-400 hover:text-red-700 dark:text-red-300"
                                                     >
                                                         ✕
                                                     </button>
@@ -342,8 +342,8 @@ const Watermark = () => {
 
                                     {/* Error */}
                                     {error && (
-                                        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                            <p className="text-red-600 text-sm">{error}</p>
+                                        <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+                                            <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
                                         </div>
                                     )}
                                 </>
@@ -352,7 +352,7 @@ const Watermark = () => {
                             {/* Results */}
                             {resultImage && (
                                 <div className="mt-6">
-                                    <div className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg p-6">
+                                    <div className="bg-gradient-to-r from-cyan-50 to-blue-50 dark:to-gray-800 rounded-lg p-6">
                                         <div className="flex items-center justify-between mb-4">
                                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                                                 ✅ Watermark Added!

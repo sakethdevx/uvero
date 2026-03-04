@@ -94,7 +94,7 @@ const VideoToGIF = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-pink-50 to-rose-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-pink-50 dark:from-gray-900 to-rose-50 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -133,7 +133,7 @@ const VideoToGIF = () => {
                                             onClick={() => setQuality(preset.value)}
                                             className={`p-4 rounded-lg border-2 transition-all ${
                                                 quality === preset.value
-                                                    ? 'border-pink-600 bg-pink-50'
+                                                    ? 'border-pink-600 bg-pink-50 dark:bg-pink-900/20'
                                                     : 'border-gray-200 dark:border-gray-700 hover:border-pink-300'
                                             }`}
                                         >
@@ -187,8 +187,8 @@ const VideoToGIF = () => {
                             </div>
 
                             {error && (
-                                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded">
-                                    <p className="text-red-700">{error}</p>
+                                <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded">
+                                    <p className="text-red-700 dark:text-red-300">{error}</p>
                                 </div>
                             )}
 
@@ -203,9 +203,9 @@ const VideoToGIF = () => {
 
                             {resultGIF && (
                                 <div className="mb-6">
-                                    <div className="p-4 bg-green-50 border-l-4 border-green-500 rounded mb-4">
-                                        <p className="font-semibold text-green-900 mb-1">GIF Created Successfully!</p>
-                                        <p className="text-sm text-green-700">
+                                    <div className="p-4 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 rounded mb-4">
+                                        <p className="font-semibold text-green-900 dark:text-green-100 mb-1">GIF Created Successfully!</p>
+                                        <p className="text-sm text-green-700 dark:text-green-300">
                                             {resultGIF.filename} • {formatBytes(resultGIF.size)}
                                         </p>
                                     </div>
@@ -250,8 +250,8 @@ const VideoToGIF = () => {
                 {/* Features */}
                 <div className="grid md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900/40 rounded-lg flex items-center justify-center mb-4">
+                            <svg className="w-6 h-6 text-pink-600 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
                             </svg>
                         </div>
@@ -274,8 +274,8 @@ const VideoToGIF = () => {
                     </div>
 
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center mb-4">
+                            <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                         </div>
@@ -299,8 +299,8 @@ const VideoToGIF = () => {
                             the perfect GIF for your needs. Smaller sizes and lower quality settings result in smaller file
                             sizes, making them easier to share.
                         </p>
-                        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
-                            <p className="text-sm text-yellow-800">
+                        <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded">
+                            <p className="text-sm text-yellow-800 dark:text-yellow-200">
                                 <strong>Tip:</strong> For best results, use short video clips (under 10 seconds).
                                 Longer videos will result in larger GIF files.
                             </p>

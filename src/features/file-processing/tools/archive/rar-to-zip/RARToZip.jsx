@@ -46,14 +46,14 @@ export default function RARToZip() {
                 </div>
 
                 {!isOnlineMode && (
-                    <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 rounded-lg p-4">
                         <div className="flex items-start gap-3">
                             <div className="text-2xl">⚠️</div>
                             <div>
-                                <h3 className="font-semibold text-yellow-900 mb-1">
+                                <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-1">
                                     Online Mode Required
                                 </h3>
-                                <p className="text-sm text-yellow-700">
+                                <p className="text-sm text-yellow-700 dark:text-yellow-300">
                                     RAR extraction requires server-side processing due to proprietary format. 
                                     Please switch to <strong>Online Mode</strong> to use this converter.
                                 </p>
@@ -108,7 +108,7 @@ export default function RARToZip() {
                         <FileInfo file={file} onRemove={() => setFile(null)} />
 
                         {error && (
-                            <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4">
+                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-200 rounded-lg p-4">
                                 <p className="font-medium">Error</p>
                                 <p className="text-sm">{error}</p>
                             </div>

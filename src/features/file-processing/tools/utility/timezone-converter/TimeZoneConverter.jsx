@@ -128,17 +128,17 @@ export default function TimeZoneConverter() {
 
                 {/* Current Time Display */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4">
+                    <div className="bg-gradient-to-br from-blue-50 dark:from-gray-900 to-blue-100 rounded-lg p-4">
                         <p className="text-sm text-gray-600 dark:text-gray-300 mb-1 truncate">
                             {timeZones.find(tz => tz.value === fromZone)?.label}
                         </p>
-                        <p className="text-2xl font-bold text-blue-600">{currentFromTime}</p>
+                        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{currentFromTime}</p>
                     </div>
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4">
+                    <div className="bg-gradient-to-br from-green-50 dark:from-gray-900 to-green-100 rounded-lg p-4">
                         <p className="text-sm text-gray-600 dark:text-gray-300 mb-1 truncate">
                             {timeZones.find(tz => tz.value === toZone)?.label}
                         </p>
-                        <p className="text-2xl font-bold text-green-600">{currentToTime}</p>
+                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">{currentToTime}</p>
                     </div>
                 </div>
 
@@ -221,7 +221,7 @@ export default function TimeZoneConverter() {
 
                     {/* Result Section */}
                     {result && (
-                        <div className="bg-gradient-to-r from-primary-50 to-blue-50 rounded-lg p-6">
+                        <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:to-gray-800 rounded-lg p-6">
                             <div className="text-center">
                                 <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Converted Time</p>
                                 <p className="text-4xl font-bold text-primary-600">

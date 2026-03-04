@@ -85,7 +85,7 @@ const VideoConverter = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 dark:from-gray-900 to-indigo-50 dark:to-gray-800 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -124,7 +124,7 @@ const VideoConverter = () => {
                                                     key={format.value}
                                                     onClick={() => setOutputFormat(format.value)}
                                                     className={`p-4 rounded-lg border-2 transition-all ${outputFormat === format.value
-                                                            ? 'border-purple-500 bg-purple-50'
+                                                            ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
                                                             : 'border-gray-200 dark:border-gray-700 hover:border-purple-300'
                                                         }`}
                                                 >
@@ -150,7 +150,7 @@ const VideoConverter = () => {
                                                     key={qual.value}
                                                     onClick={() => setQuality(qual.value)}
                                                     className={`p-4 rounded-lg border-2 transition-all ${quality === qual.value
-                                                            ? 'border-purple-500 bg-purple-50'
+                                                            ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
                                                             : 'border-gray-200 dark:border-gray-700 hover:border-purple-300'
                                                         }`}
                                                 >
@@ -192,8 +192,8 @@ const VideoConverter = () => {
 
                                     {/* Error */}
                                     {error && (
-                                        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                            <p className="text-red-600 text-sm">{error}</p>
+                                        <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+                                            <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
                                         </div>
                                     )}
                                 </>
@@ -202,7 +202,7 @@ const VideoConverter = () => {
                             {/* Results */}
                             {convertedVideo && (
                                 <div className="mt-6">
-                                    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-6">
+                                    <div className="bg-gradient-to-r from-purple-50 dark:from-gray-900 to-indigo-50 dark:to-gray-800 rounded-lg p-6">
                                         <div className="flex items-center justify-between mb-4">
                                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                                                 ✅ Conversion Complete!
@@ -222,7 +222,7 @@ const VideoConverter = () => {
                                             </div>
                                             <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
                                                 <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Converted</div>
-                                                <div className="font-semibold text-purple-600">
+                                                <div className="font-semibold text-purple-600 dark:text-purple-400">
                                                     {formatBytes(convertedVideo.size)}
                                                 </div>
                                                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">

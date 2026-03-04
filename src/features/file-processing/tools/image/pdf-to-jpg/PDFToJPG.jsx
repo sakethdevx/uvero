@@ -87,7 +87,7 @@ export default function PDFToJPG() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50">
+        <div className="min-h-screen bg-gradient-to-br from-red-50 dark:from-gray-900 via-white to-orange-50">
             {/* Hero Section */}
             <div className="bg-white dark:bg-gray-800 border-b">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -161,7 +161,7 @@ export default function PDFToJPG() {
                                                 value="all"
                                                 checked={pageRange === 'all'}
                                                 onChange={(e) => setPageRange(e.target.value)}
-                                                className="w-4 h-4 text-blue-600"
+                                                className="w-4 h-4 text-blue-600 dark:text-blue-400"
                                             />
                                             <div>
                                                 <div className="font-medium text-gray-900 dark:text-white">All Pages</div>
@@ -175,7 +175,7 @@ export default function PDFToJPG() {
                                                 value="first"
                                                 checked={pageRange === 'first'}
                                                 onChange={(e) => setPageRange(e.target.value)}
-                                                className="w-4 h-4 text-blue-600"
+                                                className="w-4 h-4 text-blue-600 dark:text-blue-400"
                                             />
                                             <div>
                                                 <div className="font-medium text-gray-900 dark:text-white">First Page Only</div>
@@ -189,7 +189,7 @@ export default function PDFToJPG() {
                                                 value="custom"
                                                 checked={pageRange === 'custom'}
                                                 onChange={(e) => setPageRange(e.target.value)}
-                                                className="w-4 h-4 text-blue-600 mt-1"
+                                                className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-1"
                                             />
                                             <div className="flex-1">
                                                 <div className="font-medium text-gray-900 dark:text-white mb-2">Custom Pages</div>
@@ -210,8 +210,8 @@ export default function PDFToJPG() {
                                 </div>
 
                                 {error && (
-                                    <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded">
-                                        <p className="text-red-700">{error}</p>
+                                    <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded">
+                                        <p className="text-red-700 dark:text-red-300">{error}</p>
                                     </div>
                                 )}
 
@@ -239,13 +239,13 @@ export default function PDFToJPG() {
                         {/* Results */}
                         {results && (
                             <div>
-                                <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded">
+                                <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 rounded">
                                     <div className="flex items-start justify-between">
                                         <div>
-                                            <p className="font-semibold text-green-900 mb-1">
+                                            <p className="font-semibold text-green-900 dark:text-green-100 mb-1">
                                                 Conversion Complete!
                                             </p>
-                                            <p className="text-sm text-green-700">
+                                            <p className="text-sm text-green-700 dark:text-green-300">
                                                 Successfully converted {results.count} {results.count === 1 ? 'page' : 'pages'} to JPG
                                             </p>
                                         </div>
@@ -270,7 +270,7 @@ export default function PDFToJPG() {
                                                     </span>
                                                     <button
                                                         onClick={() => handleDownloadSingle(image, index)}
-                                                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                                                        className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:text-blue-300 font-medium"
                                                     >
                                                         Download
                                                     </button>
@@ -299,8 +299,8 @@ export default function PDFToJPG() {
                 {/* Features */}
                 <div className="mt-12 grid md:grid-cols-3 gap-6">
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 bg-red-100 dark:bg-red-900/40 rounded-lg flex items-center justify-center mb-4">
+                            <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
@@ -323,8 +323,8 @@ export default function PDFToJPG() {
                     </div>
 
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center mb-4">
+                            <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                         </div>

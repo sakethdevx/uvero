@@ -76,7 +76,7 @@ const MP4Converter = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 dark:from-gray-900 to-purple-50 dark:to-gray-800 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -115,7 +115,7 @@ const MP4Converter = () => {
                                             onClick={() => setQuality(q.value)}
                                             className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
                                                 quality === q.value
-                                                    ? 'border-blue-600 bg-blue-50'
+                                                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
                                                     : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
                                             }`}
                                         >
@@ -138,8 +138,8 @@ const MP4Converter = () => {
                             </div>
 
                             {error && (
-                                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded">
-                                    <p className="text-red-700">{error}</p>
+                                <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded">
+                                    <p className="text-red-700 dark:text-red-300">{error}</p>
                                 </div>
                             )}
 
@@ -150,13 +150,13 @@ const MP4Converter = () => {
                             )}
 
                             {convertedVideo && (
-                                <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded">
+                                <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 rounded">
                                     <div className="flex items-start justify-between">
                                         <div>
-                                            <p className="font-semibold text-green-900 mb-1">
+                                            <p className="font-semibold text-green-900 dark:text-green-100 mb-1">
                                                 Conversion Complete!
                                             </p>
-                                            <p className="text-sm text-green-700">
+                                            <p className="text-sm text-green-700 dark:text-green-300">
                                                 {convertedVideo.filename} • {formatBytes(convertedVideo.size)}
                                             </p>
                                         </div>
@@ -199,8 +199,8 @@ const MP4Converter = () => {
                 {/* Features */}
                 <div className="grid md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center mb-4">
+                            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                             </svg>
                         </div>
@@ -211,8 +211,8 @@ const MP4Converter = () => {
                     </div>
 
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center mb-4">
+                            <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                             </svg>
                         </div>
@@ -223,8 +223,8 @@ const MP4Converter = () => {
                     </div>
 
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center mb-4">
+                            <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                         </div>

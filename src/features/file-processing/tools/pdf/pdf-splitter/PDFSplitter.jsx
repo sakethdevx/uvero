@@ -104,7 +104,7 @@ const PDFSplitter = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 dark:from-gray-900 to-indigo-50 dark:to-gray-800 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -131,8 +131,8 @@ const PDFSplitter = () => {
                             <FileInfo file={file} onRemove={handleReset} />
 
                             {pageInfo && (
-                                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                    <p className="text-sm text-blue-900">
+                                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg">
+                                    <p className="text-sm text-blue-900 dark:text-blue-100">
                                         📄 <strong>{pageInfo.totalPages}</strong> pages in this PDF
                                     </p>
                                 </div>
@@ -151,7 +151,7 @@ const PDFSplitter = () => {
                                                     key={mode.value}
                                                     onClick={() => setSplitMode(mode.value)}
                                                     className={`w-full p-4 rounded-lg border-2 transition-all text-left ${splitMode === mode.value
-                                                        ? 'border-blue-600 bg-blue-50'
+                                                        ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
                                                         : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
                                                         }`}
                                                     disabled={isSplitting}
@@ -207,8 +207,8 @@ const PDFSplitter = () => {
                                     )}
 
                                     {splitMode === 'all' && (
-                                        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                            <p className="text-sm text-yellow-900">
+                                        <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 rounded-lg">
+                                            <p className="text-sm text-yellow-900 dark:text-yellow-100">
                                                 ⚠️ This will create <strong>{pageInfo.totalPages}</strong> separate PDF files (one per page)
                                             </p>
                                         </div>
@@ -232,21 +232,21 @@ const PDFSplitter = () => {
 
                             {/* Error */}
                             {error && (
-                                <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                    <p className="text-red-800">{error}</p>
+                                <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+                                    <p className="text-red-800 dark:text-red-200">{error}</p>
                                 </div>
                             )}
 
                             {/* Results */}
                             {splitPDFs && (
                                 <div className="mt-6 space-y-4">
-                                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                                    <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg">
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <p className="font-semibold text-green-900">
+                                                <p className="font-semibold text-green-900 dark:text-green-100">
                                                     Split Complete!
                                                 </p>
-                                                <p className="text-sm text-green-700">
+                                                <p className="text-sm text-green-700 dark:text-green-300">
                                                     Created {splitPDFs.files.length} PDF file(s)
                                                 </p>
                                             </div>

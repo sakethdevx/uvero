@@ -123,7 +123,7 @@ const HashGenerator = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 dark:from-gray-900 to-pink-50 dark:to-gray-800 py-12 px-4">
             <div className="max-w-5xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -151,7 +151,7 @@ const HashGenerator = () => {
                                 }}
                                 className={`flex-1 p-4 rounded-lg border-2 transition-all ${
                                     inputMode === 'text'
-                                        ? 'border-purple-500 bg-purple-50'
+                                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
                                         : 'border-gray-200 dark:border-gray-700 hover:border-purple-300'
                                 }`}
                             >
@@ -167,7 +167,7 @@ const HashGenerator = () => {
                                 }}
                                 className={`flex-1 p-4 rounded-lg border-2 transition-all ${
                                     inputMode === 'file'
-                                        ? 'border-purple-500 bg-purple-50'
+                                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
                                         : 'border-gray-200 dark:border-gray-700 hover:border-purple-300'
                                 }`}
                             >
@@ -205,7 +205,7 @@ const HashGenerator = () => {
                                 maxFiles={1}
                             />
                             {selectedFile && (
-                                <div className="mt-4 p-4 bg-purple-50 rounded-lg">
+                                <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="font-medium text-gray-900 dark:text-white">{selectedFile.name}</p>
@@ -216,7 +216,7 @@ const HashGenerator = () => {
                                                 setSelectedFile(null);
                                                 setHashes({});
                                             }}
-                                            className="text-red-600 hover:text-red-700"
+                                            className="text-red-600 dark:text-red-400 hover:text-red-700 dark:text-red-300"
                                         >
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -239,7 +239,7 @@ const HashGenerator = () => {
                                     key={algo.id}
                                     className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all ${
                                         selectedAlgorithms.includes(algo.id)
-                                            ? 'border-purple-500 bg-purple-50'
+                                            ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
                                             : 'border-gray-200 dark:border-gray-700 hover:border-purple-300'
                                     }`}
                                 >
@@ -247,7 +247,7 @@ const HashGenerator = () => {
                                         type="checkbox"
                                         checked={selectedAlgorithms.includes(algo.id)}
                                         onChange={() => handleAlgorithmToggle(algo.id)}
-                                        className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500 mt-0.5"
+                                        className="w-5 h-5 text-purple-600 dark:text-purple-400 rounded focus:ring-purple-500 mt-0.5"
                                     />
                                     <div className="flex-1">
                                         <div className="font-medium text-gray-900 dark:text-white">{algo.name}</div>
@@ -275,8 +275,8 @@ const HashGenerator = () => {
 
                     {/* Error */}
                     {error && (
-                        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-                            <p className="text-red-800 text-sm">{error}</p>
+                        <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
+                            <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
                         </div>
                     )}
 
@@ -298,10 +298,10 @@ const HashGenerator = () => {
                                     return (
                                         <div key={algorithm} className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
                                             <div className="flex items-center justify-between mb-2">
-                                                <span className="font-semibold text-purple-600">{algorithm}</span>
+                                                <span className="font-semibold text-purple-600 dark:text-purple-400">{algorithm}</span>
                                                 <button
                                                     onClick={() => handleCopyHash(algorithm, hash)}
-                                                    className="text-sm text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1"
+                                                    className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:text-purple-300 font-medium flex items-center gap-1"
                                                 >
                                                     {copiedHash === algorithm ? (
                                                         <>
@@ -335,8 +335,8 @@ const HashGenerator = () => {
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                         <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </div>
@@ -351,8 +351,8 @@ const HashGenerator = () => {
 
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                         <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                             </div>

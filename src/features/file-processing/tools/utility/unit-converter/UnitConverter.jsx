@@ -195,7 +195,7 @@ const UnitConverter = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 dark:from-gray-900 to-indigo-50 dark:to-gray-800 py-12 px-4">
             <div className="max-w-5xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-8">
@@ -244,7 +244,7 @@ const UnitConverter = () => {
                                     onClick={() => handleCategoryChange(key)}
                                     className={`flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-all ${
                                         category === key
-                                            ? 'border-blue-600 bg-blue-50 text-blue-700'
+                                            ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
                                             : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 text-gray-700 dark:text-gray-200'
                                     }`}
                                 >
@@ -311,7 +311,7 @@ const UnitConverter = () => {
                                     </option>
                                 ))}
                             </select>
-                            <div className="w-full px-4 py-3 bg-blue-50 border-2 border-blue-200 rounded-lg text-lg font-semibold text-blue-900">
+                            <div className="w-full px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800/30 rounded-lg text-lg font-semibold text-blue-900 dark:text-blue-100">
                                 {result || '0'}
                             </div>
                         </div>
@@ -332,12 +332,12 @@ const UnitConverter = () => {
 
                     {/* Result Display */}
                     {result && (
-                        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg">
                             <p className="text-center text-lg">
                                 <span className="font-semibold text-gray-900 dark:text-white">{inputValue}</span>
                                 <span className="text-gray-600 dark:text-gray-300 mx-2">{conversionData[category].units[fromUnit].name}</span>
                                 <span className="text-gray-500 dark:text-gray-400">=</span>
-                                <span className="font-bold text-green-700 mx-2">{result}</span>
+                                <span className="font-bold text-green-700 dark:text-green-300 mx-2">{result}</span>
                                 <span className="text-gray-600 dark:text-gray-300">{conversionData[category].units[toUnit].name}</span>
                             </p>
                         </div>
@@ -345,14 +345,14 @@ const UnitConverter = () => {
                 </div>
 
                 {/* Privacy Badge */}
-                <div className="mt-8 bg-green-50 border border-green-200 rounded-xl p-6">
+                <div className="mt-8 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-xl p-6">
                     <div className="flex items-start gap-3">
-                        <svg className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-6 h-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
                         <div>
-                            <h3 className="font-semibold text-green-900 mb-1">100% Client-Side Conversion</h3>
-                            <p className="text-green-800 text-sm">
+                            <h3 className="font-semibold text-green-900 dark:text-green-100 mb-1">100% Client-Side Conversion</h3>
+                            <p className="text-green-800 dark:text-green-200 text-sm">
                                 All conversions happen directly in your browser. No data is sent to any server. Fast, private, and secure.
                             </p>
                         </div>

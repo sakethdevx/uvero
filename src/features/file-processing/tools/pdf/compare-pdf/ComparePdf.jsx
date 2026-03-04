@@ -78,7 +78,7 @@ export default function ComparePdf() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-yellow-50">
+        <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-yellow-50 dark:to-gray-800">
             {/* Hero Section */}
             <div className="bg-white dark:bg-gray-800 border-b">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -166,9 +166,9 @@ export default function ComparePdf() {
                                                 description="or click to browse"
                                             />
                                         ) : (
-                                            <div className="border-2 border-yellow-200 bg-yellow-50 rounded-xl p-4">
+                                            <div className="border-2 border-yellow-200 dark:border-yellow-800/30 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                    <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
                                                         <span className="text-lg">📄</span>
                                                     </div>
                                                     <div className="flex-1 min-w-0">
@@ -195,8 +195,8 @@ export default function ComparePdf() {
 
                                 {/* Error */}
                                 {error && (
-                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                                        <p className="text-red-800 text-sm">{error}</p>
+                                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
+                                        <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
                                     </div>
                                 )}
 
@@ -228,8 +228,8 @@ export default function ComparePdf() {
                             <div className="space-y-6">
                                 {/* Summary */}
                                 <div className={`border rounded-xl p-6 ${result.totalDiffs === 0
-                                    ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
-                                    : 'bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200'
+                                    ? 'bg-gradient-to-r from-green-50 dark:from-gray-900 to-emerald-50 border-green-200 dark:border-green-800/30'
+                                    : 'bg-gradient-to-r from-amber-50 to-yellow-50 dark:to-gray-800 border-amber-200'
                                 }`}>
                                     <div className="flex items-start gap-4">
                                         <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${result.totalDiffs === 0 ? 'bg-green-500' : 'bg-amber-500'
@@ -263,16 +263,16 @@ export default function ComparePdf() {
                                         <h3 className="font-semibold text-gray-900 dark:text-white">Page-by-Page Results</h3>
                                         {result.differences.map((diff) => (
                                             <div key={diff.page} className={`border rounded-lg p-4 ${diff.identical
-                                                ? 'border-green-200 bg-green-50'
-                                                : 'border-red-200 bg-red-50'
+                                                ? 'border-green-200 dark:border-green-800/30 bg-green-50 dark:bg-green-900/20'
+                                                : 'border-red-200 dark:border-red-800/30 bg-red-50 dark:bg-red-900/20'
                                             }`}>
                                                 <div className="flex items-center gap-2 mb-2">
-                                                    <span className={`text-sm font-semibold ${diff.identical ? 'text-green-700' : 'text-red-700'}`}>
+                                                    <span className={`text-sm font-semibold ${diff.identical ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}`}>
                                                         Page {diff.page}
                                                     </span>
                                                     <span className={`text-xs px-2 py-0.5 rounded-full ${diff.identical
-                                                        ? 'bg-green-200 text-green-800'
-                                                        : 'bg-red-200 text-red-800'
+                                                        ? 'bg-green-200 text-green-800 dark:text-green-200'
+                                                        : 'bg-red-200 text-red-800 dark:text-red-200'
                                                     }`}>
                                                         {diff.identical ? 'Identical' : 'Different'}
                                                     </span>
@@ -280,15 +280,15 @@ export default function ComparePdf() {
                                                 {!diff.identical && (
                                                     <div className="space-y-2 text-sm">
                                                         {diff.removed.length > 0 && (
-                                                            <div className="bg-red-100 border border-red-200 rounded p-2">
-                                                                <span className="font-semibold text-red-800">Removed: </span>
-                                                                <span className="text-red-700">{diff.removed.slice(0, 20).join(', ')}{diff.removed.length > 20 ? ` ... and ${diff.removed.length - 20} more` : ''}</span>
+                                                            <div className="bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800/30 rounded p-2">
+                                                                <span className="font-semibold text-red-800 dark:text-red-200">Removed: </span>
+                                                                <span className="text-red-700 dark:text-red-300">{diff.removed.slice(0, 20).join(', ')}{diff.removed.length > 20 ? ` ... and ${diff.removed.length - 20} more` : ''}</span>
                                                             </div>
                                                         )}
                                                         {diff.added.length > 0 && (
-                                                            <div className="bg-green-100 border border-green-200 rounded p-2">
-                                                                <span className="font-semibold text-green-800">Added: </span>
-                                                                <span className="text-green-700">{diff.added.slice(0, 20).join(', ')}{diff.added.length > 20 ? ` ... and ${diff.added.length - 20} more` : ''}</span>
+                                                            <div className="bg-green-100 dark:bg-green-900/40 border border-green-200 dark:border-green-800/30 rounded p-2">
+                                                                <span className="font-semibold text-green-800 dark:text-green-200">Added: </span>
+                                                                <span className="text-green-700 dark:text-green-300">{diff.added.slice(0, 20).join(', ')}{diff.added.length > 20 ? ` ... and ${diff.added.length - 20} more` : ''}</span>
                                                             </div>
                                                         )}
                                                     </div>
@@ -325,7 +325,7 @@ export default function ComparePdf() {
                         </p>
                     </div>
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+                        <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/40 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">⚡</span>
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Fast Comparison</h3>
@@ -356,7 +356,7 @@ export default function ComparePdf() {
                             <p className="text-sm text-gray-600 dark:text-gray-300">Drag & drop or click to select the original PDF</p>
                         </div>
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-yellow-600">
+                            <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-yellow-600 dark:text-yellow-400">
                                 2
                             </div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Upload Modified</h3>
@@ -370,7 +370,7 @@ export default function ComparePdf() {
                             <p className="text-sm text-gray-600 dark:text-gray-300">Click compare and let the tool analyze both files</p>
                         </div>
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-green-600">
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-green-600 dark:text-green-400">
                                 4
                             </div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Review</h3>

@@ -99,13 +99,13 @@ export default function PSTToEST() {
 
                 {/* Current Time Display */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4">
+                    <div className="bg-gradient-to-br from-blue-50 dark:from-gray-900 to-blue-100 rounded-lg p-4">
                         <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Current PST</p>
-                        <p className="text-2xl font-bold text-blue-600">{currentPST}</p>
+                        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{currentPST}</p>
                     </div>
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4">
+                    <div className="bg-gradient-to-br from-green-50 dark:from-gray-900 to-green-100 rounded-lg p-4">
                         <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Current EST</p>
-                        <p className="text-2xl font-bold text-green-600">{currentEST}</p>
+                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">{currentEST}</p>
                     </div>
                 </div>
 
@@ -138,7 +138,7 @@ export default function PSTToEST() {
 
                     {/* Result Section */}
                     {result && (
-                        <div className="bg-gradient-to-r from-primary-50 to-blue-50 rounded-lg p-6">
+                        <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:to-gray-800 rounded-lg p-6">
                             <div className="text-center">
                                 <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">EST Time</p>
                                 <p className="text-4xl font-bold text-primary-600">

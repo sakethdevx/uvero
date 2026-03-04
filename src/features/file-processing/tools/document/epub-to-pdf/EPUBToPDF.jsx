@@ -133,7 +133,7 @@ export default function EPUBToPDF() {
                         <FileInfo file={file} onRemove={() => setFile(null)} />
 
                         {error && (
-                            <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4">
+                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-200 rounded-lg p-4">
                                 <p className="font-medium">Error</p>
                                 <p className="text-sm">{error}</p>
                             </div>
@@ -170,14 +170,14 @@ export default function EPUBToPDF() {
 
                 {result && (
                     <div className="space-y-4">
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg p-6">
                             <div className="flex items-start gap-4">
                                 <div className="text-3xl">✅</div>
                                 <div className="flex-1">
-                                    <h3 className="font-semibold text-green-900 mb-1">
+                                    <h3 className="font-semibold text-green-900 dark:text-green-100 mb-1">
                                         Conversion Complete!
                                     </h3>
-                                    <p className="text-sm text-green-700 mb-3">
+                                    <p className="text-sm text-green-700 dark:text-green-300 mb-3">
                                         Your EPUB has been converted to PDF successfully.
                                     </p>
                                     <FileInfo file={result.file} />

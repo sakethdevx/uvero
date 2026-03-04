@@ -76,7 +76,7 @@ const BackgroundRemover = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 dark:from-gray-900 to-pink-50 dark:to-gray-800 py-12 px-4">
             <div className="max-w-5xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -115,7 +115,7 @@ const BackgroundRemover = () => {
                                                 <button
                                                     onClick={() => setQuality('low')}
                                                     className={`p-4 rounded-lg border-2 transition-all ${quality === 'low'
-                                                        ? 'border-purple-500 bg-purple-50'
+                                                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
                                                         : 'border-gray-200 dark:border-gray-700 hover:border-purple-300'
                                                         }`}
                                                 >
@@ -127,7 +127,7 @@ const BackgroundRemover = () => {
                                                 <button
                                                     onClick={() => setQuality('medium')}
                                                     className={`p-4 rounded-lg border-2 transition-all ${quality === 'medium'
-                                                        ? 'border-purple-500 bg-purple-50'
+                                                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
                                                         : 'border-gray-200 dark:border-gray-700 hover:border-purple-300'
                                                         }`}
                                                 >
@@ -183,8 +183,8 @@ const BackgroundRemover = () => {
                             {/* Results */}
                             {result && (
                                 <div className="mt-6 space-y-6">
-                                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                                        <div className="flex items-center gap-2 text-green-800">
+                                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg p-4">
+                                        <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
                                             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                             </svg>
@@ -244,14 +244,14 @@ const BackgroundRemover = () => {
 
                             {/* Error */}
                             {error && (
-                                <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                                <div className="mt-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
                                     <div className="flex items-start gap-3">
-                                        <svg className="w-5 h-5 text-red-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <svg className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                         </svg>
                                         <div>
-                                            <h4 className="font-medium text-red-900 mb-1">Processing Failed</h4>
-                                            <p className="text-sm text-red-800">{error}</p>
+                                            <h4 className="font-medium text-red-900 dark:text-red-100 mb-1">Processing Failed</h4>
+                                            <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -264,8 +264,8 @@ const BackgroundRemover = () => {
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                         <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                             </div>
@@ -280,8 +280,8 @@ const BackgroundRemover = () => {
 
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                         <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>

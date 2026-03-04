@@ -128,7 +128,7 @@ const QRGenerator = () => {
     const selectedType = inputTypes.find(t => t.value === inputType);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-indigo-50 dark:from-gray-900 to-purple-50 dark:to-gray-800 py-12 px-4">
             <div className="max-w-5xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -157,7 +157,7 @@ const QRGenerator = () => {
                                         setQrCode(null);
                                     }}
                                     className={`p-3 rounded-lg border-2 transition-all ${inputType === type.value
-                                            ? 'border-indigo-500 bg-indigo-50'
+                                            ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
                                             : 'border-gray-200 dark:border-gray-700 hover:border-indigo-300'
                                         }`}
                                 >
@@ -290,8 +290,8 @@ const QRGenerator = () => {
 
                     {/* Error */}
                     {error && (
-                        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-                            <p className="text-red-800 text-sm">{error}</p>
+                        <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
+                            <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
                         </div>
                     )}
 
@@ -336,11 +336,11 @@ const QRGenerator = () => {
                                         Create Another
                                     </Button>
 
-                                    <div className="bg-indigo-50 rounded-lg p-4 mt-4">
-                                        <p className="text-sm text-indigo-900 font-medium mb-2">
+                                    <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4 mt-4">
+                                        <p className="text-sm text-indigo-900 dark:text-indigo-100 font-medium mb-2">
                                             💡 Quick Tips
                                         </p>
-                                        <ul className="text-xs text-indigo-800 space-y-1">
+                                        <ul className="text-xs text-indigo-800 dark:text-indigo-200 space-y-1">
                                             <li>• PNG for web and print</li>
                                             <li>• SVG for scalable graphics</li>
                                             <li>• Test before printing</li>
@@ -357,8 +357,8 @@ const QRGenerator = () => {
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                         <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                                 </svg>
                             </div>
@@ -373,8 +373,8 @@ const QRGenerator = () => {
 
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                         <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                 </svg>
                             </div>

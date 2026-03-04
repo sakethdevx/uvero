@@ -204,7 +204,7 @@ export default function SignPdf() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50">
+        <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 dark:to-gray-800">
             {/* Hero Section */}
             <div className="bg-white dark:bg-gray-800 border-b">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -448,8 +448,8 @@ export default function SignPdf() {
 
                                 {/* Error */}
                                 {error && (
-                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                                        <p className="text-red-800 text-sm">{error}</p>
+                                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
+                                        <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
                                     </div>
                                 )}
 
@@ -477,7 +477,7 @@ export default function SignPdf() {
                         {/* Results */}
                         {result && (
                             <div className="space-y-6">
-                                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                                <div className="bg-gradient-to-r from-green-50 dark:from-gray-900 to-emerald-50 border border-green-200 dark:border-green-800/30 rounded-xl p-6">
                                     <div className="flex items-start gap-4">
                                         <div className="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                                             <span className="text-2xl">✓</span>
@@ -525,7 +525,7 @@ export default function SignPdf() {
                         </p>
                     </div>
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">✍️</span>
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Draw or Type</h3>
@@ -534,7 +534,7 @@ export default function SignPdf() {
                         </p>
                     </div>
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                        <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">📱</span>
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Mobile Friendly</h3>
@@ -556,21 +556,21 @@ export default function SignPdf() {
                             <p className="text-sm text-gray-600 dark:text-gray-300">Drag & drop or click to select your PDF file</p>
                         </div>
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-blue-600">
+                            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-blue-600 dark:text-blue-400">
                                 2
                             </div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Create Signature</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Draw or type your signature</p>
                         </div>
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-indigo-600">
+                            <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-indigo-600 dark:text-indigo-400">
                                 3
                             </div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Place & Sign</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Choose page and position for your signature</p>
                         </div>
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-green-600">
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-green-600 dark:text-green-400">
                                 4
                             </div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Download</h3>

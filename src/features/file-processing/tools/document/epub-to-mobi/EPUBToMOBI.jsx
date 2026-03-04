@@ -76,18 +76,18 @@ export default function EPUBToMOBI() {
                     <div className="space-y-4">
                         <FileInfo file={file} onRemove={() => setFile(null)} />
 
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg p-6">
                             <div className="flex items-start gap-4">
                                 <div className="text-3xl">ℹ️</div>
                                 <div className="flex-1">
-                                    <h3 className="font-semibold text-blue-900 mb-2">
+                                    <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
                                         Online Conversion Required
                                     </h3>
-                                    <p className="text-sm text-blue-700 mb-3">
+                                    <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
                                         MOBI conversion requires specialized server-side processing. 
                                         Switch to <strong>Online Mode</strong> to enable this conversion.
                                     </p>
-                                    <p className="text-sm text-blue-700">
+                                    <p className="text-sm text-blue-700 dark:text-blue-300">
                                         Alternatively, you can use tools like Calibre (a free desktop application) 
                                         for EPUB to MOBI conversion with advanced options.
                                     </p>

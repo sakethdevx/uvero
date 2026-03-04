@@ -82,7 +82,7 @@ const AudioConverter = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 dark:from-gray-900 to-pink-50 dark:to-gray-800 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -128,7 +128,7 @@ const AudioConverter = () => {
                                                 key={fmt.value}
                                                 onClick={() => setFormat(fmt.value)}
                                                 className={`py-3 px-4 rounded-lg border-2 transition-all ${format === fmt.value
-                                                    ? 'border-purple-600 bg-purple-50 text-purple-700'
+                                                    ? 'border-purple-600 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300'
                                                     : 'border-gray-200 dark:border-gray-700 hover:border-purple-300'
                                                     }`}
                                                 disabled={isConverting}
@@ -186,21 +186,21 @@ const AudioConverter = () => {
 
                             {/* Error */}
                             {error && (
-                                <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                    <p className="text-red-800">{error}</p>
+                                <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+                                    <p className="text-red-800 dark:text-red-200">{error}</p>
                                 </div>
                             )}
 
                             {/* Result */}
                             {convertedAudio && (
                                 <div className="mt-6 space-y-4">
-                                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                                    <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg">
                                         <div className="flex items-center justify-between mb-3">
                                             <div>
-                                                <p className="font-medium text-green-900">
+                                                <p className="font-medium text-green-900 dark:text-green-100">
                                                     Conversion Complete!
                                                 </p>
-                                                <p className="text-sm text-green-700">
+                                                <p className="text-sm text-green-700 dark:text-green-300">
                                                     {convertedAudio.filename} • {formatSize(convertedAudio.size)}
                                                 </p>
                                             </div>

@@ -125,7 +125,7 @@ export default function WatermarkPdf() {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 dark:from-gray-900 via-white to-cyan-50">
             {/* Hero Section */}
             <div className="bg-white dark:bg-gray-800 border-b">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -197,7 +197,7 @@ export default function WatermarkPdf() {
                                             onClick={() => setWatermarkType('text')}
                                             disabled={isProcessing}
                                             className={`p-4 rounded-lg border-2 transition-all text-left ${watermarkType === 'text'
-                                                ? 'border-blue-500 bg-blue-50'
+                                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                                                 : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
                                                 } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                         >
@@ -208,7 +208,7 @@ export default function WatermarkPdf() {
                                             onClick={() => setWatermarkType('image')}
                                             disabled={isProcessing}
                                             className={`p-4 rounded-lg border-2 transition-all text-left ${watermarkType === 'image'
-                                                ? 'border-blue-500 bg-blue-50'
+                                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                                                 : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
                                                 } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                         >
@@ -299,10 +299,10 @@ export default function WatermarkPdf() {
                                                     accept="image/png,image/jpeg"
                                                     onChange={handleImageSelect}
                                                     disabled={isProcessing}
-                                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-600 dark:text-gray-300 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
+                                                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-600 dark:text-gray-300 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-blue-50 dark:bg-blue-900/20 file:text-blue-700 dark:text-blue-300 hover:file:bg-blue-100 dark:bg-blue-900/40 disabled:opacity-50"
                                                 />
                                                 {watermarkImage && (
-                                                    <p className="text-sm text-green-600 mt-1">✓ {watermarkImage.name}</p>
+                                                    <p className="text-sm text-green-600 dark:text-green-400 mt-1">✓ {watermarkImage.name}</p>
                                                 )}
                                             </div>
                                             <div>
@@ -333,7 +333,7 @@ export default function WatermarkPdf() {
                                                     onClick={() => setPosition(pos.value)}
                                                     disabled={isProcessing}
                                                     className={`px-3 py-2 rounded-lg border text-sm transition-all ${position === pos.value
-                                                        ? 'border-blue-500 bg-blue-50 text-blue-700 font-medium'
+                                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-medium'
                                                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800'
                                                         } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                                 >
@@ -351,8 +351,8 @@ export default function WatermarkPdf() {
 
                                 {/* Error */}
                                 {error && (
-                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                                        <p className="text-red-800 text-sm">{error}</p>
+                                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
+                                        <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
                                     </div>
                                 )}
 
@@ -381,7 +381,7 @@ export default function WatermarkPdf() {
                         {result && (
                             <div className="space-y-6">
                                 {/* Success Message */}
-                                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                                <div className="bg-gradient-to-r from-green-50 dark:from-gray-900 to-emerald-50 border border-green-200 dark:border-green-800/30 rounded-xl p-6">
                                     <div className="flex items-start gap-4">
                                         <div className="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                                             <span className="text-2xl">✓</span>
@@ -421,7 +421,7 @@ export default function WatermarkPdf() {
                 {/* Features Grid */}
                 <div className="mt-12 grid md:grid-cols-3 gap-6">
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">🔒</span>
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy First</h3>
@@ -454,7 +454,7 @@ export default function WatermarkPdf() {
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">How It Works</h2>
                     <div className="grid md:grid-cols-4 gap-6">
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-blue-600">
+                            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-blue-600 dark:text-blue-400">
                                 1
                             </div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Upload PDF</h3>
@@ -475,7 +475,7 @@ export default function WatermarkPdf() {
                             <p className="text-sm text-gray-600 dark:text-gray-300">Click apply and the watermark is added instantly</p>
                         </div>
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-green-600">
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-green-600 dark:text-green-400">
                                 4
                             </div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Download</h3>

@@ -125,7 +125,7 @@ const ImageResizer = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 dark:to-gray-800 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -152,8 +152,8 @@ const ImageResizer = () => {
                             <FileInfo file={file} onRemove={handleReset} />
 
                             {originalDimensions && (
-                                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                    <p className="text-sm text-blue-900">
+                                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg">
+                                    <p className="text-sm text-blue-900 dark:text-blue-100">
                                         📐 Original: <strong>{originalDimensions.width} × {originalDimensions.height}</strong> pixels
                                     </p>
                                 </div>
@@ -170,7 +170,7 @@ const ImageResizer = () => {
                                             <button
                                                 onClick={() => setResizeMode('dimensions')}
                                                 className={`p-3 rounded-lg border-2 transition-all ${resizeMode === 'dimensions'
-                                                        ? 'border-blue-600 bg-blue-50'
+                                                        ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
                                                         : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
                                                     }`}
                                                 disabled={isResizing}
@@ -181,7 +181,7 @@ const ImageResizer = () => {
                                             <button
                                                 onClick={() => setResizeMode('percentage')}
                                                 className={`p-3 rounded-lg border-2 transition-all ${resizeMode === 'percentage'
-                                                        ? 'border-blue-600 bg-blue-50'
+                                                        ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
                                                         : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
                                                     }`}
                                                 disabled={isResizing}
@@ -230,7 +230,7 @@ const ImageResizer = () => {
                                                     id="aspectRatio"
                                                     checked={maintainAspectRatio}
                                                     onChange={(e) => setMaintainAspectRatio(e.target.checked)}
-                                                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                                    className="w-4 h-4 text-blue-600 dark:text-blue-400 rounded focus:ring-blue-500"
                                                     disabled={isResizing}
                                                 />
                                                 <label htmlFor="aspectRatio" className="ml-2 text-sm text-gray-700 dark:text-gray-200">
@@ -291,21 +291,21 @@ const ImageResizer = () => {
 
                             {/* Error */}
                             {error && (
-                                <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                    <p className="text-red-800">{error}</p>
+                                <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+                                    <p className="text-red-800 dark:text-red-200">{error}</p>
                                 </div>
                             )}
 
                             {/* Result */}
                             {resizedImage && (
                                 <div className="mt-6 space-y-4">
-                                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                                    <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg">
                                         <div className="flex items-center justify-between mb-3">
                                             <div>
-                                                <p className="font-semibold text-green-900">
+                                                <p className="font-semibold text-green-900 dark:text-green-100">
                                                     Resize Complete!
                                                 </p>
-                                                <p className="text-sm text-green-700">
+                                                <p className="text-sm text-green-700 dark:text-green-300">
                                                     {resizedImage.width} × {resizedImage.height} px • {formatSize(resizedImage.size)}
                                                 </p>
                                             </div>

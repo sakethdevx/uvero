@@ -67,7 +67,7 @@ export default function LbsToKg() {
 
                     {/* Result Section */}
                     {result && (
-                        <div className="bg-gradient-to-r from-primary-50 to-blue-50 rounded-lg p-6">
+                        <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:to-gray-800 rounded-lg p-6">
                             <div className="text-center">
                                 <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Result</p>
                                 <p className="text-4xl font-bold text-primary-600">
@@ -122,7 +122,7 @@ export default function LbsToKg() {
                     </div>
 
                     {/* Formula */}
-                    <div className="bg-blue-50 rounded-lg p-4">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Formula</h3>
                         <p className="text-sm text-gray-700 dark:text-gray-200">
                             <span className="font-mono bg-white dark:bg-gray-800 px-2 py-1 rounded">

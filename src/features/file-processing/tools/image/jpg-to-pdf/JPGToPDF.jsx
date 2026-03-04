@@ -139,7 +139,7 @@ export default function JPGToPDF() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 dark:from-gray-900 to-indigo-50 dark:to-gray-800 py-12 px-4">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -200,7 +200,7 @@ export default function JPGToPDF() {
                                             <button
                                                 onClick={() => handleReorderFile(index, 'up')}
                                                 disabled={index === 0}
-                                                className="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 disabled:opacity-30"
+                                                className="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:text-blue-400 disabled:opacity-30"
                                             >
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
@@ -209,7 +209,7 @@ export default function JPGToPDF() {
                                             <button
                                                 onClick={() => handleReorderFile(index, 'down')}
                                                 disabled={index === files.length - 1}
-                                                className="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 disabled:opacity-30"
+                                                className="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:text-blue-400 disabled:opacity-30"
                                             >
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -217,7 +217,7 @@ export default function JPGToPDF() {
                                             </button>
                                             <button
                                                 onClick={() => handleRemoveFile(index)}
-                                                className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600"
+                                                className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:text-red-400"
                                             >
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -256,8 +256,8 @@ export default function JPGToPDF() {
 
                             {/* Error Message */}
                             {error && (
-                                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded">
-                                    <p className="text-red-700">{error}</p>
+                                <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded">
+                                    <p className="text-red-700 dark:text-red-300">{error}</p>
                                 </div>
                             )}
 
@@ -270,11 +270,11 @@ export default function JPGToPDF() {
 
                             {/* Result */}
                             {result && (
-                                <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded">
+                                <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 rounded">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="font-medium text-green-900">Conversion Complete!</p>
-                                            <p className="text-sm text-green-700">
+                                            <p className="font-medium text-green-900 dark:text-green-100">Conversion Complete!</p>
+                                            <p className="text-sm text-green-700 dark:text-green-300">
                                                 {result.pageCount} {result.pageCount === 1 ? 'page' : 'pages'} • {formatFileSize(result.size)}
                                             </p>
                                         </div>
@@ -318,8 +318,8 @@ export default function JPGToPDF() {
                 {/* Features */}
                 <div className="grid md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center mb-4">
+                            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
@@ -330,8 +330,8 @@ export default function JPGToPDF() {
                     </div>
 
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center mb-4">
+                            <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16V8a4 4 0 014-4h8a4 4 0 014 4v8m-4 4H8a4 4 0 01-4-4" />
                             </svg>
                         </div>
@@ -342,8 +342,8 @@ export default function JPGToPDF() {
                     </div>
 
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center mb-4">
+                            <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
                         </div>

@@ -100,7 +100,7 @@ export default function RotatePdf() {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+        <div className="min-h-screen bg-gradient-to-br from-purple-50 dark:from-gray-900 via-white to-blue-50 dark:to-gray-800">
             {/* Hero Section */}
             <div className="bg-white dark:bg-gray-800 border-b">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -173,7 +173,7 @@ export default function RotatePdf() {
                                                 onClick={() => setAngle(opt.value)}
                                                 disabled={isProcessing}
                                                 className={`p-4 rounded-lg border-2 transition-all text-left ${angle === opt.value
-                                                    ? 'border-purple-500 bg-purple-50'
+                                                    ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
                                                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
                                                     } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                             >
@@ -194,7 +194,7 @@ export default function RotatePdf() {
                                             onClick={() => setPageMode('all')}
                                             disabled={isProcessing}
                                             className={`p-4 rounded-lg border-2 transition-all text-left ${pageMode === 'all'
-                                                ? 'border-purple-500 bg-purple-50'
+                                                ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
                                                 : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
                                                 } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                         >
@@ -205,7 +205,7 @@ export default function RotatePdf() {
                                             onClick={() => setPageMode('specific')}
                                             disabled={isProcessing}
                                             className={`p-4 rounded-lg border-2 transition-all text-left ${pageMode === 'specific'
-                                                ? 'border-purple-500 bg-purple-50'
+                                                ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
                                                 : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800'
                                                 } ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                         >
@@ -237,8 +237,8 @@ export default function RotatePdf() {
 
                                 {/* Error */}
                                 {error && (
-                                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                                        <p className="text-red-800 text-sm">{error}</p>
+                                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
+                                        <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
                                     </div>
                                 )}
 
@@ -267,7 +267,7 @@ export default function RotatePdf() {
                         {result && (
                             <div className="space-y-6">
                                 {/* Success Message */}
-                                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                                <div className="bg-gradient-to-r from-green-50 dark:from-gray-900 to-emerald-50 border border-green-200 dark:border-green-800/30 rounded-xl p-6">
                                     <div className="flex items-start gap-4">
                                         <div className="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                                             <span className="text-2xl">✓</span>
@@ -277,7 +277,7 @@ export default function RotatePdf() {
                                                 PDF Rotated Successfully!
                                             </h3>
                                             <p className="text-gray-700 dark:text-gray-200 mb-4">
-                                                {pageMode === 'all' ? 'All pages' : `Pages ${pageInput}`} rotated by <span className="font-bold text-green-700">{angle}°</span> clockwise.
+                                                {pageMode === 'all' ? 'All pages' : `Pages ${pageInput}`} rotated by <span className="font-bold text-green-700 dark:text-green-300">{angle}°</span> clockwise.
                                             </p>
                                             <div className="grid grid-cols-2 gap-4 text-sm">
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
@@ -286,7 +286,7 @@ export default function RotatePdf() {
                                                 </div>
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">Rotated Size</div>
-                                                    <div className="font-semibold text-green-700">{formatFileSize(result.size)}</div>
+                                                    <div className="font-semibold text-green-700 dark:text-green-300">{formatFileSize(result.size)}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -317,7 +317,7 @@ export default function RotatePdf() {
                 {/* Features Grid */}
                 <div className="mt-12 grid md:grid-cols-3 gap-6">
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">🔒</span>
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy First</h3>
@@ -326,7 +326,7 @@ export default function RotatePdf() {
                         </p>
                     </div>
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">⚡</span>
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Lightning Fast</h3>
@@ -335,7 +335,7 @@ export default function RotatePdf() {
                         </p>
                     </div>
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                        <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center mb-4">
                             <span className="text-2xl">🎯</span>
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Precise Control</h3>
@@ -350,28 +350,28 @@ export default function RotatePdf() {
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">How It Works</h2>
                     <div className="grid md:grid-cols-4 gap-6">
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-purple-600">
+                            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-purple-600 dark:text-purple-400">
                                 1
                             </div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Upload PDF</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Drag & drop or click to select your PDF file</p>
                         </div>
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-blue-600">
+                            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-blue-600 dark:text-blue-400">
                                 2
                             </div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Choose Angle</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Select rotation angle and pages to rotate</p>
                         </div>
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-indigo-600">
+                            <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-indigo-600 dark:text-indigo-400">
                                 3
                             </div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Rotate</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-300">Click rotate and watch the magic happen</p>
                         </div>
                         <div className="text-center">
-                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-green-600">
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold text-green-600 dark:text-green-400">
                                 4
                             </div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Download</h3>
