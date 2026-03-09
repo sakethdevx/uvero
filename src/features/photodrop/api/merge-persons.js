@@ -16,12 +16,19 @@ export default async function handler(req, res) {
         const { data: userData, error: userError } = await serverSupabase.auth.getUser(token)
         if (userError || !userData?.user) return res.status(401).json({ error: 'Invalid token' })
 
-        const { event_id, person_id_keep, person_id_merge } = req.body || {}
-        if (!event_id || !person_id_keep || !person_id_merge) {
-            return res.status(400).json({ error: 'event_id, person_id_keep, and person_id_merge are required' })
+        const { event_id, person_id_keep, person_id_merge, person_ids_merge } = req.body || {}
+        // Support person_ids_merge (array) or person_id_merge (single) for backward compatibility
+        const mergeIds = Array.isArray(person_ids_merge) && person_ids_merge.length > 0
+            ? person_ids_merge
+            : (person_id_merge ? [person_id_merge] : [])
+        if (!event_id || !person_id_keep || mergeIds.length === 0) {
+            return res.status(400).json({ error: 'event_id, person_id_keep, and person_ids_merge are required' })
         }
-        if (person_id_keep === person_id_merge) {
+        if (mergeIds.includes(person_id_keep)) {
             return res.status(400).json({ error: 'Cannot merge a person with themselves' })
+        }
+        if (new Set(mergeIds).size !== mergeIds.length) {
+            return res.status(400).json({ error: 'Duplicate person IDs in merge list' })
         }
 
         // Allow merge if the requester is the event owner or a participant
@@ -46,35 +53,39 @@ export default async function handler(req, res) {
 
         if (!isOwner && !isParticipant) return res.status(403).json({ error: 'Forbidden: not a participant or owner' })
 
-        // Verify both persons belong to this event
+        // Verify all persons belong to this event
+        const allPersonIds = [person_id_keep, ...mergeIds]
         const { data: personsRows, error: personsErr } = await serverSupabase
             .from('persons')
             .select('id')
             .eq('event_id', event_id)
-            .in('id', [person_id_keep, person_id_merge])
+            .in('id', allPersonIds)
         if (personsErr) return res.status(500).json({ error: personsErr.message })
-        if (!personsRows || personsRows.length < 2) {
-            return res.status(404).json({ error: 'One or both persons not found in this event' })
+        if (!personsRows || personsRows.length < allPersonIds.length) {
+            return res.status(404).json({ error: 'One or more persons not found in this event' })
         }
 
-        // Move all face embeddings from person_id_merge to person_id_keep
-        const { data: updatedEmbeddings, error: updateErr } = await serverSupabase
-            .from('face_embeddings')
-            .update({ person_id: person_id_keep })
-            .eq('person_id', person_id_merge)
-            .select('id')
-        if (updateErr) return res.status(500).json({ error: updateErr.message })
-        const mergedEmbeddingsCount = (updatedEmbeddings || []).length
+        // Move all face embeddings from each merged person to person_id_keep
+        let totalMergedEmbeddingsCount = 0
+        for (const pid of mergeIds) {
+            const { data: updatedEmbeddings, error: updateErr } = await serverSupabase
+                .from('face_embeddings')
+                .update({ person_id: person_id_keep })
+                .eq('person_id', pid)
+                .select('id')
+            if (updateErr) return res.status(500).json({ error: updateErr.message })
+            totalMergedEmbeddingsCount += (updatedEmbeddings || []).length
+        }
 
-        // Delete the merged (secondary) person record
+        // Delete all merged (secondary) person records
         const { error: deleteErr } = await serverSupabase
             .from('persons')
             .delete()
-            .eq('id', person_id_merge)
+            .in('id', mergeIds)
             .eq('event_id', event_id)
         if (deleteErr) return res.status(500).json({ error: deleteErr.message })
 
-        return res.status(200).json({ data: { kept: person_id_keep, merged: person_id_merge, merged_embeddings_count: mergedEmbeddingsCount } })
+        return res.status(200).json({ data: { kept: person_id_keep, merged: mergeIds, merged_embeddings_count: totalMergedEmbeddingsCount } })
     } catch (err) {
         console.error('[api/merge-persons] error', err)
         return res.status(500).json({ error: String(err) })

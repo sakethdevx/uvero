@@ -987,7 +987,7 @@ export default function EventDetail() {
 
     // Merge persons state
     const [mergeMode, setMergeMode] = useState(false)
-    const [mergePersonIds, setMergePersonIds] = useState([]) // [person_id_keep, person_id_merge]
+    const [mergePersonIds, setMergePersonIds] = useState([]) // [person_id_keep, ...person_ids_to_merge]
     const [mergingPersons, setMergingPersons] = useState(false)
     const [mergeError, setMergeError] = useState(null)
 
@@ -1000,7 +1000,6 @@ export default function EventDetail() {
     function handleMergePersonSelect(personId) {
         setMergePersonIds(prev => {
             if (prev.includes(personId)) return prev.filter(id => id !== personId)
-            if (prev.length >= 2) return prev
             return [...prev, personId]
         })
         setMergeError(null)
@@ -1008,14 +1007,14 @@ export default function EventDetail() {
 
     async function handleConfirmMerge() {
         if (mergePersonIds.length < 2) return
-        const [person_id_keep, person_id_merge] = mergePersonIds
+        const [person_id_keep, ...person_ids_merge] = mergePersonIds
         setMergingPersons(true)
         setMergeError(null)
         try {
             const resp = await fetch('/api/merge-persons', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
-                body: JSON.stringify({ event_id: id, person_id_keep, person_id_merge })
+                body: JSON.stringify({ event_id: id, person_id_keep, person_ids_merge })
             })
             if (!resp.ok) {
                 const txt = await resp.text()
@@ -1040,7 +1039,7 @@ export default function EventDetail() {
     )
 
     const mergeKeepPerson = mergePersonIds.length > 0 ? persons.find(p => p.id === mergePersonIds[0]) : null
-    const mergeDuplicatePerson = mergePersonIds.length > 1 ? persons.find(p => p.id === mergePersonIds[1]) : null
+    const mergeOtherPersons = mergePersonIds.slice(1).map(pid => persons.find(p => p.id === pid)).filter(Boolean)
 
     const allDisplayImages = selectedPersonIds && selectedPersonIds.length > 0
         ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
@@ -1323,8 +1322,8 @@ export default function EventDetail() {
                                 {mergeMode && (
                                     <div className="mb-3 p-2.5 rounded-lg bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20 text-xs text-orange-700 dark:text-orange-300">
                                         {mergePersonIds.length === 0 && 'Select the person to keep (shown first).'}
-                                        {mergePersonIds.length === 1 && 'Now select the duplicate to merge into the first.'}
-                                        {mergePersonIds.length === 2 && 'Ready to merge. Confirm below.'}
+                                        {mergePersonIds.length === 1 && 'Now select one or more duplicates to merge into the first.'}
+                                        {mergePersonIds.length >= 2 && `Ready to merge ${mergePersonIds.length - 1} duplicate${mergePersonIds.length > 2 ? 's' : ''} into the primary. Confirm below.`}
                                     </div>
                                 )}
 
@@ -1365,8 +1364,7 @@ export default function EventDetail() {
                                     const mergeIdx = mergePersonIds.indexOf(person.id)
                                     const inMergeSelection = mergeIdx !== -1
                                     const isKeep = mergeIdx === 0
-                                    const isMerge = mergeIdx === 1
-                                    const mergeDisabled = mergeMode && !inMergeSelection && mergePersonIds.length >= 2
+                                    const isMerge = mergeIdx > 0
                                     return (
                                         <div
                                             key={person.id}
@@ -1374,15 +1372,14 @@ export default function EventDetail() {
                                                 ${mergeMode
                                                     ? isKeep ? 'bg-green-50 dark:bg-green-500/10 hover:bg-green-50 dark:hover:bg-green-500/10'
                                                         : isMerge ? 'bg-red-50 dark:bg-red-500/10 hover:bg-red-50 dark:hover:bg-red-500/10'
-                                                            : mergeDisabled ? 'opacity-40 cursor-not-allowed'
-                                                                : 'hover:bg-orange-50 dark:hover:bg-orange-500/5'
+                                                            : 'hover:bg-orange-50 dark:hover:bg-orange-500/5'
                                                     : selectedPersonIds && selectedPersonIds.includes(person.id)
                                                         ? 'bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-50 dark:hover:bg-purple-500/10'
                                                         : 'hover:bg-gray-50 dark:hover:bg-white/[0.02]'
                                                 }`}
                                             onClick={() => {
                                                 if (mergeMode) {
-                                                    if (!mergeDisabled) handleMergePersonSelect(person.id)
+                                                    handleMergePersonSelect(person.id)
                                                 } else if (editingPersonId !== person.id) {
                                                     handleSelectPerson(person.id)
                                                 }
@@ -1455,13 +1452,20 @@ export default function EventDetail() {
                             </div>
 
                             {/* Merge confirmation footer */}
-                            {mergeMode && mergePersonIds.length === 2 && (
+                            {mergeMode && mergePersonIds.length >= 2 && (
                                 <div className="p-4 border-t border-orange-200 dark:border-orange-500/20 bg-orange-50 dark:bg-orange-500/10">
                                     {mergeError && (
                                         <p className="text-xs text-red-600 dark:text-red-400 mb-2">{mergeError}</p>
                                     )}
                                     <p className="text-xs text-orange-700 dark:text-orange-300 mb-3">
-                                        All photos from <strong>{mergeDuplicatePerson?.name || 'Unnamed'}</strong> will be merged into <strong>{mergeKeepPerson?.name || 'Unnamed'}</strong>. This cannot be undone.
+                                        All photos from{' '}
+                                        {mergeOtherPersons.map((p, i) => (
+                                            <span key={p.id}>
+                                                {i > 0 && (i === mergeOtherPersons.length - 1 ? (mergeOtherPersons.length > 2 ? ', and ' : ' and ') : ', ')}
+                                                <strong>{p.name || 'Unnamed'}</strong>
+                                            </span>
+                                        ))}{' '}
+                                        will be merged into <strong>{mergeKeepPerson?.name || 'Unnamed'}</strong>. This cannot be undone.
                                     </p>
                                     <div className="flex gap-2">
                                         <button
