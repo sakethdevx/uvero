@@ -73,6 +73,11 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/reprocess-faces') {
+            const mod = await import('../src/features/photodrop/api/reprocess-faces.js')
+            return mod.default(req, res)
+        }
+
 
 
         if (originalPath === '/api/upload-image') {
