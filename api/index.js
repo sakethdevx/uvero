@@ -68,6 +68,11 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/merge-persons') {
+            const mod = await import('../src/features/photodrop/api/merge-persons.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/process-faces') {
             const mod = await import('../src/features/photodrop/api/process-faces.js')
             return mod.default(req, res)

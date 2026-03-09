@@ -985,9 +985,62 @@ export default function EventDetail() {
     const [peopleSearch, setPeopleSearch] = useState('')
     const [gridSize, setGridSize] = useState('md') // 'sm' | 'md' | 'lg'
 
+    // Merge persons state
+    const [mergeMode, setMergeMode] = useState(false)
+    const [mergePersonIds, setMergePersonIds] = useState([]) // [person_id_keep, person_id_merge]
+    const [mergingPersons, setMergingPersons] = useState(false)
+    const [mergeError, setMergeError] = useState(null)
+
+    function handleToggleMergeMode() {
+        setMergeMode(prev => !prev)
+        setMergePersonIds([])
+        setMergeError(null)
+    }
+
+    function handleMergePersonSelect(personId) {
+        setMergePersonIds(prev => {
+            if (prev.includes(personId)) return prev.filter(id => id !== personId)
+            if (prev.length >= 2) return prev
+            return [...prev, personId]
+        })
+        setMergeError(null)
+    }
+
+    async function handleConfirmMerge() {
+        if (mergePersonIds.length < 2) return
+        const [person_id_keep, person_id_merge] = mergePersonIds
+        setMergingPersons(true)
+        setMergeError(null)
+        try {
+            const resp = await fetch('/api/merge-persons', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user?.access_token || ''}` },
+                body: JSON.stringify({ event_id: id, person_id_keep, person_id_merge })
+            })
+            if (!resp.ok) {
+                const txt = await resp.text()
+                let msg = 'Merge failed'
+                try { msg = JSON.parse(txt).error || msg } catch (_) { }
+                setMergeError(msg)
+                return
+            }
+            setMergeMode(false)
+            setMergePersonIds([])
+            await loadPersons()
+            setNotice('People merged successfully.')
+        } catch (err) {
+            setMergeError('Merge failed: ' + String(err))
+        } finally {
+            setMergingPersons(false)
+        }
+    }
+
     const filteredPersons = persons.filter(p =>
         (p.name || 'Unnamed').toLowerCase().includes(peopleSearch.toLowerCase())
     )
+
+    const mergeKeepPerson = mergePersonIds.length > 0 ? persons.find(p => p.id === mergePersonIds[0]) : null
+    const mergeDuplicatePerson = mergePersonIds.length > 1 ? persons.find(p => p.id === mergePersonIds[1]) : null
 
     const allDisplayImages = selectedPersonIds && selectedPersonIds.length > 0
         ? images.filter(img => Array.isArray(img.person_ids) && img.person_ids.some(pid => selectedPersonIds.includes(pid)))
@@ -1238,7 +1291,7 @@ export default function EventDetail() {
                 <div className="grid lg:grid-cols-[300px_1fr] gap-8">
                     {/* ── People Sidebar ── */}
                     <aside className="lg:sticky lg:top-4 lg:self-start">
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden">
+                        <div className={`bg-white dark:bg-gray-900 rounded-2xl border shadow-sm overflow-hidden ${mergeMode ? 'border-orange-300 dark:border-orange-500/40' : 'border-gray-100 dark:border-white/5'}`}>
                             {/* Sidebar Header */}
                             <div className="p-4 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/[0.02]">
                                 <div className="flex items-center justify-between mb-3">
@@ -1248,11 +1301,35 @@ export default function EventDetail() {
                                         </svg>
                                         People
                                     </h2>
-                                    <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-full">{totalPersons}</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-full">{totalPersons}</span>
+                                        {/* Merge toggle – available to owner or participant */}
+                                        {(ownerCheck || isParticipant) && persons.length >= 2 && (
+                                            <button
+                                                onClick={handleToggleMergeMode}
+                                                title={mergeMode ? 'Cancel merge' : 'Merge duplicate people'}
+                                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${mergeMode ? 'bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 hover:bg-orange-200 dark:hover:bg-orange-500/30' : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'}`}
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                                </svg>
+                                                {mergeMode ? 'Cancel' : 'Merge'}
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
 
+                                {/* Merge mode instructions */}
+                                {mergeMode && (
+                                    <div className="mb-3 p-2.5 rounded-lg bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20 text-xs text-orange-700 dark:text-orange-300">
+                                        {mergePersonIds.length === 0 && 'Select the person to keep (shown first).'}
+                                        {mergePersonIds.length === 1 && 'Now select the duplicate to merge into the first.'}
+                                        {mergePersonIds.length === 2 && 'Ready to merge. Confirm below.'}
+                                    </div>
+                                )}
+
                                 {/* Search */}
-                                {persons.length > 3 && (
+                                {!mergeMode && persons.length > 3 && (
                                     <div className="relative">
                                         <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -1267,8 +1344,8 @@ export default function EventDetail() {
                                     </div>
                                 )}
 
-                                {/* Clear filter */}
-                                {selectedPersonIds && selectedPersonIds.length > 0 && (
+                                {/* Clear filter (normal mode) */}
+                                {!mergeMode && selectedPersonIds && selectedPersonIds.length > 0 && (
                                     <button
                                         onClick={handleClearSelection}
                                         className="mt-2 w-full text-xs font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-100 dark:hover:bg-purple-500/20 py-1.5 rounded-lg transition-colors"
@@ -1284,71 +1361,126 @@ export default function EventDetail() {
                                     <div className="p-6 text-center text-sm text-gray-400 dark:text-gray-500">
                                         {persons.length === 0 ? 'No people detected yet. Upload photos to start.' : 'No matching people.'}
                                     </div>
-                                ) : filteredPersons.map(person => (
-                                    <div
-                                        key={person.id}
-                                        className={`flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer ${selectedPersonIds && selectedPersonIds.includes(person.id) ? 'bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-50 dark:hover:bg-purple-500/10' : ''
-                                            }`}
-                                        onClick={() => {
-                                            if (editingPersonId !== person.id) handleSelectPerson(person.id)
-                                        }}
-                                    >
-                                        {/* Avatar */}
-                                        <div className="flex-shrink-0 relative">
-                                            <LazyPersonThumb
-                                                person={person}
-                                                auth={`Bearer ${user?.access_token || ''}`}
-                                                objectUrlsRef={objectUrlsRef}
-                                            />
-                                            {selectedPersonIds && selectedPersonIds.includes(person.id) && (
-                                                <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center">
-                                                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Name / Edit */}
-                                        <div className="flex-1 min-w-0">
-                                            {editingPersonId === person.id ? (
-                                                <div onClick={e => e.stopPropagation()}>
-                                                    <input
-                                                        autoFocus
-                                                        value={editingName}
-                                                        onChange={e => setEditingName(e.target.value)}
-                                                        onKeyDown={e => { if (e.key === 'Enter') handleSavePersonName(person.id); if (e.key === 'Escape') { setEditingPersonId(null); setEditingName('') } }}
-                                                        className="w-full px-2 py-1 border border-purple-300 dark:border-purple-500/30 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                                                        placeholder="Person name"
-                                                    />
-                                                    <div className="mt-1.5 flex gap-1.5">
-                                                        <button onClick={() => handleSavePersonName(person.id)} className="px-2 py-0.5 bg-purple-600 text-white rounded text-xs font-semibold">Save</button>
-                                                        <button onClick={() => { setEditingPersonId(null); setEditingName('') }} className="px-2 py-0.5 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 rounded text-xs">Cancel</button>
+                                ) : filteredPersons.map(person => {
+                                    const mergeIdx = mergePersonIds.indexOf(person.id)
+                                    const inMergeSelection = mergeIdx !== -1
+                                    const isKeep = mergeIdx === 0
+                                    const isMerge = mergeIdx === 1
+                                    const mergeDisabled = mergeMode && !inMergeSelection && mergePersonIds.length >= 2
+                                    return (
+                                        <div
+                                            key={person.id}
+                                            className={`flex items-center gap-3 p-3 transition-colors cursor-pointer
+                                                ${mergeMode
+                                                    ? isKeep ? 'bg-green-50 dark:bg-green-500/10 hover:bg-green-50 dark:hover:bg-green-500/10'
+                                                        : isMerge ? 'bg-red-50 dark:bg-red-500/10 hover:bg-red-50 dark:hover:bg-red-500/10'
+                                                            : mergeDisabled ? 'opacity-40 cursor-not-allowed'
+                                                                : 'hover:bg-orange-50 dark:hover:bg-orange-500/5'
+                                                    : selectedPersonIds && selectedPersonIds.includes(person.id)
+                                                        ? 'bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-50 dark:hover:bg-purple-500/10'
+                                                        : 'hover:bg-gray-50 dark:hover:bg-white/[0.02]'
+                                                }`}
+                                            onClick={() => {
+                                                if (mergeMode) {
+                                                    if (!mergeDisabled) handleMergePersonSelect(person.id)
+                                                } else if (editingPersonId !== person.id) {
+                                                    handleSelectPerson(person.id)
+                                                }
+                                            }}
+                                        >
+                                            {/* Avatar */}
+                                            <div className="flex-shrink-0 relative">
+                                                <LazyPersonThumb
+                                                    person={person}
+                                                    auth={`Bearer ${user?.access_token || ''}`}
+                                                    objectUrlsRef={objectUrlsRef}
+                                                />
+                                                {mergeMode && inMergeSelection ? (
+                                                    <div className={`absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white ${isKeep ? 'bg-green-500' : 'bg-red-500'}`}>
+                                                        {isKeep ? '✓' : '×'}
                                                     </div>
-                                                </div>
-                                            ) : (
-                                                <>
-                                                    <div className="font-semibold text-gray-800 dark:text-gray-200 text-sm truncate">{person.name || 'Unnamed'}</div>
-                                                    <div className="text-[11px] text-gray-400 dark:text-gray-500 truncate">{person.image_count || 0} photos</div>
-                                                </>
+                                                ) : !mergeMode && selectedPersonIds && selectedPersonIds.includes(person.id) && (
+                                                    <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center">
+                                                        <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Name / Edit */}
+                                            <div className="flex-1 min-w-0">
+                                                {!mergeMode && editingPersonId === person.id ? (
+                                                    <div onClick={e => e.stopPropagation()}>
+                                                        <input
+                                                            autoFocus
+                                                            value={editingName}
+                                                            onChange={e => setEditingName(e.target.value)}
+                                                            onKeyDown={e => { if (e.key === 'Enter') handleSavePersonName(person.id); if (e.key === 'Escape') { setEditingPersonId(null); setEditingName('') } }}
+                                                            className="w-full px-2 py-1 border border-purple-300 dark:border-purple-500/30 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                                            placeholder="Person name"
+                                                        />
+                                                        <div className="mt-1.5 flex gap-1.5">
+                                                            <button onClick={() => handleSavePersonName(person.id)} className="px-2 py-0.5 bg-purple-600 text-white rounded text-xs font-semibold">Save</button>
+                                                            <button onClick={() => { setEditingPersonId(null); setEditingName('') }} className="px-2 py-0.5 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 rounded text-xs">Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <div className="font-semibold text-gray-800 dark:text-gray-200 text-sm truncate">{person.name || 'Unnamed'}</div>
+                                                        <div className="text-[11px] text-gray-400 dark:text-gray-500 truncate">
+                                                            {mergeMode && isKeep ? <span className="text-green-600 dark:text-green-400 font-semibold">Keep (primary)</span>
+                                                                : mergeMode && isMerge ? <span className="text-red-500 dark:text-red-400 font-semibold">Merge into primary</span>
+                                                                    : <>{person.image_count || 0} photos</>}
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+
+                                            {/* Edit button (normal mode only) */}
+                                            {!mergeMode && editingPersonId !== person.id && (
+                                                <button
+                                                    className="flex-shrink-0 w-7 h-7 rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 flex items-center justify-center transition-colors"
+                                                    style={{ opacity: 1 }}
+                                                    onClick={e => { e.stopPropagation(); handleEditPerson(person) }}
+                                                >
+                                                    <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                    </svg>
+                                                </button>
                                             )}
                                         </div>
-
-                                        {/* Edit button */}
-                                        {editingPersonId !== person.id && (
-                                            <button
-                                                className="flex-shrink-0 w-7 h-7 rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
-                                                style={{ opacity: 1 }}
-                                                onClick={e => { e.stopPropagation(); handleEditPerson(person) }}
-                                            >
-                                                <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                                </svg>
-                                            </button>
-                                        )}
-                                    </div>
-                                ))}
+                                    )
+                                })}
                             </div>
+
+                            {/* Merge confirmation footer */}
+                            {mergeMode && mergePersonIds.length === 2 && (
+                                <div className="p-4 border-t border-orange-200 dark:border-orange-500/20 bg-orange-50 dark:bg-orange-500/10">
+                                    {mergeError && (
+                                        <p className="text-xs text-red-600 dark:text-red-400 mb-2">{mergeError}</p>
+                                    )}
+                                    <p className="text-xs text-orange-700 dark:text-orange-300 mb-3">
+                                        All photos from <strong>{mergeDuplicatePerson?.name || 'Unnamed'}</strong> will be merged into <strong>{mergeKeepPerson?.name || 'Unnamed'}</strong>. This cannot be undone.
+                                    </p>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={handleConfirmMerge}
+                                            disabled={mergingPersons}
+                                            className="flex-1 py-1.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white rounded-lg text-xs font-semibold transition-colors"
+                                        >
+                                            {mergingPersons ? 'Merging…' : 'Confirm Merge'}
+                                        </button>
+                                        <button
+                                            onClick={() => setMergePersonIds([])}
+                                            disabled={mergingPersons}
+                                            className="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 rounded-lg text-xs font-semibold hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                                        >
+                                            Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </aside>
 
