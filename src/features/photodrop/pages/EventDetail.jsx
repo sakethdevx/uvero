@@ -259,6 +259,9 @@ export default function EventDetail() {
     const [editEventNameValue, setEditEventNameValue] = useState('')
     const [savingEventName, setSavingEventName] = useState(false)
 
+    // Reprocess faces state
+    const [reprocessing, setReprocessing] = useState(false)
+
     // Meta-data about persons is loaded here. Thumbnails are loaded on-demand by LazyPersonThumb.
 
     async function loadPersons() {
@@ -948,6 +951,35 @@ export default function EventDetail() {
         }
     }
 
+    async function handleReprocessFaces() {
+        if (!confirm('Reprocess all images for faces? This will clear existing face data and re-detect all faces. This may take a while.')) return
+        try {
+            setReprocessing(true)
+            const token = user?.access_token || null
+            const headers = token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' }
+            const resp = await fetch('/api/reprocess-faces', { method: 'POST', headers, body: JSON.stringify({ event_id: id }) })
+            if (!resp.ok) {
+                const txt = await resp.text()
+                console.error('Reprocess faces failed', resp.status, txt)
+                setNotice('Failed to start reprocessing')
+                return
+            }
+            const data = await resp.json()
+            setNotice(`Reprocessing ${data.total || 0} image(s) for faces. This may take a few minutes.`)
+            // Reset local persons list since they were deleted
+            setPersons([])
+            setTotalPersons(0)
+            setProcessedImages(0)
+            // Refresh images to show updated processed status
+            setImages(prev => prev.map(img => ({ ...img, processed: false, processed_count: 0 })))
+        } catch (err) {
+            console.error('Reprocess faces error', err)
+            setNotice('Failed to start reprocessing')
+        } finally {
+            setReprocessing(false)
+        }
+    }
+
     /* ─── State for new features ─── */
     const [lightboxImg, setLightboxImg] = useState(null)
     const [peopleSearch, setPeopleSearch] = useState('')
@@ -1147,6 +1179,16 @@ export default function EventDetail() {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                                         </svg>
                                         QR Code
+                                    </button>
+                                    <button
+                                        disabled={reprocessing}
+                                        onClick={handleReprocessFaces}
+                                        className="inline-flex items-center gap-1.5 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 text-purple-300 py-2.5 px-4 rounded-xl text-sm font-medium transition-all disabled:opacity-50"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        {reprocessing ? 'Starting...' : 'Reprocess Faces'}
                                     </button>
                                     <button
                                         disabled={deletingEvent}
