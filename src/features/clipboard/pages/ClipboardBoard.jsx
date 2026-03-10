@@ -311,44 +311,75 @@ export default function ClipboardBoard() {
 
                 {/* Settings panel */}
                 {showSettings && (
-                    <div className="border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-gray-900/50 py-4 px-4 shadow-inner">
-                        <div className="max-w-7xl mx-auto grid sm:grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Password Protection</label>
-                                <input
-                                    type="password"
-                                    value={password}
-                                    onChange={e => setPassword(e.target.value)}
-                                    placeholder="Leave empty for no password"
-                                    className="w-full bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 rounded-lg py-2 px-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-purple-500/50 transition-all shadow-sm"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Expiration</label>
-                                <select
-                                    value={expiresIn}
-                                    onChange={e => setExpiresIn(e.target.value)}
-                                    className="w-full bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 rounded-lg py-2 px-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-purple-500/50 transition-all shadow-sm"
-                                >
-                                    {EXPIRE_OPTIONS.map(o => <option key={o.value} value={o.value} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">{o.label}</option>)}
-                                </select>
-                            </div>
-                            <div className="flex items-end gap-4">
-                                <label className="flex items-center gap-2 cursor-pointer group">
+                    <div className="border-t border-gray-100 dark:border-white/5 bg-gray-50/80 dark:bg-gray-900/60 py-5 px-4 shadow-inner">
+                        <div className="max-w-7xl mx-auto">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Board Settings</p>
+                            <div className="grid sm:grid-cols-3 gap-4">
+                                {/* Password */}
+                                <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 rounded-xl p-3.5 shadow-sm">
+                                    <label className="flex items-center gap-1.5 text-xs font-bold text-gray-600 dark:text-gray-300 mb-2">
+                                        <span>🔑</span> Password Lock
+                                    </label>
                                     <input
-                                        type="checkbox"
-                                        checked={burnAfterRead}
-                                        onChange={e => setBurnAfterRead(e.target.checked)}
-                                        className="w-4 h-4 rounded bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-orange-500 focus:ring-orange-500"
+                                        type="password"
+                                        value={password}
+                                        onChange={e => setPassword(e.target.value)}
+                                        placeholder="Leave empty for no password"
+                                        className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 rounded-lg py-2 px-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/25 transition-all"
                                     />
-                                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300 group-hover:text-orange-500 transition-colors">🔥 Burn after reading</span>
-                                </label>
-                                <button
-                                    onClick={() => saveBoard()}
-                                    className="ml-auto px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-bold rounded-lg shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all"
-                                >
-                                    Save Settings
-                                </button>
+                                    {password && (
+                                        <p className="text-[10px] text-purple-500 dark:text-purple-400 mt-1.5 font-semibold">🔒 Password set — save to apply</p>
+                                    )}
+                                </div>
+
+                                {/* Expiration */}
+                                <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 rounded-xl p-3.5 shadow-sm">
+                                    <label className="flex items-center gap-1.5 text-xs font-bold text-gray-600 dark:text-gray-300 mb-2">
+                                        <span>⏳</span> Auto-Expire
+                                        <span className="ml-auto text-[10px] text-purple-500 dark:text-purple-400 font-semibold">Max: 30 days</span>
+                                    </label>
+                                    <select
+                                        value={expiresIn}
+                                        onChange={e => setExpiresIn(e.target.value)}
+                                        className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-white/10 rounded-lg py-2 px-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/25 transition-all"
+                                    >
+                                        {EXPIRE_OPTIONS.map(o => <option key={o.value} value={o.value} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">{o.label}</option>)}
+                                    </select>
+                                    <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1.5">Board will be deleted automatically after the selected period.</p>
+                                </div>
+
+                                {/* Burn after read + Save */}
+                                <div className="bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 rounded-xl p-3.5 shadow-sm flex flex-col justify-between">
+                                    <div>
+                                        <label className="flex items-center gap-1.5 text-xs font-bold text-gray-600 dark:text-gray-300 mb-2">
+                                            <span>🔥</span> Burn After Read
+                                        </label>
+                                        <label className="flex items-start gap-3 cursor-pointer group">
+                                            <div className="relative mt-0.5 flex-shrink-0">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={burnAfterRead}
+                                                    onChange={e => setBurnAfterRead(e.target.checked)}
+                                                    className="sr-only peer"
+                                                />
+                                                <div className={`w-10 h-5 rounded-full transition-all shadow-inner ${burnAfterRead ? 'bg-orange-500' : 'bg-gray-200 dark:bg-gray-700'}`} />
+                                                <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${burnAfterRead ? 'translate-x-5' : ''}`} />
+                                            </div>
+                                            <span className={`text-sm font-medium transition-colors leading-snug ${burnAfterRead ? 'text-orange-500 dark:text-orange-400' : 'text-gray-500 dark:text-gray-400 group-hover:text-orange-500'}`}>
+                                                Self-destruct after first read
+                                            </span>
+                                        </label>
+                                        {burnAfterRead && (
+                                            <p className="text-[10px] text-orange-500 dark:text-orange-400 mt-1.5 font-semibold ml-13">⚠️ Board will be deleted after it is opened once.</p>
+                                        )}
+                                    </div>
+                                    <button
+                                        onClick={() => saveBoard()}
+                                        className="mt-3 w-full px-4 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-bold rounded-lg shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all"
+                                    >
+                                        Save Settings
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
