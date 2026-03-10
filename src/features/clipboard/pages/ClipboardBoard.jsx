@@ -33,8 +33,8 @@ export default function ClipboardBoard() {
     const [viewMode, setViewMode] = useState('edit') // 'edit' | 'preview' | 'split'
     const [darkEditor, setDarkEditor] = useState(true)
 
-    /* ── Settings ── */
-    const [showSettings, setShowSettings] = useState(false)
+    /* ── Settings (visible by default so all options are immediately accessible) ── */
+    const [showSettings, setShowSettings] = useState(true)
     const [password, setPassword] = useState('')
     const [burnAfterRead, setBurnAfterRead] = useState(false)
     const [expiresIn, setExpiresIn] = useState('')
@@ -324,7 +324,9 @@ export default function ClipboardBoard() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Expiration</label>
+                                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">
+                                    Expiration <span className="normal-case tracking-normal font-normal text-gray-400 dark:text-gray-500">(max 30 days)</span>
+                                </label>
                                 <select
                                     value={expiresIn}
                                     onChange={e => setExpiresIn(e.target.value)}
