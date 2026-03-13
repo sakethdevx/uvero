@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import QRCode from 'qrcode'
 
 const LANGUAGES = [
@@ -17,7 +17,16 @@ const EXPIRE_OPTIONS = [
 ]
 
 export default function ClipboardBoard() {
-    const { boardId } = useParams()
+    const { boardId: rawBoardId } = useParams()
+    const navigate = useNavigate()
+    const boardId = rawBoardId?.toLowerCase()
+
+    // Redirect to canonical lowercase URL for case-insensitive board names
+    useEffect(() => {
+        if (rawBoardId && rawBoardId !== rawBoardId.toLowerCase()) {
+            navigate(`/clipboard/${rawBoardId.toLowerCase()}`, { replace: true })
+        }
+    }, [rawBoardId, navigate])
 
     /* ── State ── */
     const [content, setContent] = useState('')
