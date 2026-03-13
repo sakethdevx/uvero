@@ -90,6 +90,37 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        // ── CLI clipboard endpoints (must come before generic /api/clipboard) ──
+
+        if (originalPath === '/api/clipboard/send') {
+            const mod = await import('../src/features/clipboard/api/cli-send.js')
+            return mod.default(req, res)
+        }
+
+        if (forwarded && forwarded.startsWith('clipboard/get/')) {
+            req.query = req.query || {}
+            req.query.code = forwarded.split('/')[2] || ''
+            const mod = await import('../src/features/clipboard/api/cli-get.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/clipboard/board/create') {
+            const mod = await import('../src/features/clipboard/api/cli-board-create.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/clipboard/board/send') {
+            const mod = await import('../src/features/clipboard/api/cli-board-send.js')
+            return mod.default(req, res)
+        }
+
+        if (forwarded && forwarded.startsWith('clipboard/board/get/')) {
+            req.query = req.query || {}
+            req.query.board = forwarded.split('/')[3] || ''
+            const mod = await import('../src/features/clipboard/api/cli-board-get.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/clipboard') {
             const mod = await import('../src/features/clipboard/api/index.js')
             return mod.default(req, res)
