@@ -77,8 +77,10 @@ export default async function handler(req, res) {
         // ── GET: Retrieve a board ──
         if (req.method === 'GET') {
             const { code, board, password } = req.query || {}
-            const boardId = code || board
+            let boardId = code || board
             if (!boardId) return res.status(400).json({ error: 'Missing code or board parameter' })
+            // Normalize to lowercase for case-insensitive board name lookup
+            boardId = boardId.toLowerCase()
 
             // Check metadata in Supabase
             const { data: meta } = await supabase
@@ -223,8 +225,10 @@ export default async function handler(req, res) {
         // ── DELETE: Delete a board ──
         if (req.method === 'DELETE') {
             const { board, code } = req.query || {}
-            const boardId = board || code
+            let boardId = board || code
             if (!boardId) return res.status(400).json({ error: 'Missing board/code parameter' })
+            // Normalize to lowercase for case-insensitive board name lookup
+            boardId = boardId.toLowerCase()
 
             // Look up metadata to determine which branch to delete from
             const { data: delMeta } = await supabase
