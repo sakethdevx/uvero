@@ -92,6 +92,11 @@ export default async function handler(req, res) {
 
         // ── CLI clipboard endpoints (must come before generic /api/clipboard) ──
 
+        if (originalPath === '/api/clipboard/cli-health') {
+            const mod = await import('../src/features/clipboard/api/cli-health.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/clipboard/send') {
             const mod = await import('../src/features/clipboard/api/cli-send.js')
             return mod.default(req, res)

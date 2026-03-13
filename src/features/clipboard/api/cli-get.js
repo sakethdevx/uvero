@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { getBoard, deleteBoard } from '../services/clipboardGithubStorage.js'
+import { getBoard } from '../services/clipboardGithubStorage.js'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
@@ -22,18 +22,12 @@ export default async function handler(req, res) {
         if (!meta) return res.status(404).json({ success: false, error: 'Board not found' })
 
         if (meta.expires_at && new Date(meta.expires_at) < new Date()) {
-            try { await deleteBoard(code, meta.type) } catch (e) { console.warn('[cli-get] GitHub delete failed for expired board', code, e) }
             await supabase.from('clipboard_boards').delete().eq('id', code)
             return res.status(410).json({ success: false, error: 'Board has expired' })
         }
 
         const boardData = await getBoard(code, meta.type)
         if (!boardData) return res.status(404).json({ success: false, error: 'Board content not found' })
-
-        if (meta.burn_after_read) {
-            try { await deleteBoard(code, meta.type) } catch (e) { console.warn('[cli-get] GitHub delete failed for burn-after-read board', code, e) }
-            await supabase.from('clipboard_boards').delete().eq('id', code)
-        }
 
         return res.status(200).json({
             success: true,

@@ -18,6 +18,9 @@ export default async function handler(req, res) {
         const { board, content, password } = req.body || {}
 
         if (!board) return res.status(400).json({ success: false, error: 'Missing board' })
+        if (!/^[a-z0-9]{4}-[a-z0-9]{3}$/.test(board.toLowerCase())) {
+            return res.status(400).json({ success: false, error: 'Invalid board name format (expected xxxx-xxx)' })
+        }
         if (content === undefined || content === null) return res.status(400).json({ success: false, error: 'Missing content' })
 
         const boardId = board.toLowerCase()
