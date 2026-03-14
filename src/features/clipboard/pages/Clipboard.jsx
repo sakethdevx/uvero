@@ -1,5 +1,7 @@
 import React, { useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import CliCommandList from '../components/CliCommandList'
+import { CLIPBOARD_PROMO_COMMANDS, CLI_INSTALL_COMMAND, getQuickShareCliCommands } from '../cliCommands'
 
 const PRIVATE_FEATURES = [
     { icon: '🎨', title: 'Syntax Highlighting', desc: '20+ languages supported', classes: 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20' },
@@ -131,6 +133,8 @@ export default function Clipboard() {
         navigate(`/clipboard/${slug}`)
     }
 
+    const quickShareCliCommands = publicCode ? getQuickShareCliCommands(publicCode) : []
+
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white overflow-hidden transition-colors duration-500">
             {/* ── Background Effects (colour shifts with active mode) ── */}
@@ -236,38 +240,71 @@ export default function Clipboard() {
 
                         {/* Code display */}
                         {publicCode && (
-                            <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-2xl p-6 text-center animate-panel-in">
-                                <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Your Share Code</p>
-                                <div className="flex items-center justify-center gap-3 mb-4">
-                                    {publicCode.split('').map((digit, i) => (
-                                        <div key={i} className="w-14 h-16 bg-white dark:bg-gray-900/80 border border-emerald-300 dark:border-emerald-500/30 rounded-xl flex items-center justify-center text-3xl font-black text-emerald-600 dark:text-emerald-400 shadow-md">
-                                            {digit}
+                            <div className="space-y-4 animate-panel-in">
+                                <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-2xl p-6 text-center">
+                                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">Your Share Code</p>
+                                    <div className="flex items-center justify-center gap-3 mb-4">
+                                        {publicCode.split('').map((digit, i) => (
+                                            <div key={i} className="w-14 h-16 bg-white dark:bg-gray-900/80 border border-emerald-300 dark:border-emerald-500/30 rounded-xl flex items-center justify-center text-3xl font-black text-emerald-600 dark:text-emerald-400 shadow-md">
+                                                {digit}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="flex items-center justify-center gap-2 mb-3">
+                                        <button
+                                            onClick={() => copyToClipboard(publicCode, setCopiedCode)}
+                                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-sm font-semibold hover:bg-emerald-200 dark:hover:bg-emerald-500/30 transition-colors"
+                                        >
+                                            {copiedCode ? (
+                                                <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>Copied!</>
+                                            ) : (
+                                                <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>Copy Code</>
+                                            )}
+                                        </button>
+                                        <button
+                                            onClick={() => copyToClipboard(`${window.location.origin}/c/${publicCode}`, setCopiedLink)}
+                                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-sm font-semibold hover:bg-emerald-200 dark:hover:bg-emerald-500/30 transition-colors"
+                                        >
+                                            {copiedLink ? (
+                                                <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>Copied!</>
+                                            ) : (
+                                                <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>Copy Link</>
+                                            )}
+                                        </button>
+                                    </div>
+                                    <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{window.location.origin}/c/{publicCode}</p>
+                                </div>
+
+                                <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50/90 dark:bg-white/[0.04] p-5 text-left shadow-sm">
+                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                        <div>
+                                            <p className="text-xs font-bold uppercase tracking-[0.25em] text-gray-400 dark:text-gray-500">Use from Terminal</p>
+                                            <h3 className="mt-2 text-lg font-bold text-gray-900 dark:text-white">Access this clipboard from the Uvero CLI</h3>
+                                            <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+                                                You can also access this clipboard directly from your terminal using the Uvero CLI.
+                                            </p>
                                         </div>
-                                    ))}
+                                        <Link
+                                            to="/cli"
+                                            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 dark:border-white/[0.08] dark:bg-white/[0.05] dark:text-gray-200 dark:hover:bg-white/[0.08]"
+                                        >
+                                            CLI Guide
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                                        </Link>
+                                    </div>
+
+                                    <div className="mt-5 rounded-2xl border border-gray-200/80 dark:border-white/[0.08] bg-white/80 dark:bg-gray-950/40 p-4 shadow-sm">
+                                        <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Install</p>
+                                        <code className="mt-3 block overflow-x-auto rounded-xl bg-gray-950 px-3 py-3 text-sm text-cyan-200">
+                                            {CLI_INSTALL_COMMAND}
+                                        </code>
+                                    </div>
+
+                                    <div className="mt-4">
+                                        <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Examples</p>
+                                        <CliCommandList commands={quickShareCliCommands} />
+                                    </div>
                                 </div>
-                                <div className="flex items-center justify-center gap-2 mb-3">
-                                    <button
-                                        onClick={() => copyToClipboard(publicCode, setCopiedCode)}
-                                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-sm font-semibold hover:bg-emerald-200 dark:hover:bg-emerald-500/30 transition-colors"
-                                    >
-                                        {copiedCode ? (
-                                            <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>Copied!</>
-                                        ) : (
-                                            <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>Copy Code</>
-                                        )}
-                                    </button>
-                                    <button
-                                        onClick={() => copyToClipboard(`${window.location.origin}/c/${publicCode}`, setCopiedLink)}
-                                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-sm font-semibold hover:bg-emerald-200 dark:hover:bg-emerald-500/30 transition-colors"
-                                    >
-                                        {copiedLink ? (
-                                            <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>Copied!</>
-                                        ) : (
-                                            <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>Copy Link</>
-                                        )}
-                                    </button>
-                                </div>
-                                <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{window.location.origin}/c/{publicCode}</p>
                             </div>
                         )}
 
@@ -400,6 +437,39 @@ export default function Clipboard() {
                         </div>
                     </div>
                 )}
+
+                <div className="mt-8 rounded-3xl border border-gray-200/80 bg-gray-50/90 p-5 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04] sm:p-6">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <p className="text-xs font-bold uppercase tracking-[0.25em] text-gray-400 dark:text-gray-500">CLI Access</p>
+                            <h2 className="mt-2 text-lg font-bold text-gray-900 dark:text-white">Use Uvero from your terminal too</h2>
+                            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+                                The online clipboard also has an official CLI, so you can send, fetch, and create boards from the command line whenever that is faster than switching tabs.
+                            </p>
+                        </div>
+                        <Link
+                            to="/cli"
+                            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 dark:border-white/[0.08] dark:bg-white/[0.05] dark:text-gray-200 dark:hover:bg-white/[0.08]"
+                        >
+                            CLI Guide
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                        </Link>
+                    </div>
+
+                    <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,280px)_1fr]">
+                        <div className="rounded-2xl border border-gray-200/80 bg-white/80 p-4 shadow-sm dark:border-white/[0.08] dark:bg-gray-950/40">
+                            <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Install</p>
+                            <code className="mt-3 block overflow-x-auto rounded-xl bg-gray-950 px-3 py-3 text-sm text-cyan-200">
+                                {CLI_INSTALL_COMMAND}
+                            </code>
+                        </div>
+
+                        <div>
+                            <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">CLI examples</p>
+                            <CliCommandList commands={CLIPBOARD_PROMO_COMMANDS} />
+                        </div>
+                    </div>
+                </div>
 
                 {/* ── Stats bar ── */}
                 <div className="mt-16 flex items-center justify-center gap-8 sm:gap-14 flex-wrap">
