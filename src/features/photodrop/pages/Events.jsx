@@ -230,8 +230,7 @@ export default function EventsPage() {
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                     ),
-                                    gradient: 'from-rose-500/20 to-pink-500/20',
-                                    border: 'border-rose-500/20 hover:border-rose-500/40',
+                                    cardClasses: 'bg-rose-50/80 dark:bg-gradient-to-br dark:from-rose-500/18 dark:to-pink-500/10 border-rose-100 dark:border-rose-500/20 hover:border-rose-300 dark:hover:border-rose-400/35',
                                     iconBg: 'from-rose-500 to-pink-600',
                                 },
                                 {
@@ -243,8 +242,7 @@ export default function EventsPage() {
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                                         </svg>
                                     ),
-                                    gradient: 'from-violet-500/20 to-purple-500/20',
-                                    border: 'border-violet-500/20 hover:border-violet-500/40',
+                                    cardClasses: 'bg-violet-50/80 dark:bg-gradient-to-br dark:from-violet-500/18 dark:to-purple-500/10 border-violet-100 dark:border-violet-500/20 hover:border-violet-300 dark:hover:border-violet-400/35',
                                     iconBg: 'from-violet-500 to-purple-600',
                                 },
                                 {
@@ -256,14 +254,13 @@ export default function EventsPage() {
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
                                         </svg>
                                     ),
-                                    gradient: 'from-cyan-500/20 to-blue-500/20',
-                                    border: 'border-cyan-500/20 hover:border-cyan-500/40',
+                                    cardClasses: 'bg-cyan-50/80 dark:bg-gradient-to-br dark:from-cyan-500/18 dark:to-blue-500/10 border-cyan-100 dark:border-cyan-500/20 hover:border-cyan-300 dark:hover:border-cyan-400/35',
                                     iconBg: 'from-cyan-500 to-blue-600',
                                 },
                             ].map((step, idx) => (
                                 <div
                                     key={idx}
-                                    className={`group relative rounded-3xl bg-white dark:bg-gradient-to-br dark:${step.gradient} border border-gray-100 dark:${step.border} p-8 sm:p-10 transition-all duration-500 hover:-translate-y-1 shadow-xl shadow-gray-200/20 dark:shadow-none`}
+                                    className={`group relative rounded-3xl border p-8 sm:p-10 transition-all duration-500 hover:-translate-y-1 shadow-xl shadow-gray-200/20 dark:shadow-none ${step.cardClasses}`}
                                 >
                                     {/* Step number */}
                                     <div className="text-7xl font-black text-gray-900/[0.03] dark:text-white/[0.04] absolute top-4 right-6 select-none">{step.num}</div>
