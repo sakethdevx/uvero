@@ -28,6 +28,13 @@ export default function ClipboardBoard() {
         }
     }, [rawBoardId, navigate])
 
+    // Redirect 4-digit numeric board IDs to the public clipboard route
+    useEffect(() => {
+        if (boardId && /^[0-9]{4}$/.test(boardId)) {
+            navigate(`/c/${boardId}`, { replace: true })
+        }
+    }, [boardId, navigate])
+
     /* ── State ── */
     const [content, setContent] = useState('')
     const [language, setLanguage] = useState('plaintext')

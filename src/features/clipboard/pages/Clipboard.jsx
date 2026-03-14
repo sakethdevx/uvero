@@ -28,6 +28,7 @@ export default function Clipboard() {
     const [retrieveError, setRetrieveError] = useState('')
     const [copied, setCopied] = useState(false)
     const [copiedCode, setCopiedCode] = useState(false)
+    const [copiedLink, setCopiedLink] = useState(false)
 
     /* ── Private clipboard state ── */
     const [boardName, setBoardName] = useState('')
@@ -255,6 +256,17 @@ export default function Clipboard() {
                                     )}
                                 </button>
                                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Share this code to let others retrieve your text</p>
+                                <div className="mt-3 flex items-center justify-center gap-2">
+                                    <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded-lg px-3 py-1.5 select-all">
+                                        https://uvero.app/c/{publicCode}
+                                    </span>
+                                    <button
+                                        onClick={() => copyToClipboard(`https://uvero.app/c/${publicCode}`, setCopiedLink)}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-semibold hover:bg-emerald-200 dark:hover:bg-emerald-500/30 transition-colors"
+                                    >
+                                        {copiedLink ? '✓ Copied' : 'Copy Link'}
+                                    </button>
+                                </div>
                             </div>
                         )}
 
