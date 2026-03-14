@@ -318,49 +318,49 @@ export default function EventsPage() {
                             </div>
 
                             {/* Feature 3 */}
-                            <div className="group rounded-3xl bg-white/[0.03] border border-white/[0.06] p-8 hover:bg-white/[0.05] transition-all duration-500 hover:border-cyan-500/20">
+                            <div className="group rounded-3xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06] p-8 hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all duration-500 hover:border-cyan-500/20 shadow-sm">
                                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white mb-5 shadow-lg">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-bold text-white mb-2">Bulk Download</h3>
-                                <p className="text-gray-400 text-sm leading-relaxed">Download all photos as a ZIP, or just the ones of a specific person.</p>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Bulk Download</h3>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">Download all photos as a ZIP, or just the ones of a specific person.</p>
                             </div>
 
                             {/* Feature 4 */}
-                            <div className="group rounded-3xl bg-white/[0.03] border border-white/[0.06] p-8 hover:bg-white/[0.05] transition-all duration-500 hover:border-emerald-500/20">
+                            <div className="group rounded-3xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06] p-8 hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all duration-500 hover:border-emerald-500/20 shadow-sm">
                                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white mb-5 shadow-lg">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-bold text-white mb-2">Private & Secure</h3>
-                                <p className="text-gray-400 text-sm leading-relaxed">Invite-only access. Only people you invite can view or download.</p>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Private & Secure</h3>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">Invite-only access. Only people you invite can view or download.</p>
                             </div>
 
                             {/* Feature 5 */}
-                            <div className="group rounded-3xl bg-white/[0.03] border border-white/[0.06] p-8 hover:bg-white/[0.05] transition-all duration-500 hover:border-amber-500/20">
+                            <div className="group rounded-3xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06] p-8 hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all duration-500 hover:border-amber-500/20 shadow-sm">
                                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white mb-5 shadow-lg">
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-bold text-white mb-2">Smart Compression</h3>
-                                <p className="text-gray-400 text-sm leading-relaxed">Photos are auto-compressed on upload for fast loading without quality loss.</p>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Smart Compression</h3>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">Photos are auto-compressed on upload for fast loading without quality loss.</p>
                             </div>
 
                             {/* Feature 6 — large */}
-                            <div className="lg:col-span-2 group rounded-3xl bg-white/[0.03] border border-white/[0.06] p-8 sm:p-10 hover:bg-white/[0.05] transition-all duration-500 hover:border-blue-500/20 relative overflow-hidden">
-                                <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/10 transition-colors duration-500" />
+                            <div className="lg:col-span-2 group rounded-3xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06] p-8 sm:p-10 hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-all duration-500 hover:border-blue-500/20 relative overflow-hidden shadow-sm">
+                                <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-500/5 dark:bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/10 transition-colors duration-500" />
                                 <div className="relative">
                                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white mb-5 shadow-lg">
                                         <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                                         </svg>
                                     </div>
-                                    <h3 className="text-xl font-bold text-white mb-2">Collaborative Events</h3>
-                                    <p className="text-gray-400 leading-relaxed">Everyone can upload. The event owner and all guests can contribute photos, building a complete album together from every angle.</p>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Collaborative Events</h3>
+                                    <p className="text-gray-500 dark:text-gray-400 leading-relaxed">Everyone can upload. The event owner and all guests can contribute photos, building a complete album together from every angle.</p>
                                 </div>
                             </div>
                         </div>
@@ -369,13 +369,13 @@ export default function EventsPage() {
 
                 {/* ── FINAL CTA ── */}
                 <section className="relative py-24 sm:py-32">
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(244,63,94,0.08),transparent_60%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(244,63,94,0.08),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(244,63,94,0.12),transparent_60%)]" />
                     <div className="relative max-w-3xl mx-auto px-4 text-center">
-                        <h2 className="text-4xl sm:text-5xl font-black text-white mb-6 text-balance leading-tight">
+                        <h2 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white mb-6 text-balance leading-tight">
                             Ready to make event photos
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-purple-400"> effortless</span>?
                         </h2>
-                        <p className="text-lg text-gray-400 mb-10 font-light">
+                        <p className="text-lg text-gray-600 dark:text-gray-400 mb-10 font-light">
                             Create your first event in 10 seconds. Completely free.
                         </p>
                         <Link
