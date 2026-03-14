@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { CLI_INSTALL_COMMAND } from '../../clipboard/cliCommands';
 
 /**
  * Services Home Page
@@ -217,6 +218,41 @@ export default function ServicesHome() {
                         </svg>
                         More services coming soon
                     </p>
+                </div>
+            </section>
+
+            <section className="max-w-7xl mx-auto px-4 pb-20 sm:px-6 lg:px-8 -mt-6">
+                <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-r from-gray-50 via-white to-cyan-50/70 p-6 shadow-lg shadow-gray-100/70 dark:border-white/[0.08] dark:from-gray-900/80 dark:via-gray-950 dark:to-cyan-500/10 dark:shadow-none sm:p-8">
+                    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="max-w-2xl">
+                            <p className="text-xs font-bold uppercase tracking-[0.26em] text-cyan-600 dark:text-cyan-300">CLI Access</p>
+                            <h2 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white">Access Uvero directly from your terminal.</h2>
+                            <p className="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+                                Install the official Uvero CLI once, then send or fetch clipboard content from the command line whenever you do not want to switch back to the browser.
+                            </p>
+                        </div>
+
+                        <div className="min-w-0 rounded-2xl border border-gray-200/80 bg-white/90 p-4 shadow-sm dark:border-white/[0.08] dark:bg-gray-950/50 lg:min-w-[360px]">
+                            <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Install</p>
+                            <code className="mt-3 block overflow-x-auto rounded-xl bg-gray-950 px-3 py-3 text-sm text-cyan-200">
+                                {CLI_INSTALL_COMMAND}
+                            </code>
+                            <p className="mt-4 text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Example</p>
+                            <code className="mt-3 block overflow-x-auto rounded-xl bg-gray-950 px-3 py-3 text-sm text-cyan-200">
+                                uvero send notes.txt
+                            </code>
+                        </div>
+                    </div>
+
+                    <div className="mt-6">
+                        <Link
+                            to="/cli"
+                            className="inline-flex items-center gap-2 rounded-xl border border-cyan-200 bg-cyan-50 px-4 py-2.5 text-sm font-semibold text-cyan-700 transition-colors hover:bg-cyan-100 dark:border-cyan-500/20 dark:bg-cyan-500/10 dark:text-cyan-300 dark:hover:bg-cyan-500/15"
+                        >
+                            Explore CLI usage
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                        </Link>
+                    </div>
                 </div>
             </section>
 

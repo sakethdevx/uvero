@@ -13,6 +13,7 @@ import InvitePage from './features/photodrop/pages/Invite';
 import Clipboard from './features/clipboard/pages/Clipboard';
 import ClipboardBoard from './features/clipboard/pages/ClipboardBoard';
 import PublicClipboard from './features/clipboard/pages/PublicClipboard';
+import ClipboardCli from './features/clipboard/pages/ClipboardCli';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ResetPassword from './pages/ResetPassword';
@@ -353,6 +354,7 @@ function AppContent() {
           <Route path="/clipboard" element={<Clipboard />} />
           <Route path="/clipboard/:boardId" element={<ClipboardBoard />} />
           <Route path="/c/:code" element={<PublicClipboard />} />
+          <Route path="/cli" element={<ClipboardCli />} />
           <Route path="/invite/:token" element={<InvitePage />} />
           <Route path="/:toolId" element={<ToolPage />} />
           <Route path="/privacy" element={<Privacy />} />
@@ -400,6 +402,7 @@ function AppContent() {
                   { name: 'File Processing', path: '/tools' },
                   { name: 'PhotoDrop', path: '/photodrop' },
                   { name: 'Online Clipboard', path: '/clipboard' },
+                  { name: 'Uvero CLI', path: '/cli' },
                   { name: 'Privacy Focus', path: '/privacy' },
                 ].map((link, idx) => (
                   <li key={idx}>
