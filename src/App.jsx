@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { ModeProvider } from './features/file-processing/context/ModeContext';
 import ModeToggle from './features/file-processing/components/ModeToggle';
@@ -20,6 +20,17 @@ import Profile from './pages/Profile';
 import { useAuth } from './auth/AuthContext';
 import { signOut } from './auth/authService';
 import { getToolById } from './features/file-processing/tools';
+
+/**
+ * Handles /:toolId routes while redirecting 4-digit codes to public clipboards.
+ */
+function ShortCodeOrTool() {
+  const { toolId } = useParams();
+  if (/^[0-9]{4}$/.test(toolId)) {
+    return <Navigate to={`/c/${toolId}`} replace />;
+  }
+  return <ToolPage />;
+}
 
 /**
  * Main App Component
@@ -354,7 +365,7 @@ function AppContent() {
           <Route path="/clipboard/:boardId" element={<ClipboardBoard />} />
           <Route path="/c/:code" element={<PublicClipboard />} />
           <Route path="/invite/:token" element={<InvitePage />} />
-          <Route path="/:toolId" element={<ToolPage />} />
+          <Route path="/:toolId" element={<ShortCodeOrTool />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />

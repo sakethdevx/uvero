@@ -28,11 +28,27 @@ export default function ClipboardBoard() {
         }
     }, [rawBoardId, navigate])
 
-    // Redirect 4-digit numeric board IDs to the public clipboard route
+    // For 4-digit board IDs, check whether a public clipboard exists first.
+    // If yes → redirect to /c/:code. If not → let the private board page load.
+    const [publicCheckDone, setPublicCheckDone] = useState(false)
     useEffect(() => {
-        if (boardId && /^[0-9]{4}$/.test(boardId)) {
-            navigate(`/c/${boardId}`, { replace: true })
+        if (!boardId || !/^[0-9]{4}$/.test(boardId)) {
+            setPublicCheckDone(true)
+            return
         }
+        let cancelled = false
+        fetch(`/api/clipboard/get/${encodeURIComponent(boardId)}`)
+            .then(resp => {
+                if (!cancelled && resp.ok) {
+                    navigate(`/c/${boardId}`, { replace: true })
+                } else if (!cancelled) {
+                    setPublicCheckDone(true)
+                }
+            })
+            .catch(() => {
+                if (!cancelled) setPublicCheckDone(true)
+            })
+        return () => { cancelled = true }
     }, [boardId, navigate])
 
     /* ── State ── */
@@ -103,7 +119,7 @@ export default function ClipboardBoard() {
         }
     }, [boardId])
 
-    useEffect(() => { loadBoard() }, [loadBoard])
+    useEffect(() => { if (publicCheckDone) loadBoard() }, [loadBoard, publicCheckDone])
 
     /* ── Auto-save (debounced) ── */
     function handleContentChange(newContent) {

@@ -4,28 +4,35 @@ import { useParams, Link } from 'react-router-dom'
 export default function PublicClipboard() {
     const { code } = useParams()
 
+    const isValidCode = /^[0-9]{4}$/.test(code)
+
     const [content, setContent] = useState(null)
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(isValidCode)
+    const [error, setError] = useState(isValidCode ? '' : 'Invalid clipboard code')
     const [copied, setCopied] = useState(false)
 
     useEffect(() => {
+        if (!isValidCode) return
+        let cancelled = false
         async function fetchClipboard() {
             setLoading(true)
             setError('')
             try {
                 const resp = await fetch(`/api/clipboard/get/${encodeURIComponent(code)}`)
                 const data = await resp.json()
-                if (!resp.ok) throw new Error(data.error || 'Clipboard not found')
-                setContent(data.data?.content ?? data.content ?? '')
+                if (!resp.ok) {
+                    throw new Error('Clipboard not found or expired.')
+                }
+                if (!cancelled) setContent(data.data?.content ?? data.content ?? '')
             } catch (err) {
-                setError(err.message)
+                if (!cancelled) setError('Clipboard not found or expired.')
             } finally {
-                setLoading(false)
+                if (!cancelled) setLoading(false)
             }
         }
-        if (code) fetchClipboard()
-    }, [code])
+        fetchClipboard()
+        return () => { cancelled = true }
+    }, [code, isValidCode])
 
     function copyToClipboard() {
         navigator.clipboard.writeText(content).catch(() => {})
