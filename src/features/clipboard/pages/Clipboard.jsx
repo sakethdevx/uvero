@@ -196,7 +196,7 @@ export default function Clipboard() {
             </div>
 
             {/* ── Panels ── */}
-            <div className="relative max-w-2xl mx-auto px-4 pb-24">
+            <div className="relative max-w-5xl xl:max-w-6xl mx-auto px-4 pb-24">
 
                 {/* ════ QUICK SHARE PANEL ════ */}
                 {activeMode === 'quick' && (
