@@ -40,6 +40,27 @@ export function getBoardCliCommands(boardId) {
     ]
 }
 
+export const CLIPBOARD_PROMO_COMMANDS = [
+    {
+        id: 'promo-send',
+        label: 'Quick-share from terminal',
+        command: 'uvero send',
+        description: 'Create a shareable clipboard entry without opening the browser first.',
+    },
+    {
+        id: 'promo-get',
+        label: 'Read a 4-digit code',
+        command: 'uvero get 4832',
+        description: 'Fetch clipboard text when someone sends you a code.',
+    },
+    {
+        id: 'promo-board',
+        label: 'Create a private board',
+        command: 'uvero board create',
+        description: 'Start a named board workflow directly from your shell.',
+    },
+]
+
 export const CLI_PAGE_COMMANDS = [
     {
         id: 'send',
