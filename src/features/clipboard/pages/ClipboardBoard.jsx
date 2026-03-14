@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import QRCode from 'qrcode'
+import CliCommandList from '../components/CliCommandList'
+import { CLI_INSTALL_COMMAND, getBoardCliCommands } from '../cliCommands'
 
 const LANGUAGES = [
     'plaintext', 'javascript', 'typescript', 'python', 'java', 'c', 'cpp', 'csharp',
@@ -61,6 +63,7 @@ export default function ClipboardBoard() {
 
     /* ── Board URL ── */
     const boardUrl = typeof window !== 'undefined' ? `${window.location.origin}/clipboard/${boardId}` : ''
+    const boardCliCommands = getBoardCliCommands(boardId)
 
     /* ── Load board ── */
     const loadBoard = useCallback(async (pwd) => {
@@ -391,6 +394,39 @@ export default function ClipboardBoard() {
                         {error}
                     </div>
                 )}
+
+                <div className="mb-4 rounded-2xl border border-gray-200/80 bg-gray-50/90 p-5 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <p className="text-xs font-bold uppercase tracking-[0.25em] text-gray-400 dark:text-gray-500">CLI Access</p>
+                            <h2 className="mt-2 text-lg font-bold text-gray-900 dark:text-white">Use this board from your terminal</h2>
+                            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+                                Uvero CLI works with named boards too, so you can send or fetch content without leaving your shell.
+                            </p>
+                        </div>
+                        <Link
+                            to="/cli"
+                            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 dark:border-white/[0.08] dark:bg-white/[0.05] dark:text-gray-200 dark:hover:bg-white/[0.08]"
+                        >
+                            CLI Guide
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                        </Link>
+                    </div>
+
+                    <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,280px)_1fr]">
+                        <div className="rounded-2xl border border-gray-200/80 bg-white/80 p-4 shadow-sm dark:border-white/[0.08] dark:bg-gray-950/40">
+                            <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Install</p>
+                            <code className="mt-3 block overflow-x-auto rounded-xl bg-gray-950 px-3 py-3 text-sm text-cyan-200">
+                                {CLI_INSTALL_COMMAND}
+                            </code>
+                        </div>
+
+                        <div>
+                            <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Board commands</p>
+                            <CliCommandList commands={boardCliCommands} />
+                        </div>
+                    </div>
+                </div>
 
                 <div className={`grid gap-0 ${viewMode === 'split' ? 'grid-cols-2' : ''}`} style={{ minHeight: 'calc(100vh - 180px)' }}>
                     {/* Editor Pane */}

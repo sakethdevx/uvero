@@ -23,6 +23,23 @@ export function getQuickShareCliCommands(code) {
     ]
 }
 
+export function getBoardCliCommands(boardId) {
+    return [
+        {
+            id: 'board-send',
+            label: 'Send to this board',
+            command: `uvero board send ${boardId}`,
+            description: 'Push terminal text directly into this named board.',
+        },
+        {
+            id: 'board-get',
+            label: 'Read this board',
+            command: `uvero board get ${boardId}`,
+            description: 'Fetch the current content of this board from your shell.',
+        },
+    ]
+}
+
 export const CLI_PAGE_COMMANDS = [
     {
         id: 'send',
