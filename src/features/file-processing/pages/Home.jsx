@@ -291,7 +291,7 @@ export default function Home() {
                             <a href="#quick-convert" className="btn-primary w-full sm:w-auto px-10 py-4 text-lg">
                                 Get Started
                             </a>
-                            <Link to="/privacy" className="btn-secondary w-full sm:w-auto px-10 py-4 text-lg text-white border-white/20 hover:bg-white/10">
+                            <Link to="/privacy" className="w-full sm:w-auto px-10 py-4 text-lg font-semibold rounded-2xl border border-white/20 bg-white/5 text-white transition-colors hover:bg-white/10 hover:border-white/30">
                                 Privacy Policy
                             </Link>
                         </div>
