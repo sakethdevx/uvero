@@ -12,6 +12,7 @@ import EventDetail from './features/photodrop/pages/EventDetail';
 import InvitePage from './features/photodrop/pages/Invite';
 import Clipboard from './features/clipboard/pages/Clipboard';
 import ClipboardBoard from './features/clipboard/pages/ClipboardBoard';
+import PublicClipboard from './features/clipboard/pages/PublicClipboard';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ResetPassword from './pages/ResetPassword';
@@ -351,6 +352,7 @@ function AppContent() {
           <Route path="/photodrop/:id" element={<EventDetail />} />
           <Route path="/clipboard" element={<Clipboard />} />
           <Route path="/clipboard/:boardId" element={<ClipboardBoard />} />
+          <Route path="/c/:code" element={<PublicClipboard />} />
           <Route path="/invite/:token" element={<InvitePage />} />
           <Route path="/:toolId" element={<ToolPage />} />
           <Route path="/privacy" element={<Privacy />} />
