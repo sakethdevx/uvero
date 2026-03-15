@@ -204,7 +204,7 @@ export default async function handler(req, res) {
 
             if (!boardId) return res.status(400).json({ error: 'Missing board/code parameter' })
 
-            // Look up metadata to determine which branch to delete from
+            // Look up metadata to determine which storage namespace to delete from
             const delMeta = await findClipboardBoard(supabase, {
                 boardId,
                 type: boardType,

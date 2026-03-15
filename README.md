@@ -47,7 +47,7 @@ Instant text sharing — no login required.
   - Burn after read & auto-expiry (1h to 30d)
   - QR code sharing
   - Auto-save & download (.txt, .md, .py, .js, etc.)
-- **Separated storage** — Public and private board data stored on different GitHub branches (`public_boards` / `private_boards`)
+- **Separated storage** — Public and private board data stored in separate GitHub repositories
 - Metadata tracked in Supabase, content stored in GitHub
 
 ---
@@ -102,7 +102,7 @@ uvero/
 │   │   └── clipboard/
 │   │       ├── pages/                   # Clipboard (public), ClipboardBoard (private)
 │   │       ├── api/                     # Clipboard API (CRUD + code assignment)
-│   │       └── services/               # GitHub storage (branch-separated)
+│   │       └── services/               # GitHub storage (repo-separated)
 │   ├── App.jsx                          # Root layout, routing, navigation
 │   ├── main.jsx                         # Entry point
 │   └── index.css                        # Global styles
@@ -142,6 +142,20 @@ The app will be available at `http://localhost:5173`
 ### Environment Variables
 
 Copy `.env.example` to `.env` and fill in the required credentials. See the example file for all available variables.
+
+For clipboard storage, the recommended setup is:
+
+```bash
+CLIPBOARD_PUBLIC_STORAGE_GITHUB_TOKEN=...
+CLIPBOARD_PUBLIC_STORAGE_GITHUB_OWNER=...
+CLIPBOARD_PUBLIC_STORAGE_GITHUB_REPO=clipboard-public-storage
+
+CLIPBOARD_PRIVATE_STORAGE_GITHUB_TOKEN=...
+CLIPBOARD_PRIVATE_STORAGE_GITHUB_OWNER=...
+CLIPBOARD_PRIVATE_STORAGE_GITHUB_REPO=clipboard-private-storage
+```
+
+The clipboard storage service will fall back to the older shared `CLIPBOARD_STORAGE_GITHUB_*` vars if you have not finished migrating yet.
 
 ### Maintenance Mode
 
