@@ -1,6 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 import { saveBoard, getBoard, deleteBoard } from '../services/clipboardGithubStorage.js'
 import { assignPublicCode } from '../services/publicCodeService.js'
+import {
+    deleteClipboardBoardMeta,
+    findClipboardBoard,
+    isValidClipboardBoardType,
+    normalizeClipboardBoardId,
+    normalizeClipboardBoardType,
+    sanitizePrivateClipboardBoardId
+} from './clipboardBoardStore.js'
 import crypto from 'crypto'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
@@ -20,26 +28,31 @@ export default async function handler(req, res) {
     try {
         // ── GET: Retrieve a board ──
         if (req.method === 'GET') {
-            const { code, board, password } = req.query || {}
-            let boardId = code || board
+            const { code, board, password, type } = req.query || {}
+            if (type && !isValidClipboardBoardType(type)) {
+                return res.status(400).json({ error: 'Invalid board type' })
+            }
+            const boardType = code
+                ? 'public'
+                : normalizeClipboardBoardType(type, 'private')
+            const boardId = normalizeClipboardBoardId(code || board)
+
             if (!boardId) return res.status(400).json({ error: 'Missing code or board parameter' })
-            // Normalize to lowercase for case-insensitive board name lookup
-            boardId = boardId.toLowerCase()
 
             // Check metadata in Supabase
-            const { data: meta } = await supabase
-                .from('clipboard_boards')
-                .select('*')
-                .eq('id', boardId)
-                .single()
+            const meta = await findClipboardBoard(supabase, { boardId, type: boardType })
 
             if (!meta) return res.status(404).json({ error: 'Board not found' })
 
             // Check expiration
             if (meta.expires_at && new Date(meta.expires_at) < new Date()) {
                 // Board expired — clean up
-                try { await deleteBoard(boardId, meta.type) } catch (e) { }
-                await supabase.from('clipboard_boards').delete().eq('id', boardId)
+                try {
+                    await deleteBoard(boardId, meta.type)
+                } catch (cleanupError) {
+                    console.warn('[api/clipboard] Failed to delete expired board content', boardId, meta.type, cleanupError)
+                }
+                await deleteClipboardBoardMeta(supabase, { boardId, type: meta.type })
                 return res.status(410).json({ error: 'Board has expired' })
             }
 
@@ -59,8 +72,12 @@ export default async function handler(req, res) {
 
             // Burn after read — delete after successful retrieval
             if (meta.burn_after_read) {
-                try { await deleteBoard(boardId, meta.type) } catch (e) { }
-                await supabase.from('clipboard_boards').delete().eq('id', boardId)
+                try {
+                    await deleteBoard(boardId, meta.type)
+                } catch (cleanupError) {
+                    console.warn('[api/clipboard] Failed to delete burn-after-read board content', boardId, meta.type, cleanupError)
+                }
+                await deleteClipboardBoardMeta(supabase, { boardId, type: meta.type })
             }
 
             return res.status(200).json({
@@ -87,18 +104,23 @@ export default async function handler(req, res) {
                 return res.status(400).json({ error: 'Missing content' })
             }
 
+            if (!isValidClipboardBoardType(type)) {
+                return res.status(400).json({ error: 'Invalid board type' })
+            }
+            const boardType = normalizeClipboardBoardType(type)
+
             let boardId = requestedBoardId
             let isUpdate = false
 
-            if (type === 'public') {
+            if (boardType === 'public') {
+                boardId = normalizeClipboardBoardId(boardId)
                 if (boardId) {
                     // Check if this board exists (update scenario)
-                    const { data: existing } = await supabase
-                        .from('clipboard_boards')
-                        .select('id')
-                        .eq('id', boardId)
-                        .eq('type', 'public')
-                        .single()
+                    const existing = await findClipboardBoard(supabase, {
+                        boardId,
+                        type: 'public',
+                        columns: 'id'
+                    })
 
                     if (existing) {
                         isUpdate = true
@@ -115,14 +137,17 @@ export default async function handler(req, res) {
                     return res.status(400).json({ error: 'Private boards require a boardId (name)' })
                 }
                 // Sanitize board name
-                boardId = boardId.toLowerCase().replace(/[^a-z0-9\-_]/g, '-').slice(0, 100)
+                boardId = sanitizePrivateClipboardBoardId(boardId)
+                if (!boardId) {
+                    return res.status(400).json({ error: 'Private board name is invalid after sanitization' })
+                }
 
                 // Check if already exists
-                const { data: existing } = await supabase
-                    .from('clipboard_boards')
-                    .select('id')
-                    .eq('id', boardId)
-                    .single()
+                const existing = await findClipboardBoard(supabase, {
+                    boardId,
+                    type: 'private',
+                    columns: 'id'
+                })
 
                 if (existing) isUpdate = true
             }
@@ -137,12 +162,12 @@ export default async function handler(req, res) {
             }
 
             // Save content to GitHub
-            await saveBoard(boardId, content, { language, type }, type)
+            await saveBoard(boardId, content, { language, type: boardType }, boardType)
 
             // Upsert metadata in Supabase
             const metaRow = {
                 id: boardId,
-                type,
+                type: boardType,
                 language,
                 has_password: !!password,
                 password_hash: password ? hashPassword(password) : null,
@@ -154,7 +179,7 @@ export default async function handler(req, res) {
 
             const { error: upsertError } = await supabase
                 .from('clipboard_boards')
-                .upsert(metaRow, { onConflict: 'id' })
+                .upsert(metaRow, { onConflict: 'type,id' })
 
             if (upsertError) {
                 console.error('Supabase upsert error', upsertError)
@@ -162,28 +187,33 @@ export default async function handler(req, res) {
             }
 
             return res.status(isUpdate ? 200 : 201).json({
-                data: { id: boardId, type, isUpdate }
+                data: { id: boardId, type: boardType, isUpdate }
             })
         }
 
         // ── DELETE: Delete a board ──
         if (req.method === 'DELETE') {
-            const { board, code } = req.query || {}
-            let boardId = board || code
+            const { board, code, type } = req.query || {}
+            if (type && !isValidClipboardBoardType(type)) {
+                return res.status(400).json({ error: 'Invalid board type' })
+            }
+            const boardType = code
+                ? 'public'
+                : normalizeClipboardBoardType(type, 'private')
+            const boardId = normalizeClipboardBoardId(code || board)
+
             if (!boardId) return res.status(400).json({ error: 'Missing board/code parameter' })
-            // Normalize to lowercase for case-insensitive board name lookup
-            boardId = boardId.toLowerCase()
 
             // Look up metadata to determine which branch to delete from
-            const { data: delMeta } = await supabase
-                .from('clipboard_boards')
-                .select('type')
-                .eq('id', boardId)
-                .single()
-            const delType = delMeta?.type || 'public'
+            const delMeta = await findClipboardBoard(supabase, {
+                boardId,
+                type: boardType,
+                columns: 'type'
+            })
+            const delType = delMeta?.type || boardType
 
             try { await deleteBoard(boardId, delType) } catch (e) { console.warn('GitHub delete failed', e) }
-            await supabase.from('clipboard_boards').delete().eq('id', boardId)
+            await deleteClipboardBoardMeta(supabase, { boardId, type: delType })
 
             return res.status(200).json({ success: true })
         }

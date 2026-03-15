@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { findClipboardBoard } from './clipboardBoardStore.js'
 import crypto from 'crypto'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
@@ -26,11 +27,11 @@ export default async function handler(req, res) {
         let board = null
         for (let i = 0; i < 10; i++) {
             const candidate = generateBoardName()
-            const { data: existing } = await supabase
-                .from('clipboard_boards')
-                .select('id')
-                .eq('id', candidate)
-                .single()
+            const existing = await findClipboardBoard(supabase, {
+                boardId: candidate,
+                type: 'private',
+                columns: 'id'
+            })
             if (!existing) {
                 board = candidate
                 break

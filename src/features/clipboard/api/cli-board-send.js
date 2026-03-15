@@ -1,5 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 import { saveBoard } from '../services/clipboardGithubStorage.js'
+import {
+    applyClipboardBoardFilters,
+    findClipboardBoard,
+    normalizeClipboardBoardId
+} from './clipboardBoardStore.js'
 import crypto from 'crypto'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
@@ -23,13 +28,9 @@ export default async function handler(req, res) {
         }
         if (content === undefined || content === null) return res.status(400).json({ success: false, error: 'Missing content' })
 
-        const boardId = board.toLowerCase()
+        const boardId = normalizeClipboardBoardId(board)
 
-        const { data: meta } = await supabase
-            .from('clipboard_boards')
-            .select('*')
-            .eq('id', boardId)
-            .single()
+        const meta = await findClipboardBoard(supabase, { boardId, type: 'private' })
 
         if (!meta) return res.status(404).json({ success: false, error: 'Board not found' })
 
@@ -42,10 +43,15 @@ export default async function handler(req, res) {
 
         await saveBoard(boardId, content, { type: meta.type }, meta.type)
 
-        await supabase
-            .from('clipboard_boards')
-            .update({ updated_at: new Date().toISOString() })
-            .eq('id', boardId)
+        const { error: updateError } = await applyClipboardBoardFilters(
+            supabase.from('clipboard_boards').update({ updated_at: new Date().toISOString() }),
+            { boardId, type: 'private' }
+        )
+
+        if (updateError) {
+            console.error('[cli-board-send] Supabase update error', updateError)
+            return res.status(500).json({ success: false, error: 'Failed to update board metadata' })
+        }
 
         return res.status(200).json({ success: true, data: { board: boardId } })
     } catch (err) {

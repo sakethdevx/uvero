@@ -1,5 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 import { getBoard, deleteBoard } from '../services/clipboardGithubStorage.js'
+import {
+    deleteClipboardBoardMeta,
+    findClipboardBoard,
+    normalizeClipboardBoardId
+} from './clipboardBoardStore.js'
 import crypto from 'crypto'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
@@ -15,20 +20,16 @@ export default async function handler(req, res) {
     if (!SUPABASE_SERVICE_KEY) return res.status(500).json({ success: false, error: 'Missing server config' })
 
     try {
-        const boardId = (req.query.board || '').toLowerCase()
+        const boardId = normalizeClipboardBoardId(req.query.board)
         if (!boardId) return res.status(400).json({ success: false, error: 'Missing board' })
 
-        const { data: meta } = await supabase
-            .from('clipboard_boards')
-            .select('*')
-            .eq('id', boardId)
-            .single()
+        const meta = await findClipboardBoard(supabase, { boardId, type: 'private' })
 
         if (!meta) return res.status(404).json({ success: false, error: 'Board not found' })
 
         if (meta.expires_at && new Date(meta.expires_at) < new Date()) {
             try { await deleteBoard(boardId, meta.type) } catch (e) { console.warn('[cli-board-get] GitHub delete failed for expired board', boardId, e) }
-            await supabase.from('clipboard_boards').delete().eq('id', boardId)
+            await deleteClipboardBoardMeta(supabase, { boardId, type: meta.type })
             return res.status(410).json({ success: false, error: 'Board has expired' })
         }
 
@@ -47,7 +48,7 @@ export default async function handler(req, res) {
 
         if (meta.burn_after_read) {
             try { await deleteBoard(boardId, meta.type) } catch (e) { console.warn('[cli-board-get] GitHub delete failed for burn-after-read board', boardId, e) }
-            await supabase.from('clipboard_boards').delete().eq('id', boardId)
+            await deleteClipboardBoardMeta(supabase, { boardId, type: meta.type })
         }
 
         return res.status(200).json({
