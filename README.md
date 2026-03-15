@@ -155,8 +155,6 @@ CLIPBOARD_PRIVATE_STORAGE_GITHUB_OWNER=...
 CLIPBOARD_PRIVATE_STORAGE_GITHUB_REPO=clipboard-private-storage
 ```
 
-The clipboard storage service will fall back to the older shared `CLIPBOARD_STORAGE_GITHUB_*` vars if you have not finished migrating yet.
-
 ### Maintenance Mode
 
 If you need to pause the product during database or storage work, enable maintenance mode before deploying:

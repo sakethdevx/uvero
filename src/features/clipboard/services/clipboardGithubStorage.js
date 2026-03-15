@@ -8,14 +8,14 @@ import { Buffer } from 'buffer'
 
 const REPO_CONFIGS = {
     public: {
-        token: process.env.CLIPBOARD_PUBLIC_STORAGE_GITHUB_TOKEN || process.env.CLIPBOARD_STORAGE_GITHUB_TOKEN,
-        owner: process.env.CLIPBOARD_PUBLIC_STORAGE_GITHUB_OWNER || process.env.CLIPBOARD_STORAGE_GITHUB_OWNER,
-        repo: process.env.CLIPBOARD_PUBLIC_STORAGE_GITHUB_REPO || process.env.CLIPBOARD_STORAGE_GITHUB_REPO,
+        token: process.env.CLIPBOARD_PUBLIC_STORAGE_GITHUB_TOKEN,
+        owner: process.env.CLIPBOARD_PUBLIC_STORAGE_GITHUB_OWNER,
+        repo: process.env.CLIPBOARD_PUBLIC_STORAGE_GITHUB_REPO,
     },
     private: {
-        token: process.env.CLIPBOARD_PRIVATE_STORAGE_GITHUB_TOKEN || process.env.CLIPBOARD_STORAGE_GITHUB_TOKEN,
-        owner: process.env.CLIPBOARD_PRIVATE_STORAGE_GITHUB_OWNER || process.env.CLIPBOARD_STORAGE_GITHUB_OWNER,
-        repo: process.env.CLIPBOARD_PRIVATE_STORAGE_GITHUB_REPO || process.env.CLIPBOARD_STORAGE_GITHUB_REPO,
+        token: process.env.CLIPBOARD_PRIVATE_STORAGE_GITHUB_TOKEN,
+        owner: process.env.CLIPBOARD_PRIVATE_STORAGE_GITHUB_OWNER,
+        repo: process.env.CLIPBOARD_PRIVATE_STORAGE_GITHUB_REPO,
     }
 }
 
