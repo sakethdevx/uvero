@@ -9,7 +9,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       useCredentials: true,
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['logo.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'Uvero - Free Online File Tools',
         short_name: 'Uvero',

@@ -50,7 +50,7 @@ export default async function handler(req, res) {
         }
 
         const proto = req.headers['x-forwarded-proto'] || 'https'
-        const host = req.headers.host || 'uvero.com'
+        const host = req.headers.host || 'uvero.app'
 
         return res.status(201).json({
             success: true,
