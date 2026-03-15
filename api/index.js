@@ -1,11 +1,18 @@
 // Router that receives rewrites from Vercel: /api/:path* -> /api?path=:path*
 // It dispatches to handlers in src/features/*/api based on the original subpath.
 
+import { getMaintenanceConfig, sendMaintenanceResponse } from './maintenance.js'
+
 export default async function handler(req, res) {
     try {
         const url = new URL(req.url, `http://${req.headers.host}`)
         const forwarded = url.searchParams.get('path') || '' // original subpath from rewrite
         const originalPath = forwarded ? `/api/${forwarded}` : '/api'
+        const maintenance = getMaintenanceConfig()
+
+        if (maintenance.enabled) {
+            return sendMaintenanceResponse(res, maintenance)
+        }
 
         // map originalPath to handlers
         if (originalPath === '/api/create-profile') {
@@ -152,4 +159,3 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: String(err?.message || err) })
     }
 }
-

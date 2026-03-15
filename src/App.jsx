@@ -18,9 +18,11 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
+import Maintenance from './pages/Maintenance';
 import { useAuth } from './auth/AuthContext';
 import { signOut } from './auth/authService';
 import { getToolById } from './features/file-processing/tools';
+import { getMaintenanceConfig } from './config/maintenance';
 
 /**
  * Main App Component
@@ -465,6 +467,12 @@ function AppContent() {
 }
 
 function App() {
+  const maintenance = getMaintenanceConfig();
+
+  if (maintenance.enabled) {
+    return <Maintenance config={maintenance} />;
+  }
+
   return (
     <Router>
       <ModeProvider>
