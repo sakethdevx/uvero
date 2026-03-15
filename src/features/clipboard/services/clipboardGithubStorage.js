@@ -1,36 +1,47 @@
+/* global process */
+
 // GitHub storage service for Online Clipboard
-// Stores board content as text files in a private GitHub repo
-// Uses CLIPBOARD_STORAGE_GITHUB_* env vars (separate from PhotoDrop)
-// Public and private boards are stored on separate branches
+// Stores board content as text files in dedicated GitHub repos.
+// Public and private boards use separate repo configs.
 
 import { Buffer } from 'buffer'
 
-const GITHUB_TOKEN = process.env.CLIPBOARD_STORAGE_GITHUB_TOKEN
-const GITHUB_OWNER = process.env.CLIPBOARD_STORAGE_GITHUB_OWNER
-const GITHUB_REPO = process.env.CLIPBOARD_STORAGE_GITHUB_REPO
-const GITHUB_PUBLIC_BRANCH = process.env.CLIPBOARD_STORAGE_GITHUB_PUBLIC_BRANCH || 'public_boards'
-const GITHUB_PRIVATE_BRANCH = process.env.CLIPBOARD_STORAGE_GITHUB_PRIVATE_BRANCH || 'private_boards'
-
-if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
-    console.warn('Clipboard GitHub storage env vars are not set (CLIPBOARD_STORAGE_GITHUB_TOKEN etc)')
+const REPO_CONFIGS = {
+    public: {
+        token: process.env.CLIPBOARD_PUBLIC_STORAGE_GITHUB_TOKEN,
+        owner: process.env.CLIPBOARD_PUBLIC_STORAGE_GITHUB_OWNER,
+        repo: process.env.CLIPBOARD_PUBLIC_STORAGE_GITHUB_REPO,
+    },
+    private: {
+        token: process.env.CLIPBOARD_PRIVATE_STORAGE_GITHUB_TOKEN,
+        owner: process.env.CLIPBOARD_PRIVATE_STORAGE_GITHUB_OWNER,
+        repo: process.env.CLIPBOARD_PRIVATE_STORAGE_GITHUB_REPO,
+    }
 }
 
-/**
- * Get the target branch for a given board type.
- */
-function branchForType(type) {
-    return type === 'private' ? GITHUB_PRIVATE_BRANCH : GITHUB_PUBLIC_BRANCH
+if (!REPO_CONFIGS.public.token || !REPO_CONFIGS.public.owner || !REPO_CONFIGS.public.repo) {
+    console.warn('Public clipboard GitHub storage env vars are not fully set')
 }
 
-function apiUrl(path) {
-    return `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${encodeURI(path)}`
+if (!REPO_CONFIGS.private.token || !REPO_CONFIGS.private.owner || !REPO_CONFIGS.private.repo) {
+    console.warn('Private clipboard GitHub storage env vars are not fully set')
 }
 
-const headers = () => ({
-    Authorization: `token ${GITHUB_TOKEN}`,
-    'Content-Type': 'application/json',
-    'User-Agent': 'uvero-clipboard'
-})
+function repoConfigForType(type) {
+    return type === 'private' ? REPO_CONFIGS.private : REPO_CONFIGS.public
+}
+
+function apiUrl({ owner, repo }, path) {
+    return `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURI(path)}`
+}
+
+function headers(token) {
+    return {
+        Authorization: `token ${token}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'uvero-clipboard'
+    }
+}
 
 /**
  * Save board content to GitHub.
@@ -39,11 +50,13 @@ const headers = () => ({
  * @param {string} boardId
  * @param {string} content
  * @param {object} metadata
- * @param {string} type - 'public' or 'private', determines which branch to use
+ * @param {string} type - 'public' or 'private', determines which repo to use
  */
 async function saveBoard(boardId, content, metadata = {}, type = 'public') {
-    if (!GITHUB_TOKEN) throw new Error('Missing CLIPBOARD_STORAGE_GITHUB_TOKEN')
-    const branch = branchForType(type)
+    const repoConfig = repoConfigForType(type)
+    if (!repoConfig.token || !repoConfig.owner || !repoConfig.repo) {
+        throw new Error(`Missing GitHub storage config for ${type} clipboard boards`)
+    }
     const path = `boards/${boardId}.json`
     const payload = JSON.stringify({ content, metadata, updated_at: new Date().toISOString() })
     const base64 = Buffer.from(payload).toString('base64')
@@ -51,28 +64,27 @@ async function saveBoard(boardId, content, metadata = {}, type = 'public') {
     // Check if file already exists to get SHA (required for updates)
     let sha = null
     try {
-        const existingRes = await fetch(apiUrl(path) + `?ref=${encodeURIComponent(branch)}`, {
+        const existingRes = await fetch(apiUrl(repoConfig, path), {
             method: 'GET',
-            headers: headers()
+            headers: headers(repoConfig.token)
         })
         if (existingRes.ok) {
             const existing = await existingRes.json()
             sha = existing.sha
         }
-    } catch (e) {
+    } catch {
         // File doesn't exist yet, that's fine
     }
 
     const body = {
         message: sha ? `update board: ${boardId}` : `create board: ${boardId}`,
         content: base64,
-        branch,
         ...(sha ? { sha } : {})
     }
 
-    const res = await fetch(apiUrl(path), {
+    const res = await fetch(apiUrl(repoConfig, path), {
         method: 'PUT',
-        headers: headers(),
+        headers: headers(repoConfig.token),
         body: JSON.stringify(body)
     })
 
@@ -88,17 +100,19 @@ async function saveBoard(boardId, content, metadata = {}, type = 'public') {
  * Get board content from GitHub.
  * Returns { content, metadata } or null if not found.
  * @param {string} boardId
- * @param {string} type - 'public' or 'private', determines which branch to use
+ * @param {string} type - 'public' or 'private', determines which repo to use
  */
 async function getBoard(boardId, type = 'public') {
-    if (!GITHUB_TOKEN) throw new Error('Missing CLIPBOARD_STORAGE_GITHUB_TOKEN')
-    const branch = branchForType(type)
+    const repoConfig = repoConfigForType(type)
+    if (!repoConfig.token || !repoConfig.owner || !repoConfig.repo) {
+        throw new Error(`Missing GitHub storage config for ${type} clipboard boards`)
+    }
     const path = `boards/${boardId}.json`
 
-    const res = await fetch(apiUrl(path) + `?ref=${encodeURIComponent(branch)}`, {
+    const res = await fetch(apiUrl(repoConfig, path), {
         method: 'GET',
         headers: {
-            ...headers(),
+            ...headers(repoConfig.token),
             Accept: 'application/vnd.github.v3.raw'
         }
     })
@@ -120,17 +134,19 @@ async function getBoard(boardId, type = 'public') {
 /**
  * Delete board content from GitHub.
  * @param {string} boardId
- * @param {string} type - 'public' or 'private', determines which branch to use
+ * @param {string} type - 'public' or 'private', determines which repo to use
  */
 async function deleteBoard(boardId, type = 'public') {
-    if (!GITHUB_TOKEN) throw new Error('Missing CLIPBOARD_STORAGE_GITHUB_TOKEN')
-    const branch = branchForType(type)
+    const repoConfig = repoConfigForType(type)
+    if (!repoConfig.token || !repoConfig.owner || !repoConfig.repo) {
+        throw new Error(`Missing GitHub storage config for ${type} clipboard boards`)
+    }
     const path = `boards/${boardId}.json`
 
     // Get SHA first
-    const metaRes = await fetch(apiUrl(path) + `?ref=${encodeURIComponent(branch)}`, {
+    const metaRes = await fetch(apiUrl(repoConfig, path), {
         method: 'GET',
-        headers: headers()
+        headers: headers(repoConfig.token)
     })
     if (!metaRes.ok) {
         if (metaRes.status === 404) return true // already gone
@@ -139,13 +155,12 @@ async function deleteBoard(boardId, type = 'public') {
     }
     const meta = await metaRes.json()
 
-    const res = await fetch(apiUrl(path), {
+    const res = await fetch(apiUrl(repoConfig, path), {
         method: 'DELETE',
-        headers: headers(),
+        headers: headers(repoConfig.token),
         body: JSON.stringify({
             message: `delete board: ${boardId}`,
-            sha: meta.sha,
-            branch
+            sha: meta.sha
         })
     })
 
