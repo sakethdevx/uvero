@@ -42,7 +42,7 @@ export default async function handler(req, res) {
             expires_at: null,
             updated_at: new Date().toISOString(),
             created_at: new Date().toISOString()
-        }, { onConflict: 'id' })
+        }, { onConflict: 'type,id' })
 
         if (upsertError) {
             console.error('[cli-send] Supabase upsert error', upsertError)

@@ -70,7 +70,7 @@ export default function ClipboardBoard() {
         setLoading(true)
         setError('')
         try {
-            const url = `/api/clipboard?board=${encodeURIComponent(boardId)}${pwd ? `&password=${encodeURIComponent(pwd)}` : ''}`
+            const url = `/api/clipboard?board=${encodeURIComponent(boardId)}&type=private${pwd ? `&password=${encodeURIComponent(pwd)}` : ''}`
             const resp = await fetch(url)
             const data = await resp.json()
 
@@ -176,7 +176,7 @@ export default function ClipboardBoard() {
     async function deleteBoard() {
         if (!window.confirm('Delete this board permanently?')) return
         try {
-            await fetch(`/api/clipboard?board=${encodeURIComponent(boardId)}`, { method: 'DELETE' })
+            await fetch(`/api/clipboard?board=${encodeURIComponent(boardId)}&type=private`, { method: 'DELETE' })
             window.location.href = '/clipboard'
         } catch (e) { console.error('Delete failed', e) }
     }

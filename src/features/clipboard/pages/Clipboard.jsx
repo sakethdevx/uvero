@@ -129,7 +129,14 @@ export default function Clipboard() {
     function handleGoToBoard(e) {
         e.preventDefault()
         if (!boardName.trim()) return
-        const slug = boardName.trim().toLowerCase().replace(/[^a-z0-9\-_]/g, '-').replace(/-+/g, '-').slice(0, 100)
+        const slug = boardName
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9\-_]/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-+|-+$/g, '')
+            .slice(0, 100)
+        if (!slug) return
         navigate(`/clipboard/${slug}`)
     }
 

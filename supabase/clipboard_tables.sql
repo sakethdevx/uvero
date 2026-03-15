@@ -2,15 +2,16 @@
 -- Tracks board codes/names, type, settings, and timestamps for LRU recycling
 
 CREATE TABLE IF NOT EXISTS clipboard_boards (
-  id TEXT PRIMARY KEY,                -- 4-digit code (public) or custom name (private)
   type TEXT NOT NULL DEFAULT 'public', -- 'public' or 'private'
+  id TEXT NOT NULL,                   -- 4-digit code (public) or custom name (private)
   language TEXT DEFAULT 'plaintext',
   has_password BOOLEAN DEFAULT false,
   password_hash TEXT,
   burn_after_read BOOLEAN DEFAULT false,
   expires_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  PRIMARY KEY (type, id)
 );
 
 -- Index for finding the oldest public board (LRU recycling)

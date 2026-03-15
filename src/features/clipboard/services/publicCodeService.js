@@ -31,7 +31,7 @@ export async function assignPublicCode() {
         if (oldest && oldest.length > 0) {
             const recycledCode = oldest[0].id
             try { await deleteBoard(recycledCode, 'public') } catch (e) { console.warn('[publicCodeService] Failed to delete recycled board from GitHub', e) }
-            await supabase.from('clipboard_boards').delete().eq('id', recycledCode)
+            await supabase.from('clipboard_boards').delete().eq('type', 'public').eq('id', recycledCode)
             return recycledCode
         }
     }
