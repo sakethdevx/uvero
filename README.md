@@ -143,6 +143,24 @@ The app will be available at `http://localhost:5173`
 
 Copy `.env.example` to `.env` and fill in the required credentials. See the example file for all available variables.
 
+### Maintenance Mode
+
+If you need to pause the product during database or storage work, enable maintenance mode before deploying:
+
+```bash
+VITE_MAINTENANCE_MODE=true
+VITE_MAINTENANCE_TITLE="Uvero is getting a careful tune-up"
+VITE_MAINTENANCE_MESSAGE="We are updating core systems right now so your next session feels stable and smooth."
+VITE_MAINTENANCE_ETA="Back in about 15 minutes"
+VITE_MAINTENANCE_DETAILS="New sessions, uploads, clipboard updates, and data changes are temporarily paused during maintenance."
+MAINTENANCE_RETRY_AFTER=300
+```
+
+This shows a dedicated maintenance page in the web app and makes the shared API router return `503 Service Unavailable` with a `Retry-After` header.
+
+Operational note:
+`VITE_*` values are baked into the frontend build, so the simplest env-var approach works best when you redeploy with the flag enabled or disabled. If you later want instant toggles without a rebuild, move the maintenance flag to a runtime config source.
+
 ### Build for Production
 
 ```bash
