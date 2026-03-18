@@ -181,6 +181,28 @@ create index if not exists idx_split_reminders_group_id on public.split_reminder
 create index if not exists idx_split_reminders_to_member on public.split_reminders(to_member_id, status);
 
 -- =====================================================
+-- GROUP RECOVERY CODES (PHASE 4)
+-- =====================================================
+
+create table if not exists public.split_group_recovery_codes (
+  id uuid primary key default gen_random_uuid(),
+  group_id uuid not null references public.split_groups(id) on delete cascade,
+  code_hash text not null,
+  code_hint text,
+  created_by_member_id uuid not null references public.split_group_members(id) on delete restrict,
+  used_by_user_id uuid references auth.users(id) on delete set null,
+  expires_at timestamptz,
+  used_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create unique index if not exists idx_split_group_recovery_codes_hash
+  on public.split_group_recovery_codes(code_hash);
+
+create index if not exists idx_split_group_recovery_codes_group
+  on public.split_group_recovery_codes(group_id);
+
+-- =====================================================
 -- UPDATED_AT TRIGGER
 -- =====================================================
 
@@ -224,6 +246,7 @@ alter table public.split_settlements enable row level security;
 alter table public.split_expense_receipts enable row level security;
 alter table public.split_settlement_payment_proofs enable row level security;
 alter table public.split_reminders enable row level security;
+alter table public.split_group_recovery_codes enable row level security;
 
 drop policy if exists "Service role full access - split_groups" on public.split_groups;
 create policy "Service role full access - split_groups" on public.split_groups
@@ -255,4 +278,8 @@ create policy "Service role full access - split_settlement_payment_proofs" on pu
 
 drop policy if exists "Service role full access - split_reminders" on public.split_reminders;
 create policy "Service role full access - split_reminders" on public.split_reminders
+  for all using (true) with check (true);
+
+drop policy if exists "Service role full access - split_group_recovery_codes" on public.split_group_recovery_codes;
+create policy "Service role full access - split_group_recovery_codes" on public.split_group_recovery_codes
   for all using (true) with check (true);

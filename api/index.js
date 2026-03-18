@@ -106,6 +106,21 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/split/claim-guest') {
+            const mod = await import('../src/features/split-expense/api/claim-guest.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/split/recovery-code') {
+            const mod = await import('../src/features/split-expense/api/recovery-code.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/split/recover') {
+            const mod = await import('../src/features/split-expense/api/recover.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/split/export') {
             const mod = await import('../src/features/split-expense/api/export.js')
             return mod.default(req, res)

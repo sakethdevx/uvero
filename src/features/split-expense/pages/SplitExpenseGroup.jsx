@@ -78,6 +78,9 @@ export default function SplitExpenseGroup() {
     const [proofSaving, setProofSaving] = useState('')
     const [proofReviewLoading, setProofReviewLoading] = useState('')
     const [reminderLoading, setReminderLoading] = useState('')
+    const [recoveryCodeLoading, setRecoveryCodeLoading] = useState(false)
+    const [generatedRecoveryCode, setGeneratedRecoveryCode] = useState('')
+    const [generatedRecoveryExpiry, setGeneratedRecoveryExpiry] = useState('')
 
     const [profileForm, setProfileForm] = useState({
         display_name: '',
@@ -648,6 +651,40 @@ export default function SplitExpenseGroup() {
         }
     }
 
+    async function generateRecoveryCode() {
+        setRecoveryCodeLoading(true)
+        setError('')
+
+        try {
+            const response = await splitApiRequest('/api/split/recovery-code', {
+                method: 'POST',
+                user,
+                body: {
+                    group_id: groupId,
+                    expires_in_days: 30
+                }
+            })
+
+            setGeneratedRecoveryCode(response?.data?.code || '')
+            setGeneratedRecoveryExpiry(response?.data?.expires_at || '')
+        } catch (err) {
+            setError(err.message || 'Failed to generate recovery code')
+        } finally {
+            setRecoveryCodeLoading(false)
+        }
+    }
+
+    async function copyGeneratedRecoveryCode() {
+        if (!generatedRecoveryCode) return
+
+        try {
+            await navigator.clipboard.writeText(generatedRecoveryCode)
+            window.alert('Recovery code copied')
+        } catch {
+            window.alert('Failed to copy recovery code')
+        }
+    }
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center text-gray-500 dark:text-gray-400">
@@ -704,7 +741,36 @@ export default function SplitExpenseGroup() {
                                 >
                                     {exportLoading ? 'Exporting...' : 'Export CSV'}
                                 </button>
+                                {currentMember?.role === 'owner' && (
+                                    <button
+                                        onClick={generateRecoveryCode}
+                                        disabled={recoveryCodeLoading}
+                                        className="text-xs font-semibold text-amber-700 dark:text-amber-300 hover:underline disabled:opacity-60"
+                                    >
+                                        {recoveryCodeLoading ? 'Generating...' : 'Generate Recovery Code'}
+                                    </button>
+                                )}
                             </div>
+
+                            {generatedRecoveryCode && (
+                                <div className="mt-3 rounded-lg border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-2.5">
+                                    <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">Recovery code (save securely)</p>
+                                    <div className="mt-1 flex flex-wrap items-center gap-2">
+                                        <span className="font-black tracking-wider text-sm text-amber-800 dark:text-amber-200">{generatedRecoveryCode}</span>
+                                        <button
+                                            onClick={copyGeneratedRecoveryCode}
+                                            className="text-xs font-semibold text-amber-800 dark:text-amber-200 hover:underline"
+                                        >
+                                            Copy
+                                        </button>
+                                    </div>
+                                    {generatedRecoveryExpiry && (
+                                        <p className="mt-1 text-[11px] text-amber-700 dark:text-amber-300">
+                                            Expires on {new Date(generatedRecoveryExpiry).toLocaleString()}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
 
