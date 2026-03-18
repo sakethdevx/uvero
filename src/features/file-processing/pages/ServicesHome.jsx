@@ -58,6 +58,23 @@ const services = [
         link: '/clipboard',
         cta: 'Try Now',
     },
+    {
+        id: 'trip-split',
+        name: 'TripSplit',
+        tagline: 'Split expenses without friction',
+        description: 'Create trip groups, add shared expenses, auto-calculate who owes whom, and settle instantly using UPI IDs, mobile numbers, or QR payment references.',
+        features: ['Equal / Exact / % / Shares', 'UPI Deep Links', 'Guest + Signed-In Support', 'Smart Settle-Up Suggestions'],
+        icon: (
+            <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 1.12-3 2.5S10.343 13 12 13s3 1.12 3 2.5S13.657 18 12 18m0-10V6m0 12v-2m9-4.5c0 4.971-4.03 9-9 9s-9-4.029-9-9 4.03-9 9-9 9 4.029 9 9z" />
+            </svg>
+        ),
+        gradient: 'from-emerald-500 via-teal-500 to-cyan-600',
+        lightGradient: 'from-emerald-50 via-teal-50 to-cyan-50',
+        accentColor: 'emerald',
+        link: '/split-expense',
+        cta: 'Split Now',
+    },
 ];
 
 const platformFeatures = [
