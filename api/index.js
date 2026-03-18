@@ -91,6 +91,37 @@ export default async function handler(req, res) {
         }
 
 
+        if (originalPath === '/api/split/groups') {
+            const mod = await import('../src/features/split-expense/api/groups.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/split/join') {
+            const mod = await import('../src/features/split-expense/api/join.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/split/group') {
+            const mod = await import('../src/features/split-expense/api/group.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/split/members') {
+            const mod = await import('../src/features/split-expense/api/members.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/split/expenses') {
+            const mod = await import('../src/features/split-expense/api/expenses.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/split/settlements') {
+            const mod = await import('../src/features/split-expense/api/settlements.js')
+            return mod.default(req, res)
+        }
+
+
 
         if (originalPath === '/api/upload-image') {
             const mod = await import('../src/features/photodrop/api/upload-image.js')

@@ -52,6 +52,19 @@ Instant text sharing — no login required.
 
 ---
 
+### 💸 TripSplit (Expense Sharing)
+
+Splitwise-style expense management for trips and shared plans.
+
+- Create groups and invite friends with shareable invite codes
+- Add expenses with smart split modes: equal, exact, percentage, shares
+- Auto-calculate balances and suggest minimal settlement transfers
+- Save payment details per member: UPI ID, mobile, QR URL, payment note
+- 1-tap UPI payment deep links with app references (GPay, PhonePe, Paytm, BHIM)
+- Supports both signed-in users and guest sessions (guest mode has limits)
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -194,6 +207,8 @@ npm run preview
 | `/invite/:token` | Accept event invite |
 | `/clipboard` | Online Clipboard (quick share + board entry) |
 | `/clipboard/:boardId` | Private clipboard board |
+| `/split-expense` | TripSplit groups home |
+| `/split-expense/:groupId` | TripSplit group details |
 | `/login` | Sign in |
 | `/signup` | Sign up |
 | `/reset-password` | Password reset |
