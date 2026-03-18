@@ -121,6 +121,11 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/split/recover-guest') {
+            const mod = await import('../src/features/split-expense/api/recover-guest.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/split/export') {
             const mod = await import('../src/features/split-expense/api/export.js')
             return mod.default(req, res)

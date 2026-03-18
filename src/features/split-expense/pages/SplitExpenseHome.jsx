@@ -30,6 +30,7 @@ export default function SplitExpenseHome() {
 
     const [createLoading, setCreateLoading] = useState(false)
     const [joinLoading, setJoinLoading] = useState(false)
+    const [recoverLoading, setRecoverLoading] = useState(false)
 
     const [groupName, setGroupName] = useState('')
     const [groupDescription, setGroupDescription] = useState('')
@@ -37,6 +38,9 @@ export default function SplitExpenseHome() {
 
     const [joinCode, setJoinCode] = useState('')
     const [joinDisplayName, setJoinDisplayName] = useState('')
+    const [recoverInviteCode, setRecoverInviteCode] = useState('')
+    const [recoverCode, setRecoverCode] = useState('')
+    const [recoverDisplayName, setRecoverDisplayName] = useState('')
 
     const isGuest = !user
 
@@ -139,6 +143,46 @@ export default function SplitExpenseHome() {
                 next.delete('join')
                 return next
             })
+        }
+    }
+
+    async function handleGuestRecover(event) {
+        event?.preventDefault?.()
+        if (!isGuest) {
+            setError('Guest recovery is available only in guest mode')
+            return
+        }
+
+        if (!recoverInviteCode.trim() || !recoverCode.trim()) {
+            setError('Invite code and recovery code are required')
+            return
+        }
+
+        setRecoverLoading(true)
+        setError('')
+
+        try {
+            const response = await splitApiRequest('/api/split/recover-guest', {
+                method: 'POST',
+                user,
+                body: {
+                    invite_code: recoverInviteCode,
+                    recovery_code: recoverCode,
+                    display_name: recoverDisplayName
+                }
+            })
+
+            const recoveredGroupId = response?.data?.group?.id
+            if (recoveredGroupId) {
+                navigate(`/split-expense/${recoveredGroupId}`)
+                return
+            }
+
+            await loadGroups()
+        } catch (err) {
+            setError(err.message || 'Failed to recover group in guest mode')
+        } finally {
+            setRecoverLoading(false)
         }
     }
 
@@ -265,6 +309,48 @@ export default function SplitExpenseHome() {
                             >
                                 {joinLoading ? 'Joining...' : 'Join group'}
                             </button>
+
+                            {isGuest && (
+                                <div className="pt-2">
+                                    <div className="my-3 h-px bg-gray-200 dark:bg-white/10" />
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">Recover with code (guest mode)</p>
+                                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                        Use this when your previous guest browser session is lost.
+                                    </p>
+
+                                    <div className="mt-3 space-y-3">
+                                        <input
+                                            value={recoverInviteCode}
+                                            onChange={event => setRecoverInviteCode(event.target.value.toUpperCase())}
+                                            placeholder="Invite code"
+                                            className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-3 py-2.5 text-sm uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                                        />
+
+                                        <input
+                                            value={recoverCode}
+                                            onChange={event => setRecoverCode(event.target.value.toUpperCase())}
+                                            placeholder="Recovery code"
+                                            className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-3 py-2.5 text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                                        />
+
+                                        <input
+                                            value={recoverDisplayName}
+                                            onChange={event => setRecoverDisplayName(event.target.value)}
+                                            placeholder="Display name (optional)"
+                                            className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                                        />
+
+                                        <button
+                                            type="button"
+                                            onClick={handleGuestRecover}
+                                            disabled={recoverLoading}
+                                            className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold shadow hover:opacity-95 disabled:opacity-60"
+                                        >
+                                            {recoverLoading ? 'Recovering...' : 'Recover as guest'}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </form>
                 </div>

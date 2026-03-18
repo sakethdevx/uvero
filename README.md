@@ -63,7 +63,7 @@ Splitwise-style expense management for trips and shared plans.
 - 1-tap UPI payment deep links with app references (GPay, PhonePe, Paytm, BHIM)
 - Supports both signed-in users and guest sessions (guest mode has limits)
 - Phase 3: Export complete group records as CSV (expenses, settlements, payment proofs, reminders)
-- Phase 4: Claim guest data after sign-in and recover groups with invite + one-time recovery code
+- Phase 4: Claim guest data after sign-in, or recover as guest using invite + one-time recovery code
 
 ---
 
