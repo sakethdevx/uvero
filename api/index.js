@@ -106,6 +106,11 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/split/export') {
+            const mod = await import('../src/features/split-expense/api/export.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/split/members') {
             const mod = await import('../src/features/split-expense/api/members.js')
             return mod.default(req, res)

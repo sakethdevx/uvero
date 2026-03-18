@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../../../auth/AuthContext'
-import { splitApiRequest } from '../api/client'
+import { splitApiDownload, splitApiRequest } from '../api/client'
 import { formatPaise } from '../shared/splitLogic'
 
 const SPLIT_MODES = [
@@ -73,6 +73,7 @@ export default function SplitExpenseGroup() {
     const [profileSaving, setProfileSaving] = useState(false)
     const [expenseSaving, setExpenseSaving] = useState(false)
     const [settlementLoading, setSettlementLoading] = useState('')
+    const [exportLoading, setExportLoading] = useState(false)
     const [receiptSaving, setReceiptSaving] = useState('')
     const [proofSaving, setProofSaving] = useState('')
     const [proofReviewLoading, setProofReviewLoading] = useState('')
@@ -630,6 +631,23 @@ export default function SplitExpenseGroup() {
         }
     }
 
+    async function exportGroupReport() {
+        setExportLoading(true)
+        setError('')
+
+        try {
+            await splitApiDownload(`/api/split/export?group_id=${encodeURIComponent(groupId)}`, {
+                method: 'GET',
+                user,
+                fileNameFallback: `tripsplit-${groupId}.csv`
+            })
+        } catch (err) {
+            setError(err.message || 'Failed to export group report')
+        } finally {
+            setExportLoading(false)
+        }
+    }
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center text-gray-500 dark:text-gray-400">
@@ -678,6 +696,13 @@ export default function SplitExpenseGroup() {
                                     className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
                                 >
                                     Copy
+                                </button>
+                                <button
+                                    onClick={exportGroupReport}
+                                    disabled={exportLoading}
+                                    className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:underline disabled:opacity-60"
+                                >
+                                    {exportLoading ? 'Exporting...' : 'Export CSV'}
                                 </button>
                             </div>
                         </div>
