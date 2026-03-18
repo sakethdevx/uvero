@@ -128,6 +128,19 @@ export default async function handler(req, res) {
             shares = shareRows || []
         }
 
+        let receipts = []
+        if (expenseIds.length) {
+            const { data: receiptRows, error: receiptError } = await supabase
+                .from('split_expense_receipts')
+                .select('*')
+                .eq('group_id', groupId)
+                .in('expense_id', expenseIds)
+                .order('created_at', { ascending: false })
+
+            if (receiptError) throw receiptError
+            receipts = receiptRows || []
+        }
+
         const { data: settlements, error: settlementError } = await supabase
             .from('split_settlements')
             .select('*')
@@ -136,6 +149,30 @@ export default async function handler(req, res) {
             .order('created_at', { ascending: false })
 
         if (settlementError) throw settlementError
+
+        const settlementIds = (settlements || []).map(settlement => settlement.id)
+
+        let paymentProofs = []
+        if (settlementIds.length) {
+            const { data: proofRows, error: proofError } = await supabase
+                .from('split_settlement_payment_proofs')
+                .select('*')
+                .eq('group_id', groupId)
+                .in('settlement_id', settlementIds)
+                .order('created_at', { ascending: false })
+
+            if (proofError) throw proofError
+            paymentProofs = proofRows || []
+        }
+
+        const { data: reminders, error: remindersError } = await supabase
+            .from('split_reminders')
+            .select('*')
+            .eq('group_id', groupId)
+            .order('created_at', { ascending: false })
+            .limit(200)
+
+        if (remindersError) throw remindersError
 
         const membersById = (members || []).reduce((acc, member) => {
             acc[member.id] = member
@@ -167,7 +204,10 @@ export default async function handler(req, res) {
                 members,
                 expenses,
                 shares,
+                receipts,
                 settlements,
+                payment_proofs: paymentProofs,
+                reminders,
                 ledger: {
                     ...ledger,
                     balances,

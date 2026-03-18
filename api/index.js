@@ -116,8 +116,23 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/split/receipts') {
+            const mod = await import('../src/features/split-expense/api/receipts.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/split/settlements') {
             const mod = await import('../src/features/split-expense/api/settlements.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/split/payment-proofs') {
+            const mod = await import('../src/features/split-expense/api/payment-proofs.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/split/reminders') {
+            const mod = await import('../src/features/split-expense/api/reminders.js')
             return mod.default(req, res)
         }
 

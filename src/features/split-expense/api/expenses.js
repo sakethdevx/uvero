@@ -7,6 +7,38 @@ import {
     sendApiError
 } from './_server.js'
 
+function normalizeTitle(value) {
+    return String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+}
+
+function mapReceiptInsertPayload({ receipt, groupId, expenseId, actorMemberId }) {
+    const fileUrl = String(receipt?.file_url || '').trim()
+    if (!fileUrl) return null
+
+    const hasOcrOutput = !!(receipt?.ocr_text || receipt?.ocr_payload)
+    const ocrRequested = !!receipt?.ocr_requested
+
+    let ocrStatus = 'not_requested'
+    if (hasOcrOutput) ocrStatus = 'completed'
+    else if (ocrRequested) ocrStatus = 'pending'
+
+    return {
+        group_id: groupId,
+        expense_id: expenseId,
+        uploaded_by_member_id: actorMemberId,
+        file_url: fileUrl,
+        file_name: receipt?.file_name ? String(receipt.file_name).slice(0, 200) : null,
+        ocr_status: ocrStatus,
+        ocr_text: receipt?.ocr_text ? String(receipt.ocr_text).slice(0, 10000) : null,
+        ocr_payload: receipt?.ocr_payload && typeof receipt.ocr_payload === 'object'
+            ? receipt.ocr_payload
+            : null
+    }
+}
+
 function normalizeParticipants(rawParticipants, allMembers) {
     if (!Array.isArray(rawParticipants) || !rawParticipants.length) {
         return allMembers.map(member => ({ member_id: member.id }))
@@ -91,7 +123,9 @@ export default async function handler(req, res) {
             split_mode: splitModeInput = 'equal',
             paid_by_member_id: paidByMemberIdInput,
             participants: rawParticipants,
-            incurred_on: incurredOn
+            incurred_on: incurredOn,
+            allow_duplicate: allowDuplicate = false,
+            receipt = null
         } = req.body || {}
 
         if (!groupId) throw createHttpError(400, 'group_id is required')
@@ -114,6 +148,7 @@ export default async function handler(req, res) {
         }
 
         const splitMode = String(splitModeInput || 'equal').trim().toLowerCase()
+        const normalizedTitle = normalizeTitle(title)
         const amountPaise = amountPaiseInput !== undefined && amountPaiseInput !== null
             ? Math.round(Number(amountPaiseInput))
             : toPaise(amount)
@@ -145,9 +180,30 @@ export default async function handler(req, res) {
 
         const memberIdSet = new Set(members.map(member => member.id))
         const paidByMemberId = paidByMemberIdInput || actorMember.id
+        const normalizedIncurredOn = incurredOn || new Date().toISOString().slice(0, 10)
 
         if (!memberIdSet.has(paidByMemberId)) {
             throw createHttpError(400, 'paid_by_member_id does not belong to this group')
+        }
+
+        const { data: possibleDuplicates, error: duplicateQueryError } = await supabase
+            .from('split_expenses')
+            .select('id, title, amount_paise, incurred_on, paid_by_member_id, created_at')
+            .eq('group_id', groupId)
+            .eq('amount_paise', amountPaise)
+            .eq('incurred_on', normalizedIncurredOn)
+            .eq('paid_by_member_id', paidByMemberId)
+            .order('created_at', { ascending: false })
+            .limit(12)
+
+        if (duplicateQueryError) throw duplicateQueryError
+
+        const duplicateExpense = (possibleDuplicates || []).find(row => normalizeTitle(row.title) === normalizedTitle)
+        if (duplicateExpense && !allowDuplicate) {
+            return res.status(409).json({
+                error: 'Possible duplicate expense detected for same payer, amount, date and title',
+                duplicate_expense: duplicateExpense
+            })
         }
 
         const normalizedParticipants = normalizeParticipants(rawParticipants, members)
@@ -178,7 +234,7 @@ export default async function handler(req, res) {
                     currency: String(currency || 'INR').toUpperCase().slice(0, 6),
                     split_mode: splitMode,
                     paid_by_member_id: paidByMemberId,
-                    incurred_on: incurredOn || new Date().toISOString().slice(0, 10),
+                    incurred_on: normalizedIncurredOn,
                     created_by_member_id: actorMember.id
                 }
             ])
@@ -206,10 +262,34 @@ export default async function handler(req, res) {
             throw insertSharesError
         }
 
+        const receiptInsert = mapReceiptInsertPayload({
+            receipt,
+            groupId,
+            expenseId: expense.id,
+            actorMemberId: actorMember.id
+        })
+
+        let insertedReceipt = null
+        if (receiptInsert) {
+            const { data: receiptRow, error: receiptError } = await supabase
+                .from('split_expense_receipts')
+                .insert([receiptInsert])
+                .select('*')
+                .maybeSingle()
+
+            if (receiptError) {
+                await supabase.from('split_expenses').delete().eq('id', expense.id)
+                throw receiptError
+            }
+
+            insertedReceipt = receiptRow
+        }
+
         return res.status(201).json({
             data: {
                 expense,
-                shares: insertedShares || []
+                shares: insertedShares || [],
+                receipt: insertedReceipt
             }
         })
     } catch (error) {

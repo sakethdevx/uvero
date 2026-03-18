@@ -73,6 +73,10 @@ export default function SplitExpenseGroup() {
     const [profileSaving, setProfileSaving] = useState(false)
     const [expenseSaving, setExpenseSaving] = useState(false)
     const [settlementLoading, setSettlementLoading] = useState('')
+    const [receiptSaving, setReceiptSaving] = useState('')
+    const [proofSaving, setProofSaving] = useState('')
+    const [proofReviewLoading, setProofReviewLoading] = useState('')
+    const [reminderLoading, setReminderLoading] = useState('')
 
     const [profileForm, setProfileForm] = useState({
         display_name: '',
@@ -88,16 +92,25 @@ export default function SplitExpenseGroup() {
         paid_by_member_id: '',
         split_mode: 'equal',
         note: '',
-        incurred_on: new Date().toISOString().slice(0, 10)
+        incurred_on: new Date().toISOString().slice(0, 10),
+        receipt_file_url: '',
+        receipt_file_name: '',
+        receipt_ocr_requested: false,
+        receipt_ocr_text: ''
     })
 
     const [selectedMembers, setSelectedMembers] = useState([])
     const [splitInputs, setSplitInputs] = useState({})
+    const [receiptDrafts, setReceiptDrafts] = useState({})
+    const [proofDrafts, setProofDrafts] = useState({})
 
     const members = useMemo(() => data?.members || [], [data?.members])
     const expenses = useMemo(() => data?.expenses || [], [data?.expenses])
     const shares = useMemo(() => data?.shares || [], [data?.shares])
     const settlements = useMemo(() => data?.settlements || [], [data?.settlements])
+    const receipts = useMemo(() => data?.receipts || [], [data?.receipts])
+    const paymentProofs = useMemo(() => data?.payment_proofs || [], [data?.payment_proofs])
+    const reminders = useMemo(() => data?.reminders || [], [data?.reminders])
 
     const membersById = useMemo(() => {
         return members.reduce((acc, member) => {
@@ -113,6 +126,22 @@ export default function SplitExpenseGroup() {
             return acc
         }, {})
     }, [shares])
+
+    const receiptsByExpenseId = useMemo(() => {
+        return receipts.reduce((acc, row) => {
+            if (!acc[row.expense_id]) acc[row.expense_id] = []
+            acc[row.expense_id].push(row)
+            return acc
+        }, {})
+    }, [receipts])
+
+    const paymentProofsBySettlementId = useMemo(() => {
+        return paymentProofs.reduce((acc, row) => {
+            if (!acc[row.settlement_id]) acc[row.settlement_id] = []
+            acc[row.settlement_id].push(row)
+            return acc
+        }, {})
+    }, [paymentProofs])
 
     const balances = data?.ledger?.balances || []
     const suggestedSettlements = data?.ledger?.suggested_settlements || []
@@ -161,6 +190,90 @@ export default function SplitExpenseGroup() {
     useEffect(() => {
         loadGroup()
     }, [loadGroup])
+
+    function updateReceiptDraft(expenseId, patch) {
+        setReceiptDrafts(prev => ({
+            ...prev,
+            [expenseId]: {
+                ...(prev[expenseId] || {
+                    file_url: '',
+                    file_name: '',
+                    ocr_requested: false,
+                    ocr_text: ''
+                }),
+                ...patch
+            }
+        }))
+    }
+
+    function updateProofDraft(settlementId, patch) {
+        setProofDrafts(prev => ({
+            ...prev,
+            [settlementId]: {
+                ...(prev[settlementId] || {
+                    file_url: '',
+                    file_name: '',
+                    note: ''
+                }),
+                ...patch
+            }
+        }))
+    }
+
+    function formatDateTime(value) {
+        if (!value) return ''
+        const date = new Date(value)
+        if (Number.isNaN(date.getTime())) return String(value)
+        return date.toLocaleString()
+    }
+
+    function buildExpenseRequestBody(allowDuplicate = false) {
+        const participants = selectedMembers.map(memberId => {
+            const base = { member_id: memberId }
+
+            if (expenseForm.split_mode === 'exact') {
+                base.amount = Number(splitInputs[memberId] || 0)
+            }
+
+            if (expenseForm.split_mode === 'percentage') {
+                base.percentage = Number(splitInputs[memberId] || 0)
+            }
+
+            if (expenseForm.split_mode === 'shares') {
+                base.share_units = Number(splitInputs[memberId] || 0)
+            }
+
+            return base
+        })
+
+        const receiptFileUrl = String(expenseForm.receipt_file_url || '').trim()
+
+        const body = {
+            group_id: groupId,
+            title: expenseForm.title,
+            amount: Number(expenseForm.amount),
+            paid_by_member_id: expenseForm.paid_by_member_id,
+            split_mode: expenseForm.split_mode,
+            note: expenseForm.note,
+            incurred_on: expenseForm.incurred_on,
+            participants
+        }
+
+        if (allowDuplicate) {
+            body.allow_duplicate = true
+        }
+
+        if (receiptFileUrl) {
+            body.receipt = {
+                file_url: receiptFileUrl,
+                file_name: String(expenseForm.receipt_file_name || '').trim() || null,
+                ocr_requested: !!expenseForm.receipt_ocr_requested,
+                ocr_text: String(expenseForm.receipt_ocr_text || '').trim() || null
+            }
+        }
+
+        return body
+    }
 
     function onSplitModeChange(nextMode) {
         const memberIds = members.map(member => member.id)
@@ -223,44 +336,50 @@ export default function SplitExpenseGroup() {
         setError('')
 
         try {
-            const participants = selectedMembers.map(memberId => {
-                const base = { member_id: memberId }
+            const submitExpense = async allowDuplicate => {
+                await splitApiRequest('/api/split/expenses', {
+                    method: 'POST',
+                    user,
+                    body: buildExpenseRequestBody(allowDuplicate)
+                })
+            }
 
-                if (expenseForm.split_mode === 'exact') {
-                    base.amount = Number(splitInputs[memberId] || 0)
+            try {
+                await submitExpense(false)
+            } catch (err) {
+                const possibleDuplicate = err?.status === 409 && err?.payload?.duplicate_expense
+                if (!possibleDuplicate) {
+                    throw err
                 }
 
-                if (expenseForm.split_mode === 'percentage') {
-                    base.percentage = Number(splitInputs[memberId] || 0)
+                const duplicate = err.payload.duplicate_expense
+                const duplicateDetails = [
+                    `Title: ${duplicate.title}`,
+                    `Amount: ${formatPaise(duplicate.amount_paise, data?.group?.currency || 'INR')}`,
+                    `Date: ${duplicate.incurred_on}`
+                ].join('\n')
+
+                const continueWithDuplicate = window.confirm(
+                    `Possible duplicate expense found:\n\n${duplicateDetails}\n\nAdd this expense anyway?`
+                )
+
+                if (!continueWithDuplicate) {
+                    setError('Expense creation cancelled to avoid duplicate entry')
+                    return
                 }
 
-                if (expenseForm.split_mode === 'shares') {
-                    base.share_units = Number(splitInputs[memberId] || 0)
-                }
-
-                return base
-            })
-
-            await splitApiRequest('/api/split/expenses', {
-                method: 'POST',
-                user,
-                body: {
-                    group_id: groupId,
-                    title: expenseForm.title,
-                    amount: Number(expenseForm.amount),
-                    paid_by_member_id: expenseForm.paid_by_member_id,
-                    split_mode: expenseForm.split_mode,
-                    note: expenseForm.note,
-                    incurred_on: expenseForm.incurred_on,
-                    participants
-                }
-            })
+                await submitExpense(true)
+            }
 
             setExpenseForm(prev => ({
                 ...prev,
                 title: '',
                 amount: '',
-                note: ''
+                note: '',
+                receipt_file_url: '',
+                receipt_file_name: '',
+                receipt_ocr_requested: false,
+                receipt_ocr_text: ''
             }))
 
             await loadGroup()
@@ -290,6 +409,46 @@ export default function SplitExpenseGroup() {
             await loadGroup()
         } catch (err) {
             setError(err.message || 'Failed to delete expense')
+        }
+    }
+
+    async function attachReceipt(expenseId) {
+        const draft = receiptDrafts[expenseId] || {}
+        const fileUrl = String(draft.file_url || '').trim()
+
+        if (!fileUrl) {
+            setError('Receipt file URL is required')
+            return
+        }
+
+        setReceiptSaving(expenseId)
+        setError('')
+
+        try {
+            await splitApiRequest('/api/split/receipts', {
+                method: 'POST',
+                user,
+                body: {
+                    group_id: groupId,
+                    expense_id: expenseId,
+                    file_url: fileUrl,
+                    file_name: String(draft.file_name || '').trim() || null,
+                    ocr_requested: !!draft.ocr_requested,
+                    ocr_text: String(draft.ocr_text || '').trim() || null
+                }
+            })
+
+            setReceiptDrafts(prev => {
+                const next = { ...prev }
+                delete next[expenseId]
+                return next
+            })
+
+            await loadGroup()
+        } catch (err) {
+            setError(err.message || 'Failed to attach receipt')
+        } finally {
+            setReceiptSaving('')
         }
     }
 
@@ -338,6 +497,125 @@ export default function SplitExpenseGroup() {
             setError(err.message || 'Failed to update settlement')
         } finally {
             setSettlementLoading('')
+        }
+    }
+
+    async function submitPaymentProof(settlementId) {
+        const draft = proofDrafts[settlementId] || {}
+        const fileUrl = String(draft.file_url || '').trim()
+
+        if (!fileUrl) {
+            setError('Payment proof URL is required')
+            return
+        }
+
+        setProofSaving(settlementId)
+        setError('')
+
+        try {
+            await splitApiRequest('/api/split/payment-proofs', {
+                method: 'POST',
+                user,
+                body: {
+                    group_id: groupId,
+                    settlement_id: settlementId,
+                    file_url: fileUrl,
+                    file_name: String(draft.file_name || '').trim() || null,
+                    note: String(draft.note || '').trim() || null
+                }
+            })
+
+            setProofDrafts(prev => {
+                const next = { ...prev }
+                delete next[settlementId]
+                return next
+            })
+
+            await loadGroup()
+        } catch (err) {
+            setError(err.message || 'Failed to submit payment proof')
+        } finally {
+            setProofSaving('')
+        }
+    }
+
+    async function reviewPaymentProof(paymentProofId, proofStatus) {
+        setProofReviewLoading(paymentProofId + proofStatus)
+        setError('')
+
+        try {
+            await splitApiRequest('/api/split/payment-proofs', {
+                method: 'PATCH',
+                user,
+                body: {
+                    group_id: groupId,
+                    payment_proof_id: paymentProofId,
+                    proof_status: proofStatus
+                }
+            })
+
+            await loadGroup()
+        } catch (err) {
+            setError(err.message || 'Failed to update payment proof')
+        } finally {
+            setProofReviewLoading('')
+        }
+    }
+
+    async function sendReminder(settlement, customMessage = '') {
+        if (!settlement?.id) return
+
+        setReminderLoading(settlement.id)
+        setError('')
+
+        try {
+            const fromMember = membersById[settlement.from_member_id]
+            const toMember = membersById[settlement.to_member_id]
+            const amountLabel = formatPaise(settlement.amount_paise, settlement.currency || data?.group?.currency || 'INR')
+
+            const message = String(customMessage || '').trim() ||
+                `Hi ${fromMember?.display_name || 'there'}, reminder to settle ${amountLabel} to ${toMember?.display_name || 'member'}.`
+
+            await splitApiRequest('/api/split/reminders', {
+                method: 'POST',
+                user,
+                body: {
+                    group_id: groupId,
+                    settlement_id: settlement.id,
+                    to_member_id: settlement.from_member_id,
+                    message,
+                    channel: 'in_app'
+                }
+            })
+
+            await loadGroup()
+        } catch (err) {
+            setError(err.message || 'Failed to send reminder')
+        } finally {
+            setReminderLoading('')
+        }
+    }
+
+    async function updateReminderStatus(reminderId, status) {
+        setReminderLoading(reminderId + status)
+        setError('')
+
+        try {
+            await splitApiRequest('/api/split/reminders', {
+                method: 'PATCH',
+                user,
+                body: {
+                    group_id: groupId,
+                    reminder_id: reminderId,
+                    status
+                }
+            })
+
+            await loadGroup()
+        } catch (err) {
+            setError(err.message || 'Failed to update reminder')
+        } finally {
+            setReminderLoading('')
         }
     }
 
@@ -535,6 +813,45 @@ export default function SplitExpenseGroup() {
                                 />
                             </div>
 
+                            <div className="mt-4 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/40 p-3">
+                                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Receipt (optional)</p>
+                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Attach proof now and include OCR metadata if available.</p>
+
+                                <div className="mt-3 grid md:grid-cols-2 gap-2">
+                                    <input
+                                        value={expenseForm.receipt_file_url}
+                                        onChange={event => setExpenseForm(prev => ({ ...prev, receipt_file_url: event.target.value }))}
+                                        placeholder="Receipt file URL"
+                                        className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                    />
+                                    <input
+                                        value={expenseForm.receipt_file_name}
+                                        onChange={event => setExpenseForm(prev => ({ ...prev, receipt_file_name: event.target.value }))}
+                                        placeholder="Receipt file name"
+                                        className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                    />
+                                </div>
+
+                                <div className="mt-2">
+                                    <label className="inline-flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+                                        <input
+                                            type="checkbox"
+                                            checked={expenseForm.receipt_ocr_requested}
+                                            onChange={event => setExpenseForm(prev => ({ ...prev, receipt_ocr_requested: event.target.checked }))}
+                                        />
+                                        OCR requested for this receipt
+                                    </label>
+                                </div>
+
+                                <textarea
+                                    value={expenseForm.receipt_ocr_text}
+                                    onChange={event => setExpenseForm(prev => ({ ...prev, receipt_ocr_text: event.target.value }))}
+                                    placeholder="OCR extracted text (optional)"
+                                    rows={2}
+                                    className="mt-2 w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                />
+                            </div>
+
                             <button
                                 type="submit"
                                 disabled={expenseSaving}
@@ -558,6 +875,13 @@ export default function SplitExpenseGroup() {
                                         const payer = membersById[expense.paid_by_member_id]
                                         const expenseShares = sharesByExpenseId[expense.id] || []
                                         const creator = membersById[expense.created_by_member_id]
+                                        const expenseReceipts = receiptsByExpenseId[expense.id] || []
+                                        const receiptDraft = receiptDrafts[expense.id] || {
+                                            file_url: '',
+                                            file_name: '',
+                                            ocr_requested: false,
+                                            ocr_text: ''
+                                        }
 
                                         return (
                                             <div key={expense.id} className="rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.03] p-4">
@@ -601,6 +925,79 @@ export default function SplitExpenseGroup() {
                                                             </span>
                                                         </span>
                                                     ))}
+                                                </div>
+
+                                                <div className="mt-3 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 p-3">
+                                                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Receipts</p>
+
+                                                    {expenseReceipts.length === 0 ? (
+                                                        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">No receipt attached yet.</p>
+                                                    ) : (
+                                                        <div className="mt-2 space-y-2">
+                                                            {expenseReceipts.map(receipt => (
+                                                                <div key={receipt.id} className="rounded-md border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/40 p-2">
+                                                                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                                                                        <a
+                                                                            href={receipt.file_url}
+                                                                            target="_blank"
+                                                                            rel="noreferrer"
+                                                                            className="font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                                                                        >
+                                                                            {receipt.file_name || 'Open receipt'}
+                                                                        </a>
+                                                                        <span className="rounded-full border border-gray-300 dark:border-white/15 px-2 py-0.5 text-[11px] uppercase tracking-wider text-gray-600 dark:text-gray-300">
+                                                                            OCR: {receipt.ocr_status}
+                                                                        </span>
+                                                                    </div>
+                                                                    {receipt.ocr_text && (
+                                                                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 line-clamp-3">{receipt.ocr_text}</p>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+
+                                                    <div className="mt-3 grid md:grid-cols-2 gap-2">
+                                                        <input
+                                                            value={receiptDraft.file_url}
+                                                            onChange={event => updateReceiptDraft(expense.id, { file_url: event.target.value })}
+                                                            placeholder="Receipt file URL"
+                                                            className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                                        />
+                                                        <input
+                                                            value={receiptDraft.file_name}
+                                                            onChange={event => updateReceiptDraft(expense.id, { file_name: event.target.value })}
+                                                            placeholder="Receipt file name"
+                                                            className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                                        />
+                                                    </div>
+
+                                                    <textarea
+                                                        value={receiptDraft.ocr_text}
+                                                        onChange={event => updateReceiptDraft(expense.id, { ocr_text: event.target.value })}
+                                                        rows={2}
+                                                        placeholder="OCR text (optional)"
+                                                        className="mt-2 w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                                    />
+
+                                                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                                                        <label className="inline-flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={!!receiptDraft.ocr_requested}
+                                                                onChange={event => updateReceiptDraft(expense.id, { ocr_requested: event.target.checked })}
+                                                            />
+                                                            OCR requested
+                                                        </label>
+
+                                                        <button
+                                                            onClick={() => attachReceipt(expense.id)}
+                                                            disabled={receiptSaving === expense.id}
+                                                            className="inline-flex items-center rounded-lg border border-blue-300 dark:border-blue-500/30 text-blue-700 dark:text-blue-300 text-xs font-semibold px-2.5 py-1.5 disabled:opacity-60"
+                                                        >
+                                                            {receiptSaving === expense.id ? 'Attaching...' : 'Attach receipt'}
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         )
@@ -787,6 +1184,15 @@ export default function SplitExpenseGroup() {
                                         const to = membersById[settlement.to_member_id]
                                         const canConfirm = settlement.status === 'paid' && currentMember?.id === settlement.to_member_id
                                         const canMarkPaid = settlement.status === 'pending' && currentMember?.id === settlement.from_member_id
+                                        const canUploadProof = currentMember?.role === 'owner' || currentMember?.id === settlement.from_member_id
+                                        const canReviewProof = currentMember?.role === 'owner' || currentMember?.id === settlement.to_member_id
+                                        const canSendReminder = currentMember?.role === 'owner' || currentMember?.id === settlement.to_member_id
+                                        const settlementProofs = paymentProofsBySettlementId[settlement.id] || []
+                                        const proofDraft = proofDrafts[settlement.id] || {
+                                            file_url: '',
+                                            file_name: '',
+                                            note: ''
+                                        }
 
                                         return (
                                             <div key={settlement.id} className="rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/40 p-3">
@@ -800,6 +1206,11 @@ export default function SplitExpenseGroup() {
                                                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                             Status: <span className="font-semibold uppercase">{settlement.status}</span>
                                                         </p>
+                                                        {settlement.confirmed_at && (
+                                                            <p className="text-xs text-emerald-600 dark:text-emerald-300 mt-1">
+                                                                Confirmed at {formatDateTime(settlement.confirmed_at)}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                     <span className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">
                                                         {formatPaise(settlement.amount_paise, settlement.currency || data.group.currency)}
@@ -823,6 +1234,165 @@ export default function SplitExpenseGroup() {
                                                             className="inline-flex items-center rounded-lg border border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold px-2.5 py-1.5 disabled:opacity-60"
                                                         >
                                                             Confirm Received
+                                                        </button>
+                                                    )}
+                                                    {canSendReminder && settlement.status !== 'confirmed' && (
+                                                        <button
+                                                            onClick={() => sendReminder(settlement)}
+                                                            disabled={reminderLoading === settlement.id}
+                                                            className="inline-flex items-center rounded-lg border border-amber-300 dark:border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-semibold px-2.5 py-1.5 disabled:opacity-60"
+                                                        >
+                                                            {reminderLoading === settlement.id ? 'Sending...' : 'Send Reminder'}
+                                                        </button>
+                                                    )}
+                                                </div>
+
+                                                <div className="mt-3 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 p-2.5">
+                                                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Payment Proofs</p>
+
+                                                    {settlementProofs.length === 0 ? (
+                                                        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">No payment proof submitted yet.</p>
+                                                    ) : (
+                                                        <div className="mt-2 space-y-2">
+                                                            {settlementProofs.map(proof => {
+                                                                const uploader = membersById[proof.uploaded_by_member_id]
+                                                                const canReviewThisProof = canReviewProof && proof.proof_status === 'submitted'
+
+                                                                return (
+                                                                    <div key={proof.id} className="rounded-md border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/40 p-2">
+                                                                        <div className="flex flex-wrap items-center gap-2 text-xs">
+                                                                            <a
+                                                                                href={proof.file_url}
+                                                                                target="_blank"
+                                                                                rel="noreferrer"
+                                                                                className="font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                                                                            >
+                                                                                {proof.file_name || 'Open proof'}
+                                                                            </a>
+                                                                            <span className="rounded-full border border-gray-300 dark:border-white/15 px-2 py-0.5 uppercase tracking-wider text-[11px] text-gray-600 dark:text-gray-300">
+                                                                                {proof.proof_status}
+                                                                            </span>
+                                                                            <span className="text-gray-500 dark:text-gray-400">
+                                                                                by {uploader?.display_name || 'Member'}
+                                                                            </span>
+                                                                        </div>
+                                                                        {proof.note && (
+                                                                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{proof.note}</p>
+                                                                        )}
+
+                                                                        {canReviewThisProof && (
+                                                                            <div className="mt-2 flex flex-wrap gap-2">
+                                                                                <button
+                                                                                    onClick={() => reviewPaymentProof(proof.id, 'verified')}
+                                                                                    disabled={proofReviewLoading === proof.id + 'verified'}
+                                                                                    className="inline-flex items-center rounded-lg border border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold px-2.5 py-1.5 disabled:opacity-60"
+                                                                                >
+                                                                                    Verify
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={() => reviewPaymentProof(proof.id, 'rejected')}
+                                                                                    disabled={proofReviewLoading === proof.id + 'rejected'}
+                                                                                    className="inline-flex items-center rounded-lg border border-red-300 dark:border-red-500/30 text-red-700 dark:text-red-300 text-xs font-semibold px-2.5 py-1.5 disabled:opacity-60"
+                                                                                >
+                                                                                    Reject
+                                                                                </button>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                )
+                                                            })}
+                                                        </div>
+                                                    )}
+
+                                                    {canUploadProof && settlement.status !== 'confirmed' && (
+                                                        <div className="mt-3 grid gap-2">
+                                                            <input
+                                                                value={proofDraft.file_url}
+                                                                onChange={event => updateProofDraft(settlement.id, { file_url: event.target.value })}
+                                                                placeholder="Payment proof file URL"
+                                                                className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                                            />
+                                                            <div className="grid md:grid-cols-2 gap-2">
+                                                                <input
+                                                                    value={proofDraft.file_name}
+                                                                    onChange={event => updateProofDraft(settlement.id, { file_name: event.target.value })}
+                                                                    placeholder="Proof file name"
+                                                                    className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                                                />
+                                                                <input
+                                                                    value={proofDraft.note}
+                                                                    onChange={event => updateProofDraft(settlement.id, { note: event.target.value })}
+                                                                    placeholder="Proof note"
+                                                                    className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                                                />
+                                                            </div>
+                                                            <button
+                                                                onClick={() => submitPaymentProof(settlement.id)}
+                                                                disabled={proofSaving === settlement.id}
+                                                                className="inline-flex items-center justify-center rounded-lg border border-blue-300 dark:border-blue-500/30 text-blue-700 dark:text-blue-300 text-xs font-semibold px-3 py-1.5 disabled:opacity-60"
+                                                            >
+                                                                {proofSaving === settlement.id ? 'Submitting...' : 'Submit Payment Proof'}
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.03] p-5 shadow-sm">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Reminders</h2>
+                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Track nudges sent to members for pending payments.</p>
+
+                            {reminders.length === 0 ? (
+                                <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">No reminders sent yet.</p>
+                            ) : (
+                                <div className="mt-3 space-y-2">
+                                    {reminders.map(reminder => {
+                                        const from = membersById[reminder.from_member_id]
+                                        const to = membersById[reminder.to_member_id]
+                                        const canAcknowledge = currentMember?.id === reminder.to_member_id
+                                        const canDismiss = canAcknowledge || currentMember?.role === 'owner' || currentMember?.id === reminder.from_member_id
+
+                                        return (
+                                            <div key={reminder.id} className="rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-900/40 p-3">
+                                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                                    <p className="text-sm text-gray-700 dark:text-gray-200">
+                                                        <span className="font-semibold">{from?.display_name || 'Member'}</span>
+                                                        {' '}→{' '}
+                                                        <span className="font-semibold">{to?.display_name || 'Member'}</span>
+                                                    </p>
+                                                    <span className="text-[11px] uppercase tracking-wider rounded-full border border-gray-300 dark:border-white/15 px-2 py-0.5 text-gray-600 dark:text-gray-300">
+                                                        {reminder.status}
+                                                    </span>
+                                                </div>
+
+                                                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{reminder.message}</p>
+                                                <p className="mt-1 text-[11px] text-gray-400 dark:text-gray-500">
+                                                    {reminder.channel.toUpperCase()} • {formatDateTime(reminder.created_at)}
+                                                </p>
+
+                                                <div className="mt-2 flex flex-wrap gap-2">
+                                                    {canAcknowledge && reminder.status !== 'acknowledged' && (
+                                                        <button
+                                                            onClick={() => updateReminderStatus(reminder.id, 'acknowledged')}
+                                                            disabled={reminderLoading === reminder.id + 'acknowledged'}
+                                                            className="inline-flex items-center rounded-lg border border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold px-2.5 py-1.5 disabled:opacity-60"
+                                                        >
+                                                            Acknowledge
+                                                        </button>
+                                                    )}
+
+                                                    {canDismiss && reminder.status !== 'dismissed' && (
+                                                        <button
+                                                            onClick={() => updateReminderStatus(reminder.id, 'dismissed')}
+                                                            disabled={reminderLoading === reminder.id + 'dismissed'}
+                                                            className="inline-flex items-center rounded-lg border border-gray-300 dark:border-white/15 text-gray-700 dark:text-gray-200 text-xs font-semibold px-2.5 py-1.5 disabled:opacity-60"
+                                                        >
+                                                            Dismiss
                                                         </button>
                                                     )}
                                                 </div>

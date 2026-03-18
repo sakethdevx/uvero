@@ -45,7 +45,10 @@ export async function splitApiRequest(path, { method = 'GET', body, user } = {})
     const payload = await response.json().catch(() => ({}))
 
     if (!response.ok) {
-        throw new Error(payload?.error || 'Request failed')
+        const err = new Error(payload?.error || 'Request failed')
+        err.status = response.status
+        err.payload = payload
+        throw err
     }
 
     return payload
