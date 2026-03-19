@@ -1,5 +1,5 @@
 -- =====================================================
--- TripSplit / Split Expense schema for Uvero
+-- PaySplit / Split Expense schema for Uvero
 -- Supports signed-in users + guest sessions
 -- =====================================================
 
@@ -121,7 +121,7 @@ create index if not exists idx_split_settlements_group_id on public.split_settle
 create index if not exists idx_split_settlements_status on public.split_settlements(status);
 
 -- =====================================================
--- EXPENSE RECEIPTS (PHASE 2)
+-- EXPENSE RECEIPTS (PHASE 2 + PHASE 5)
 -- =====================================================
 
 create table if not exists public.split_expense_receipts (
@@ -131,6 +131,12 @@ create table if not exists public.split_expense_receipts (
   uploaded_by_member_id uuid not null references public.split_group_members(id) on delete restrict,
   file_url text not null,
   file_name text,
+  storage_mode text not null default 'external_link' check (storage_mode in ('external_link', 'github_upload')),
+  storage_provider text,
+  storage_path text,
+  source_url text,
+  file_mime_type text,
+  size_bytes bigint,
   ocr_status text not null default 'pending' check (ocr_status in ('pending', 'completed', 'failed', 'not_requested')),
   ocr_text text,
   ocr_payload jsonb,
@@ -139,6 +145,8 @@ create table if not exists public.split_expense_receipts (
 
 create index if not exists idx_split_expense_receipts_group_id on public.split_expense_receipts(group_id);
 create index if not exists idx_split_expense_receipts_expense_id on public.split_expense_receipts(expense_id);
+create index if not exists idx_split_expense_receipts_storage_mode on public.split_expense_receipts(storage_mode);
+create index if not exists idx_split_expense_receipts_storage_provider on public.split_expense_receipts(storage_provider);
 
 -- =====================================================
 -- SETTLEMENT PAYMENT PROOFS (PHASE 2)

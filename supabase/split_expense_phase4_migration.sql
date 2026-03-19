@@ -1,5 +1,5 @@
 -- =====================================================
--- TripSplit Phase 4 migration
+-- PaySplit Phase 4 migration
 -- Guest-to-account claim + invite recovery codes
 -- =====================================================
 

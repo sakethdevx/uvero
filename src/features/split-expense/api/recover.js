@@ -35,7 +35,7 @@ export default async function handler(req, res) {
         const actor = await resolveActor(req, supabase)
 
         if (actor.type !== 'user') {
-            throw createHttpError(403, 'Sign in to recover a TripSplit group')
+            throw createHttpError(403, 'Sign in to recover a PaySplit group')
         }
 
         const {

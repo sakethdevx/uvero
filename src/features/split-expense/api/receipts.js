@@ -5,6 +5,12 @@ import {
     resolveActor,
     sendApiError
 } from './_server.js'
+import {
+    MAX_UPLOAD_BYTES,
+    getDecodedByteLength,
+    normalizeBase64Content,
+    storeReceiptUpload
+} from './receiptsGithubStorage.js'
 
 const OCR_STATUS = new Set(['pending', 'completed', 'failed', 'not_requested'])
 
@@ -30,14 +36,29 @@ export default async function handler(req, res) {
                 expense_id: expenseId,
                 file_url: fileUrlInput,
                 file_name: fileNameInput,
+                file_content: fileContentInput,
+                file_mime_type: fileMimeTypeInput,
                 ocr_requested: ocrRequested = false,
                 ocr_text: ocrText,
                 ocr_payload: ocrPayload
             } = req.body || {}
-
             const fileUrl = String(fileUrlInput || '').trim()
-            if (!groupId || !expenseId || !fileUrl) {
-                throw createHttpError(400, 'group_id, expense_id and file_url are required')
+            const fileContent = normalizeBase64Content(fileContentInput)
+            const hasDirectUpload = !!fileContent
+
+            if (!groupId || !expenseId || !(fileUrl || hasDirectUpload)) {
+                throw createHttpError(400, 'group_id, expense_id and (file_url or file_content) are required')
+            }
+
+            if (hasDirectUpload) {
+                const decodedBytes = getDecodedByteLength(fileContent)
+                if (!Number.isFinite(decodedBytes) || decodedBytes <= 0) {
+                    throw createHttpError(400, 'file_content must be valid base64 data')
+                }
+                if (decodedBytes > MAX_UPLOAD_BYTES) {
+                    const maxMb = Math.max(1, Math.floor(MAX_UPLOAD_BYTES / (1024 * 1024)))
+                    throw createHttpError(413, `Uploaded receipt is too large. Max allowed size is ${maxMb}MB`)
+                }
             }
 
             const actorMember = await requireActorMembership({
@@ -56,6 +77,36 @@ export default async function handler(req, res) {
             if (expenseError) throw expenseError
             if (!expense) throw createHttpError(404, 'Expense not found')
 
+            let persistedFileUrl = fileUrl
+            let persistedFileName = fileNameInput ? String(fileNameInput).trim().slice(0, 200) : null
+            let storageMode = 'external_link'
+            let storageProvider = null
+            let storagePath = null
+            let sourceUrl = fileUrl || null
+            let fileMimeType = fileMimeTypeInput ? String(fileMimeTypeInput).trim().toLowerCase().slice(0, 120) : null
+            let sizeBytes = null
+
+            if (hasDirectUpload) {
+                const uploadResult = await storeReceiptUpload({
+                    groupId,
+                    expenseId,
+                    fileName: persistedFileName,
+                    fileContentBase64: fileContent,
+                    fileMimeType: fileMimeTypeInput
+                })
+
+                persistedFileUrl = uploadResult.url
+                if (!persistedFileName) {
+                    persistedFileName = uploadResult.file_name
+                }
+
+                storageMode = 'github_upload'
+                storageProvider = 'github'
+                storagePath = uploadResult.path
+                sourceUrl = null
+                sizeBytes = uploadResult.size_bytes
+            }
+
             const { data: inserted, error: insertError } = await supabase
                 .from('split_expense_receipts')
                 .insert([
@@ -63,8 +114,14 @@ export default async function handler(req, res) {
                         group_id: groupId,
                         expense_id: expenseId,
                         uploaded_by_member_id: actorMember.id,
-                        file_url: fileUrl,
-                        file_name: fileNameInput ? String(fileNameInput).slice(0, 200) : null,
+                        file_url: persistedFileUrl,
+                        file_name: persistedFileName,
+                        storage_mode: storageMode,
+                        storage_provider: storageProvider,
+                        storage_path: storagePath,
+                        source_url: sourceUrl,
+                        file_mime_type: fileMimeType,
+                        size_bytes: sizeBytes,
                         ocr_status: deriveOcrStatus({ ocrRequested, ocrText, ocrPayload }),
                         ocr_text: ocrText ? String(ocrText).slice(0, 10000) : null,
                         ocr_payload: ocrPayload && typeof ocrPayload === 'object' ? ocrPayload : null

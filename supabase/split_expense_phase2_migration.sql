@@ -1,5 +1,5 @@
 -- =====================================================
--- TripSplit Phase 2 migration (delta after Phase 1)
+-- PaySplit Phase 2 migration (delta after Phase 1)
 -- Safe to run after base split_expense_tables.sql is already applied.
 -- =====================================================
 

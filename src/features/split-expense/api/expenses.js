@@ -6,6 +6,12 @@ import {
     resolveActor,
     sendApiError
 } from './_server.js'
+import {
+    MAX_UPLOAD_BYTES,
+    getDecodedByteLength,
+    normalizeBase64Content,
+    storeReceiptUpload
+} from './receiptsGithubStorage.js'
 
 function normalizeTitle(value) {
     return String(value || '')
@@ -14,8 +20,52 @@ function normalizeTitle(value) {
         .replace(/\s+/g, ' ')
 }
 
-function mapReceiptInsertPayload({ receipt, groupId, expenseId, actorMemberId }) {
-    const fileUrl = String(receipt?.file_url || '').trim()
+async function mapReceiptInsertPayload({ receipt, groupId, expenseId }) {
+    const fileUrlInput = String(receipt?.file_url || '').trim()
+    const fileContent = normalizeBase64Content(receipt?.file_content)
+    const hasDirectUpload = !!fileContent
+
+    if (!fileUrlInput && !hasDirectUpload) return null
+
+    let fileUrl = fileUrlInput
+    let fileName = receipt?.file_name ? String(receipt.file_name).trim().slice(0, 200) : null
+    let storageMode = 'external_link'
+    let storageProvider = null
+    let storagePath = null
+    let sourceUrl = fileUrlInput || null
+    let fileMimeType = receipt?.file_mime_type ? String(receipt.file_mime_type).trim().toLowerCase().slice(0, 120) : null
+    let sizeBytes = null
+
+    if (hasDirectUpload) {
+        const decodedBytes = getDecodedByteLength(fileContent)
+        if (!Number.isFinite(decodedBytes) || decodedBytes <= 0) {
+            throw createHttpError(400, 'receipt.file_content must be valid base64 data')
+        }
+        if (decodedBytes > MAX_UPLOAD_BYTES) {
+            const maxMb = Math.max(1, Math.floor(MAX_UPLOAD_BYTES / (1024 * 1024)))
+            throw createHttpError(413, `Receipt upload exceeds max size of ${maxMb}MB`)
+        }
+
+        const uploadResult = await storeReceiptUpload({
+            groupId,
+            expenseId,
+            fileName,
+            fileContentBase64: fileContent,
+            fileMimeType: receipt?.file_mime_type
+        })
+
+        fileUrl = uploadResult.url
+        if (!fileName) {
+            fileName = uploadResult.file_name
+        }
+
+        storageMode = 'github_upload'
+        storageProvider = 'github'
+        storagePath = uploadResult.path
+        sourceUrl = null
+        sizeBytes = uploadResult.size_bytes
+    }
+
     if (!fileUrl) return null
 
     const hasOcrOutput = !!(receipt?.ocr_text || receipt?.ocr_payload)
@@ -28,9 +78,14 @@ function mapReceiptInsertPayload({ receipt, groupId, expenseId, actorMemberId })
     return {
         group_id: groupId,
         expense_id: expenseId,
-        uploaded_by_member_id: actorMemberId,
         file_url: fileUrl,
-        file_name: receipt?.file_name ? String(receipt.file_name).slice(0, 200) : null,
+        file_name: fileName,
+        storage_mode: storageMode,
+        storage_provider: storageProvider,
+        storage_path: storagePath,
+        source_url: sourceUrl,
+        file_mime_type: fileMimeType,
+        size_bytes: sizeBytes,
         ocr_status: ocrStatus,
         ocr_text: receipt?.ocr_text ? String(receipt.ocr_text).slice(0, 10000) : null,
         ocr_payload: receipt?.ocr_payload && typeof receipt.ocr_payload === 'object'
@@ -262,18 +317,17 @@ export default async function handler(req, res) {
             throw insertSharesError
         }
 
-        const receiptInsert = mapReceiptInsertPayload({
+        const receiptInsert = await mapReceiptInsertPayload({
             receipt,
             groupId,
-            expenseId: expense.id,
-            actorMemberId: actorMember.id
+            expenseId: expense.id
         })
 
         let insertedReceipt = null
         if (receiptInsert) {
             const { data: receiptRow, error: receiptError } = await supabase
                 .from('split_expense_receipts')
-                .insert([receiptInsert])
+                .insert([{ ...receiptInsert, uploaded_by_member_id: actorMember.id }])
                 .select('*')
                 .maybeSingle()
 

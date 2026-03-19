@@ -408,7 +408,7 @@ function AppContent() {
                   { name: 'File Processing', path: '/tools' },
                   { name: 'PhotoDrop', path: '/photodrop' },
                   { name: 'Online Clipboard', path: '/clipboard' },
-                  { name: 'TripSplit', path: '/split-expense' },
+                  { name: 'PaySplit – Split Expenses', path: '/split-expense' },
                   { name: 'Uvero CLI', path: '/cli' },
                   { name: 'Privacy Focus', path: '/privacy' },
                 ].map((link, idx) => (

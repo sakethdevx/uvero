@@ -147,7 +147,7 @@ export default async function handler(req, res) {
                 claimed_memberships: claimedMemberships,
                 merged_groups: mergedGroups,
                 skipped_groups: skippedGroups,
-                message: 'Guest TripSplit data linked to your account'
+                message: 'Guest PaySplit data linked to your account'
             }
         })
     } catch (error) {

@@ -52,7 +52,7 @@ Instant text sharing — no login required.
 
 ---
 
-### 💸 TripSplit (Expense Sharing)
+### 💸 PaySplit – Split Expenses
 
 Splitwise-style expense management for trips and shared plans.
 
@@ -61,6 +61,7 @@ Splitwise-style expense management for trips and shared plans.
 - Auto-calculate balances and suggest minimal settlement transfers
 - Save payment details per member: UPI ID, mobile, QR URL, payment note
 - 1-tap UPI payment deep links with app references (GPay, PhonePe, Paytm, BHIM)
+- Receipts support both privacy-first external links and direct file upload to Uvero-managed GitHub storage
 - Supports both signed-in users and guest sessions (guest mode has limits)
 - Phase 3: Export complete group records as CSV (expenses, settlements, payment proofs, reminders)
 - Phase 4: Claim guest data after sign-in, or recover as guest using invite + one-time recovery code
@@ -170,6 +171,22 @@ CLIPBOARD_PRIVATE_STORAGE_GITHUB_OWNER=...
 CLIPBOARD_PRIVATE_STORAGE_GITHUB_REPO=clipboard-private-storage
 ```
 
+For PaySplit receipt uploads, configure a dedicated repository:
+
+```bash
+PAYSPLIT_RECEIPTS_GITHUB_TOKEN=...
+PAYSPLIT_RECEIPTS_GITHUB_OWNER=...
+PAYSPLIT_RECEIPTS_GITHUB_REPO=uvero-paysplit-receipts-storage
+PAYSPLIT_RECEIPTS_GITHUB_BRANCH=main
+
+# Optional (default is 5MB)
+PAYSPLIT_RECEIPT_MAX_UPLOAD_BYTES=5242880
+```
+
+Legacy `TRIPSPLIT_RECEIPTS_*` and `GITHUB_RECEIPTS_*` variables are still supported for backward compatibility.
+
+If these variables are not set, users can still attach external receipt URLs (link mode).
+
 ### Maintenance Mode
 
 If you need to pause the product during database or storage work, enable maintenance mode before deploying:
@@ -209,8 +226,8 @@ npm run preview
 | `/invite/:token` | Accept event invite |
 | `/clipboard` | Online Clipboard (quick share + board entry) |
 | `/clipboard/:boardId` | Private clipboard board |
-| `/split-expense` | TripSplit groups home |
-| `/split-expense/:groupId` | TripSplit group details |
+| `/split-expense` | PaySplit groups home |
+| `/split-expense/:groupId` | PaySplit group details |
 | `/login` | Sign in |
 | `/signup` | Sign up |
 | `/reset-password` | Password reset |
