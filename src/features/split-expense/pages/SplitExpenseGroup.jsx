@@ -30,6 +30,34 @@ const UPI_APP_REFERENCE_LINKS = [
     }
 ]
 
+const MAX_RECEIPT_UPLOAD_BYTES = 5 * 1024 * 1024
+
+function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(String(reader.result || ''))
+        reader.onerror = () => reject(new Error('Unable to read file'))
+        reader.readAsDataURL(file)
+    })
+}
+
+function extractBase64FromDataUrl(value) {
+    const text = String(value || '')
+    const marker = 'base64,'
+    const index = text.indexOf(marker)
+    if (index === -1) return text.trim()
+    return text.slice(index + marker.length).trim()
+}
+
+function formatBytes(bytes) {
+    const size = Number(bytes || 0)
+    if (!Number.isFinite(size) || size <= 0) return ''
+    if (size < 1024) return `${size} B`
+    const kb = size / 1024
+    if (kb < 1024) return `${kb.toFixed(1)} KB`
+    return `${(kb / 1024).toFixed(2)} MB`
+}
+
 function splitInputPlaceholder(mode) {
     if (mode === 'exact') return 'Amount'
     if (mode === 'percentage') return '%'
@@ -97,8 +125,12 @@ export default function SplitExpenseGroup() {
         split_mode: 'equal',
         note: '',
         incurred_on: new Date().toISOString().slice(0, 10),
+        receipt_input_mode: 'link',
         receipt_file_url: '',
         receipt_file_name: '',
+        receipt_file_content: '',
+        receipt_file_mime_type: '',
+        receipt_file_size_bytes: null,
         receipt_ocr_requested: false,
         receipt_ocr_text: ''
     })
@@ -200,8 +232,12 @@ export default function SplitExpenseGroup() {
             ...prev,
             [expenseId]: {
                 ...(prev[expenseId] || {
+                    input_mode: 'link',
                     file_url: '',
                     file_name: '',
+                    file_content: '',
+                    file_mime_type: '',
+                    file_size_bytes: null,
                     ocr_requested: false,
                     ocr_text: ''
                 }),
@@ -250,7 +286,9 @@ export default function SplitExpenseGroup() {
             return base
         })
 
+        const receiptInputMode = expenseForm.receipt_input_mode === 'upload' ? 'upload' : 'link'
         const receiptFileUrl = String(expenseForm.receipt_file_url || '').trim()
+        const receiptFileContent = String(expenseForm.receipt_file_content || '').trim()
 
         const body = {
             group_id: groupId,
@@ -267,7 +305,15 @@ export default function SplitExpenseGroup() {
             body.allow_duplicate = true
         }
 
-        if (receiptFileUrl) {
+        if (receiptInputMode === 'upload' && receiptFileContent) {
+            body.receipt = {
+                file_content: receiptFileContent,
+                file_name: String(expenseForm.receipt_file_name || '').trim() || null,
+                file_mime_type: String(expenseForm.receipt_file_mime_type || '').trim() || null,
+                ocr_requested: !!expenseForm.receipt_ocr_requested,
+                ocr_text: String(expenseForm.receipt_ocr_text || '').trim() || null
+            }
+        } else if (receiptInputMode === 'link' && receiptFileUrl) {
             body.receipt = {
                 file_url: receiptFileUrl,
                 file_name: String(expenseForm.receipt_file_name || '').trim() || null,
@@ -297,6 +343,103 @@ export default function SplitExpenseGroup() {
             }
             return [...prev, memberId]
         })
+    }
+
+    function setExpenseReceiptMode(mode) {
+        const nextMode = mode === 'upload' ? 'upload' : 'link'
+
+        setExpenseForm(prev => ({
+            ...prev,
+            receipt_input_mode: nextMode,
+            receipt_file_url: nextMode === 'link' ? prev.receipt_file_url : '',
+            receipt_file_content: nextMode === 'upload' ? prev.receipt_file_content : '',
+            receipt_file_mime_type: nextMode === 'upload' ? prev.receipt_file_mime_type : '',
+            receipt_file_size_bytes: nextMode === 'upload' ? prev.receipt_file_size_bytes : null
+        }))
+    }
+
+    async function onExpenseReceiptFileSelected(event) {
+        const file = event.target.files?.[0]
+        if (!file) {
+            setExpenseForm(prev => ({
+                ...prev,
+                receipt_file_content: '',
+                receipt_file_mime_type: '',
+                receipt_file_size_bytes: null
+            }))
+            return
+        }
+
+        if (file.size > MAX_RECEIPT_UPLOAD_BYTES) {
+            const maxMb = Math.max(1, Math.floor(MAX_RECEIPT_UPLOAD_BYTES / (1024 * 1024)))
+            setError(`Receipt file is too large. Max allowed size is ${maxMb}MB`)
+            event.target.value = ''
+            return
+        }
+
+        try {
+            const dataUrl = await readFileAsDataUrl(file)
+            const base64 = extractBase64FromDataUrl(dataUrl)
+
+            setExpenseForm(prev => ({
+                ...prev,
+                receipt_input_mode: 'upload',
+                receipt_file_url: '',
+                receipt_file_name: prev.receipt_file_name || file.name,
+                receipt_file_content: base64,
+                receipt_file_mime_type: file.type || '',
+                receipt_file_size_bytes: file.size
+            }))
+        } catch {
+            setError('Failed to read selected receipt file')
+        }
+    }
+
+    function setReceiptDraftMode(expenseId, mode) {
+        const nextMode = mode === 'upload' ? 'upload' : 'link'
+
+        updateReceiptDraft(expenseId, {
+            input_mode: nextMode,
+            file_url: nextMode === 'link' ? (receiptDrafts[expenseId]?.file_url || '') : '',
+            file_content: nextMode === 'upload' ? (receiptDrafts[expenseId]?.file_content || '') : '',
+            file_mime_type: nextMode === 'upload' ? (receiptDrafts[expenseId]?.file_mime_type || '') : '',
+            file_size_bytes: nextMode === 'upload' ? (receiptDrafts[expenseId]?.file_size_bytes || null) : null
+        })
+    }
+
+    async function onDraftReceiptFileSelected(expenseId, event) {
+        const file = event.target.files?.[0]
+        if (!file) {
+            updateReceiptDraft(expenseId, {
+                file_content: '',
+                file_mime_type: '',
+                file_size_bytes: null
+            })
+            return
+        }
+
+        if (file.size > MAX_RECEIPT_UPLOAD_BYTES) {
+            const maxMb = Math.max(1, Math.floor(MAX_RECEIPT_UPLOAD_BYTES / (1024 * 1024)))
+            setError(`Receipt file is too large. Max allowed size is ${maxMb}MB`)
+            event.target.value = ''
+            return
+        }
+
+        try {
+            const dataUrl = await readFileAsDataUrl(file)
+            const base64 = extractBase64FromDataUrl(dataUrl)
+
+            updateReceiptDraft(expenseId, {
+                input_mode: 'upload',
+                file_url: '',
+                file_name: (receiptDrafts[expenseId]?.file_name || file.name),
+                file_content: base64,
+                file_mime_type: file.type || '',
+                file_size_bytes: file.size
+            })
+        } catch {
+            setError('Failed to read selected receipt file')
+        }
     }
 
     async function saveProfile(event) {
@@ -380,8 +523,12 @@ export default function SplitExpenseGroup() {
                 title: '',
                 amount: '',
                 note: '',
+                receipt_input_mode: 'link',
                 receipt_file_url: '',
                 receipt_file_name: '',
+                receipt_file_content: '',
+                receipt_file_mime_type: '',
+                receipt_file_size_bytes: null,
                 receipt_ocr_requested: false,
                 receipt_ocr_text: ''
             }))
@@ -418,9 +565,16 @@ export default function SplitExpenseGroup() {
 
     async function attachReceipt(expenseId) {
         const draft = receiptDrafts[expenseId] || {}
+        const inputMode = draft.input_mode === 'upload' ? 'upload' : 'link'
         const fileUrl = String(draft.file_url || '').trim()
+        const fileContent = String(draft.file_content || '').trim()
 
-        if (!fileUrl) {
+        if (inputMode === 'upload' && !fileContent) {
+            setError('Select a receipt file to upload')
+            return
+        }
+
+        if (inputMode === 'link' && !fileUrl) {
             setError('Receipt file URL is required')
             return
         }
@@ -435,8 +589,10 @@ export default function SplitExpenseGroup() {
                 body: {
                     group_id: groupId,
                     expense_id: expenseId,
-                    file_url: fileUrl,
+                    file_url: inputMode === 'link' ? fileUrl : null,
                     file_name: String(draft.file_name || '').trim() || null,
+                    file_content: inputMode === 'upload' ? fileContent : null,
+                    file_mime_type: inputMode === 'upload' ? String(draft.file_mime_type || '').trim() || null : null,
                     ocr_requested: !!draft.ocr_requested,
                     ocr_text: String(draft.ocr_text || '').trim() || null
                 }
@@ -642,7 +798,7 @@ export default function SplitExpenseGroup() {
             await splitApiDownload(`/api/split/export?group_id=${encodeURIComponent(groupId)}`, {
                 method: 'GET',
                 user,
-                fileNameFallback: `tripsplit-${groupId}.csv`
+                fileNameFallback: `paysplit-${groupId}.csv`
             })
         } catch (err) {
             setError(err.message || 'Failed to export group report')
@@ -700,7 +856,7 @@ export default function SplitExpenseGroup() {
                     {error || 'Group not found'}
                 </div>
                 <Link to="/split-expense" className="inline-block mt-6 text-blue-600 dark:text-blue-400 hover:underline">
-                    Back to TripSplit home
+                    Back to PaySplit home
                 </Link>
             </div>
         )
@@ -908,13 +1064,55 @@ export default function SplitExpenseGroup() {
                                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Receipt (optional)</p>
                                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Attach proof now and include OCR metadata if available.</p>
 
-                                <div className="mt-3 grid md:grid-cols-2 gap-2">
-                                    <input
-                                        value={expenseForm.receipt_file_url}
-                                        onChange={event => setExpenseForm(prev => ({ ...prev, receipt_file_url: event.target.value }))}
-                                        placeholder="Receipt file URL"
-                                        className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                                    />
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setExpenseReceiptMode('link')}
+                                        className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-xs font-semibold ${expenseForm.receipt_input_mode === 'link'
+                                            ? 'border-blue-300 dark:border-blue-500/30 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-500/10'
+                                            : 'border-gray-300 dark:border-white/15 text-gray-600 dark:text-gray-300'
+                                            }`}
+                                    >
+                                        Use link
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setExpenseReceiptMode('upload')}
+                                        className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-xs font-semibold ${expenseForm.receipt_input_mode === 'upload'
+                                            ? 'border-blue-300 dark:border-blue-500/30 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-500/10'
+                                            : 'border-gray-300 dark:border-white/15 text-gray-600 dark:text-gray-300'
+                                            }`}
+                                    >
+                                        Upload file
+                                    </button>
+                                </div>
+
+                                {expenseForm.receipt_input_mode === 'link' ? (
+                                    <div className="mt-3">
+                                        <input
+                                            value={expenseForm.receipt_file_url}
+                                            onChange={event => setExpenseForm(prev => ({ ...prev, receipt_file_url: event.target.value }))}
+                                            placeholder="Receipt file URL"
+                                            className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="mt-3 space-y-2">
+                                        <input
+                                            type="file"
+                                            accept="image/*,.pdf"
+                                            onChange={onExpenseReceiptFileSelected}
+                                            className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-3 py-2 text-sm"
+                                        />
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                            {expenseForm.receipt_file_size_bytes
+                                                ? `Selected file size: ${formatBytes(expenseForm.receipt_file_size_bytes)}`
+                                                : `Max upload size: ${Math.max(1, Math.floor(MAX_RECEIPT_UPLOAD_BYTES / (1024 * 1024)))}MB`}
+                                        </p>
+                                    </div>
+                                )}
+
+                                <div className="mt-2">
                                     <input
                                         value={expenseForm.receipt_file_name}
                                         onChange={event => setExpenseForm(prev => ({ ...prev, receipt_file_name: event.target.value }))}
@@ -968,8 +1166,12 @@ export default function SplitExpenseGroup() {
                                         const creator = membersById[expense.created_by_member_id]
                                         const expenseReceipts = receiptsByExpenseId[expense.id] || []
                                         const receiptDraft = receiptDrafts[expense.id] || {
+                                            input_mode: 'link',
                                             file_url: '',
                                             file_name: '',
+                                            file_content: '',
+                                            file_mime_type: '',
+                                            file_size_bytes: null,
                                             ocr_requested: false,
                                             ocr_text: ''
                                         }
@@ -1048,13 +1250,55 @@ export default function SplitExpenseGroup() {
                                                         </div>
                                                     )}
 
-                                                    <div className="mt-3 grid md:grid-cols-2 gap-2">
-                                                        <input
-                                                            value={receiptDraft.file_url}
-                                                            onChange={event => updateReceiptDraft(expense.id, { file_url: event.target.value })}
-                                                            placeholder="Receipt file URL"
-                                                            className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-                                                        />
+                                                    <div className="mt-3 flex flex-wrap gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setReceiptDraftMode(expense.id, 'link')}
+                                                            className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-xs font-semibold ${receiptDraft.input_mode === 'link'
+                                                                ? 'border-blue-300 dark:border-blue-500/30 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-500/10'
+                                                                : 'border-gray-300 dark:border-white/15 text-gray-600 dark:text-gray-300'
+                                                                }`}
+                                                        >
+                                                            Use link
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setReceiptDraftMode(expense.id, 'upload')}
+                                                            className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-xs font-semibold ${receiptDraft.input_mode === 'upload'
+                                                                ? 'border-blue-300 dark:border-blue-500/30 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-500/10'
+                                                                : 'border-gray-300 dark:border-white/15 text-gray-600 dark:text-gray-300'
+                                                                }`}
+                                                        >
+                                                            Upload file
+                                                        </button>
+                                                    </div>
+
+                                                    {receiptDraft.input_mode === 'link' ? (
+                                                        <div className="mt-2">
+                                                            <input
+                                                                value={receiptDraft.file_url}
+                                                                onChange={event => updateReceiptDraft(expense.id, { file_url: event.target.value })}
+                                                                placeholder="Receipt file URL"
+                                                                className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <div className="mt-2 space-y-2">
+                                                            <input
+                                                                type="file"
+                                                                accept="image/*,.pdf"
+                                                                onChange={event => onDraftReceiptFileSelected(expense.id, event)}
+                                                                className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-2.5 py-1.5 text-sm"
+                                                            />
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                                {receiptDraft.file_size_bytes
+                                                                    ? `Selected file size: ${formatBytes(receiptDraft.file_size_bytes)}`
+                                                                    : `Max upload size: ${Math.max(1, Math.floor(MAX_RECEIPT_UPLOAD_BYTES / (1024 * 1024)))}MB`}
+                                                            </p>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="mt-2">
                                                         <input
                                                             value={receiptDraft.file_name}
                                                             onChange={event => updateReceiptDraft(expense.id, { file_name: event.target.value })}

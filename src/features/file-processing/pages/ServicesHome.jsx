@@ -60,7 +60,7 @@ const services = [
     },
     {
         id: 'trip-split',
-        name: 'TripSplit',
+        name: 'PaySplit – Split Expenses',
         tagline: 'Split expenses without friction',
         description: 'Create trip groups, add shared expenses, auto-calculate who owes whom, and settle instantly using UPI IDs, mobile numbers, or QR payment references.',
         features: ['Equal / Exact / % / Shares', 'UPI Deep Links', 'Guest + Signed-In Support', 'Smart Settle-Up Suggestions'],

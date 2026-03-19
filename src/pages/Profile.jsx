@@ -117,7 +117,7 @@ function ProfileContent() {
             </div>
 
             <div className="mt-8 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.03] p-4">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">TripSplit account protection</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">PaySplit account protection</h2>
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
                     Link guest browser data to this account, or recover with invite + recovery code.
                 </p>

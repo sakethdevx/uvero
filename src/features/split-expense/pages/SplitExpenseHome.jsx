@@ -200,7 +200,7 @@ export default function SplitExpenseHome() {
                             New Service
                         </span>
                         <h1 className="mt-5 text-4xl sm:text-5xl font-black tracking-tight text-gray-900 dark:text-white">
-                            TripSplit by Uvero
+                            PaySplit – Split Expenses
                         </h1>
                         <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 leading-relaxed">
                             Split trip expenses, settle fast, and pay via UPI in one tap with shareable links and QR-ready payment details.
@@ -279,7 +279,7 @@ export default function SplitExpenseHome() {
 
                     <form onSubmit={handleJoinGroup} className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 shadow-sm">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">Join with invite code</h2>
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Ask a friend for their TripSplit invite code and join instantly.</p>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Ask a friend for their PaySplit invite code and join instantly.</p>
 
                         <div className="mt-4 space-y-4">
                             <div>

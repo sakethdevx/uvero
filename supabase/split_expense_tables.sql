@@ -1,5 +1,5 @@
 -- =====================================================
--- TripSplit / Split Expense schema for Uvero
+-- PaySplit / Split Expense schema for Uvero
 -- Supports signed-in users + guest sessions
 -- =====================================================
 

@@ -279,7 +279,7 @@ export default async function handler(req, res) {
 
         const csv = `\uFEFF${toCsv(rows)}\n`
         const dateStamp = new Date().toISOString().slice(0, 10)
-        const fileName = `tripsplit-${group.id}-${dateStamp}.csv`
+        const fileName = `paysplit-${group.id}-${dateStamp}.csv`
 
         res.setHeader('Content-Type', 'text/csv; charset=utf-8')
         res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`)
