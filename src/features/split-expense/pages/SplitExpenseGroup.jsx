@@ -92,7 +92,7 @@ function buildDefaultSplitInputs(memberIds, mode) {
 
 export default function SplitExpenseGroup() {
     const { groupId } = useParams()
-    const { user } = useAuth()
+    const { user, loading: authLoading } = useAuth()
 
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
@@ -183,6 +183,8 @@ export default function SplitExpenseGroup() {
     const suggestedSettlements = data?.ledger?.suggested_settlements || []
 
     const loadGroup = useCallback(async () => {
+        if (authLoading) return
+
         setLoading(true)
         setError('')
 
@@ -221,11 +223,13 @@ export default function SplitExpenseGroup() {
         } finally {
             setLoading(false)
         }
-    }, [groupId, user])
+    }, [authLoading, groupId, user])
 
     useEffect(() => {
-        loadGroup()
-    }, [loadGroup])
+        if (!authLoading) {
+            loadGroup()
+        }
+    }, [authLoading, loadGroup])
 
     function updateReceiptDraft(expenseId, patch) {
         setReceiptDrafts(prev => ({

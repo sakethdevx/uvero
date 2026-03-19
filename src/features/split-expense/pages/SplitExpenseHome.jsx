@@ -20,7 +20,7 @@ function EmptyState({ isGuest }) {
 }
 
 export default function SplitExpenseHome() {
-    const { user } = useAuth()
+    const { user, loading: authLoading } = useAuth()
     const navigate = useNavigate()
     const [searchParams, setSearchParams] = useSearchParams()
 
@@ -42,9 +42,11 @@ export default function SplitExpenseHome() {
     const [recoverCode, setRecoverCode] = useState('')
     const [recoverDisplayName, setRecoverDisplayName] = useState('')
 
-    const isGuest = !user
+    const isGuest = !authLoading && !user
 
     const loadGroups = useCallback(async () => {
+        if (authLoading) return
+
         setLoadingGroups(true)
         setError('')
 
@@ -59,11 +61,13 @@ export default function SplitExpenseHome() {
         } finally {
             setLoadingGroups(false)
         }
-    }, [user])
+    }, [authLoading, user])
 
     useEffect(() => {
-        loadGroups()
-    }, [loadGroups])
+        if (!authLoading) {
+            loadGroups()
+        }
+    }, [authLoading, loadGroups])
 
     useEffect(() => {
         const join = String(searchParams.get('join') || '').trim().toUpperCase()
@@ -77,6 +81,7 @@ export default function SplitExpenseHome() {
 
     async function handleCreateGroup(event) {
         event.preventDefault()
+        if (authLoading) return
         if (!groupName.trim()) return
 
         setCreateLoading(true)
@@ -112,6 +117,7 @@ export default function SplitExpenseHome() {
 
     async function handleJoinGroup(event) {
         event.preventDefault()
+        if (authLoading) return
         if (!joinCode.trim()) return
 
         setJoinLoading(true)
@@ -148,6 +154,8 @@ export default function SplitExpenseHome() {
 
     async function handleGuestRecover(event) {
         event?.preventDefault?.()
+        if (authLoading) return
+
         if (!isGuest) {
             setError('Guest recovery is available only in guest mode')
             return
@@ -269,10 +277,10 @@ export default function SplitExpenseHome() {
 
                             <button
                                 type="submit"
-                                disabled={createLoading}
+                                disabled={createLoading || authLoading}
                                 className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-blue-600 text-white font-semibold shadow hover:opacity-95 disabled:opacity-60"
                             >
-                                {createLoading ? 'Creating...' : 'Create group'}
+                                {authLoading ? 'Checking session...' : createLoading ? 'Creating...' : 'Create group'}
                             </button>
                         </div>
                     </form>
@@ -304,10 +312,10 @@ export default function SplitExpenseHome() {
 
                             <button
                                 type="submit"
-                                disabled={joinLoading}
+                                disabled={joinLoading || authLoading}
                                 className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold shadow hover:opacity-95 disabled:opacity-60"
                             >
-                                {joinLoading ? 'Joining...' : 'Join group'}
+                                {authLoading ? 'Checking session...' : joinLoading ? 'Joining...' : 'Join group'}
                             </button>
 
                             {isGuest && (
@@ -343,10 +351,10 @@ export default function SplitExpenseHome() {
                                         <button
                                             type="button"
                                             onClick={handleGuestRecover}
-                                            disabled={recoverLoading}
+                                            disabled={recoverLoading || authLoading}
                                             className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold shadow hover:opacity-95 disabled:opacity-60"
                                         >
-                                            {recoverLoading ? 'Recovering...' : 'Recover as guest'}
+                                            {authLoading ? 'Checking session...' : recoverLoading ? 'Recovering...' : 'Recover as guest'}
                                         </button>
                                     </div>
                                 </div>
@@ -359,6 +367,7 @@ export default function SplitExpenseHome() {
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Your groups</h2>
                     <button
                         onClick={loadGroups}
+                        disabled={authLoading}
                         className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
                     >
                         Refresh
