@@ -98,7 +98,7 @@ export default function QRToolsHome() {
 
                         <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-500 dark:text-gray-400 mb-8 animate-fade-in-up leading-relaxed" style={{ animationDelay: '0.1s' }}>
                             Generate, scan, and validate QR codes for URLs, WiFi, UPI payments, contacts, and 10+ more formats.
-                            Optimised for real-world scanning. Completely free.
+                            Optimized for real-world scanning. Completely free.
                         </p>
 
                         <div className="flex flex-wrap justify-center gap-3 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
@@ -206,7 +206,7 @@ export default function QRToolsHome() {
                     {[
                         {
                             icon: '🎯',
-                            title: 'Scan-Optimised Output',
+                            title: 'Scan-Optimized Output',
                             description: 'Every QR code is generated with proper error correction, quiet zones, and size guidance for reliable real-world scanning.',
                         },
                         {

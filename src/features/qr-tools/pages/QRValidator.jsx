@@ -27,7 +27,7 @@ function contrastRatio(lum1, lum2) {
     return (lighter + 0.05) / (darker + 0.05);
 }
 
-async function analyseQR(file) {
+async function analyzeQR(file) {
     const url = URL.createObjectURL(file);
     const img = new Image();
     await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
@@ -163,7 +163,7 @@ function Check({ status, label, detail }) {
 }
 
 export default function QRValidator() {
-    const [analysing, setAnalysing] = useState(false);
+    const [analyzing, setAnalyzing] = useState(false);
     const [preview, setPreview] = useState(null);
     const [report, setReport] = useState(null);
     const [error, setError] = useState('');
@@ -176,14 +176,14 @@ export default function QRValidator() {
         setError('');
         setReport(null);
         setPreview(URL.createObjectURL(file));
-        setAnalysing(true);
+        setAnalyzing(true);
         try {
-            const r = await analyseQR(file);
+            const r = await analyzeQR(file);
             setReport(r);
         } catch {
-            setError('Failed to analyse image. Please try again.');
+            setError('Failed to analyze image. Please try again.');
         } finally {
-            setAnalysing(false);
+            setAnalyzing(false);
         }
     }, []);
 
@@ -300,17 +300,17 @@ export default function QRValidator() {
                     </div>
                 )}
 
-                {analysing && (
+                {analyzing && (
                     <div className="mt-6 flex items-center gap-3 text-sm text-violet-600 dark:text-violet-400">
                         <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                         </svg>
-                        Analysing QR code…
+                        Analyzing QR code…
                     </div>
                 )}
 
-                {report && !analysing && (
+                {report && !analyzing && (
                     <div className="mt-6 space-y-4">
                         {/* Score */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 p-6 shadow-sm flex items-center gap-6">
