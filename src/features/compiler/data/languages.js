@@ -485,8 +485,8 @@ object Main extends App {
     println("This is Uvero Online Compiler")
 
     val nums = List(1, 2, 3, 4, 5)
-    println(s"Sum: \\${nums.sum}")
-    println(s"Double: \\${nums.map(_ * 2)}")
+    println(s"Sum: \${nums.sum}")
+    println(s"Double: \${nums.map(_ * 2)}")
 }`,
         },
     },
