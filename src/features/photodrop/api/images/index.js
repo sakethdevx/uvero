@@ -54,7 +54,7 @@ export default async function handler(req, res) {
         // If HEIC/HEIF, convert via HuggingFace endpoint for display
         if (ext === '.heic' || ext === '.heif') {
             try {
-                const hfUrl = `${process.env.HF_SPACE_URL}/convert`
+                const hfUrl = `${process.env.HF_FACEPROCESSING_URL}/convert`
                 const hfResp = await fetch(hfUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/octet-stream' },
