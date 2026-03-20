@@ -12,6 +12,7 @@ import {
     normalizeBase64Content,
     storeReceiptUpload
 } from './receiptsGithubStorage.js'
+import { deriveOcrStatus } from './ocrStatus.js'
 
 function normalizeTitle(value) {
     return String(value || '')
@@ -68,12 +69,11 @@ async function mapReceiptInsertPayload({ receipt, groupId, expenseId }) {
 
     if (!fileUrl) return null
 
-    const hasOcrOutput = !!(receipt?.ocr_text || receipt?.ocr_payload)
-    const ocrRequested = !!receipt?.ocr_requested
-
-    let ocrStatus = 'not_requested'
-    if (hasOcrOutput) ocrStatus = 'completed'
-    else if (ocrRequested) ocrStatus = 'pending'
+    const ocrStatus = deriveOcrStatus({
+        ocrRequested: receipt?.ocr_requested,
+        ocrText: receipt?.ocr_text,
+        ocrPayload: receipt?.ocr_payload
+    })
 
     return {
         group_id: groupId,

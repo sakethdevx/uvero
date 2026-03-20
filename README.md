@@ -181,6 +181,9 @@ PAYSPLIT_RECEIPTS_GITHUB_BRANCH=main
 
 # Optional (default is 5MB)
 PAYSPLIT_RECEIPT_MAX_UPLOAD_BYTES=5242880
+
+# Optional: set true only if an OCR worker is implemented and updates receipt rows asynchronously
+PAYSPLIT_RECEIPT_OCR_AUTOMATION_ENABLED=false
 ```
 
 Legacy `TRIPSPLIT_RECEIPTS_*` and `GITHUB_RECEIPTS_*` variables are still supported for backward compatibility.

@@ -10,6 +10,7 @@ import {
     resolveActor,
     sendApiError
 } from './_server.js'
+import { normalizeOcrStatus } from './ocrStatus.js'
 
 function enrichSuggestedSettlements(suggestedSettlements, membersById, currency) {
     return suggestedSettlements.map(item => {
@@ -138,7 +139,14 @@ export default async function handler(req, res) {
                 .order('created_at', { ascending: false })
 
             if (receiptError) throw receiptError
-            receipts = receiptRows || []
+            receipts = (receiptRows || []).map(row => ({
+                ...row,
+                ocr_status: normalizeOcrStatus({
+                    ocrStatus: row.ocr_status,
+                    ocrText: row.ocr_text,
+                    ocrPayload: row.ocr_payload
+                })
+            }))
         }
 
         const { data: settlements, error: settlementError } = await supabase
