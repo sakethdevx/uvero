@@ -23,6 +23,7 @@ import QRValidator from './features/qr-tools/pages/QRValidator';
 import BulkQRGenerator from './features/qr-tools/pages/BulkQRGenerator';
 import DynamicQRManager from './features/qr-tools/pages/DynamicQRManager';
 import QRRedirectPage from './features/qr-tools/pages/QRRedirectPage';
+import QRAnalytics from './features/qr-tools/pages/QRAnalytics';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ResetPassword from './pages/ResetPassword';
@@ -374,6 +375,7 @@ function AppContent() {
           <Route path="/qr-tools/validator" element={<QRValidator />} />
           <Route path="/qr-tools/bulk" element={<BulkQRGenerator />} />
           <Route path="/qr-tools/dynamic" element={<DynamicQRManager />} />
+          <Route path="/qr-tools/analytics" element={<QRAnalytics />} />
           <Route path="/qr/r/:code" element={<QRRedirectPage />} />
           <Route path="/invite/:token" element={<InvitePage />} />
           <Route path="/:toolId" element={<ToolPage />} />

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../../auth/AuthContext';
 import QRCode from 'qrcode';
 
@@ -328,13 +328,22 @@ export default function DynamicQRManager() {
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Dynamic QR Codes</h1>
                         <p className="text-gray-500 dark:text-gray-400">Edit destinations after printing. Track scan counts and trends in real time.</p>
                     </div>
-                    <button
-                        onClick={openCreate}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-colors shadow-md hover:shadow-violet-500/30"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-                        New Dynamic QR
-                    </button>
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <Link
+                            to="/qr-tools/analytics"
+                            className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:border-violet-400 transition-colors shadow-sm"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                            Analytics
+                        </Link>
+                        <button
+                            onClick={openCreate}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-colors shadow-md hover:shadow-violet-500/30"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                            New Dynamic QR
+                        </button>
+                    </div>
                 </div>
 
                 {/* Stats */}

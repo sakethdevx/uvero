@@ -64,6 +64,110 @@ const INPUT_TYPES = [
     { value: 'social',    label: 'Social',    icon: '🌐' },
 ];
 
+/* ── Frame types ── */
+const FRAME_TYPES = [
+    { value: 'none',          label: 'None',           icon: '✕' },
+    { value: 'border',        label: 'Border',          icon: '▢' },
+    { value: 'rounded',       label: 'Rounded',         icon: '⬜' },
+    { value: 'scan_me',       label: 'Scan Me',         icon: '📲' },
+    { value: 'visit_website', label: 'Visit Website',   icon: '🔗' },
+    { value: 'follow_us',     label: 'Follow Us',       icon: '❤' },
+    { value: 'pay_here',      label: 'Pay Here',        icon: '💳' },
+    { value: 'wifi_connect',  label: 'Connect WiFi',    icon: '📶' },
+    { value: 'custom',        label: 'Custom Text',     icon: '✏' },
+];
+
+const FRAME_TEXT_DEFAULTS = {
+    scan_me: 'SCAN ME',
+    visit_website: 'VISIT WEBSITE',
+    follow_us: 'FOLLOW US',
+    pay_here: 'PAY HERE',
+    wifi_connect: 'CONNECT TO WiFi',
+};
+
+/* ── Templates ── */
+const TEMPLATES = [
+    { id: 'restaurant', label: '🍽️ Restaurant Menu',  fgColor: '#166534', bgColor: '#f0fdf4', errLevel: 'H', frame: 'scan_me' },
+    { id: 'payment',    label: '💳 UPI Payment',       fgColor: '#1d4ed8', bgColor: '#eff6ff', errLevel: 'M', frame: 'pay_here' },
+    { id: 'wifi',       label: '📶 WiFi Sharing',      fgColor: '#0369a1', bgColor: '#f0f9ff', errLevel: 'M', frame: 'wifi_connect' },
+    { id: 'event',      label: '📅 Event Check-in',    fgColor: '#6d28d9', bgColor: '#f5f3ff', errLevel: 'H', frame: 'scan_me' },
+    { id: 'social',     label: '📸 Social Profile',    fgColor: '#9d174d', bgColor: '#fdf2f8', errLevel: 'H', frame: 'follow_us' },
+    { id: 'product',    label: '🛍️ Product Page',      fgColor: '#b45309', bgColor: '#fffbeb', errLevel: 'M', frame: 'visit_website' },
+    { id: 'business',   label: '👤 Business Card',     fgColor: '#111827', bgColor: '#ffffff', errLevel: 'H', frame: 'none' },
+    { id: 'minimal',    label: '⬛ Classic Black',      fgColor: '#000000', bgColor: '#ffffff', errLevel: 'M', frame: 'none' },
+];
+
+/* ── Frame compositing helper ── */
+async function applyFrame(sourceDataUrl, qrWidth, frame, customText, fgColor, bgColor) {
+    if (frame === 'none') return sourceDataUrl;
+
+    return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.onload = () => {
+            const bw = 16; // border width
+            if (frame === 'border' || frame === 'rounded') {
+                canvas.width = qrWidth + bw * 2;
+                canvas.height = qrWidth + bw * 2;
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = fgColor;
+                ctx.lineWidth = bw;
+                if (frame === 'rounded') {
+                    ctx.beginPath();
+                    ctx.roundRect(bw / 2, bw / 2, canvas.width - bw, canvas.height - bw, 24);
+                    ctx.stroke();
+                } else {
+                    ctx.strokeRect(bw / 2, bw / 2, canvas.width - bw, canvas.height - bw);
+                }
+                ctx.drawImage(img, bw, bw, qrWidth, qrWidth);
+            } else {
+                // Text band frames
+                const padX = Math.round(qrWidth * 0.04);
+                const bandH = Math.round(qrWidth * 0.16);
+                const padTop = Math.round(qrWidth * 0.04);
+                const padBottom = Math.round(qrWidth * 0.02);
+                canvas.width = qrWidth + padX * 2;
+                canvas.height = qrWidth + padTop + bandH + padBottom;
+
+                // White/light background
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // QR image with top/side padding
+                ctx.drawImage(img, padX, padTop, qrWidth, qrWidth);
+
+                // Colored band
+                ctx.fillStyle = fgColor;
+                ctx.fillRect(0, padTop + qrWidth, canvas.width, bandH + padBottom);
+
+                // Label text centered in band (with ellipsis if too wide)
+                const label = customText.trim() || FRAME_TEXT_DEFAULTS[frame] || 'SCAN ME';
+                const fontSize = Math.max(12, Math.round(bandH * 0.48));
+                const maxTextWidth = canvas.width - padX * 2;
+                ctx.fillStyle = bgColor;
+                ctx.font = `bold ${fontSize}px system-ui, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const cy = padTop + qrWidth + (bandH + padBottom) / 2;
+                // Truncate with ellipsis if text overflows
+                let displayLabel = label;
+                if (ctx.measureText(displayLabel).width > maxTextWidth) {
+                    while (displayLabel.length > 1 && ctx.measureText(displayLabel + '…').width > maxTextWidth) {
+                        displayLabel = displayLabel.slice(0, -1);
+                    }
+                    displayLabel += '…';
+                }
+                ctx.fillText(displayLabel, canvas.width / 2, cy);
+            }
+            resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = reject;
+        img.src = sourceDataUrl;
+    });
+}
+
 function FieldGroup({ label, children }) {
     return (
         <div className="space-y-3">
@@ -192,10 +296,21 @@ export default function QRGenerator() {
     const [errLevel, setErrLevel] = useState('M');
     const [logoFile, setLogoFile] = useState(null);
     const [logoDataUrl, setLogoDataUrl] = useState(null);
+    const [frame, setFrame] = useState('none');
+    const [customFrameText, setCustomFrameText] = useState('');
     const [qrDataUrl, setQrDataUrl] = useState(null);
     const [generating, setGenerating] = useState(false);
     const [error, setError] = useState('');
     const logoInputRef = useRef(null);
+
+    const applyTemplate = useCallback((tpl) => {
+        setFgColor(tpl.fgColor);
+        setBgColor(tpl.bgColor);
+        setErrLevel(tpl.errLevel);
+        setFrame(tpl.frame);
+        setCustomFrameText('');
+        setQrDataUrl(null);
+    }, []);
 
     const handleTypeChange = useCallback((t) => {
         setType(t);
@@ -236,6 +351,7 @@ export default function QRGenerator() {
             };
             const base = await QRCode.toDataURL(payload, opts);
 
+            let dataUrl = base;
             if (logoDataUrl) {
                 const canvas = document.createElement('canvas');
                 canvas.width = opts.width;
@@ -260,17 +376,22 @@ export default function QRGenerator() {
                 ctx.fill();
                 ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
 
-                setQrDataUrl(canvas.toDataURL('image/png'));
-            } else {
-                setQrDataUrl(base);
+                dataUrl = canvas.toDataURL('image/png');
             }
+
+            // Apply decorative frame
+            if (frame !== 'none') {
+                dataUrl = await applyFrame(dataUrl, opts.width, frame, customFrameText, fgColor, bgColor);
+            }
+
+            setQrDataUrl(dataUrl);
         } catch (err) {
             setError('Failed to generate QR code. Please check your input.');
             console.error(err);
         } finally {
             setGenerating(false);
         }
-    }, [type, fields, size, errLevel, fgColor, bgColor, logoDataUrl]);
+    }, [type, fields, size, errLevel, fgColor, bgColor, logoDataUrl, frame, customFrameText]);
 
     const downloadPNG = () => {
         if (!qrDataUrl) return;
@@ -326,6 +447,28 @@ export default function QRGenerator() {
                 <div className="grid lg:grid-cols-[1fr_380px] gap-8 items-start">
                     {/* Left: config */}
                     <div className="space-y-6">
+                        {/* Templates */}
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 p-6 shadow-sm">
+                            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Quick Templates</p>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                {TEMPLATES.map((tpl) => (
+                                    <button
+                                        key={tpl.id}
+                                        onClick={() => applyTemplate(tpl)}
+                                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-100 dark:border-gray-800 hover:border-violet-400 dark:hover:border-violet-600 bg-gray-50 dark:bg-gray-800 text-left transition-all group"
+                                        title="Click to apply this style"
+                                    >
+                                        <span
+                                            className="w-4 h-4 rounded-sm flex-shrink-0 border border-gray-200 dark:border-gray-600"
+                                            style={{ background: tpl.fgColor }}
+                                        />
+                                        <span className="text-xs text-gray-700 dark:text-gray-300 leading-tight truncate group-hover:text-violet-700 dark:group-hover:text-violet-300">{tpl.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-xs text-gray-400 mt-2">Templates apply colors, error correction, and frame style. Your content is unchanged.</p>
+                        </div>
+
                         {/* Type selector */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 p-6 shadow-sm">
                             <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">QR Code Type</p>
@@ -401,6 +544,35 @@ export default function QRGenerator() {
                                 </div>
                                 {errLevel === 'H' && <p className="text-xs text-violet-600 dark:text-violet-400 mt-1">High correction recommended when adding a logo.</p>}
                             </Field>
+
+                            {/* Frame */}
+                                <Field label="Frame Style">
+                                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                                        {FRAME_TYPES.map((f) => (
+                                            <button
+                                                key={f.value}
+                                                onClick={() => { setFrame(f.value); setQrDataUrl(null); }}
+                                                className={`flex flex-col items-center gap-1 p-2 rounded-lg border-2 text-center transition-all ${frame === f.value ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/20' : 'border-gray-100 dark:border-gray-800 hover:border-violet-300'}`}
+                                            >
+                                                <span className="text-base leading-none">{f.icon}</span>
+                                                <span className="text-xs text-gray-700 dark:text-gray-300 leading-tight">{f.label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {frame === 'custom' && (
+                                        <input
+                                            className={inputCls + ' mt-2'}
+                                            placeholder="Enter your custom frame text…"
+                                            value={customFrameText}
+                                            onChange={(e) => setCustomFrameText(e.target.value)}
+                                        />
+                                    )}
+                                    {frame !== 'none' && frame !== 'border' && frame !== 'rounded' && frame !== 'custom' && (
+                                        <p className="text-xs text-violet-600 dark:text-violet-400 mt-1">
+                                            Frame label: <strong>{FRAME_TEXT_DEFAULTS[frame]}</strong>
+                                        </p>
+                                    )}
+                                </Field>
 
                             {/* Logo upload */}
                             <Field label="Logo (optional)">

@@ -224,6 +224,12 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        // QR Tools — analytics aggregation
+        if (forwarded && forwarded === 'qr/analytics') {
+            const mod = await import('../src/features/qr-tools/api/analytics.js')
+            return mod.default(req, res)
+        }
+
         // QR Tools — dynamic codes CRUD
         if (forwarded && (forwarded === 'qr/codes' || forwarded.startsWith('qr/codes/'))) {
             const mod = await import('../src/features/qr-tools/api/dynamic-codes.js')
