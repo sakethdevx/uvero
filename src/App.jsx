@@ -4,6 +4,7 @@ import { ModeProvider } from './features/file-processing/context/ModeContext';
 import ModeToggle from './features/file-processing/components/ModeToggle';
 import ThemeToggle from './components/ThemeToggle';
 import ServicesHome from './pages/ServicesHome';
+import CompilerHome from './features/compiler/pages/CompilerHome';
 import Home from './features/file-processing/pages/Home';
 import ToolPage from './features/file-processing/pages/ToolPage';
 import Privacy from './pages/Privacy';
@@ -360,6 +361,7 @@ function AppContent() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<ServicesHome />} />
+          <Route path="/compiler" element={<CompilerHome />} />
           <Route path="/tools" element={<Home />} />
           <Route path="/photodrop" element={<EventsPage />} />
           <Route path="/photodrop/:id" element={<EventDetail />} />
@@ -422,6 +424,7 @@ function AppContent() {
               <ul className="space-y-2.5">
                 {[
                   { name: 'File Processing', path: '/tools' },
+                  { name: 'Online Compiler', path: '/compiler' },
                   { name: 'PhotoDrop', path: '/photodrop' },
                   { name: 'Online Clipboard', path: '/clipboard' },
                   { name: 'PaySplit – Split Expenses', path: '/split-expense' },

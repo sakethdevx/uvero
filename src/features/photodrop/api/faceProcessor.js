@@ -3,7 +3,7 @@ import { getImageBuffer } from '../services/photodropGithubStorage.js'
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
-const HF_SPACE_URL = process.env.HF_SPACE_URL
+const HF_SPACE_URL = process.env.HF_FACEPROCESSING_URL
 
 const THRESHOLD = Number(process.env.FACE_MATCH_THRESHOLD) || 0.5
 

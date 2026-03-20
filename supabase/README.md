@@ -10,7 +10,7 @@ This folder contains guidance and SQL for creating the `profiles` table and RLS 
 
 1) Optional service key
 
-- If you plan to use Hugging Face server-side detection, also add `HF_TOKEN` to your deployment environment (Vercel Environment Variables). Do NOT commit your token.
+- If you plan to use Hugging Face server-side detection, also add `HF_FACEPROCESSING_TOKEN` and `HF_FACEPROCESSING_URL` to your deployment environment (Vercel Environment Variables). Do NOT commit your token.
 
 - In Supabase Auth settings, set the site URL (and any allowed redirect URLs) to your deployment origin (e.g., `http://localhost:5173` for local dev). This is important for magic links and OAuth callbacks.
 
