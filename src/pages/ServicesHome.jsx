@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { CLI_INSTALL_COMMAND } from '../features/clipboard/cliCommands';
+import AnnouncementBanner from '../components/AnnouncementBanner';
 
 /**
  * Services Home Page
@@ -145,6 +146,14 @@ const platformFeatures = [
 export default function ServicesHome() {
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">
+            {/* Announcement Banner */}
+            <AnnouncementBanner 
+                announcements={[
+                    { message: "New Feature: Uvero CLI access is now available!", badge: "New" },
+                    { message: "Next Major Service: Online Compiler!", badge: "Upcoming" }
+                ]} 
+            />
+
             {/* Hero Section */}
             <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 via-white to-white dark:from-gray-900 dark:via-gray-950 dark:to-gray-950">
                 {/* Background decorations */}
