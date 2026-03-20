@@ -75,6 +75,24 @@ const services = [
         link: '/split-expense',
         cta: 'Split Now',
     },
+    {
+        id: 'qr-tools',
+        name: 'QR Tools',
+        tagline: 'Generate, scan & validate QR codes',
+        description: 'Create professional QR codes for URLs, WiFi, UPI payments, vCard contacts, WhatsApp, maps, and more. Scan QR codes with your camera or by uploading an image.',
+        features: ['12+ Payload Types', 'Logo & Custom Colours', 'Camera & Image Scanner', 'QR Validator & Score'],
+        icon: (
+            <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
+            </svg>
+        ),
+        gradient: 'from-violet-500 via-purple-500 to-indigo-600',
+        lightGradient: 'from-violet-50 via-purple-50 to-indigo-50',
+        accentColor: 'violet',
+        link: '/qr-tools',
+        cta: 'Try QR Tools',
+    },
 ];
 
 const platformFeatures = [
@@ -163,12 +181,12 @@ export default function ServicesHome() {
 
             {/* Services Section */}
             <section className="max-w-7xl mx-auto px-4 pb-20 sm:px-6 lg:px-8 -mt-4">
-                <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                     {services.map((service, idx) => (
                         <Link
                             key={service.id}
                             to={service.link}
-                            className="group relative rounded-3xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 shadow-lg dark:shadow-none hover:shadow-2xl dark:hover:shadow-primary-500/10 transition-all duration-500 hover:-translate-y-2 animate-fade-in-up"
+                            className={`group relative rounded-3xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 shadow-lg dark:shadow-none hover:shadow-2xl dark:hover:shadow-primary-500/10 transition-all duration-500 hover:-translate-y-2 animate-fade-in-up${idx === services.length - 1 && services.length % 3 !== 0 && services.length % 3 === 2 ? ' lg:col-start-2' : ''}`}
                             style={{ animationDelay: `${0.15 + idx * 0.1}s` }}
                         >
                             {/* Top gradient strip */}

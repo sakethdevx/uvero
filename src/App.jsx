@@ -16,6 +16,10 @@ import PublicClipboard from './features/clipboard/pages/PublicClipboard';
 import ClipboardCli from './features/clipboard/pages/ClipboardCli';
 import SplitExpenseHome from './features/split-expense/pages/SplitExpenseHome';
 import SplitExpenseGroup from './features/split-expense/pages/SplitExpenseGroup';
+import QRToolsHome from './features/qr-tools/pages/QRToolsHome';
+import QRGenerator from './features/qr-tools/pages/QRGenerator';
+import QRScanner from './features/qr-tools/pages/QRScanner';
+import QRValidator from './features/qr-tools/pages/QRValidator';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ResetPassword from './pages/ResetPassword';
@@ -361,6 +365,10 @@ function AppContent() {
           <Route path="/cli" element={<ClipboardCli />} />
           <Route path="/split-expense" element={<SplitExpenseHome />} />
           <Route path="/split-expense/:groupId" element={<SplitExpenseGroup />} />
+          <Route path="/qr-tools" element={<QRToolsHome />} />
+          <Route path="/qr-tools/generator" element={<QRGenerator />} />
+          <Route path="/qr-tools/scanner" element={<QRScanner />} />
+          <Route path="/qr-tools/validator" element={<QRValidator />} />
           <Route path="/invite/:token" element={<InvitePage />} />
           <Route path="/:toolId" element={<ToolPage />} />
           <Route path="/privacy" element={<Privacy />} />
