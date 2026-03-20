@@ -182,7 +182,7 @@ function Modal({ title, onClose, children }) {
 
 /* ── main page ── */
 export default function DynamicQRManager() {
-    const { user, session } = useAuth();
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     const [codes, setCodes] = useState([]);
@@ -203,7 +203,7 @@ export default function DynamicQRManager() {
     const [analyticsData, setAnalyticsData] = useState(null);
     const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
-    const token = session?.access_token;
+    const token = user?.access_token;
 
     const loadCodes = useCallback(async () => {
         if (!token) return;
@@ -230,7 +230,7 @@ export default function DynamicQRManager() {
             if (previewUrls[code.id]) return;
             generatePreviewDataUrl(code.short_code).then((url) => {
                 setPreviewUrls((prev) => ({ ...prev, [code.id]: url }));
-            }).catch(() => {});
+            }).catch(() => { });
         });
     }, [codes, previewUrls]);
 

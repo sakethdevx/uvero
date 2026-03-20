@@ -91,13 +91,13 @@ function exportCSV(data) {
 
 /* ── main page ── */
 export default function QRAnalytics() {
-    const { user, session } = useAuth();
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    const token = session?.access_token;
+    const token = user?.access_token;
 
     const loadAnalytics = useCallback(async () => {
         if (!token) return;
