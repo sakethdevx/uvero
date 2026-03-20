@@ -242,6 +242,12 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        // Online Compiler — proxy to HuggingFace
+        if (forwarded && forwarded.startsWith('compiler')) {
+            const mod = await import('../src/features/compiler/api/execute.js')
+            return mod.default(req, res)
+        }
+
         return res.status(404).json({ error: 'Not found' })
     } catch (err) {
         console.error('[api/index] dispatch error', err)

@@ -94,6 +94,24 @@ const services = [
         link: '/qr-tools',
         cta: 'Try QR Tools',
     },
+    {
+        id: 'compiler',
+        name: 'Online Compiler',
+        tagline: 'Write, compile & run code instantly',
+        description: 'A premium online IDE powered by Monaco Editor. Execute code in 20+ programming languages with real-time output, execution metrics, and zero setup required.',
+        features: ['20+ Languages', 'Monaco Editor', 'Execution Metrics', 'Cloud Sandboxed'],
+        icon: (
+            <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+            </svg>
+        ),
+        gradient: 'from-blue-500 via-indigo-500 to-violet-600',
+        lightGradient: 'from-blue-50 via-indigo-50 to-violet-50',
+        accentColor: 'blue',
+        link: '/compiler',
+        cta: 'Start Coding',
+        badge: 'New',
+    },
 ];
 
 const platformFeatures = [
