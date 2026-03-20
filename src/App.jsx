@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ModeProvider } from './features/file-processing/context/ModeContext';
 import ModeToggle from './features/file-processing/components/ModeToggle';
 import ThemeToggle from './components/ThemeToggle';
-import ServicesHome from './features/file-processing/pages/ServicesHome';
+import ServicesHome from './pages/ServicesHome';
 import Home from './features/file-processing/pages/Home';
 import ToolPage from './features/file-processing/pages/ToolPage';
 import Privacy from './pages/Privacy';
