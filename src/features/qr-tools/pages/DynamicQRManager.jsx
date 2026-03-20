@@ -182,7 +182,7 @@ function Modal({ title, onClose, children }) {
 
 /* ── main page ── */
 export default function DynamicQRManager() {
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
 
     const [codes, setCodes] = useState([]);
@@ -220,9 +220,10 @@ export default function DynamicQRManager() {
     }, [token]);
 
     useEffect(() => {
+        if (authLoading) return;
         if (!user) { navigate('/login'); return; }
         loadCodes();
-    }, [user, navigate, loadCodes]);
+    }, [authLoading, user, navigate, loadCodes]);
 
     // Generate preview QR data URLs for loaded codes
     useEffect(() => {
@@ -317,7 +318,7 @@ export default function DynamicQRManager() {
     const totalScans = codes.reduce((s, c) => s + (c.scan_count || 0), 0);
     const activeCount = codes.filter((c) => c.is_active).length;
 
-    if (!user) return null;
+    if (authLoading || !user) return null;
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-10 px-4">

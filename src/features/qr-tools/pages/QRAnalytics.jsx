@@ -91,7 +91,7 @@ function exportCSV(data) {
 
 /* ── main page ── */
 export default function QRAnalytics() {
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -118,11 +118,12 @@ export default function QRAnalytics() {
     }, [token]);
 
     useEffect(() => {
+        if (authLoading) return;
         if (!user) { navigate('/login'); return; }
         loadAnalytics();
-    }, [user, navigate, loadAnalytics]);
+    }, [authLoading, user, navigate, loadAnalytics]);
 
-    if (!user) return null;
+    if (authLoading || !user) return null;
 
     const APP_ORIGIN = typeof window !== 'undefined' ? window.location.origin : '';
 
