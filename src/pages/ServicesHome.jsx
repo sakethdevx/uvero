@@ -148,8 +148,10 @@ export default function ServicesHome() {
         <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">
             {/* Announcement Banner */}
             <AnnouncementBanner 
-                message="Next Major Service: Online Compiler!" 
-                badge="Upcoming" 
+                announcements={[
+                    { message: "New Feature: Uvero CLI access is now available!", badge: "New" },
+                    { message: "Next Major Service: Online Compiler!", badge: "Upcoming" }
+                ]} 
             />
 
             {/* Hero Section */}
