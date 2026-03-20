@@ -51,6 +51,38 @@ const tools = [
         link: '/qr-tools/validator',
         features: ['Contrast check', 'Quiet zone check', 'Size recommendations', 'Logo safety warnings'],
     },
+    {
+        id: 'bulk',
+        name: 'Bulk QR Generator',
+        tagline: 'Generate hundreds at once',
+        description:
+            'Upload a CSV or paste a list to generate hundreds of QR codes in one click. Export as ZIP of PNGs or a printable A4 PDF sheet.',
+        icon: (
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+            </svg>
+        ),
+        gradient: 'from-orange-500 to-amber-600',
+        badge: 'Free',
+        link: '/qr-tools/bulk',
+        features: ['CSV upload or paste list', 'Variable mapping', 'ZIP & A4 PDF export', 'Batch history'],
+    },
+    {
+        id: 'dynamic',
+        name: 'Dynamic QR Codes',
+        tagline: 'Edit destinations after printing',
+        description:
+            'Create QR codes whose destination can be changed at any time — without reprinting. Track scan counts and 30-day trends per code.',
+        icon: (
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+            </svg>
+        ),
+        gradient: 'from-rose-500 to-pink-600',
+        badge: 'Sign in required',
+        link: '/qr-tools/dynamic',
+        features: ['Editable destination URL', 'Scan count tracking', '30-day scan trend', 'Pause / Resume codes'],
+    },
 ];
 
 const useCases = [
@@ -129,7 +161,7 @@ export default function QRToolsHome() {
                     <p className="text-gray-500 dark:text-gray-400">Everything you need to work with QR codes</p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                     {tools.map((tool, idx) => (
                         <Link
                             key={tool.id}
