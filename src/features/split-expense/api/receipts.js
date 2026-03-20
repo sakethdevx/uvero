@@ -11,15 +11,11 @@ import {
     normalizeBase64Content,
     storeReceiptUpload
 } from './receiptsGithubStorage.js'
-
-const OCR_STATUS = new Set(['pending', 'completed', 'failed', 'not_requested'])
-
-function deriveOcrStatus({ ocrRequested, ocrText, ocrPayload }) {
-    const hasOcrOutput = !!(ocrText || ocrPayload)
-    if (hasOcrOutput) return 'completed'
-    if (ocrRequested) return 'pending'
-    return 'not_requested'
-}
+import {
+    deriveOcrStatus,
+    normalizeOcrStatus,
+    OCR_STATUS
+} from './ocrStatus.js'
 
 export default async function handler(req, res) {
     if (!['POST', 'PATCH'].includes(req.method)) {
@@ -192,16 +188,18 @@ export default async function handler(req, res) {
 
         if (ocrText !== undefined) {
             updates.ocr_text = String(ocrText || '').slice(0, 10000) || null
-            if (updates.ocr_text && updates.ocr_status === undefined) {
-                updates.ocr_status = 'completed'
-            }
         }
 
         if (ocrPayload !== undefined) {
             updates.ocr_payload = ocrPayload && typeof ocrPayload === 'object' ? ocrPayload : null
-            if (updates.ocr_payload && updates.ocr_status === undefined) {
-                updates.ocr_status = 'completed'
-            }
+        }
+
+        if (ocrStatus !== undefined || ocrText !== undefined || ocrPayload !== undefined) {
+            updates.ocr_status = normalizeOcrStatus({
+                ocrStatus: updates.ocr_status ?? receipt.ocr_status,
+                ocrText: updates.ocr_text !== undefined ? updates.ocr_text : receipt.ocr_text,
+                ocrPayload: updates.ocr_payload !== undefined ? updates.ocr_payload : receipt.ocr_payload
+            })
         }
 
         if (!Object.keys(updates).length) {
