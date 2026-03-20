@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { CLI_INSTALL_COMMAND } from '../../clipboard/cliCommands';
+import { CLI_INSTALL_COMMAND } from '../features/clipboard/cliCommands';
 
 /**
  * Services Home Page
