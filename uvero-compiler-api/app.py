@@ -177,8 +177,9 @@ LANGUAGES = {
 # ─── Resource Limits ──────────────────────────────────────────────────────────
 
 MAX_TIMEOUT = 15  # seconds
-MAX_MEMORY_MB = 256  # MB
+MAX_MEMORY_MB = 512  # MB
 MAX_OUTPUT_SIZE = 65536  # characters
+
 
 
 def set_resource_limits():

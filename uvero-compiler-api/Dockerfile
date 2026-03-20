@@ -11,27 +11,45 @@ RUN useradd -m -u 1000 user
 # Install system packages: compilers, interpreters, runtimes
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # C / C++
-    gcc g++ \
-    # Java
-    default-jdk \
-    # Node.js
+    gcc g++ make \
+    # Java / Kotlin / Scala
+    default-jdk kotlin scala \
+    # Node.js / TypeScript
     nodejs npm \
     # Go
     golang \
+    # Rust (installed via rustup below)
     # Ruby
     ruby \
     # PHP
     php-cli \
     # Perl
     perl \
-    # Bash (already included)
     # Lua
     lua5.4 \
     # R
     r-base-core \
+    # Haskell
+    ghc \
+    # C# (Mono)
+    mono-complete \
+    # Swift dependencies (needed for the toolchain)
+    clang libicu-dev libpython3-dev libncurses6 libxml2 \
+
     # Utilities
-    curl wget \
+    curl wget gnupg ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Swift (Official Toolchain)
+RUN SWIFT_VERSION=5.9.1 && \
+    ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+        wget -q https://swift.org/builds/swift-${SWIFT_VERSION}-release/ubuntu2204/swift-${SWIFT_VERSION}-RELEASE/swift-${SWIFT_VERSION}-RELEASE-ubuntu22.04.tar.gz && \
+        tar -xzf swift-${SWIFT_VERSION}-RELEASE-ubuntu22.04.tar.gz --directory /usr/local --strip-components=2 && \
+        rm swift-${SWIFT_VERSION}-RELEASE-ubuntu22.04.tar.gz; \
+    fi
+
+
 
 # Install Rust via rustup (system-level so user 1000 can access)
 ENV RUSTUP_HOME=/usr/local/rustup \
@@ -42,6 +60,10 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no
 
 # Make lua accessible as 'lua'
 RUN ln -sf /usr/bin/lua5.4 /usr/bin/lua || true
+
+# Install TypeScript and ts-node globally for faster execution
+RUN npm install -g typescript ts-node
+
 
 # Set working directory
 WORKDIR /app
