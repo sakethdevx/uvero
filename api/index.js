@@ -224,6 +224,24 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        // QR Tools — analytics aggregation
+        if (forwarded && forwarded === 'qr/analytics') {
+            const mod = await import('../src/features/qr-tools/api/analytics.js')
+            return mod.default(req, res)
+        }
+
+        // QR Tools — dynamic codes CRUD
+        if (forwarded && (forwarded === 'qr/codes' || forwarded.startsWith('qr/codes/'))) {
+            const mod = await import('../src/features/qr-tools/api/dynamic-codes.js')
+            return mod.default(req, res)
+        }
+
+        // QR Tools — redirect & scan tracking
+        if (forwarded && forwarded.startsWith('qr/r/')) {
+            const mod = await import('../src/features/qr-tools/api/qr-redirect.js')
+            return mod.default(req, res)
+        }
+
         return res.status(404).json({ error: 'Not found' })
     } catch (err) {
         console.error('[api/index] dispatch error', err)
