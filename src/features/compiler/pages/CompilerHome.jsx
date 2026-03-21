@@ -187,12 +187,12 @@ export default function CompilerHome() {
             </div>
 
             {/* ─── Compact Header ─── */}
-            <header className="relative pt-12 pb-6 px-4 sm:px-6">
+            <header className="relative pt-8 pb-4 px-4 sm:px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         {/* Left: Title & Badge */}
                         <div className="flex items-center gap-4">
-                            <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-none">
+                            <h1 className="text-xl sm:text-2xl font-black tracking-tight leading-none">
                                 <span className="text-gray-900 dark:text-white">Online </span>
                                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-violet-500 to-purple-500 animate-gradient-x">
                                     Compiler
@@ -200,7 +200,7 @@ export default function CompilerHome() {
                             </h1>
                             
                             {/* Discrete pill badge */}
-                            <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 dark:bg-white/[0.06] border border-gray-200/50 dark:border-white/10 backdrop-blur-sm shadow-sm">
+                            <div className="hidden sm:inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-white/70 dark:bg-white/[0.06] border border-gray-200/50 dark:border-white/10 backdrop-blur-sm shadow-sm">
                                 <span className="relative flex h-1.5 w-1.5">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
@@ -221,7 +221,7 @@ export default function CompilerHome() {
             </header>
 
             {/* ─── IDE Layout ─── */}
-            <section className="relative max-w-7xl mx-auto px-4 sm:px-6 pb-10">
+            <section className="relative max-w-7xl mx-auto px-4 sm:px-6 pb-6">
                 {/* Main IDE card with glow border */}
                 <div className="relative rounded-2xl overflow-hidden">
                     {/* Glow border effect */}
