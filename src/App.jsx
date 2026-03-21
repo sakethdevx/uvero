@@ -203,6 +203,31 @@ function AppContent() {
     }
   ];
 
+  // Helper to get feature name based on path
+  const getFeatureName = () => {
+    const path = location.pathname;
+    if (path === '/') return null;
+    if (path.startsWith('/compiler')) return 'Online Compiler';
+    if (path.startsWith('/tools')) return 'File Processing';
+    if (path.startsWith('/photodrop')) return 'PhotoDrop';
+    if (path.startsWith('/clipboard') || path.startsWith('/c/')) return 'Online Clipboard';
+    if (path.startsWith('/split-expense')) return 'PaySplit';
+    if (path.startsWith('/qr-tools') || path.startsWith('/qr/')) return 'QR Tools';
+    if (path.startsWith('/privacy')) return 'Privacy';
+    if (path.startsWith('/cli')) return 'CLI';
+    if (path.startsWith('/login')) return 'Sign In';
+    if (path.startsWith('/signup')) return 'Sign Up';
+    if (path.startsWith('/profile')) return 'Profile';
+    
+    // Check if it's a specific tool
+    const tool = getToolById(path.slice(1));
+    if (tool) return tool.name;
+    
+    return null;
+  };
+
+  const currentFeature = getFeatureName();
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
@@ -210,13 +235,25 @@ function AppContent() {
         <nav className={`max-w-7xl mx-auto transition-all duration-500 ${isScrolled ? 'floating-nav-scrolled' : 'floating-nav'}`}>
           <div className="flex justify-between items-center h-16 px-4 sm:px-6">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2.5 group relative z-10">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 via-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-primary-500/30 group-hover:shadow-primary-500/50 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 logo-shine relative overflow-hidden">
+            <Link to="/" className="flex items-center gap-2.5 group relative z-10 shrink-0">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 via-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-primary-500/30 group-hover:shadow-primary-500/50 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 logo-shine relative overflow-hidden shrink-0">
                 <span className="text-white font-bold text-xl relative z-10">U</span>
               </div>
-              <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                U<span className="gradient-text animate-gradient-x">ver</span>o
-              </span>
+              
+              <div className="flex items-center">
+                <span className="text-2xl font-bold text-gray-900 dark:text-white transition-all duration-300">
+                  U<span className="gradient-text animate-gradient-x">ver</span>o
+                </span>
+                
+                {currentFeature && (
+                  <div className="flex items-center animate-fade-in">
+                    <div className="mx-3 h-6 w-px bg-gray-200 dark:bg-white/10 hidden sm:block shrink-0" />
+                    <span className="text-lg font-semibold text-gray-500 dark:text-gray-400 hidden sm:block whitespace-nowrap tracking-tight">
+                      {currentFeature}
+                    </span>
+                  </div>
+                )}
+              </div>
             </Link>
 
             {/* Desktop Navigation */}
