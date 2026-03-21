@@ -55,10 +55,11 @@ LANGUAGES = {
     "typescript": {
         "name": "TypeScript",
         "extension": ".ts",
-        "compile": ["npx", "ts-node", "{file}"],
-        "run": None,  # ts-node compiles + runs
-        "version_cmd": ["npx", "ts-node", "--version"],
+        "compile": ["ts-node", "--transpile-only", "--compiler-options", "{\"module\":\"CommonJS\"}", "{file}"],
+        "run": None,
+        "version_cmd": ["ts-node", "--version"],
     },
+
     "c": {
         "name": "C (GCC)",
         "extension": ".c",
@@ -76,8 +77,8 @@ LANGUAGES = {
     "java": {
         "name": "Java",
         "extension": ".java",
-        "compile": ["javac", "{file}"],
-        "run": ["java", "-cp", "{dir}", "Main"],
+        "compile": ["javac", "-J-Xmx256M", "-J-Xms64M", "-J-Xss1M", "-J-XX:-UseCompressedOops", "-J-XX:-UseCompressedClassPointers", "-J-XX:ReservedCodeCacheSize=64M", "{file}"],
+        "run": ["java", "-Xmx256M", "-Xms64M", "-Xss1M", "-XX:-UseCompressedOops", "-XX:-UseCompressedClassPointers", "-XX:ReservedCodeCacheSize=64M", "-cp", "{dir}", "Main"],
         "version_cmd": ["java", "--version"],
         "filename": "Main.java",
     },
@@ -147,8 +148,8 @@ LANGUAGES = {
     "kotlin": {
         "name": "Kotlin",
         "extension": ".kt",
-        "compile": ["kotlinc", "{file}", "-include-runtime", "-d", "{output}.jar"],
-        "run": ["java", "-jar", "{output}.jar"],
+        "compile": ["kotlinc", "-no-daemon", "-J-Xmx256M", "-J-Xms64M", "-J-Xss1M", "-J-XX:-UseCompressedOops", "-J-XX:-UseCompressedClassPointers", "-J-XX:ReservedCodeCacheSize=64M", "{file}", "-include-runtime", "-d", "{output}.jar"],
+        "run": ["java", "-Xmx256M", "-Xms64M", "-Xss1M", "-XX:-UseCompressedOops", "-XX:-UseCompressedClassPointers", "-XX:ReservedCodeCacheSize=64M", "-jar", "{output}.jar"],
         "version_cmd": ["kotlinc", "-version"],
     },
     "csharp": {
@@ -162,7 +163,7 @@ LANGUAGES = {
         "name": "Scala",
         "extension": ".scala",
         "compile": None,
-        "run": ["scala", "{file}"],
+        "run": ["scala", "-nc", "-J-Xmx256M", "-J-Xms64M", "-J-Xss1M", "-J-XX:-UseCompressedOops", "-J-XX:-UseCompressedClassPointers", "-J-XX:ReservedCodeCacheSize=64M", "{file}"],
         "version_cmd": ["scala", "-version"],
     },
     "haskell": {
@@ -177,7 +178,7 @@ LANGUAGES = {
 # ─── Resource Limits ──────────────────────────────────────────────────────────
 
 MAX_TIMEOUT = 15  # seconds
-MAX_MEMORY_MB = 512  # MB
+MAX_MEMORY_MB = 2048  # MB
 MAX_OUTPUT_SIZE = 65536  # characters
 
 
@@ -194,12 +195,14 @@ def set_resource_limits():
     except (ValueError, OSError):
         pass
     try:
-        resource.setrlimit(resource.RLIMIT_FSIZE, (10 * 1024 * 1024, 10 * 1024 * 1024))
+        resource.setrlimit(resource.RLIMIT_FSIZE, (100 * 1024 * 1024, 100 * 1024 * 1024))
     except (ValueError, OSError):
+
         pass
     try:
-        resource.setrlimit(resource.RLIMIT_NPROC, (64, 64))
+        resource.setrlimit(resource.RLIMIT_NPROC, (256, 256))
     except (ValueError, OSError):
+
         pass
 
 
