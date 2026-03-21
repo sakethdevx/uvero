@@ -1,21 +1,13 @@
-import React from 'react';
-
-export default function StatusBar({ language, cursorPosition, charCount, lineCount, lastExecTime, status }) {
+export default function StatusBar({ cursorPosition, charCount, lineCount, lastExecTime }) {
     return (
-        <div className="flex items-center justify-between px-4 py-1.5 bg-gray-50/80 dark:bg-[#0a0e14] border-t border-gray-200/70 dark:border-white/[0.06] text-[10px] font-mono text-gray-400 dark:text-gray-600 select-none backdrop-blur-sm">
+        <div className="flex items-center justify-between px-3 py-1 bg-gray-50/80 dark:bg-[#0a0e14] border-t border-gray-200/70 dark:border-white/[0.06] text-[10px] font-mono text-gray-400 dark:text-gray-600 select-none backdrop-blur-sm">
             {/* Left */}
-            <div className="flex items-center gap-3">
-                {language && (
-                    <span className="flex items-center gap-1.5 text-gray-500 dark:text-gray-500">
-                        <span>{language.icon}</span>
-                        <span className="font-semibold">{language.name}</span>
-                    </span>
-                )}
-                {language && (
-                    <span className="text-gray-300 dark:text-gray-700 bg-gray-100 dark:bg-white/[0.03] px-1.5 py-0.5 rounded">{language.extension}</span>
-                )}
+            <div className="flex items-center gap-4">
                 {cursorPosition && (
-                    <span>Ln {cursorPosition.line}, Col {cursorPosition.column}</span>
+                    <span className="flex items-center gap-1.5 overflow-hidden">
+                        <span className="opacity-60 text-[8px] uppercase tracking-wider">Pos</span>
+                        <span className="text-gray-600 dark:text-gray-400">Ln {cursorPosition.line}, Col {cursorPosition.column}</span>
+                    </span>
                 )}
             </div>
 

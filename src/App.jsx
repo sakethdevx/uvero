@@ -206,7 +206,7 @@ function AppContent() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 py-3 px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 py-2 px-4 sm:px-6 lg:px-8">
         <nav className={`max-w-7xl mx-auto transition-all duration-500 ${isScrolled ? 'floating-nav-scrolled' : 'floating-nav'}`}>
           <div className="flex justify-between items-center h-16 px-4 sm:px-6">
             {/* Logo */}
@@ -394,7 +394,7 @@ function AppContent() {
         {/* Subtle gradient decoration */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-500/50 to-transparent" />
 
-        <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 relative">
+        <div className="max-w-7xl mx-auto px-4 py-10 sm:px-6 lg:px-8 relative">
           <div className="grid md:grid-cols-4 gap-10">
             {/* Brand */}
             <div className="md:col-span-2">

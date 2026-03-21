@@ -129,7 +129,10 @@ export default function CompilerHome() {
         saveCodes(savedCodes.current);
         const savedCode = savedCodes.current[newLang];
         setLanguage(newLang);
-        setCode(savedCode || getLanguageTemplate(newLang));
+        // Always reset to 'hello' template for now as per requirement "default code should be automatically there"
+        // If the user wants to preserve edits, we could check savedCode, but "user just need to select language"
+        // implies a fresh start with the default template.
+        setCode(getLanguageTemplate(newLang, 'hello'));
         setTemplateName('hello');
         setOutput(null);
     }, [language, code]);
@@ -187,12 +190,12 @@ export default function CompilerHome() {
             </div>
 
             {/* ─── Compact Header ─── */}
-            <header className="relative pt-12 pb-6 px-4 sm:px-6">
+            <header className="relative pt-8 pb-4 px-4 sm:px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         {/* Left: Title & Badge */}
                         <div className="flex items-center gap-4">
-                            <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-none">
+                            <h1 className="text-xl sm:text-2xl font-black tracking-tight leading-none">
                                 <span className="text-gray-900 dark:text-white">Online </span>
                                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-violet-500 to-purple-500 animate-gradient-x">
                                     Compiler
@@ -200,7 +203,7 @@ export default function CompilerHome() {
                             </h1>
                             
                             {/* Discrete pill badge */}
-                            <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 dark:bg-white/[0.06] border border-gray-200/50 dark:border-white/10 backdrop-blur-sm shadow-sm">
+                            <div className="hidden sm:inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-white/70 dark:bg-white/[0.06] border border-gray-200/50 dark:border-white/10 backdrop-blur-sm shadow-sm">
                                 <span className="relative flex h-1.5 w-1.5">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                                     <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
@@ -209,19 +212,16 @@ export default function CompilerHome() {
                             </div>
                         </div>
 
-                        {/* Right: Language selector */}
+                        {/* Right: Empty or Action counts */}
                         <div className="flex items-center gap-3">
-                            <LanguageSelector
-                                selectedLanguage={language}
-                                onLanguageChange={handleLanguageChange}
-                            />
+                            {/* Actions moved to toolbar/statusbar */}
                         </div>
                     </div>
                 </div>
             </header>
 
             {/* ─── IDE Layout ─── */}
-            <section className="relative max-w-7xl mx-auto px-4 sm:px-6 pb-10">
+            <section className="relative max-w-7xl mx-auto px-4 sm:px-6 pb-6">
                 {/* Main IDE card with glow border */}
                 <div className="relative rounded-2xl overflow-hidden">
                     {/* Glow border effect */}
@@ -234,6 +234,7 @@ export default function CompilerHome() {
                                 {/* Toolbar */}
                                 <EditorToolbar
                                     language={language}
+                                    onLanguageChange={handleLanguageChange}
                                     isLoading={isLoading}
                                     onRun={handleRun}
                                     onReset={handleReset}
@@ -242,8 +243,6 @@ export default function CompilerHome() {
                                     onHistoryToggle={() => setHistoryOpen(true)}
                                     fontSize={fontSize}
                                     onFontSizeChange={setFontSize}
-                                    templateName={templateName}
-                                    onTemplateChange={handleTemplateChange}
                                 />
 
                                 {/* Monaco Editor */}
@@ -260,12 +259,10 @@ export default function CompilerHome() {
 
                                 {/* Status bar */}
                                 <StatusBar
-                                    language={currentLang}
                                     cursorPosition={cursorPosition}
                                     charCount={charCount}
                                     lineCount={lineCount}
                                     lastExecTime={output?.execution_time_ms}
-                                    status={output?.status}
                                 />
                             </div>
 
