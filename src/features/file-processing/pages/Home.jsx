@@ -67,120 +67,124 @@ export default function Home() {
     ];
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">
+        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
             {/* Hero Section */}
-            <section className="relative pt-20 pb-16 overflow-hidden">
-                {/* Background Blobs */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute -top-[10%] -right-[5%] w-[40%] h-[40%] bg-primary-500/10 dark:bg-primary-500/20 rounded-full blur-[120px] animate-pulse" />
-                    <div className="absolute top-[20%] -left-[5%] w-[35%] h-[35%] bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+            <div className="relative overflow-hidden">
+                <div className="pointer-events-none absolute inset-0">
+                    <div className="absolute left-[-10rem] top-16 h-96 w-96 rounded-full bg-primary-500/8 blur-3xl" />
+                    <div className="absolute right-[-8rem] top-8 h-80 w-80 rounded-full bg-blue-500/8 blur-3xl" />
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-500/30 to-transparent" />
                 </div>
 
-                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-50 dark:bg-primary-500/10 border border-primary-100 dark:border-primary-500/20 text-primary-700 dark:text-primary-400 text-sm font-medium mb-8 animate-fade-in shadow-sm">
-                        <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
-                        </span>
-                        100% Client-Side Processing
+                <section className="relative max-w-7xl mx-auto px-4 pt-16 pb-10 sm:px-6 lg:px-8">
+                    <div className="grid gap-6 lg:grid-cols-[1.4fr_0.85fr]">
+                        <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-primary-50 via-white to-blue-50 p-8 shadow-xl shadow-primary-100/40 dark:border-white/[0.08] dark:from-primary-500/10 dark:via-gray-950 dark:to-blue-500/10 dark:shadow-none sm:p-10">
+                            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary-600 dark:text-primary-300">File Processing</p>
+                            <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+                                Powerful tools,{' '}
+                                <span className="text-primary-600 dark:text-primary-400">zero upload.</span>
+                            </h1>
+                            <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300">
+                                Transform images, PDFs, audio, and video directly in your browser. Privacy-first processing that works offline.
+                            </p>
+                            <div className="mt-8 flex flex-wrap gap-3">
+                                <a href="#quick-convert" className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700">
+                                    Start Processing
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                </a>
+                                <a href="#categories" className="inline-flex items-center gap-2 rounded-xl border border-gray-200/80 bg-white/80 px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300 dark:hover:bg-white/[0.08]">
+                                    Browse All Tools
+                                </a>
+                            </div>
+                        </div>
+
+                        <div className="rounded-3xl border border-gray-200/80 bg-gray-50/80 p-6 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
+                            <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Why choose us</p>
+                            <div className="mt-5 space-y-4">
+                                {[
+                                    { icon: '🛡️', title: 'Privacy First', desc: 'Files never leave your device.' },
+                                    { icon: '💨', title: 'Client-Side Speed', desc: 'No upload wait times.' },
+                                    { icon: '📶', title: 'Works Offline', desc: 'Use all tools without internet.' },
+                                ].map((f, i) => (
+                                    <div key={i} className="flex items-start gap-3">
+                                        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-50 dark:bg-primary-500/10 text-base">
+                                            {f.icon}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-gray-900 dark:text-white">{f.title}</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mt-0.5">{f.desc}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                                <div className="mt-2 pt-3 border-t border-gray-200/80 dark:border-white/[0.08]">
+                                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-500/10 border border-primary-100/80 dark:border-primary-500/20 text-primary-700 dark:text-primary-400 text-xs font-semibold">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-primary-500" />
+                                        100% Client-Side Processing
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6 animate-fade-in-up">
-                        Powerful Tools, <br />
-                        <span className="gradient-text animate-gradient-x">Zero Seconds Upload.</span>
-                    </h1>
-
-                    <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-600 dark:text-gray-400 mb-12 animate-fade-in-up leading-relaxed" style={{ animationDelay: '0.1s' }}>
-                        Transform images, PDFs, audio, and video directly in your browser.
-                        Privacy-first processing that works offline.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                        <a href="#quick-convert" className="btn-primary px-8 py-4 text-lg shadow-2xl shadow-primary-500/20 hover:shadow-primary-500/40">
-                            Start Processing
-                        </a>
-                        <a href="#categories" className="btn-secondary px-8 py-4 text-lg dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10">
-                            Browse All Tools
-                        </a>
-                    </div>
-                </div>
-            </section>
+                </section>
+            </div>
 
             {/* Quick Converter Section */}
-            <section id="quick-convert" className="relative z-10 -mt-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-                <div className="bg-white dark:bg-gray-900/50 backdrop-blur-3xl rounded-[2.5rem] border border-gray-100 dark:border-white/10 shadow-2xl overflow-hidden p-3 sm:p-6 lg:p-8">
+            <section id="quick-convert" className="max-w-6xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
+                <div className="rounded-3xl border border-gray-200/80 bg-white p-4 shadow-xl shadow-gray-100/60 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none sm:p-6">
                     <QuickConverter />
                 </div>
             </section>
 
             {/* Categories Section */}
-            <section id="categories" className="max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-                    <div className="max-w-2xl">
-                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                            Browse by Category
-                        </h2>
-                        <p className="text-gray-500 dark:text-gray-400 text-lg">
-                            Over 55+ specialized tools crafted for speed and precision.
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400 font-semibold cursor-default">
-                        <span>{popularTools.length}+ Tools available</span>
-                        <div className="w-8 h-[2px] bg-primary-600 dark:bg-primary-400" />
-                    </div>
+            <section id="categories" className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+                <div className="mb-6">
+                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Tools</p>
+                    <h2 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">Browse by category</h2>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Over 55+ specialized tools crafted for speed and precision.</p>
                 </div>
 
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {categories.map((category, idx) => {
                         const isExpanded = expandedCategory === category.categoryId;
                         const categoryTools = isExpanded ? getToolsByCategory(category.categoryId) : [];
 
                         return (
-                            <div key={idx} className="flex flex-col h-full group">
+                            <div key={idx} className="flex flex-col h-full">
                                 <button
                                     onClick={() => setExpandedCategory(isExpanded ? null : category.categoryId)}
-                                    className={`relative h-full p-8 rounded-3xl bg-white dark:bg-gray-900 border ${category.borderColor} hover:border-transparent dark:hover:border-transparent transition-all duration-500 text-left overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2`}
+                                    className={`relative h-full p-6 rounded-3xl border border-gray-200/80 ${category.bg} shadow-sm transition-shadow hover:shadow-md dark:border-white/[0.08] text-left`}
                                 >
-                                    {/* Hover gradient background */}
-                                    <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-0 group-hover:opacity-[0.03] dark:group-hover:opacity-[0.07] transition-opacity duration-500`} />
-
-                                    <div className="relative flex flex-col items-start gap-6 h-full">
-                                        <div className={`w-14 h-14 ${category.bg} rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm`}>
+                                    <div className="flex items-start gap-4">
+                                        <div className={`w-12 h-12 ${category.bg} rounded-2xl flex items-center justify-center text-2xl shadow-sm border ${category.borderColor}`}>
                                             {category.icon}
                                         </div>
-
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                                                    {category.name}
-                                                </h3>
-                                                <span className="text-xs font-bold px-2 py-0.5 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-full">
-                                                    {category.count}
-                                                </span>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <h3 className="text-base font-bold text-gray-900 dark:text-white">{category.name}</h3>
+                                                <span className="text-xs font-bold px-2 py-0.5 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-full">{category.count}</span>
                                             </div>
-                                            <p className="text-gray-500 dark:text-gray-400 leading-relaxed text-sm">
-                                                {category.description}
-                                            </p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{category.description}</p>
                                         </div>
-
-                                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary-600 dark:text-primary-400 mt-4">
-                                            <span>Explore {category.name}</span>
-                                            <svg className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-90' : 'group-hover:translate-x-1'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                            </svg>
-                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary-600 dark:text-primary-400 mt-4">
+                                        <span>Explore</span>
+                                        <svg className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+                                        </svg>
                                     </div>
                                 </button>
 
                                 {/* Expanded tools list */}
                                 {isExpanded && categoryTools.length > 0 && (
-                                    <div className="mt-4 p-5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/10 rounded-3xl shadow-xl animate-fade-in-down max-h-80 overflow-y-auto">
+                                    <div className="mt-3 p-5 rounded-3xl border border-gray-200/80 bg-white shadow-xl shadow-gray-100/60 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none max-h-80 overflow-y-auto">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                             {categoryTools.map((tool) => (
                                                 <Link
                                                     key={tool.id}
                                                     to={`/${tool.id}`}
-                                                    className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 text-sm text-gray-700 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-all font-medium border border-transparent hover:border-gray-100 dark:hover:border-white/5"
+                                                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 text-sm text-gray-700 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors font-medium"
                                                 >
                                                     <span className="text-lg flex-shrink-0">{tool.icon}</span>
                                                     <span className="truncate">{tool.name}</span>
@@ -197,43 +201,27 @@ export default function Home() {
 
             {/* Popular Tools Section */}
             {popularTools.length > 0 && (
-                <section className="bg-gray-50/50 dark:bg-gray-900/30 py-24 transition-colors">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center mb-16">
-                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                                Most Popular Tools
-                            </h2>
-                            <p className="text-gray-500 dark:text-gray-400 text-lg">
-                                Frequently used by the community for daily file tasks.
-                            </p>
-                        </div>
+                <section className="max-w-7xl mx-auto px-4 pb-12 sm:px-6 lg:px-8">
+                    <div className="rounded-3xl border border-gray-200/80 bg-white p-6 shadow-xl shadow-gray-100/60 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none sm:p-8">
+                        <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Popular</p>
+                        <h2 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">Most used tools</h2>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Frequently used by the community for daily file tasks.</p>
 
-                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {popularTools.slice(0, 9).map((tool) => {
                                 const isAvailable = tool.modes.includes(isOnlineMode ? 'online' : 'offline');
                                 return (
                                     <Link
                                         key={tool.id}
                                         to={`/${tool.id}`}
-                                        className={`group relative p-6 rounded-[2rem] bg-white dark:bg-gray-950 border border-gray-100 dark:border-white/5 hover:border-primary-500/30 dark:hover:border-primary-500/30 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 overflow-hidden ${!isAvailable ? 'opacity-50 grayscale' : ''}`}
+                                        className={`group flex items-start gap-4 p-4 rounded-2xl border border-gray-200/80 bg-gray-50/80 transition-shadow hover:shadow-md dark:border-white/[0.08] dark:bg-white/[0.03] ${!isAvailable ? 'opacity-50 grayscale' : ''}`}
                                     >
-                                        <div className="flex items-start gap-5">
-                                            <div className="w-14 h-14 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
-                                                {tool.icon}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                                                    {tool.name}
-                                                </h3>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
-                                                    {tool.description}
-                                                </p>
-                                            </div>
-                                            <div className="w-8 h-8 rounded-full border border-gray-100 dark:border-white/10 flex items-center justify-center text-gray-300 dark:text-gray-700 group-hover:bg-primary-500 group-hover:border-primary-500 group-hover:text-white transition-all duration-300">
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7-7 7" />
-                                                </svg>
-                                            </div>
+                                        <div className="w-11 h-11 bg-white dark:bg-gray-900/60 border border-gray-200/80 dark:border-white/[0.08] rounded-xl flex items-center justify-center text-2xl shrink-0">
+                                            {tool.icon}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{tool.name}</h3>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed mt-0.5">{tool.description}</p>
                                         </div>
                                     </Link>
                                 );
@@ -244,60 +232,48 @@ export default function Home() {
             )}
 
             {/* Platform Features */}
-            <section className="py-32">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid md:grid-cols-3 gap-12">
+            <section className="max-w-7xl mx-auto px-4 pb-12 sm:px-6 lg:px-8">
+                <div className="rounded-3xl border border-gray-200/80 bg-gray-50/80 p-6 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
+                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500 mb-5">Why it works</p>
+                    <div className="grid md:grid-cols-3 gap-6">
                         {[
-                            {
-                                icon: '🛡️',
-                                title: 'Privacy Guaranteed',
-                                desc: 'Files are processed in-memory and never storage. Your data remains yours.'
-                            },
-                            {
-                                icon: '💨',
-                                title: 'Client-Side Speed',
-                                desc: 'Skip the wait times of uploading large files. Process everything locally at native speed.'
-                            },
-                            {
-                                icon: '📶',
-                                title: 'Works Offline',
-                                desc: 'Once loaded, use all browser-based tools without any internet connection.'
-                            }
+                            { icon: '🛡️', title: 'Privacy Guaranteed', desc: 'Files are processed in-memory and never stored. Your data remains yours.' },
+                            { icon: '💨', title: 'Client-Side Speed', desc: 'Skip the wait times of uploading large files. Process everything locally at native speed.' },
+                            { icon: '📶', title: 'Works Offline', desc: 'Once loaded, use all browser-based tools without any internet connection.' },
                         ].map((item, i) => (
-                            <div key={i} className="flex flex-col items-center text-center">
-                                <div className="w-20 h-20 rounded-[2rem] bg-primary-50 dark:bg-primary-500/10 flex items-center justify-center text-4xl mb-6 shadow-sm">
+                            <div key={i} className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-2xl bg-white dark:bg-gray-900/60 border border-gray-200/80 dark:border-white/[0.08] flex items-center justify-center text-xl shrink-0 shadow-sm">
                                     {item.icon}
                                 </div>
-                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">{item.title}</h3>
-                                <p className="text-gray-500 dark:text-gray-400 text-lg leading-relaxed">{item.desc}</p>
+                                <div>
+                                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">{item.title}</h3>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">{item.desc}</p>
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Redesigned CTA */}
-            <div className="max-w-7xl mx-auto px-4 pb-20 sm:px-6 lg:px-8">
-                <div className="relative rounded-[3rem] overflow-hidden bg-gray-900 p-12 sm:p-20 text-center shadow-3xl">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary-600/20 via-blue-600/20 to-purple-600/20 pointer-events-none" />
-                    <div className="relative z-10 max-w-2xl mx-auto">
-                        <h2 className="text-4xl sm:text-5xl font-extrabold text-white mb-6">
-                            Start working with your files today.
-                        </h2>
-                        <p className="text-xl text-gray-300 mb-10">
-                            No account required. Open source and free forever.
-                        </p>
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                            <a href="#quick-convert" className="btn-primary w-full sm:w-auto px-10 py-4 text-lg">
-                                Get Started
-                            </a>
-                            <Link to="/privacy" className="w-full sm:w-auto px-10 py-4 text-lg font-semibold rounded-2xl border border-white/20 bg-white/5 text-white transition-colors hover:bg-white/10 hover:border-white/30">
-                                Privacy Policy
-                            </Link>
-                        </div>
+            {/* CTA */}
+            <section className="max-w-7xl mx-auto px-4 pb-20 sm:px-6 lg:px-8">
+                <div className="rounded-3xl border border-primary-500/20 bg-gradient-to-br from-primary-600 to-indigo-700 p-8 text-center shadow-xl shadow-primary-500/20 sm:p-12">
+                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary-200">Get started</p>
+                    <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">Start working with your files today.</h2>
+                    <p className="mt-3 text-primary-100 max-w-md mx-auto text-sm leading-relaxed">No account required. Open source and free forever.</p>
+                    <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+                        <a href="#quick-convert" className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-primary-700 shadow-sm transition-colors hover:bg-primary-50">
+                            Get Started
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </a>
+                        <Link to="/privacy" className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/20">
+                            Privacy Policy
+                        </Link>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     );
 }
