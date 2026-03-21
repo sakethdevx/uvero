@@ -3,9 +3,10 @@ import LanguageSelector from './LanguageSelector';
 
 export default function StatusBar({ language, onLanguageChange, cursorPosition, charCount, lineCount, lastExecTime, status }) {
     return (
-        <div className="flex items-center justify-between px-4 py-2 bg-white/50 dark:bg-white/[0.02] border-t border-gray-200/80 dark:border-white/10 text-[11px] font-mono text-gray-500 dark:text-gray-400 select-none backdrop-blur-md relative z-20">
+        <div className="flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-white/[0.05] border-t-2 border-primary-500 text-[11px] font-mono text-gray-600 dark:text-gray-200 select-none backdrop-blur-md relative z-30">
             {/* Left */}
             <div className="flex items-center gap-4">
+                <span className="text-primary-500 font-bold mr-2">IDE</span>
                 {language && (
                     <LanguageSelector 
                         selectedLanguage={language.id} 
