@@ -37,7 +37,7 @@ export default function CodeEditor({ language, value, onChange, isDark = true, f
     }, [isDark]);
 
     return (
-        <div className="h-full w-full rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 shadow-2xl">
+        <div className="h-full w-full overflow-hidden">
             <Editor
                 height="100%"
                 language={language}
