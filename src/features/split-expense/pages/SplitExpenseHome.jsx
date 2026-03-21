@@ -202,14 +202,13 @@ export default function SplitExpenseHome() {
                     <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl" />
                 </div>
 
-                <div className="relative max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+                <div className="relative max-w-7xl mx-auto px-4 pt-12 pb-8 sm:px-6 lg:px-8">
                     <div className="max-w-3xl">
                         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-semibold uppercase tracking-wider">
                             New Service
                         </span>
-                        <h1 className="mt-5 text-4xl sm:text-5xl font-black tracking-tight text-gray-900 dark:text-white">
-                            PaySplit – Split Expenses
-                        </h1>
+                        {/* Feature name now in site header */}
+
                         <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 leading-relaxed">
                             Split trip expenses, settle fast, and pay via UPI in one tap with shareable links and QR-ready payment details.
                         </p>

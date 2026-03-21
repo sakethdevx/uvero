@@ -424,9 +424,7 @@ export default function EventsPage() {
                                 <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center shadow-lg shadow-rose-500/20">
                                     <span className="text-xl">📸</span>
                                 </div>
-                                <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                                    Photo<span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-400 to-purple-400">Drop</span>
-                                </h1>
+                                {/* Feature name now in site header */}
                             </div>
                             <p className="text-gray-300 dark:text-gray-400 max-w-md font-light">
                                 Create events, upload photos, and let AI do the rest.

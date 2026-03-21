@@ -127,7 +127,7 @@ export default function QRToolsHome() {
                     <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-indigo-100/15 rounded-full blur-3xl animate-blob" style={{ animationDelay: '4s' }} />
                 </div>
 
-                <div className="relative max-w-7xl mx-auto px-4 pt-16 pb-8 sm:px-6 lg:px-8 sm:pt-24 sm:pb-12">
+                <div className="relative max-w-7xl mx-auto px-4 pt-12 pb-8 sm:px-6 lg:px-8 sm:pt-16 sm:pb-12">
                     <div className="text-center max-w-4xl mx-auto">
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/80 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 rounded-full mb-8 animate-fade-in shadow-sm">
                             <span className="relative flex h-2 w-2">
@@ -136,13 +136,8 @@ export default function QRToolsHome() {
                             </span>
                             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Free QR Tools — no sign-up required</span>
                         </div>
+                        {/* Feature name now in site header */}
 
-                        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 dark:text-white mb-6 leading-[1.1] animate-fade-in-up text-balance">
-                            Professional{' '}
-                            <span className="bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-600 bg-clip-text text-transparent">
-                                QR Tools
-                            </span>
-                        </h1>
 
                         <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-500 dark:text-gray-400 mb-8 animate-fade-in-up leading-relaxed" style={{ animationDelay: '0.1s' }}>
                             Generate, scan, and validate QR codes for URLs, WiFi, UPI payments, contacts, and 10+ more formats.
