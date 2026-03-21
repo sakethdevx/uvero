@@ -448,7 +448,7 @@ function AppContent() {
                   { name: 'Online Compiler', path: '/compiler' },
                   { name: 'PhotoDrop', path: '/photodrop' },
                   { name: 'Online Clipboard', path: '/clipboard' },
-                  { name: 'PaySplit', path: '/split-expense' },
+                  { name: 'PaySplit – Split Expenses', path: '/split-expense' },
                   { name: 'Uvero CLI', path: '/cli' },
                 ].map((link, idx) => (
                   <li key={idx}>

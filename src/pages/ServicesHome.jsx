@@ -58,10 +58,10 @@ const services = [
     },
     {
         id: 'trip-split',
-        name: 'PaySplit',
+        name: 'PaySplit – Split Expenses',
         tagline: 'Split expenses without friction',
-        description: 'Create trip groups, add shared expenses, auto-calculate who owes whom, and settle instantly using UPI IDs or QR payment references.',
-        features: ['Equal / Exact / % / Shares', 'UPI Deep Links', 'Guest + Signed-In Support', 'Smart Settle-Up'],
+        description: 'Create trip groups, add shared expenses, auto-calculate who owes whom, and settle instantly using UPI IDs, mobile numbers, or QR payment references.',
+        features: ['Equal / Exact / % / Shares', 'UPI Deep Links', 'Guest + Signed-In Support', 'Smart Settle-Up Suggestions'],
         icon: (
             <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 1.12-3 2.5S10.343 13 12 13s3 1.12 3 2.5S13.657 18 12 18m0-10V6m0 12v-2m9-4.5c0 4.971-4.03 9-9 9s-9-4.029-9-9 4.03-9 9-9 9 4.029 9 9z" />
@@ -77,7 +77,7 @@ const services = [
         name: 'QR Tools',
         tagline: 'Generate, scan & validate QR codes',
         description: 'Create professional QR codes for URLs, WiFi, UPI payments, vCard contacts, WhatsApp, maps, and more. Scan with camera or image upload.',
-        features: ['12+ Payload Types', 'Logo & Custom Colours', 'Camera & Image Scanner', 'QR Validator'],
+        features: ['12+ Payload Types', 'Logo & Custom Colours', 'Camera & Image Scanner', 'QR Validator & Score'],
         icon: (
             <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
@@ -93,7 +93,7 @@ const services = [
         id: 'compiler',
         name: 'Online Compiler',
         tagline: 'Write, compile & run code instantly',
-        description: 'A premium online IDE powered by Monaco Editor. Execute code in 20+ programming languages with real-time output and execution metrics.',
+        description: 'A premium online IDE powered by Monaco Editor. Execute code in 20+ programming languages with real-time output, execution metrics, and zero setup required.',
         features: ['20+ Languages', 'Monaco Editor', 'Execution Metrics', 'Cloud Sandboxed'],
         icon: (
             <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -145,7 +145,7 @@ const platformFeatures = [
     {
         icon: (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
             </svg>
         ),
         title: 'Completely Free',
