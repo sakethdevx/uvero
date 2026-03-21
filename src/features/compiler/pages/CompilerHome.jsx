@@ -5,8 +5,11 @@ import EditorToolbar from '../components/EditorToolbar';
 import OutputPanel from '../components/OutputPanel';
 import StdinPanel from '../components/StdinPanel';
 import StatusBar from '../components/StatusBar';
+import HistoryPanel from '../components/HistoryPanel';
 import { LANGUAGES, getLanguageTemplate, getLanguageById } from '../data/languages';
 import { executeCode } from '../api/executeCode';
+import useExecutionHistory from '../hooks/useExecutionHistory';
+import useShareableSnippet from '../hooks/useShareableSnippet';
 
 const STORAGE_KEY = 'uvero_compiler_prefs';
 const CODE_STORAGE_KEY = 'uvero_compiler_codes';
@@ -45,6 +48,22 @@ export default function CompilerHome() {
     const [isLoading, setIsLoading] = useState(false);
     const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 1 });
     const [isDark, setIsDark] = useState(true);
+    const [historyOpen, setHistoryOpen] = useState(false);
+
+    // Execution history
+    const { runs, addRun, deleteRun, clearHistory } = useExecutionHistory();
+
+    // Shareable snippet — restore shared code on mount
+    const handleSnippetRestore = useCallback((data) => {
+        savedCodes.current[data.language] = data.code;
+        saveCodes(savedCodes.current);
+        setLanguage(data.language);
+        setCode(data.code);
+        if (data.stdin) setStdin(data.stdin);
+        setOutput(null);
+    }, []);
+
+    const { generateShareLink } = useShareableSnippet(handleSnippetRestore);
 
     // Detect system/site dark mode
     useEffect(() => {
@@ -76,6 +95,20 @@ export default function CompilerHome() {
         try {
             const result = await executeCode(language, code, stdin);
             setOutput(result);
+
+            // Save to execution history
+            const lang = getLanguageById(language);
+            addRun({
+                language,
+                languageName: lang?.name || language,
+                code,
+                stdin,
+                status: result.status,
+                executionTime: result.execution_time_ms || 0,
+                stdout: result.stdout || '',
+                stderr: result.stderr || '',
+                exitCode: result.exit_code,
+            });
         } catch (error) {
             setOutput({
                 status: 'error',
@@ -88,7 +121,7 @@ export default function CompilerHome() {
         } finally {
             setIsLoading(false);
         }
-    }, [language, code, stdin, isLoading]);
+    }, [language, code, stdin, isLoading, addRun]);
 
     // Switch language
     const handleLanguageChange = useCallback((newLang) => {
@@ -124,6 +157,22 @@ export default function CompilerHome() {
     const monacoLang = currentLang?.monaco || 'plaintext';
     const lineCount = code.split('\n').length;
     const charCount = code.length;
+
+    // Share handler
+    const handleShare = useCallback(() => {
+        return generateShareLink(language, code, stdin);
+    }, [generateShareLink, language, code, stdin]);
+
+    // Load from history
+    const handleLoadRun = useCallback((run) => {
+        savedCodes.current[run.language] = run.code;
+        saveCodes(savedCodes.current);
+        setLanguage(run.language);
+        setCode(run.code);
+        if (run.stdin) setStdin(run.stdin);
+        setOutput(null);
+        setHistoryOpen(false);
+    }, []);
 
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
@@ -176,6 +225,8 @@ export default function CompilerHome() {
                             onRun={handleRun}
                             onReset={handleReset}
                             onCopy={handleCopy}
+                            onShare={handleShare}
+                            onHistoryToggle={() => setHistoryOpen(true)}
                             fontSize={fontSize}
                             onFontSizeChange={setFontSize}
                             templateName={templateName}
@@ -224,8 +275,8 @@ export default function CompilerHome() {
                     {[
                         { icon: '⚡', title: 'Instant Execution', desc: 'Cloud-powered sandboxed runtimes' },
                         { icon: '🎨', title: 'Monaco Editor', desc: 'VS Code powered editing experience' },
-                        { icon: '🔒', title: 'No Login Required', desc: 'Start coding instantly, zero setup' },
-                        { icon: '📊', title: 'Execution Metrics', desc: 'Time, memory & exit code tracking' },
+                        { icon: '🕐', title: 'Execution History', desc: 'Last 50 runs stored locally, no login' },
+                        { icon: '🔗', title: 'Shareable Links', desc: 'Share code via URL in one click' },
                     ].map((feat, i) => (
                         <div key={i} className="bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/5 rounded-xl p-4 hover:border-gray-200 dark:hover:border-white/10 transition-all">
                             <span className="text-2xl mb-2 block">{feat.icon}</span>
@@ -235,6 +286,16 @@ export default function CompilerHome() {
                     ))}
                 </div>
             </section>
+
+            {/* History Panel */}
+            <HistoryPanel
+                isOpen={historyOpen}
+                onClose={() => setHistoryOpen(false)}
+                runs={runs}
+                onLoadRun={handleLoadRun}
+                onDeleteRun={deleteRun}
+                onClearHistory={clearHistory}
+            />
 
             {/* CSS animations */}
             <style>{`

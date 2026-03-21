@@ -1,7 +1,8 @@
 import React from 'react';
 import { getTemplateNames } from '../data/languages';
+import ShareButton from './ShareButton';
 
-export default function EditorToolbar({ language, isLoading, onRun, onReset, onCopy, fontSize, onFontSizeChange, templateName, onTemplateChange }) {
+export default function EditorToolbar({ language, isLoading, onRun, onReset, onCopy, onShare, onHistoryToggle, fontSize, onFontSizeChange, templateName, onTemplateChange }) {
     const templates = getTemplateNames(language);
 
     return (
@@ -52,6 +53,9 @@ export default function EditorToolbar({ language, isLoading, onRun, onReset, onC
                     </svg>
                 </button>
 
+                {/* Share */}
+                <ShareButton onShare={onShare} />
+
                 {/* Divider */}
                 <div className="w-px h-5 bg-gray-200 dark:bg-white/10 mx-1" />
 
@@ -93,6 +97,17 @@ export default function EditorToolbar({ language, isLoading, onRun, onReset, onC
                     <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded text-[10px]">⌘</kbd>
                     <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded text-[10px]">↵</kbd>
                 </div>
+
+                {/* History toggle */}
+                <button
+                    onClick={onHistoryToggle}
+                    title="Execution History"
+                    className="p-2 text-gray-400 dark:text-gray-500 hover:text-violet-500 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 rounded-lg transition-all"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
             </div>
         </div>
     );
