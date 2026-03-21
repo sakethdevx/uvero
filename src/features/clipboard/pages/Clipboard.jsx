@@ -151,20 +151,15 @@ export default function Clipboard() {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-500/5 rounded-full blur-3xl" />
             </div>
 
-            {/* ── Hero ── */}
-            <section className="relative pt-20 pb-10 px-4">
+            {/* ── Hero (Simplified) ── */}
+            <section className="relative pt-12 pb-8 px-4">
                 <div className="max-w-3xl mx-auto text-center">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                         Instant text sharing · No login required
                     </div>
-                    <h1 className="text-5xl sm:text-6xl font-black tracking-tight mb-4 text-gray-900 dark:text-white">
-                        Online{' '}
-                        <span className={`bg-clip-text text-transparent transition-all duration-700 ${activeMode === 'quick' ? 'bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500' : 'bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-500'}`}>
-                            Clipboard
-                        </span>
-                    </h1>
-                    <p className="text-lg text-gray-500 dark:text-gray-400 max-w-xl mx-auto leading-relaxed">
+                    {/* Feature name now in site header */}
+                    <p className="text-xl text-gray-500 dark:text-gray-400 max-w-xl mx-auto leading-relaxed font-medium">
                         Share text instantly with a 4-digit code, or create named private boards with rich features.
                     </p>
                 </div>
