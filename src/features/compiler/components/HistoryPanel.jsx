@@ -13,13 +13,13 @@ function timeAgo(ts) {
     return new Date(ts).toLocaleDateString();
 }
 
-const STATUS_ICONS = {
-    success: '✅',
-    runtime_error: '❌',
-    compilation_error: '🔨',
-    timeout: '⏱',
-    error: '⚠️',
-    cancelled: '🚫',
+const STATUS_CONFIG = {
+    success: { icon: '✅', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+    runtime_error: { icon: '❌', color: 'text-red-500', bg: 'bg-red-500/10' },
+    compilation_error: { icon: '🔨', color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    timeout: { icon: '⏱', color: 'text-orange-500', bg: 'bg-orange-500/10' },
+    error: { icon: '⚠️', color: 'text-red-500', bg: 'bg-red-500/10' },
+    cancelled: { icon: '🚫', color: 'text-gray-400', bg: 'bg-gray-400/10' },
 };
 
 export default function HistoryPanel({ isOpen, onClose, runs, onLoadRun, onDeleteRun, onClearHistory }) {
@@ -41,153 +41,169 @@ export default function HistoryPanel({ isOpen, onClose, runs, onLoadRun, onDelet
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm animate-fade-in"
+                className="fixed inset-0 z-[60] bg-[#0a0a0f]/60 backdrop-blur-md animate-fade-in"
                 onClick={onClose}
             />
 
             {/* Panel */}
-            <div className="fixed right-0 top-0 bottom-0 z-50 w-full sm:w-[400px] bg-white dark:bg-gray-950 border-l border-gray-200 dark:border-white/10 shadow-2xl shadow-black/20 flex flex-col animate-slide-in-right">
+            <div className="fixed right-0 top-0 bottom-0 z-[70] w-full sm:w-[460px] bg-white dark:bg-[#0d1117] border-l border-gray-200 dark:border-white/[0.08] shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] flex flex-col animate-panel-in">
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/5">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
-                            <svg className="w-4.5 h-4.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                <div className="relative px-6 py-8 pb-6">
+                    {/* Abstract background effect */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-violet-600/10 blur-[60px] -z-10" />
+                    <div className="absolute top-10 left-10 w-24 h-24 bg-blue-600/10 blur-[50px] -z-10" />
+                    
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-xl shadow-blue-500/20">
+                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Execution History</h2>
+                                <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{runs.length} Runs Stored Locally</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 className="text-sm font-bold text-gray-900 dark:text-white">Execution History</h2>
-                            <p className="text-[10px] text-gray-400 dark:text-gray-500">{runs.length} run{runs.length !== 1 ? 's' : ''} · stored locally</p>
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-all"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-
-                {/* Clear button */}
-                {runs.length > 0 && (
-                    <div className="flex items-center justify-between px-5 py-2 border-b border-gray-50 dark:border-white/[0.03]">
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                            No login required
-                        </span>
 
                         <button
+                            onClick={onClose}
+                            className="p-2.5 text-gray-400 hover:text-gray-900 dark:hover:text-white bg-gray-50 dark:bg-white/[0.03] hover:bg-gray-100 dark:hover:bg-white/[0.08] rounded-xl transition-all border border-gray-200/50 dark:border-white/5"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Toolbar */}
+                <div className="px-6 py-3 flex items-center justify-between bg-gray-50/50 dark:bg-white/[0.01] border-y border-gray-100 dark:border-white/[0.05]">
+                    <div className="flex items-center gap-2">
+                        <span className="flex h-2 w-2 relative">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 tracking-wide uppercase">Private Storage</span>
+                    </div>
+
+                    {runs.length > 0 && (
+                        <button
                             onClick={handleClear}
-                            className={`text-[10px] font-semibold px-2.5 py-1 rounded-lg transition-all ${
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                                 confirmClear
-                                    ? 'bg-red-500 text-white hover:bg-red-600'
+                                    ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
                                     : 'text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10'
                             }`}
                         >
-                            {confirmClear ? 'Confirm Clear All' : 'Clear All'}
+                            {confirmClear ? 'Confirm Deletion?' : 'Clear History'}
                         </button>
-                    </div>
-                )}
+                    )}
+                </div>
 
-                {/* Entries */}
-                <div className="flex-1 overflow-y-auto">
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
                     {runs.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-full text-center px-8">
-                            <div className="w-20 h-20 rounded-2xl bg-gray-50 dark:bg-white/[0.03] flex items-center justify-center mb-5">
-                                <svg className="w-10 h-10 text-gray-200 dark:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
+                        <div className="h-full flex flex-col items-center justify-center text-center px-10">
+                            <div className="relative mb-6">
+                                <div className="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full" />
+                                <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-white/[0.04] dark:to-transparent border border-gray-200/50 dark:border-white/[0.08] flex items-center justify-center shadow-inner">
+                                    <svg className="w-10 h-10 text-gray-200 dark:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                    </svg>
+                                </div>
                             </div>
-                            <p className="text-sm font-semibold text-gray-400 dark:text-gray-500 mb-1">No executions yet</p>
-                            <p className="text-xs text-gray-300 dark:text-gray-600">Run your first program to see it here</p>
+                            <h3 className="text-base font-black text-gray-900 dark:text-white mb-2 tracking-tight">Your code playground is empty</h3>
+                            <p className="text-sm text-gray-400 dark:text-gray-500 leading-relaxed">Runs will appear here automatically. Everything is stored on your device and remains private to you.</p>
                         </div>
                     ) : (
-                        <div className="py-2">
+                        <div className="space-y-3">
                             {runs.map((run) => {
                                 const lang = getLanguageById(run.language);
                                 const firstLine = (run.code || '').split('\n')[0].slice(0, 60);
-                                const statusIcon = STATUS_ICONS[run.status] || '⚠️';
+                                const status = STATUS_CONFIG[run.status] || STATUS_CONFIG.error;
 
                                 return (
                                     <div
                                         key={run.id}
-                                        className="group relative px-5 py-3 hover:bg-gray-50 dark:hover:bg-white/[0.03] cursor-pointer transition-all border-b border-gray-50 dark:border-white/[0.02] last:border-0"
+                                        className="group relative bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-white/[0.05] rounded-2xl p-4 hover:border-blue-500/30 dark:hover:border-blue-500/20 hover:bg-gray-50 dark:hover:bg-blue-500/[0.02] transition-all duration-300 cursor-pointer shadow-sm hover:shadow-xl hover:shadow-black/5"
                                         onClick={() => onLoadRun(run)}
                                     >
-                                        <div className="flex items-start gap-3">
-                                            {/* Language icon */}
-                                            <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gray-100 dark:bg-white/5 flex items-center justify-center text-sm">
-                                                {lang?.icon || '📄'}
+                                        <div className="flex items-start gap-4">
+                                            {/* Icon with status ring */}
+                                            <div className="relative">
+                                                <div className={`w-12 h-12 rounded-xl bg-gray-100 dark:bg-white/[0.05] flex items-center justify-center text-xl transition-transform duration-300 group-hover:scale-110`}>
+                                                    {lang?.icon || '📄'}
+                                                </div>
+                                                <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full ${status.bg} border-2 border-white dark:border-[#0d1117] flex items-center justify-center text-[10px] shadow-sm`}>
+                                                    {status.icon}
+                                                </div>
                                             </div>
 
-                                            {/* Content */}
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 mb-0.5">
-                                                    <span className="text-xs font-bold text-gray-800 dark:text-gray-200">
-                                                        {lang?.name || run.language}
-                                                    </span>
-                                                    <span className="text-[10px]">{statusIcon}</span>
-                                                    {run.executionTime > 0 && (
-                                                        <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono">
-                                                            {run.executionTime.toFixed(0)}ms
-                                                        </span>
-                                                    )}
+                                            {/* Info */}
+                                            <div className="flex-1 min-w-0 pr-6">
+                                                <div className="flex items-start justify-between mb-1.5">
+                                                    <div>
+                                                        <h4 className="text-sm font-black text-gray-900 dark:text-white tracking-tight leading-none mb-1 group-hover:text-blue-500 transition-colors">{lang?.name || run.language}</h4>
+                                                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">{timeAgo(run.timestamp)}</span>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-[10px] font-mono font-bold text-emerald-500 dark:text-emerald-500/70">{run.executionTime.toFixed(0)}ms</p>
+                                                    </div>
                                                 </div>
 
-                                                {/* Code preview */}
-                                                <p className="text-[11px] text-gray-400 dark:text-gray-500 font-mono truncate">
-                                                    {firstLine || '(empty)'}
-                                                </p>
-
-                                                {/* Output preview */}
-                                                {run.stdout && (
-                                                    <p className="text-[10px] text-emerald-500/70 dark:text-emerald-500/50 font-mono truncate mt-0.5">
-                                                        → {run.stdout.split('\n')[0].slice(0, 50)}
+                                                {/* Code excerpt block */}
+                                                <div className="bg-gray-50 dark:bg-black/20 rounded-lg p-2.5 mt-2 border border-gray-100 dark:border-white/[0.03]">
+                                                    <p className="text-[11px] text-gray-500 dark:text-gray-400 font-mono truncate">
+                                                        {firstLine || '(empty source)'}
                                                     </p>
-                                                )}
+                                                    {run.stdout && (
+                                                        <p className="text-[10px] text-emerald-600/60 dark:text-emerald-500/40 font-mono truncate mt-1">
+                                                            → {run.stdout.split('\n')[0].slice(0, 50)}
+                                                        </p>
+                                                    )}
+                                                </div>
                                             </div>
 
-                                            {/* Timestamp + delete */}
-                                            <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                                                <span className="text-[10px] text-gray-300 dark:text-gray-600">
-                                                    {timeAgo(run.timestamp)}
-                                                </span>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        onDeleteRun(run.id);
-                                                    }}
-                                                    className="opacity-0 group-hover:opacity-100 p-1 text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-all rounded"
-                                                    title="Delete"
-                                                >
-                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
-                                            </div>
+                                            {/* Delete button (absolute for better layout control) */}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onDeleteRun(run.id);
+                                                }}
+                                                className="absolute top-4 right-4 p-2 text-gray-300 dark:text-gray-700 hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
                                         </div>
-
-                                        {/* Load indicator on hover */}
-                                        <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-violet-500 opacity-0 group-hover:opacity-100 transition-opacity rounded-r" />
                                     </div>
                                 );
                             })}
                         </div>
                     )}
                 </div>
+
+                {/* Footer hint */}
+                <div className="p-6 pt-2 border-t border-gray-100 dark:border-white/[0.05] bg-gray-50/30 dark:bg-white/[0.01]">
+                    <p className="text-[11px] text-gray-400 dark:text-gray-600 leading-relaxed text-center">
+                        History is stored in your browser's local cache. 
+                        <br />Clearing cache will remove this data permanently.
+                    </p>
+                </div>
             </div>
 
-            {/* Animations */}
             <style>{`
-                @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-                @keyframes slide-in-right { from { transform: translateX(100%); } to { transform: translateX(0); } }
-                .animate-fade-in { animation: fade-in 0.2s ease-out both; }
-                .animate-slide-in-right { animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+                @keyframes panel-in {
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(0); }
+                }
+                .animate-panel-in { animation: panel-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+                .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.1); border-radius: 10px; }
+                .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.2); }
             `}</style>
         </>
     );
