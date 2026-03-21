@@ -77,7 +77,7 @@ LANGUAGES = {
         "name": "Java",
         "extension": ".java",
         "compile": ["javac", "{file}"],
-        "run": ["java", "-Xmx128M", "-Xms32M", "-Xss512k", "-XX:ReservedCodeCacheSize=32M", "-cp", "{dir}", "Main"],
+        "run": ["java", "-Xmx128M", "-Xms32M", "-Xss512k", "-XX:ReservedCodeCacheSize=32M", "-XX:CompressedClassSpaceSize=64M", "-cp", "{dir}", "Main"],
         "version_cmd": ["java", "--version"],
         "filename": "Main.java",
     },
@@ -148,7 +148,7 @@ LANGUAGES = {
         "name": "Kotlin",
         "extension": ".kt",
         "compile": ["kotlinc", "{file}", "-include-runtime", "-d", "{output}.jar"],
-        "run": ["java", "-Xmx128M", "-Xms32M", "-Xss512k", "-XX:ReservedCodeCacheSize=32M", "-jar", "{output}.jar"],
+        "run": ["java", "-Xmx128M", "-Xms32M", "-Xss512k", "-XX:ReservedCodeCacheSize=32M", "-XX:CompressedClassSpaceSize=64M", "-jar", "{output}.jar"],
         "version_cmd": ["kotlinc", "-version"],
     },
     "csharp": {
@@ -162,7 +162,7 @@ LANGUAGES = {
         "name": "Scala",
         "extension": ".scala",
         "compile": None,
-        "run": ["scala", "-J-Xmx128M", "-J-Xms32M", "-J-Xss512k", "-J-XX:ReservedCodeCacheSize=32M", "{file}"],
+        "run": ["scala", "-J-Xmx128M", "-J-Xms32M", "-J-Xss512k", "-J-XX:ReservedCodeCacheSize=32M", "-J-XX:CompressedClassSpaceSize=64M", "{file}"],
         "version_cmd": ["scala", "-version"],
     },
     "haskell": {
