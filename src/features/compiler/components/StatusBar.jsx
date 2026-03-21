@@ -1,22 +1,24 @@
 import React from 'react';
+import LanguageSelector from './LanguageSelector';
 
-export default function StatusBar({ language, cursorPosition, charCount, lineCount, lastExecTime, status }) {
+export default function StatusBar({ language, onLanguageChange, cursorPosition, charCount, lineCount, lastExecTime, status }) {
     return (
-        <div className="flex items-center justify-between px-4 py-1.5 bg-gray-50/80 dark:bg-[#0a0e14] border-t border-gray-200/70 dark:border-white/[0.06] text-[10px] font-mono text-gray-400 dark:text-gray-600 select-none backdrop-blur-sm">
+        <div className="flex items-center justify-between px-4 py-1 bg-gray-50/80 dark:bg-[#0a0e14] border-t border-gray-200/70 dark:border-white/[0.06] text-[10px] font-mono text-gray-400 dark:text-gray-600 select-none backdrop-blur-sm">
             {/* Left */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
                 {language && (
-                    <span className="flex items-center gap-1.5 text-gray-500 dark:text-gray-500">
-                        <span>{language.icon}</span>
-                        <span className="font-semibold">{language.name}</span>
-                    </span>
+                    <LanguageSelector 
+                        selectedLanguage={language.id} 
+                        onLanguageChange={onLanguageChange}
+                        variant="status-bar"
+                    />
                 )}
-                {language && (
-                    <span className="text-gray-300 dark:text-gray-700 bg-gray-100 dark:bg-white/[0.03] px-1.5 py-0.5 rounded">{language.extension}</span>
-                )}
-                {cursorPosition && (
-                    <span>Ln {cursorPosition.line}, Col {cursorPosition.column}</span>
-                )}
+                
+                <div className="flex items-center gap-3">
+                    {cursorPosition && (
+                        <span>Ln {cursorPosition.line}, Col {cursorPosition.column}</span>
+                    )}
+                </div>
             </div>
 
             {/* Right */}
@@ -33,7 +35,7 @@ export default function StatusBar({ language, cursorPosition, charCount, lineCou
                         {lastExecTime.toFixed(0)}ms
                     </span>
                 )}
-                <span className="hidden sm:inline text-gray-300 dark:text-gray-700">Uvero Compiler Engine</span>
+                <span className="hidden sm:inline text-gray-300 dark:text-gray-700 font-bold uppercase tracking-widest text-[9px]">Uvero Engine</span>
             </div>
         </div>
     );

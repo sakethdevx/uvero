@@ -209,13 +209,6 @@ export default function CompilerHome() {
                             </div>
                         </div>
 
-                        {/* Right: Language selector */}
-                        <div className="flex items-center gap-3">
-                            <LanguageSelector
-                                selectedLanguage={language}
-                                onLanguageChange={handleLanguageChange}
-                            />
-                        </div>
                     </div>
                 </div>
             </header>
@@ -261,6 +254,7 @@ export default function CompilerHome() {
                                 {/* Status bar */}
                                 <StatusBar
                                     language={currentLang}
+                                    onLanguageChange={handleLanguageChange}
                                     cursorPosition={cursorPosition}
                                     charCount={charCount}
                                     lineCount={lineCount}
