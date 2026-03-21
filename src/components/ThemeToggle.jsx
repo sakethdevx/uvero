@@ -12,7 +12,7 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="group relative p-2 text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 transition-colors rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10"
+      className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700"
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >
       <div className="relative w-5 h-5 flex items-center justify-center overflow-hidden">
@@ -46,11 +46,6 @@ const ThemeToggle = () => {
           />
         </svg>
       </div>
-
-      {/* Tooltip */}
-      <span className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-gray-900 text-white text-[10px] font-medium rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl">
-        {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
-      </span>
     </button>
   );
 };
