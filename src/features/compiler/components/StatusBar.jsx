@@ -1,19 +1,13 @@
-import LanguageSelector from './LanguageSelector';
-
-export default function StatusBar({ language, onLanguageChange, cursorPosition, charCount, lineCount, lastExecTime, status }) {
+export default function StatusBar({ cursorPosition, charCount, lineCount, lastExecTime }) {
     return (
         <div className="flex items-center justify-between px-3 py-1 bg-gray-50/80 dark:bg-[#0a0e14] border-t border-gray-200/70 dark:border-white/[0.06] text-[10px] font-mono text-gray-400 dark:text-gray-600 select-none backdrop-blur-sm">
             {/* Left */}
-            <div className="flex items-center gap-2">
-                <LanguageSelector 
-                    selectedLanguage={language} 
-                    onLanguageChange={onLanguageChange} 
-                />
-                
-                <div className="w-px h-3 bg-gray-200 dark:bg-white/10 mx-1" />
-                
+            <div className="flex items-center gap-4">
                 {cursorPosition && (
-                    <span className="opacity-80">Ln {cursorPosition.line}, Col {cursorPosition.column}</span>
+                    <span className="flex items-center gap-1.5 overflow-hidden">
+                        <span className="opacity-60 text-[8px] uppercase tracking-wider">Pos</span>
+                        <span className="text-gray-600 dark:text-gray-400">Ln {cursorPosition.line}, Col {cursorPosition.column}</span>
+                    </span>
                 )}
             </div>
 

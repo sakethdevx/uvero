@@ -234,6 +234,7 @@ export default function CompilerHome() {
                                 {/* Toolbar */}
                                 <EditorToolbar
                                     language={language}
+                                    onLanguageChange={handleLanguageChange}
                                     isLoading={isLoading}
                                     onRun={handleRun}
                                     onReset={handleReset}
@@ -258,13 +259,10 @@ export default function CompilerHome() {
 
                                 {/* Status bar */}
                                 <StatusBar
-                                    language={currentLang?.id}
-                                    onLanguageChange={handleLanguageChange}
                                     cursorPosition={cursorPosition}
                                     charCount={charCount}
                                     lineCount={lineCount}
                                     lastExecTime={output?.execution_time_ms}
-                                    status={output?.status}
                                 />
                             </div>
 

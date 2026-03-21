@@ -1,13 +1,12 @@
-import React from 'react';
-import { getTemplateNames } from '../data/languages';
+import LanguageSelector from './LanguageSelector';
 import ShareButton from './ShareButton';
 
-export default function EditorToolbar({ language, isLoading, onRun, onReset, onCopy, onShare, onHistoryToggle, fontSize, onFontSizeChange }) {
+export default function EditorToolbar({ language, onLanguageChange, isLoading, onRun, onReset, onCopy, onShare, onHistoryToggle, fontSize, onFontSizeChange }) {
     return (
-        <div className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-white/90 dark:bg-[#161b22] border-b border-gray-200/70 dark:border-white/[0.06] backdrop-blur-sm">
-            {/* Left: Run + Actions */}
+        <div className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 bg-white/90 dark:bg-[#161b22] border-b border-gray-200/70 dark:border-white/[0.06] backdrop-blur-sm shadow-sm z-30">
+            {/* Left: Run + Language Selector */}
             <div className="flex items-center gap-1.5 sm:gap-2">
-                {/* Run Button — big & glowing */}
+                {/* Run Button */}
                 <button
                     onClick={onRun}
                     disabled={isLoading}
@@ -36,6 +35,15 @@ export default function EditorToolbar({ language, isLoading, onRun, onReset, onC
                         </>
                     )}
                 </button>
+
+                <div className="w-px h-5 bg-gray-200 dark:bg-white/[0.08] mx-0.5" />
+
+                <LanguageSelector 
+                    selectedLanguage={language} 
+                    onLanguageChange={onLanguageChange} 
+                />
+
+                <div className="w-px h-5 bg-gray-200 dark:bg-white/[0.08] mx-0.5" />
 
                 {/* Icon buttons */}
                 <div className="flex items-center gap-0.5">
