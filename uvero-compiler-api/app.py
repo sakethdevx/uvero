@@ -147,7 +147,7 @@ LANGUAGES = {
     "kotlin": {
         "name": "Kotlin",
         "extension": ".kt",
-        "compile": ["kotlinc", "-J-Xmx256M", "-J-Xms64M", "-J-Xss1M", "-J-XX:-UseCompressedOops", "-J-XX:-UseCompressedClassPointers", "-J-XX:ReservedCodeCacheSize=64M", "{file}", "-include-runtime", "-d", "{output}.jar"],
+        "compile": ["kotlinc", "-no-daemon", "-J-Xmx256M", "-J-Xms64M", "-J-Xss1M", "-J-XX:-UseCompressedOops", "-J-XX:-UseCompressedClassPointers", "-J-XX:ReservedCodeCacheSize=64M", "{file}", "-include-runtime", "-d", "{output}.jar"],
         "run": ["java", "-Xmx256M", "-Xms64M", "-Xss1M", "-XX:-UseCompressedOops", "-XX:-UseCompressedClassPointers", "-XX:ReservedCodeCacheSize=64M", "-jar", "{output}.jar"],
         "version_cmd": ["kotlinc", "-version"],
     },
@@ -162,7 +162,7 @@ LANGUAGES = {
         "name": "Scala",
         "extension": ".scala",
         "compile": None,
-        "run": ["scala", "-J-Xmx256M", "-J-Xms64M", "-J-Xss1M", "-J-XX:-UseCompressedOops", "-J-XX:-UseCompressedClassPointers", "-J-XX:ReservedCodeCacheSize=64M", "{file}"],
+        "run": ["scala", "-nc", "-J-Xmx256M", "-J-Xms64M", "-J-Xss1M", "-J-XX:-UseCompressedOops", "-J-XX:-UseCompressedClassPointers", "-J-XX:ReservedCodeCacheSize=64M", "{file}"],
         "version_cmd": ["scala", "-version"],
     },
     "haskell": {
