@@ -77,7 +77,7 @@ LANGUAGES = {
         "name": "Java",
         "extension": ".java",
         "compile": ["javac", "{file}"],
-        "run": ["java", "-cp", "{dir}", "Main"],
+        "run": ["java", "-Xmx128M", "-Xms32M", "-Xss512k", "-XX:ReservedCodeCacheSize=32M", "-cp", "{dir}", "Main"],
         "version_cmd": ["java", "--version"],
         "filename": "Main.java",
     },
@@ -148,7 +148,7 @@ LANGUAGES = {
         "name": "Kotlin",
         "extension": ".kt",
         "compile": ["kotlinc", "{file}", "-include-runtime", "-d", "{output}.jar"],
-        "run": ["java", "-jar", "{output}.jar"],
+        "run": ["java", "-Xmx128M", "-Xms32M", "-Xss512k", "-XX:ReservedCodeCacheSize=32M", "-jar", "{output}.jar"],
         "version_cmd": ["kotlinc", "-version"],
     },
     "csharp": {
@@ -162,7 +162,7 @@ LANGUAGES = {
         "name": "Scala",
         "extension": ".scala",
         "compile": None,
-        "run": ["scala", "{file}"],
+        "run": ["scala", "-J-Xmx128M", "-J-Xms32M", "-J-Xss512k", "-J-XX:ReservedCodeCacheSize=32M", "{file}"],
         "version_cmd": ["scala", "-version"],
     },
     "haskell": {
@@ -177,7 +177,7 @@ LANGUAGES = {
 # ─── Resource Limits ──────────────────────────────────────────────────────────
 
 MAX_TIMEOUT = 15  # seconds
-MAX_MEMORY_MB = 512  # MB
+MAX_MEMORY_MB = 768  # MB
 MAX_OUTPUT_SIZE = 65536  # characters
 
 
