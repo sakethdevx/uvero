@@ -76,7 +76,7 @@ LANGUAGES = {
     "java": {
         "name": "Java",
         "extension": ".java",
-        "compile": ["javac", "{file}"],
+        "compile": ["javac", "-J-Xmx256M", "-J-Xms64M", "-J-Xss1M", "-J-XX:-UseCompressedOops", "-J-XX:-UseCompressedClassPointers", "-J-XX:ReservedCodeCacheSize=64M", "{file}"],
         "run": ["java", "-Xmx256M", "-Xms64M", "-Xss1M", "-XX:-UseCompressedOops", "-XX:-UseCompressedClassPointers", "-XX:ReservedCodeCacheSize=64M", "-cp", "{dir}", "Main"],
         "version_cmd": ["java", "--version"],
         "filename": "Main.java",
@@ -147,7 +147,7 @@ LANGUAGES = {
     "kotlin": {
         "name": "Kotlin",
         "extension": ".kt",
-        "compile": ["kotlinc", "{file}", "-include-runtime", "-d", "{output}.jar"],
+        "compile": ["kotlinc", "-J-Xmx256M", "-J-Xms64M", "-J-Xss1M", "-J-XX:-UseCompressedOops", "-J-XX:-UseCompressedClassPointers", "-J-XX:ReservedCodeCacheSize=64M", "{file}", "-include-runtime", "-d", "{output}.jar"],
         "run": ["java", "-Xmx256M", "-Xms64M", "-Xss1M", "-XX:-UseCompressedOops", "-XX:-UseCompressedClassPointers", "-XX:ReservedCodeCacheSize=64M", "-jar", "{output}.jar"],
         "version_cmd": ["kotlinc", "-version"],
     },
