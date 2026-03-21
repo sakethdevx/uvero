@@ -2,9 +2,7 @@ import React from 'react';
 import { getTemplateNames } from '../data/languages';
 import ShareButton from './ShareButton';
 
-export default function EditorToolbar({ language, isLoading, onRun, onReset, onCopy, onShare, onHistoryToggle, fontSize, onFontSizeChange, templateName, onTemplateChange }) {
-    const templates = getTemplateNames(language);
-
+export default function EditorToolbar({ language, isLoading, onRun, onReset, onCopy, onShare, onHistoryToggle, fontSize, onFontSizeChange }) {
     return (
         <div className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-white/90 dark:bg-[#161b22] border-b border-gray-200/70 dark:border-white/[0.06] backdrop-blur-sm">
             {/* Left: Run + Actions */}
@@ -43,7 +41,7 @@ export default function EditorToolbar({ language, isLoading, onRun, onReset, onC
                 <div className="flex items-center gap-0.5">
                     <button
                         onClick={onReset}
-                        title="Reset to template"
+                        title="Reset to Template"
                         className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/[0.06] rounded-lg transition-all"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,22 +61,6 @@ export default function EditorToolbar({ language, isLoading, onRun, onReset, onC
 
                     <ShareButton onShare={onShare} />
                 </div>
-
-                {/* Divider */}
-                <div className="w-px h-5 bg-gray-200 dark:bg-white/[0.08] mx-0.5" />
-
-                {/* Template selector */}
-                {templates.length > 1 && (
-                    <select
-                        value={templateName}
-                        onChange={(e) => onTemplateChange(e.target.value)}
-                        className="hidden sm:block text-xs font-medium bg-gray-50 dark:bg-white/[0.04] border border-gray-200/70 dark:border-white/[0.08] rounded-lg px-2.5 py-1.5 text-gray-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/20 cursor-pointer transition-all hover:border-gray-300 dark:hover:border-white/15"
-                    >
-                        {templates.map(t => (
-                            <option key={t.id} value={t.id}>{t.name}</option>
-                        ))}
-                    </select>
-                )}
             </div>
 
             {/* Right: Font size + History */}

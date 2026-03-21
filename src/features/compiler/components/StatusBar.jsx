@@ -1,25 +1,20 @@
-import React from 'react';
 import LanguageSelector from './LanguageSelector';
 
 export default function StatusBar({ language, onLanguageChange, cursorPosition, charCount, lineCount, lastExecTime, status }) {
     return (
-        <div className="flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-white/[0.05] border-t-2 border-primary-500 text-[11px] font-mono text-gray-600 dark:text-gray-200 select-none backdrop-blur-md relative z-30">
+        <div className="flex items-center justify-between px-3 py-1 bg-gray-50/80 dark:bg-[#0a0e14] border-t border-gray-200/70 dark:border-white/[0.06] text-[10px] font-mono text-gray-400 dark:text-gray-600 select-none backdrop-blur-sm">
             {/* Left */}
-            <div className="flex items-center gap-4">
-                <span className="text-primary-500 font-bold mr-2">IDE</span>
-                {language && (
-                    <LanguageSelector 
-                        selectedLanguage={language.id} 
-                        onLanguageChange={onLanguageChange}
-                        variant="status-bar"
-                    />
-                )}
+            <div className="flex items-center gap-2">
+                <LanguageSelector 
+                    selectedLanguage={language} 
+                    onLanguageChange={onLanguageChange} 
+                />
                 
-                <div className="flex items-center gap-3">
-                    {cursorPosition && (
-                        <span>Ln {cursorPosition.line}, Col {cursorPosition.column}</span>
-                    )}
-                </div>
+                <div className="w-px h-3 bg-gray-200 dark:bg-white/10 mx-1" />
+                
+                {cursorPosition && (
+                    <span className="opacity-80">Ln {cursorPosition.line}, Col {cursorPosition.column}</span>
+                )}
             </div>
 
             {/* Right */}
@@ -36,7 +31,7 @@ export default function StatusBar({ language, onLanguageChange, cursorPosition, 
                         {lastExecTime.toFixed(0)}ms
                     </span>
                 )}
-                <span className="hidden sm:inline text-gray-300 dark:text-gray-700 font-bold uppercase tracking-widest text-[9px]">Uvero Engine</span>
+                <span className="hidden sm:inline text-gray-300 dark:text-gray-700">Uvero Compiler Engine</span>
             </div>
         </div>
     );

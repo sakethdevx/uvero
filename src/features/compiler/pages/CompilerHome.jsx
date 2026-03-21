@@ -129,7 +129,10 @@ export default function CompilerHome() {
         saveCodes(savedCodes.current);
         const savedCode = savedCodes.current[newLang];
         setLanguage(newLang);
-        setCode(savedCode || getLanguageTemplate(newLang));
+        // Always reset to 'hello' template for now as per requirement "default code should be automatically there"
+        // If the user wants to preserve edits, we could check savedCode, but "user just need to select language"
+        // implies a fresh start with the default template.
+        setCode(getLanguageTemplate(newLang, 'hello'));
         setTemplateName('hello');
         setOutput(null);
     }, [language, code]);
@@ -209,6 +212,10 @@ export default function CompilerHome() {
                             </div>
                         </div>
 
+                        {/* Right: Empty or Action counts */}
+                        <div className="flex items-center gap-3">
+                            {/* Actions moved to toolbar/statusbar */}
+                        </div>
                     </div>
                 </div>
             </header>
@@ -220,9 +227,8 @@ export default function CompilerHome() {
                     {/* Glow border effect */}
                     <div className="absolute -inset-[1px] bg-gradient-to-r from-blue-500/30 via-violet-500/30 to-purple-500/30 dark:from-blue-500/20 dark:via-violet-500/20 dark:to-purple-500/20 rounded-2xl blur-sm" />
 
-                    <div className="relative bg-white dark:bg-[#0d1117] rounded-2xl border border-gray-200/50 dark:border-white/[0.08] shadow-2xl shadow-black/5 dark:shadow-black/40">
-                        <div className="flex flex-col lg:flex-row rounded-2xl overflow-hidden">
-
+                    <div className="relative bg-white dark:bg-[#0d1117] rounded-2xl border border-gray-200/50 dark:border-white/[0.08] shadow-2xl shadow-black/5 dark:shadow-black/40 overflow-hidden">
+                        <div className="flex flex-col lg:flex-row">
                             {/* ─ Left: Editor ─ */}
                             <div className="flex-1 min-w-0 flex flex-col">
                                 {/* Toolbar */}
@@ -236,8 +242,6 @@ export default function CompilerHome() {
                                     onHistoryToggle={() => setHistoryOpen(true)}
                                     fontSize={fontSize}
                                     onFontSizeChange={setFontSize}
-                                    templateName={templateName}
-                                    onTemplateChange={handleTemplateChange}
                                 />
 
                                 {/* Monaco Editor */}
@@ -254,7 +258,7 @@ export default function CompilerHome() {
 
                                 {/* Status bar */}
                                 <StatusBar
-                                    language={currentLang}
+                                    language={currentLang?.id}
                                     onLanguageChange={handleLanguageChange}
                                     cursorPosition={cursorPosition}
                                     charCount={charCount}
