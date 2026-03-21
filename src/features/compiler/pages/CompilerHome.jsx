@@ -186,33 +186,27 @@ export default function CompilerHome() {
                 <div className="absolute top-1/2 left-1/3 w-[400px] h-[400px] bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-600/5 dark:to-pink-600/5 rounded-full blur-[80px] animate-slow-pulse" />
             </div>
 
-            {/* ─── Hero Header ─── */}
-            <section className="relative pt-24 pb-8 px-4 sm:px-6">
+            {/* ─── Compact Header ─── */}
+            <header className="relative pt-12 pb-6 px-4 sm:px-6">
                 <div className="max-w-7xl mx-auto">
-                    <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-                        {/* Left: Title */}
-                        <div className="space-y-3">
-                            {/* Pill badge */}
-                            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/70 dark:bg-white/[0.06] border border-gray-200/50 dark:border-white/10 backdrop-blur-sm shadow-sm">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                                </span>
-                                <span className="text-xs font-semibold text-gray-600 dark:text-gray-300 tracking-wide">{LANGUAGES.length} Languages · Cloud Sandboxed</span>
-                            </div>
-
-                            {/* Title */}
-                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-none">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        {/* Left: Title & Badge */}
+                        <div className="flex items-center gap-4">
+                            <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-none">
                                 <span className="text-gray-900 dark:text-white">Online </span>
                                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-violet-500 to-purple-500 animate-gradient-x">
                                     Compiler
                                 </span>
                             </h1>
-
-                            {/* Subtitle */}
-                            <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 max-w-md leading-relaxed">
-                                Write, compile & run code in <span className="font-semibold text-gray-700 dark:text-gray-300">{LANGUAGES.length}+ languages</span> — no setup needed.
-                            </p>
+                            
+                            {/* Discrete pill badge */}
+                            <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 dark:bg-white/[0.06] border border-gray-200/50 dark:border-white/10 backdrop-blur-sm shadow-sm">
+                                <span className="relative flex h-1.5 w-1.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+                                </span>
+                                <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 tracking-wider uppercase">{LANGUAGES.length} Languages</span>
+                            </div>
                         </div>
 
                         {/* Right: Language selector */}
@@ -224,7 +218,7 @@ export default function CompilerHome() {
                         </div>
                     </div>
                 </div>
-            </section>
+            </header>
 
             {/* ─── IDE Layout ─── */}
             <section className="relative max-w-7xl mx-auto px-4 sm:px-6 pb-10">
