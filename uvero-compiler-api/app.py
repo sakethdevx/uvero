@@ -198,8 +198,9 @@ def set_resource_limits():
     except (ValueError, OSError):
         pass
     try:
-        resource.setrlimit(resource.RLIMIT_NPROC, (64, 64))
+        resource.setrlimit(resource.RLIMIT_NPROC, (256, 256))
     except (ValueError, OSError):
+
         pass
 
 
