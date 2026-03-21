@@ -76,7 +76,7 @@ export default function LanguageSelector({ selectedLanguage, onLanguageChange, v
                         <p className="font-bold text-sm text-gray-800 dark:text-gray-100 leading-none">{current?.name || 'Select Language'}</p>
                     </div>
                 ) : (
-                    <span className="text-[10px] font-bold tracking-tight uppercase">{current?.name || 'Select'}</span>
+                    <span className="text-[11px] font-bold tracking-tight uppercase transition-colors">{current?.name || 'Select'}</span>
                 )}
 
                 <svg className={`ml-1 w-3 h-3 text-gray-400 transition-transform duration-300 ${isOpen ? (isStatusBar ? '-rotate-180' : 'rotate-180') : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
