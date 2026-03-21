@@ -55,10 +55,11 @@ LANGUAGES = {
     "typescript": {
         "name": "TypeScript",
         "extension": ".ts",
-        "compile": ["npx", "ts-node", "{file}"],
-        "run": None,  # ts-node compiles + runs
-        "version_cmd": ["npx", "ts-node", "--version"],
+        "compile": ["ts-node", "--transpile-only", "--compiler-options", "{\"module\":\"CommonJS\"}", "{file}"],
+        "run": None,
+        "version_cmd": ["ts-node", "--version"],
     },
+
     "c": {
         "name": "C (GCC)",
         "extension": ".c",
