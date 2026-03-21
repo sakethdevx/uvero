@@ -189,35 +189,9 @@ export default function CompilerHome() {
                 <div className="absolute top-1/2 left-1/3 w-[400px] h-[400px] bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-600/5 dark:to-pink-600/5 rounded-full blur-[80px] animate-slow-pulse" />
             </div>
 
-            {/* ─── Compact Header ─── */}
-            <header className="relative pt-8 pb-4 px-4 sm:px-6">
-                <div className="max-w-7xl mx-auto">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        {/* Left: Title & Badge */}
-                        <div className="flex items-center gap-4">
-                            <h1 className="text-xl sm:text-2xl font-black tracking-tight leading-none">
-                                <span className="text-gray-900 dark:text-white">Online </span>
-                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-violet-500 to-purple-500 animate-gradient-x">
-                                    Compiler
-                                </span>
-                            </h1>
-                            
-                            {/* Discrete pill badge */}
-                            <div className="hidden sm:inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-white/70 dark:bg-white/[0.06] border border-gray-200/50 dark:border-white/10 backdrop-blur-sm shadow-sm">
-                                <span className="relative flex h-1.5 w-1.5">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-                                </span>
-                                <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 tracking-wider uppercase">{LANGUAGES.length} Languages</span>
-                            </div>
-                        </div>
-
-                        {/* Right: Empty or Action counts */}
-                        <div className="flex items-center gap-3">
-                            {/* Actions moved to toolbar/statusbar */}
-                        </div>
-                    </div>
-                </div>
+            {/* ─── Compact Header Spacer ─── */}
+            <header className="relative pt-4 pb-2 px-4 sm:px-6">
+                <div className="max-w-7xl mx-auto" />
             </header>
 
             {/* ─── IDE Layout ─── */}
