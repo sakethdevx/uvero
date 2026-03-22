@@ -250,11 +250,11 @@ export default function QRToolsHome() {
 
             {/* CTA */}
             <section className="max-w-7xl mx-auto px-4 pb-20 sm:px-6 lg:px-8">
-                <div className="rounded-3xl border border-violet-500/20 bg-gradient-to-br from-violet-600 to-indigo-700 p-8 text-center shadow-xl shadow-violet-500/20 sm:p-12">
+                <div className="rounded-3xl border border-violet-500/20 bg-gradient-to-br from-violet-600 to-indigo-700 p-6 text-center shadow-xl shadow-violet-500/20 sm:p-8">
                     <p className="text-xs font-bold uppercase tracking-[0.3em] text-violet-200">Get started</p>
-                    <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">Ready to create your first QR code?</h2>
-                    <p className="mt-3 text-violet-100 max-w-md mx-auto text-sm leading-relaxed">Free, instant, and no account required.</p>
-                    <div className="mt-8">
+                    <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">Ready to create your first QR code?</h2>
+                    <p className="mt-2 text-violet-100 max-w-md mx-auto text-sm leading-relaxed">Free, instant, and no account required.</p>
+                    <div className="mt-5">
                         <Link
                             to="/qr-tools/generator"
                             className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-violet-700 shadow-sm transition-colors hover:bg-violet-50"
