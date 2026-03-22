@@ -14,6 +14,7 @@ const tools = [
             </svg>
         ),
         gradient: 'from-violet-500 to-purple-600',
+        cardBg: 'from-violet-50 via-white to-purple-50 dark:from-violet-500/10 dark:via-gray-950 dark:to-purple-500/10',
         badge: 'Free',
         link: '/qr-tools/generator',
         features: ['URL, WiFi, vCard, UPI', 'Custom colors & logo', 'PNG / SVG export', 'Works offline'],
@@ -31,6 +32,7 @@ const tools = [
             </svg>
         ),
         gradient: 'from-sky-500 to-blue-600',
+        cardBg: 'from-sky-50 via-white to-blue-50 dark:from-sky-500/10 dark:via-gray-950 dark:to-blue-500/10',
         badge: 'Free',
         link: '/qr-tools/scanner',
         features: ['Camera live scan', 'Upload image to scan', 'Copy decoded text', 'Open URLs directly'],
@@ -47,6 +49,7 @@ const tools = [
             </svg>
         ),
         gradient: 'from-emerald-500 to-teal-600',
+        cardBg: 'from-emerald-50 via-white to-teal-50 dark:from-emerald-500/10 dark:via-gray-950 dark:to-teal-500/10',
         badge: 'Free',
         link: '/qr-tools/validator',
         features: ['Contrast check', 'Quiet zone check', 'Size recommendations', 'Logo safety warnings'],
@@ -63,6 +66,7 @@ const tools = [
             </svg>
         ),
         gradient: 'from-orange-500 to-amber-600',
+        cardBg: 'from-orange-50 via-white to-amber-50 dark:from-orange-500/10 dark:via-gray-950 dark:to-amber-500/10',
         badge: 'Free',
         link: '/qr-tools/bulk',
         features: ['CSV upload or paste list', 'Variable mapping', 'ZIP & A4 PDF export', 'Batch history'],
@@ -79,6 +83,7 @@ const tools = [
             </svg>
         ),
         gradient: 'from-rose-500 to-pink-600',
+        cardBg: 'from-rose-50 via-white to-pink-50 dark:from-rose-500/10 dark:via-gray-950 dark:to-pink-500/10',
         badge: 'Sign in required',
         link: '/qr-tools/dynamic',
         features: ['Editable destination URL', 'Scan count tracking', '30-day scan trend', 'Pause / Resume codes'],
@@ -95,6 +100,7 @@ const tools = [
             </svg>
         ),
         gradient: 'from-indigo-500 to-blue-600',
+        cardBg: 'from-indigo-50 via-white to-blue-50 dark:from-indigo-500/10 dark:via-gray-950 dark:to-blue-500/10',
         badge: 'Sign in required',
         link: '/qr-tools/analytics',
         features: ['30-day scan trend chart', 'Country breakdown', 'Top performing codes', 'CSV export'],
@@ -186,8 +192,7 @@ export default function QRToolsHome() {
                         <Link
                             key={tool.id}
                             to={tool.link}
-                            className={`group flex flex-col rounded-3xl border border-gray-200/80 bg-gradient-to-br ${tool.gradient.replace('from-', 'from-').split(' ').map(c => c.startsWith('from-') ? c.replace('-500', '-50').replace('-600', '-50') : c.startsWith('to-') ? c.replace('-600', '-50').replace('-500', '-50') : c).join(' ')} via-white p-6 shadow-xl shadow-gray-100/40 transition-shadow hover:shadow-2xl dark:border-white/[0.08] dark:shadow-none`}
-                            style={{ background: undefined }}
+                            className={`group flex flex-col rounded-3xl border border-gray-200/80 bg-gradient-to-br ${tool.cardBg} p-6 shadow-xl shadow-gray-100/40 transition-shadow hover:shadow-2xl dark:border-white/[0.08] dark:shadow-none`}
                         >
                             <div className="flex items-start justify-between mb-5">
                                 <div className={`flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br ${tool.gradient} text-white shadow-sm`}>

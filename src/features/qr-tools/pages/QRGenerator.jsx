@@ -610,7 +610,7 @@ export default function QRGenerator() {
                         <button
                             onClick={generate}
                             disabled={generating}
-                            className="w-full py-3.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:shadow-violet-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="w-full py-3.5 bg-violet-600 text-white font-bold rounded-xl shadow-sm hover:bg-violet-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             {generating ? 'Generating…' : 'Generate QR Code'}
                         </button>

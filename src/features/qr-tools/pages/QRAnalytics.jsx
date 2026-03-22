@@ -48,7 +48,7 @@ function HBarChart({ data, max }) {
                     <span className="w-28 text-right text-gray-600 dark:text-gray-400 text-xs truncate">{item.country}</span>
                     <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-full h-3">
                         <div
-                            className="h-3 rounded-full bg-gradient-to-r from-violet-400 to-purple-500 transition-all duration-500"
+                            className="h-3 rounded-full bg-violet-600 transition-all duration-500"
                             style={{ width: `${(item.count / maxVal) * 100}%` }}
                         />
                     </div>
@@ -60,16 +60,16 @@ function HBarChart({ data, max }) {
 }
 
 function StatCard({ label, value, sub, color }) {
-    const colors = {
-        violet: 'from-violet-500 to-purple-600',
-        sky: 'from-sky-500 to-blue-600',
-        emerald: 'from-emerald-500 to-teal-600',
-        amber: 'from-amber-500 to-orange-600',
+    const textColors = {
+        violet: 'text-violet-600 dark:text-violet-400',
+        sky: 'text-sky-600 dark:text-sky-400',
+        emerald: 'text-emerald-600 dark:text-emerald-400',
+        amber: 'text-amber-600 dark:text-amber-400',
     };
     return (
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 p-5 shadow-sm">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">{label}</p>
-            <p className={`text-3xl font-extrabold bg-gradient-to-r ${colors[color]} bg-clip-text text-transparent`}>{value}</p>
+            <p className={`text-3xl font-extrabold ${textColors[color] || 'text-violet-600 dark:text-violet-400'}`}>{value}</p>
             {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
         </div>
     );

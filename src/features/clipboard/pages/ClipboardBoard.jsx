@@ -218,7 +218,7 @@ export default function ClipboardBoard() {
                     {passwordError && <p className="text-sm text-red-500 mb-3">{passwordError}</p>}
                     <button
                         onClick={() => loadBoard(passwordInput)}
-                        className="w-full py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                        className="w-full py-3 bg-violet-600 text-white font-bold rounded-xl shadow-sm hover:bg-violet-700 transition-colors"
                     >
                         Unlock
                     </button>
@@ -376,7 +376,7 @@ export default function ClipboardBoard() {
                                 <div className="flex items-end">
                                     <button
                                         onClick={() => saveBoard()}
-                                        className="w-full px-4 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                                        className="w-full px-4 py-2.5 bg-violet-600 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-violet-700 transition-colors"
                                     >
                                         Save Settings
                                     </button>
