@@ -144,18 +144,17 @@ export default function Clipboard() {
 
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white overflow-hidden transition-colors duration-500">
-            {/* ── Background Effects (colour shifts with active mode) ── */}
+            {/* ── Background Effects ── */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className={`absolute top-1/4 -left-32 w-96 h-96 rounded-full blur-3xl transition-all duration-700 ${activeMode === 'quick' ? 'bg-emerald-500/10' : 'bg-purple-500/10'}`} />
-                <div className={`absolute bottom-1/4 -right-32 w-96 h-96 rounded-full blur-3xl transition-all duration-700 ${activeMode === 'quick' ? 'bg-cyan-500/10' : 'bg-indigo-500/10'}`} />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-500/5 rounded-full blur-3xl" />
+                <div className="absolute top-1/4 -left-32 w-96 h-96 rounded-full blur-3xl bg-emerald-500/8" />
+                <div className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full blur-3xl bg-cyan-500/8" />
             </div>
 
             {/* ── Hero (Simplified) ── */}
             <section className="relative pt-12 pb-8 px-4">
                 <div className="max-w-3xl mx-auto text-center">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
                         Instant text sharing · No login required
                     </div>
                     {/* Feature name now in site header */}
@@ -227,7 +226,7 @@ export default function Clipboard() {
                                 <button
                                     onClick={handlePublicSubmit}
                                     disabled={!publicText.trim() || publicLoading}
-                                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white font-bold rounded-xl shadow-sm hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {publicLoading ? (
                                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -394,7 +393,7 @@ export default function Clipboard() {
                                     <button
                                         type="submit"
                                         disabled={!boardName.trim()}
-                                        className="px-5 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                                        className="px-5 py-3 bg-violet-600 text-white font-bold rounded-xl shadow-sm hover:bg-violet-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         Open →
                                     </button>
@@ -482,7 +481,7 @@ export default function Clipboard() {
                         { val: '< 1s', label: 'Access Time' },
                     ].map((s, i) => (
                         <div key={i} className="text-center">
-                            <div className={`text-2xl font-black bg-clip-text text-transparent ${activeMode === 'quick' ? 'bg-gradient-to-r from-emerald-400 to-cyan-400' : 'bg-gradient-to-r from-purple-400 to-indigo-400'}`}>{s.val}</div>
+                            <div className={`text-2xl font-black ${activeMode === 'quick' ? 'text-emerald-600 dark:text-emerald-400' : 'text-violet-600 dark:text-violet-400'}`}>{s.val}</div>
                             <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">{s.label}</div>
                         </div>
                     ))}
