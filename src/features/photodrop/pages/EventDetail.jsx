@@ -1211,7 +1211,7 @@ export default function EventDetail() {
                                 <img src={shareQr} alt="QR" className="h-28 w-28 rounded-xl border border-white/10 dark:border-white/5 p-1.5 bg-white shadow-lg" />
                             )}
                             {!isOwner && !isParticipant && (
-                                <button onClick={handleJoinEvent} className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-lg hover:-translate-y-0.5 transition-all">
+                                <button onClick={handleJoinEvent} className="inline-flex items-center gap-2 bg-blue-600 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm hover:bg-blue-700 transition-colors">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                                     </svg>
@@ -1565,7 +1565,7 @@ export default function EventDetail() {
                                 <button
                                     disabled={downloadingSelection}
                                     onClick={async () => { try { setDownloadingSelection(true); await downloadImagesZip(images) } finally { setDownloadingSelection(false) } }}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-rose-500 to-purple-600 text-white rounded-lg text-xs font-bold hover:shadow-lg hover:-translate-y-0.5 transition-all shadow-sm"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 text-white rounded-lg text-xs font-bold hover:bg-rose-700 transition-colors shadow-sm"
                                 >
                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -1579,7 +1579,7 @@ export default function EventDetail() {
                         {downloadingSelection && zipProgress != null && (
                             <div className="mb-5">
                                 <div className="w-full bg-gray-100 dark:bg-white/5 h-2 rounded-full overflow-hidden">
-                                    <div className="bg-gradient-to-r from-rose-500 to-purple-600 h-2 rounded-full transition-all duration-300" style={{ width: `${zipProgress}%` }} />
+                                    <div className="bg-rose-600 h-2 rounded-full transition-all duration-300" style={{ width: `${zipProgress}%` }} />
                                 </div>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 font-medium">{zipProgress}% preparing download...</p>
                             </div>

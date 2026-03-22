@@ -14,6 +14,7 @@ const tools = [
             </svg>
         ),
         gradient: 'from-violet-500 to-purple-600',
+        cardBg: 'from-violet-50 via-white to-purple-50 dark:from-violet-500/10 dark:via-gray-950 dark:to-purple-500/10',
         badge: 'Free',
         link: '/qr-tools/generator',
         features: ['URL, WiFi, vCard, UPI', 'Custom colors & logo', 'PNG / SVG export', 'Works offline'],
@@ -31,6 +32,7 @@ const tools = [
             </svg>
         ),
         gradient: 'from-sky-500 to-blue-600',
+        cardBg: 'from-sky-50 via-white to-blue-50 dark:from-sky-500/10 dark:via-gray-950 dark:to-blue-500/10',
         badge: 'Free',
         link: '/qr-tools/scanner',
         features: ['Camera live scan', 'Upload image to scan', 'Copy decoded text', 'Open URLs directly'],
@@ -47,6 +49,7 @@ const tools = [
             </svg>
         ),
         gradient: 'from-emerald-500 to-teal-600',
+        cardBg: 'from-emerald-50 via-white to-teal-50 dark:from-emerald-500/10 dark:via-gray-950 dark:to-teal-500/10',
         badge: 'Free',
         link: '/qr-tools/validator',
         features: ['Contrast check', 'Quiet zone check', 'Size recommendations', 'Logo safety warnings'],
@@ -63,6 +66,7 @@ const tools = [
             </svg>
         ),
         gradient: 'from-orange-500 to-amber-600',
+        cardBg: 'from-orange-50 via-white to-amber-50 dark:from-orange-500/10 dark:via-gray-950 dark:to-amber-500/10',
         badge: 'Free',
         link: '/qr-tools/bulk',
         features: ['CSV upload or paste list', 'Variable mapping', 'ZIP & A4 PDF export', 'Batch history'],
@@ -79,6 +83,7 @@ const tools = [
             </svg>
         ),
         gradient: 'from-rose-500 to-pink-600',
+        cardBg: 'from-rose-50 via-white to-pink-50 dark:from-rose-500/10 dark:via-gray-950 dark:to-pink-500/10',
         badge: 'Sign in required',
         link: '/qr-tools/dynamic',
         features: ['Editable destination URL', 'Scan count tracking', '30-day scan trend', 'Pause / Resume codes'],
@@ -95,6 +100,7 @@ const tools = [
             </svg>
         ),
         gradient: 'from-indigo-500 to-blue-600',
+        cardBg: 'from-indigo-50 via-white to-blue-50 dark:from-indigo-500/10 dark:via-gray-950 dark:to-blue-500/10',
         badge: 'Sign in required',
         link: '/qr-tools/analytics',
         features: ['30-day scan trend chart', 'Country breakdown', 'Top performing codes', 'CSV export'],
@@ -118,176 +124,147 @@ const useCases = [
 
 export default function QRToolsHome() {
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">
+        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
             {/* Hero */}
-            <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 via-white to-white dark:from-gray-900 dark:via-gray-950 dark:to-gray-950">
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute -top-40 -right-40 w-96 h-96 bg-violet-200/20 rounded-full blur-3xl animate-blob" />
-                    <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl animate-blob" style={{ animationDelay: '2s' }} />
-                    <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-indigo-100/15 rounded-full blur-3xl animate-blob" style={{ animationDelay: '4s' }} />
+            <div className="relative overflow-hidden">
+                <div className="pointer-events-none absolute inset-0">
+                    <div className="absolute left-[-10rem] top-16 h-96 w-96 rounded-full bg-violet-500/8 blur-3xl" />
+                    <div className="absolute right-[-8rem] top-8 h-80 w-80 rounded-full bg-purple-500/8 blur-3xl" />
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
                 </div>
 
-                <div className="relative max-w-7xl mx-auto px-4 pt-12 pb-8 sm:px-6 lg:px-8 sm:pt-16 sm:pb-12">
-                    <div className="text-center max-w-4xl mx-auto">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/80 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 rounded-full mb-8 animate-fade-in shadow-sm">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75" />
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500" />
-                            </span>
-                            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Free QR Tools — no sign-up required</span>
+                <section className="relative max-w-7xl mx-auto px-4 pt-16 pb-10 sm:px-6 lg:px-8">
+                    <div className="grid gap-6 lg:grid-cols-[1.4fr_0.85fr]">
+                        <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-violet-50 via-white to-purple-50 p-8 shadow-xl shadow-violet-100/40 dark:border-white/[0.08] dark:from-violet-500/10 dark:via-gray-950 dark:to-purple-500/10 dark:shadow-none sm:p-10">
+                            <p className="text-xs font-bold uppercase tracking-[0.3em] text-violet-600 dark:text-violet-300">QR Tools</p>
+                            <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+                                Generate, scan &{' '}
+                                <span className="text-violet-600 dark:text-violet-400">validate QR codes.</span>
+                            </h1>
+                            <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300">
+                                QR codes for URLs, WiFi, UPI payments, contacts, and 10+ more formats. Optimized for real-world scanning. Completely free.
+                            </p>
+                            <div className="mt-8 flex flex-wrap gap-3">
+                                <Link
+                                    to="/qr-tools/generator"
+                                    className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-violet-700"
+                                >
+                                    Generate QR Code
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                </Link>
+                                <Link
+                                    to="/qr-tools/scanner"
+                                    className="inline-flex items-center gap-2 rounded-xl border border-gray-200/80 bg-white/80 px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300 dark:hover:bg-white/[0.08]"
+                                >
+                                    Scan a QR Code
+                                </Link>
+                            </div>
                         </div>
-                        {/* Feature name now in site header */}
 
-
-                        <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-500 dark:text-gray-400 mb-8 animate-fade-in-up leading-relaxed" style={{ animationDelay: '0.1s' }}>
-                            Generate, scan, and validate QR codes for URLs, WiFi, UPI payments, contacts, and 10+ more formats.
-                            Optimized for real-world scanning. Completely free.
-                        </p>
-
-                        <div className="flex flex-wrap justify-center gap-3 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                            <Link
-                                to="/qr-tools/generator"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-violet-500/25 hover:-translate-y-0.5 transition-all duration-200"
-                            >
-                                <span>Generate QR Code</span>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                </svg>
-                            </Link>
-                            <Link
-                                to="/qr-tools/scanner"
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold rounded-xl border border-gray-200 dark:border-white/10 shadow hover:-translate-y-0.5 transition-all duration-200"
-                            >
-                                <span>Scan a QR Code</span>
-                            </Link>
+                        <div className="rounded-3xl border border-gray-200/80 bg-gray-50/80 p-6 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
+                            <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">QR for anything</p>
+                            <div className="mt-4 grid grid-cols-3 gap-2">
+                                {useCases.map((uc) => (
+                                    <Link key={uc.label} to="/qr-tools/generator"
+                                        className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-gray-200/80 bg-white/70 transition-colors hover:bg-white dark:border-white/[0.08] dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
+                                    >
+                                        <span className="text-xl">{uc.icon}</span>
+                                        <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 text-center leading-tight">{uc.label}</span>
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            </div>
 
             {/* Tools Grid */}
-            <section className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">All QR Tools</h2>
-                    <p className="text-gray-500 dark:text-gray-400">Everything you need to work with QR codes</p>
+            <section className="max-w-7xl mx-auto px-4 pb-12 sm:px-6 lg:px-8">
+                <div className="mb-6">
+                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Tools</p>
+                    <h2 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">All QR Tools</h2>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                    {tools.map((tool, idx) => (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {tools.map((tool) => (
                         <Link
                             key={tool.id}
                             to={tool.link}
-                            className="group relative rounded-3xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 shadow-lg dark:shadow-none hover:shadow-2xl dark:hover:shadow-violet-500/10 transition-all duration-500 hover:-translate-y-2 animate-fade-in-up"
-                            style={{ animationDelay: `${0.1 + idx * 0.1}s` }}
+                            className={`group flex flex-col rounded-3xl border border-gray-200/80 bg-gradient-to-br ${tool.cardBg} p-6 shadow-xl shadow-gray-100/40 transition-shadow hover:shadow-2xl dark:border-white/[0.08] dark:shadow-none`}
                         >
-                            <div className={`h-1.5 bg-gradient-to-r ${tool.gradient}`} />
-                            <div className="p-8">
-                                <div className="flex items-start justify-between mb-5">
-                                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${tool.gradient} flex items-center justify-center text-white shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
-                                        {tool.icon}
-                                    </div>
-                                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20">
-                                        {tool.badge}
-                                    </span>
+                            <div className="flex items-start justify-between mb-5">
+                                <div className={`flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br ${tool.gradient} text-white shadow-sm`}>
+                                    {tool.icon}
                                 </div>
-
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{tool.name}</h3>
-                                <p className={`text-sm font-semibold bg-gradient-to-r ${tool.gradient} bg-clip-text text-transparent mb-3`}>
-                                    {tool.tagline}
-                                </p>
-                                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-5">
-                                    {tool.description}
-                                </p>
-
-                                <ul className="space-y-1.5">
-                                    {tool.features.map((f) => (
-                                        <li key={f} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                                            <svg className="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                                            </svg>
-                                            {f}
-                                        </li>
-                                    ))}
-                                </ul>
+                                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${tool.badge === 'Free' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'}`}>
+                                    {tool.badge}
+                                </span>
                             </div>
-                            <div className="px-8 pb-8">
-                                <div className={`w-full py-2.5 rounded-xl bg-gradient-to-r ${tool.gradient} text-white text-sm font-semibold text-center group-hover:shadow-lg transition-shadow`}>
-                                    Open Tool →
-                                </div>
+
+                            <h3 className="text-lg font-black tracking-tight text-gray-900 dark:text-white">{tool.name}</h3>
+                            <p className="text-xs font-bold uppercase tracking-[0.15em] text-violet-600 dark:text-violet-300 mt-0.5 mb-2">{tool.tagline}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-4 flex-1">{tool.description}</p>
+
+                            <div className="flex flex-wrap gap-1.5 mb-5">
+                                {tool.features.map((f) => (
+                                    <span key={f} className="text-xs px-2.5 py-1 rounded-full border border-gray-200/80 bg-white/70 text-gray-600 dark:border-white/[0.08] dark:bg-white/[0.05] dark:text-gray-400">{f}</span>
+                                ))}
                             </div>
+
+                            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200 group-hover:gap-3 transition-all duration-200">
+                                Open tool
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </span>
                         </Link>
                     ))}
                 </div>
             </section>
 
-            {/* Use Cases */}
-            <section className="bg-gray-50 dark:bg-gray-900/50 py-16">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-10">
-                        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">Generate QR for anything</h2>
-                        <p className="text-gray-500 dark:text-gray-400">12+ payload types supported out of the box</p>
-                    </div>
-
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
-                        {useCases.map((uc) => (
-                            <Link
-                                key={uc.label}
-                                to="/qr-tools/generator"
-                                className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 hover:border-violet-300 dark:hover:border-violet-500/30 hover:shadow-md transition-all duration-200 cursor-pointer"
-                            >
-                                <span className="text-3xl">{uc.icon}</span>
-                                <span className="text-xs font-medium text-gray-600 dark:text-gray-300 text-center leading-tight">{uc.label}</span>
-                            </Link>
+            {/* Why QR Tools */}
+            <section className="max-w-7xl mx-auto px-4 pb-12 sm:px-6 lg:px-8">
+                <div className="rounded-3xl border border-gray-200/80 bg-gray-50/80 p-6 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
+                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500 mb-5">Why choose Uvero QR</p>
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {[
+                            { icon: '🎯', title: 'Scan-Optimized Output', description: 'Every QR code is generated with proper error correction, quiet zones, and size guidance for reliable real-world scanning.' },
+                            { icon: '🔒', title: 'No Login Required', description: 'Static QR generation stays frictionless and completely in your browser. No account, no tracking.' },
+                            { icon: '⚡', title: 'Instant & Offline', description: 'Generation and scanning work entirely client-side with no server round-trips. Fast even on slow connections.' },
+                        ].map((item) => (
+                            <div key={item.title} className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-2xl bg-white dark:bg-gray-900/60 border border-gray-200/80 dark:border-white/[0.08] flex items-center justify-center text-xl shrink-0 shadow-sm">
+                                    {item.icon}
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">{item.title}</h3>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">{item.description}</p>
+                                </div>
+                            </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Why QR Tools */}
-            <section className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-                <div className="grid md:grid-cols-3 gap-8">
-                    {[
-                        {
-                            icon: '🎯',
-                            title: 'Scan-Optimized Output',
-                            description: 'Every QR code is generated with proper error correction, quiet zones, and size guidance for reliable real-world scanning.',
-                        },
-                        {
-                            icon: '🔒',
-                            title: 'No Login Required',
-                            description: 'Static QR generation stays frictionless and completely in your browser. No account, no tracking.',
-                        },
-                        {
-                            icon: '⚡',
-                            title: 'Instant & Offline',
-                            description: 'Generation and scanning work entirely client-side with no server round-trips. Fast even on slow connections.',
-                        },
-                    ].map((item) => (
-                        <div key={item.title} className="flex flex-col items-start gap-4 p-6 rounded-2xl border border-gray-100 dark:border-white/5">
-                            <span className="text-4xl">{item.icon}</span>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">{item.title}</h3>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{item.description}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
             {/* CTA */}
-            <section className="bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-600 py-16">
-                <div className="max-w-3xl mx-auto px-4 text-center">
-                    <h2 className="text-3xl font-bold text-white mb-4">Ready to create your first QR code?</h2>
-                    <p className="text-violet-100 mb-8 text-lg">
-                        Free, instant, and no account required.
-                    </p>
-                    <Link
-                        to="/qr-tools/generator"
-                        className="inline-flex items-center gap-2 px-8 py-4 bg-white text-violet-600 font-bold rounded-2xl hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
-                    >
-                        <span>Start Generating</span>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                    </Link>
+            <section className="max-w-7xl mx-auto px-4 pb-20 sm:px-6 lg:px-8">
+                <div className="rounded-3xl border border-violet-500/20 bg-gradient-to-br from-violet-600 to-indigo-700 p-6 text-center shadow-xl shadow-violet-500/20 sm:p-8">
+                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-violet-200">Get started</p>
+                    <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">Ready to create your first QR code?</h2>
+                    <p className="mt-2 text-violet-100 max-w-md mx-auto text-sm leading-relaxed">Free, instant, and no account required.</p>
+                    <div className="mt-5">
+                        <Link
+                            to="/qr-tools/generator"
+                            className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-violet-700 shadow-sm transition-colors hover:bg-violet-50"
+                        >
+                            Start Generating
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </Link>
+                    </div>
                 </div>
             </section>
         </div>

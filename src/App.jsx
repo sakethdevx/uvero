@@ -42,7 +42,6 @@ import { getMaintenanceConfig } from './config/maintenance';
 function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const dropdownRef = useRef(null);
   const dropdownTimerRef = useRef(null);
   const location = useLocation();
@@ -56,13 +55,6 @@ function AppContent() {
     setIsToolsDropdownOpen(false);
     window.scrollTo(0, 0);
   }, [location.pathname]);
-
-  // Track scroll for header styling
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -231,24 +223,22 @@ function AppContent() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 py-2 px-4 sm:px-6 lg:px-8">
-        <nav className={`max-w-7xl mx-auto transition-all duration-500 ${isScrolled ? 'floating-nav-scrolled' : 'floating-nav'}`}>
-          <div className="flex justify-between items-center h-16 px-4 sm:px-6">
+      <header className="sticky top-0 z-50 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2.5 group relative z-10 shrink-0">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 via-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-primary-500/30 group-hover:shadow-primary-500/50 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 logo-shine relative overflow-hidden shrink-0">
-                <span className="text-white font-bold text-xl relative z-10">U</span>
+            <Link to="/" className="flex items-center gap-2 shrink-0">
+              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center shrink-0">
+                <span className="text-white font-bold text-base">U</span>
               </div>
-              
               <div className="flex items-center">
-                <span className="text-2xl font-bold text-gray-900 dark:text-white transition-all duration-300">
-                  U<span className="gradient-text animate-gradient-x">ver</span>o
+                <span className="text-xl font-bold text-gray-900 dark:text-white">
+                  U<span className="text-primary-600">ver</span>o
                 </span>
-                
                 {currentFeature && (
-                  <div className="flex items-center animate-fade-in">
-                    <div className="mx-3 h-6 w-px bg-gray-200 dark:bg-white/10 hidden sm:block shrink-0" />
-                    <span className="text-lg font-semibold text-gray-500 dark:text-gray-400 hidden sm:block whitespace-nowrap tracking-tight">
+                  <div className="flex items-center">
+                    <span className="mx-2 text-gray-300 dark:text-gray-700 hidden sm:block">/</span>
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400 hidden sm:block">
                       {currentFeature}
                     </span>
                   </div>
@@ -257,36 +247,36 @@ function AppContent() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-1">
               {/* Tools Dropdown */}
               {isFileProcessingRoute && (
-                <div className="static" ref={dropdownRef} onMouseEnter={handleDropdownEnter} onMouseLeave={handleDropdownLeave}>
+                <div className="relative" ref={dropdownRef} onMouseEnter={handleDropdownEnter} onMouseLeave={handleDropdownLeave}>
                   <button
                     onClick={() => setIsToolsDropdownOpen(!isToolsDropdownOpen)}
-                    className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-white/80 dark:hover:bg-white/5"
+                    className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium transition-colors py-2 px-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
                   >
                     Tools
-                    <svg className={`w-4 h-4 transition-transform duration-300 ${isToolsDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className={`w-4 h-4 transition-transform duration-200 ${isToolsDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
 
-                  {/* Mega Menu Dropdown */}
+                  {/* Dropdown Menu */}
                   {isToolsDropdownOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-2 max-h-[calc(100vh-120px)] overflow-y-auto mega-menu-glass rounded-3xl shadow-2xl shadow-gray-300/40 border border-white/40 p-6 z-50 animate-fade-in-down">
-                      <div className="grid grid-cols-3 lg:grid-cols-4 gap-5">
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-[720px] max-h-[70vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-5 z-50">
+                      <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
                         {toolCategories.map((category, idx) => (
                           <div key={idx}>
-                            <div className="flex items-center gap-1.5 mb-2.5 pb-2 border-b border-gray-100">
-                              <span className="text-base">{category.icon}</span>
-                              <h3 className="font-semibold text-sm text-gray-900 dark:text-white">{category.name}</h3>
+                            <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b border-gray-100 dark:border-gray-800">
+                              <span className="text-sm">{category.icon}</span>
+                              <h3 className="font-semibold text-xs text-gray-700 dark:text-gray-300 uppercase tracking-wide">{category.name}</h3>
                             </div>
                             <ul className="space-y-0.5">
                               {category.tools.map((tool, toolIdx) => (
                                 <li key={toolIdx}>
                                   <Link
                                     to={tool.path}
-                                    className="block text-xs text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gradient-to-r hover:from-primary-50/80 hover:to-blue-50/80 dark:hover:from-primary-900/20 dark:hover:to-blue-900/20 px-2.5 py-1.5 rounded-lg transition-all duration-200 hover:translate-x-1"
+                                    className="block text-xs text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-50 dark:hover:bg-gray-800 px-2 py-1.5 rounded-md transition-colors"
                                     onClick={() => setIsToolsDropdownOpen(false)}
                                   >
                                     {tool.name}
@@ -302,19 +292,16 @@ function AppContent() {
                 </div>
               )}
 
-              <div className="flex items-center gap-4">
-                <Link
-                  to="/privacy"
-                  className="text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium transition-all duration-300 py-2 px-3 rounded-lg hover:bg-white/80 dark:hover:bg-white/5"
-                >
-                  Privacy
-                </Link>
+              <Link
+                to="/privacy"
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium transition-colors py-2 px-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                Privacy
+              </Link>
 
+              <div className="ml-2 flex items-center gap-2 pl-3 border-l border-gray-200 dark:border-gray-700">
                 <ThemeToggle />
-
                 {isFileProcessingRoute && <ModeToggle />}
-
-                {/* Auth state */}
                 <AuthStatus />
               </div>
             </div>
@@ -324,9 +311,9 @@ function AppContent() {
               <MobileNavAuth onNav={() => setIsMenuOpen(false)} />
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2.5 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 rounded-xl hover:bg-white/60 dark:hover:bg-white/5 backdrop-blur-sm hover:shadow-lg transition-all duration-300 nav-button-glass"
+                className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {isMenuOpen ? (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                   ) : (
@@ -336,62 +323,62 @@ function AppContent() {
               </button>
             </div>
           </div>
+        </div>
 
-          {/* Mobile Menu */}
-          {isMenuOpen && (
-            <div className="md:hidden py-4 border-t border-white/20 max-h-[calc(100vh-64px)] overflow-y-auto animate-fade-in-down mobile-menu-glass">
-              <div className="space-y-4 pb-4">
-                {/* Theme & Mode Toggles for Mobile */}
-                <div className="px-4 pb-4 flex items-center justify-between border-b border-gray-100 dark:border-white/5">
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Appearance</span>
-                  <ThemeToggle />
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 max-h-[calc(100vh-56px)] overflow-y-auto">
+            <div className="px-4 py-4 space-y-4">
+              {/* Theme & Mode Toggles for Mobile */}
+              <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Appearance</span>
+                <ThemeToggle />
+              </div>
+
+              {isFileProcessingRoute && (
+                <div className="pb-3 border-b border-gray-100 dark:border-gray-800">
+                  <ModeToggle />
                 </div>
+              )}
 
-                {isFileProcessingRoute && (
-                  <div className="px-4 py-4 border-b border-gray-100 dark:border-white/5">
-                    <ModeToggle />
+              <div className="pb-3 border-b border-gray-100 dark:border-gray-800">
+                <AuthStatus isMobile={true} onNav={() => setIsMenuOpen(false)} />
+              </div>
+
+              {isFileProcessingRoute && toolCategories.map((category, idx) => (
+                <div key={idx}>
+                  <div className="flex items-center gap-2 mb-1.5 font-semibold text-gray-900 dark:text-gray-100">
+                    <span>{category.icon}</span>
+                    <span className="text-sm">{category.name}</span>
                   </div>
-                )}
-
-                {/* Account Settings - Moved Top */}
-                <div className="px-4 pb-4 border-b border-gray-100 dark:border-white/5">
-                  <AuthStatus isMobile={true} onNav={() => setIsMenuOpen(false)} />
+                  <ul className="space-y-0.5 ml-6">
+                    {category.tools.map((tool, toolIdx) => (
+                      <li key={toolIdx}>
+                        <Link
+                          to={tool.path}
+                          className="block text-sm text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 py-1.5 transition-colors"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {tool.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+              ))}
 
-                {isFileProcessingRoute && toolCategories.map((category, idx) => (
-                  <div key={idx} className="px-4">
-                    <div className="flex items-center gap-2 mb-2 font-semibold text-gray-900">
-                      <span>{category.icon}</span>
-                      <span className="text-sm">{category.name}</span>
-                    </div>
-                    <ul className="space-y-1 ml-6">
-                      {category.tools.map((tool, toolIdx) => (
-                        <li key={toolIdx}>
-                          <Link
-                            to={tool.path}
-                            className="block text-sm text-gray-600 hover:text-primary-600 py-1.5 transition-colors"
-                            onClick={() => setIsMenuOpen(false)}
-                          >
-                            {tool.name}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-                <div className="pt-4 border-t border-gray-100 px-4 space-y-2">
-                  <Link
-                    to="/privacy"
-                    className="block text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium py-2"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Privacy
-                  </Link>
-                </div>
+              <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+                <Link
+                  to="/privacy"
+                  className="block text-sm text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Privacy
+                </Link>
               </div>
             </div>
-          )}
-        </nav>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
@@ -427,38 +414,35 @@ function AppContent() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-950 text-gray-300 mt-auto relative overflow-hidden">
-        {/* Subtle gradient decoration */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-500/50 to-transparent" />
-
-        <div className="max-w-7xl mx-auto px-4 py-10 sm:px-6 lg:px-8 relative">
-          <div className="grid md:grid-cols-4 gap-10">
+      <footer className="bg-gray-950 text-gray-400 mt-auto border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-4 gap-8">
             {/* Brand */}
             <div className="md:col-span-2">
-              <div className="flex items-center gap-2.5 mb-5">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
-                  <span className="text-white font-bold text-xl">U</span>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-base">U</span>
                 </div>
-                <span className="text-2xl font-bold text-white">
+                <span className="text-xl font-bold text-white">
                   U<span className="text-primary-400">ver</span>o
                 </span>
               </div>
-              <p className="text-gray-400 max-w-md mb-6 leading-relaxed">
-                Professional digital tools designed for simplicity, speed, and privacy.
-                Privacy-first file processing that works offline, plus secure cloud-powered services like PhotoDrop.
+              <p className="text-gray-400 max-w-sm mb-4 text-sm leading-relaxed">
+                Professional digital tools for simplicity, speed, and privacy.
+                Privacy-first file processing that works offline.
               </p>
-              <div className="flex items-center gap-2.5 px-4 py-2.5 bg-green-500/10 border border-green-500/20 rounded-xl w-fit">
-                <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-900/30 border border-green-800/50 rounded-md text-green-400 text-xs font-medium">
+                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span className="text-green-400 font-semibold text-sm">100% Private & Secure</span>
-              </div>
+                100% Private &amp; Secure
+              </span>
             </div>
 
             {/* Services */}
             <div>
-              <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Services</h3>
-              <ul className="space-y-2.5">
+              <h3 className="text-white font-semibold mb-3 text-sm">Services</h3>
+              <ul className="space-y-2">
                 {[
                   { name: 'File Processing', path: '/tools' },
                   { name: 'Online Compiler', path: '/compiler' },
@@ -466,10 +450,9 @@ function AppContent() {
                   { name: 'Online Clipboard', path: '/clipboard' },
                   { name: 'PaySplit – Split Expenses', path: '/split-expense' },
                   { name: 'Uvero CLI', path: '/cli' },
-                  { name: 'Privacy Focus', path: '/privacy' },
                 ].map((link, idx) => (
                   <li key={idx}>
-                    <Link to={link.path} className="text-gray-400 hover:text-primary-400 transition-colors text-sm">
+                    <Link to={link.path} className="text-gray-400 hover:text-gray-200 transition-colors text-sm">
                       {link.name}
                     </Link>
                   </li>
@@ -479,15 +462,15 @@ function AppContent() {
 
             {/* Legal */}
             <div>
-              <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Legal</h3>
-              <ul className="space-y-2.5">
+              <h3 className="text-white font-semibold mb-3 text-sm">Legal</h3>
+              <ul className="space-y-2">
                 <li>
-                  <Link to="/privacy" className="text-gray-400 hover:text-primary-400 transition-colors text-sm">
+                  <Link to="/privacy" className="text-gray-400 hover:text-gray-200 transition-colors text-sm">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link to="/privacy" className="text-gray-400 hover:text-primary-400 transition-colors text-sm">
+                  <Link to="/privacy" className="text-gray-400 hover:text-gray-200 transition-colors text-sm">
                     Terms of Service
                   </Link>
                 </li>
@@ -496,25 +479,17 @@ function AppContent() {
           </div>
 
           {/* Bottom Bar */}
-          <div className="border-t border-gray-800/60 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="border-t border-gray-800 mt-8 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
             <p className="text-gray-500 text-sm">
-              © 2026 Uvero. All rights reserved. Built with ❤️ for privacy.
+              © 2026 Uvero. All rights reserved.
             </p>
-            <div className="flex gap-4">
-              <a
-                href="#"
-                className="text-gray-500 hover:text-primary-400 transition-colors p-2 rounded-lg hover:bg-white/5"
-                aria-label="Twitter"
-              >
+            <div className="flex gap-3">
+              <a href="#" className="text-gray-500 hover:text-gray-300 transition-colors" aria-label="Twitter">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
                 </svg>
               </a>
-              <a
-                href="#"
-                className="text-gray-500 hover:text-primary-400 transition-colors p-2 rounded-lg hover:bg-white/5"
-                aria-label="GitHub"
-              >
+              <a href="#" className="text-gray-500 hover:text-gray-300 transition-colors" aria-label="GitHub">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
                 </svg>

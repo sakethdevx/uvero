@@ -4,60 +4,46 @@ import { Link } from 'react-router-dom'
 
 /* ─── Reusable Event Card ─── */
 function EventCard({ ev, formatDate, isOwned }) {
-    const accent = isOwned ? 'rose' : 'blue'
     return (
         <Link
             to={`/photodrop/${ev.id}`}
-            className="group relative bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-2xl dark:hover:shadow-rose-500/10 transition-all duration-500 hover:-translate-y-2 overflow-hidden"
+            className={`group relative rounded-3xl border border-gray-200/80 bg-gradient-to-br ${isOwned ? 'from-rose-50 via-white to-pink-50 dark:from-rose-500/10 dark:via-gray-950 dark:to-pink-500/10' : 'from-blue-50 via-white to-indigo-50 dark:from-blue-500/10 dark:via-gray-950 dark:to-indigo-500/10'} p-5 shadow-xl shadow-gray-100/40 dark:border-white/[0.08] dark:shadow-none transition-shadow hover:shadow-2xl`}
         >
-            {/* Gradient accent bar */}
-            <div className={`h-1 bg-gradient-to-r ${isOwned ? 'from-rose-500 via-pink-500 to-purple-600' : 'from-blue-500 via-cyan-500 to-indigo-600'}`} />
-
-            <div className="p-5 sm:p-6">
-                <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                        <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${isOwned ? 'from-rose-500 to-purple-600' : 'from-blue-500 to-indigo-600'} flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
-                            <span className="text-white text-lg">{isOwned ? '👑' : '🤝'}</span>
-                        </div>
-                        <span className={`text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 rounded-full ${isOwned ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400' : 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400'}`}>
-                            {isOwned ? 'Owner' : 'Guest'}
-                        </span>
-                    </div>
-                    {ev.event_date && (
-                        <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-white/5 px-2.5 py-1 rounded-lg">
-                            {formatDate(ev.event_date)}
-                        </span>
-                    )}
-                </div>
-
-                <h3 className={`text-lg font-bold text-gray-900 dark:text-white mb-1.5 line-clamp-1 group-hover:text-${accent}-600 dark:group-hover:text-${accent}-400 transition-colors duration-300`}>
-                    {ev.event_name}
-                </h3>
-
-                {ev.description && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2 leading-relaxed">
-                        {ev.description}
-                    </p>
-                )}
-
-                <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-white/5">
-                    <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {ev.created_at ? formatDate(ev.created_at) : 'Just now'}
-                    </div>
-                    <span className={`inline-flex items-center gap-1 text-xs font-semibold ${isOwned ? 'text-rose-500' : 'text-blue-500'} group-hover:gap-2 transition-all duration-300`}>
-                        Open
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
+            <div className="flex items-start justify-between mb-3">
+                <span className={`text-[10px] uppercase tracking-[0.3em] font-bold px-2.5 py-1 rounded-full ${isOwned ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400' : 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400'}`}>
+                    {isOwned ? '👑 Owner' : '🤝 Guest'}
+                </span>
+                {ev.event_date && (
+                    <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500 bg-gray-100/80 dark:bg-white/[0.05] px-2 py-1 rounded-lg">
+                        {formatDate(ev.event_date)}
                     </span>
-                </div>
+                )}
             </div>
 
-            {/* Animated hover gradient */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${isOwned ? 'from-rose-500/5 to-purple-500/5' : 'from-blue-500/5 to-indigo-500/5'} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
+            <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1.5 line-clamp-1">
+                {ev.event_name}
+            </h3>
+
+            {ev.description && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 line-clamp-2 leading-relaxed">
+                    {ev.description}
+                </p>
+            )}
+
+            <div className="flex items-center justify-between pt-3 border-t border-gray-200/80 dark:border-white/[0.08]">
+                <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {ev.created_at ? formatDate(ev.created_at) : 'Just now'}
+                </div>
+                <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${isOwned ? 'text-rose-600 dark:text-rose-400' : 'text-blue-600 dark:text-blue-400'}`}>
+                    Open
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </span>
+            </div>
         </Link>
     )
 }
@@ -113,98 +99,60 @@ export default function EventsPage() {
        ═══════════════════════════════════════════ */
     if (!loading && !user) {
         return (
-            <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white overflow-hidden transition-colors duration-500">
+            <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
                 {/* ── HERO ── */}
-                <section className="relative min-h-[90vh] flex items-center justify-center">
-                    {/* Animated gradient background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950" />
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(244,63,94,0.08),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top_right,rgba(244,63,94,0.15),transparent_60%)]" />
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(139,92,246,0.06),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_bottom_left,rgba(139,92,246,0.12),transparent_60%)]" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(236,72,153,0.03),transparent_40%)] dark:bg-[radial-gradient(circle_at_center,rgba(236,72,153,0.06),transparent_40%)]" />
-
-                    {/* Floating orbs */}
-                    <div className="absolute top-20 left-[10%] w-72 h-72 bg-rose-500/10 rounded-full blur-[100px] animate-blob" />
-                    <div className="absolute bottom-20 right-[10%] w-80 h-80 bg-purple-500/10 rounded-full blur-[100px] animate-blob" style={{ animationDelay: '2s' }} />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/8 rounded-full blur-[120px] animate-blob" style={{ animationDelay: '4s' }} />
-
-                    {/* Grid pattern overlay */}
-                    <div className="absolute inset-0 opacity-[0.03]" style={{
-                        backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-                        backgroundSize: '60px 60px'
-                    }} />
-
-                    {/* Floating photo frames - decorative */}
-                    <div className="absolute top-[15%] right-[8%] w-32 h-40 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm rotate-12 animate-float hidden lg:block shadow-2xl">
-                        <div className="absolute inset-2 rounded-lg bg-gradient-to-br from-rose-500/20 to-purple-500/20" />
-                        <div className="absolute bottom-3 left-3 right-3 h-2 bg-white/10 rounded-full" />
-                    </div>
-                    <div className="absolute bottom-[20%] left-[6%] w-28 h-36 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm -rotate-6 animate-float hidden lg:block shadow-2xl" style={{ animationDelay: '1s' }}>
-                        <div className="absolute inset-2 rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-500/20" />
-                        <div className="absolute bottom-3 left-3 right-3 h-2 bg-white/10 rounded-full" />
-                    </div>
-                    <div className="absolute top-[40%] right-[18%] w-24 h-28 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm rotate-3 animate-float hidden xl:block shadow-2xl" style={{ animationDelay: '3s' }}>
-                        <div className="absolute inset-2 rounded-lg bg-gradient-to-br from-amber-500/20 to-orange-500/20" />
+                <div className="relative overflow-hidden">
+                    <div className="pointer-events-none absolute inset-0">
+                        <div className="absolute left-[-10rem] top-16 h-96 w-96 rounded-full bg-rose-500/8 blur-3xl" />
+                        <div className="absolute right-[-8rem] top-8 h-80 w-80 rounded-full bg-purple-500/8 blur-3xl" />
+                        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-rose-500/30 to-transparent" />
                     </div>
 
-                    {/* Content */}
-                    <div className="relative max-w-5xl mx-auto px-4 sm:px-6 text-center z-10">
-                        {/* Badge */}
-                        <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/[0.08] backdrop-blur-sm mb-10 animate-fade-in shadow-sm">
-                            <div className="w-2 h-2 rounded-full bg-rose-400 animate-pulse-glow" />
-                            <span className="text-sm font-medium text-gray-600 dark:text-gray-300 tracking-wide">Smart Event Photo Sharing</span>
-                        </div>
-
-                        <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black leading-[0.95] mb-8 animate-fade-in-up tracking-tight">
-                            <span className="block text-gray-900 dark:text-white">Drop the</span>
-                            <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-pink-500 to-purple-500 dark:from-rose-400 dark:via-pink-400 dark:to-purple-400" style={{ backgroundSize: '200% auto' }}>
-                                photo hassle
-                            </span>
-                        </h1>
-
-                        <p className="text-lg sm:text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed animate-fade-in-up font-light" style={{ animationDelay: '0.15s' }}>
-                            Upload event photos. AI finds every face.
-                            <br className="hidden sm:block" />
-                            Guests find their photos in seconds — not hours.
-                        </p>
-
-                        {/* CTA */}
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.25s' }}>
-                            <Link
-                                to="/login"
-                                className="group relative inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white font-bold py-4 px-10 rounded-2xl shadow-2xl shadow-rose-500/20 hover:shadow-rose-500/40 hover:-translate-y-1 transition-all duration-300 text-lg overflow-hidden"
-                            >
-                                <span className="relative z-10">Get Started Free</span>
-                                <svg className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                </svg>
-                                <div className="absolute inset-0 bg-gradient-to-r from-rose-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                            </Link>
-                            <Link
-                                to="/signup"
-                                className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-semibold py-4 px-8 rounded-2xl border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/25 hover:bg-gray-50 dark:hover:bg-white/5 transition-all duration-300 shadow-sm"
-                            >
-                                Create Account
-                            </Link>
-                        </div>
-
-                        {/* Stats */}
-                        <div className="flex items-center justify-center gap-10 sm:gap-16 mt-16 animate-fade-in-up" style={{ animationDelay: '0.35s' }}>
-                            {[
-                                { value: 'AI', label: 'Face Detection' },
-                                { value: '< 5s', label: 'Photo Matching' },
-                                { value: '100%', label: 'Free to Use' },
-                            ].map((stat, i) => (
-                                <div key={i} className="text-center">
-                                    <div className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-purple-400">{stat.value}</div>
-                                    <div className="text-xs sm:text-sm text-gray-500 mt-1 font-medium">{stat.label}</div>
+                    <section className="relative max-w-7xl mx-auto px-4 pt-16 pb-10 sm:px-6 lg:px-8">
+                        <div className="grid gap-6 lg:grid-cols-[1.4fr_0.85fr]">
+                            <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-rose-50 via-white to-purple-50 p-8 shadow-xl shadow-rose-100/40 dark:border-white/[0.08] dark:from-rose-500/10 dark:via-gray-950 dark:to-purple-500/10 dark:shadow-none sm:p-10">
+                                <p className="text-xs font-bold uppercase tracking-[0.3em] text-rose-600 dark:text-rose-300">PhotoDrop</p>
+                                <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+                                    Drop the{' '}
+                                    <span className="text-rose-600 dark:text-rose-400">photo hassle.</span>
+                                </h1>
+                                <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300">
+                                    Upload event photos. AI finds every face. Guests find their photos in seconds — not hours.
+                                </p>
+                                <div className="mt-8 flex flex-wrap gap-3">
+                                    <Link to="/login" className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-rose-700">
+                                        Get Started Free
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        </svg>
+                                    </Link>
+                                    <Link to="/signup" className="inline-flex items-center gap-2 rounded-xl border border-gray-200/80 bg-white/80 px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300 dark:hover:bg-white/[0.08]">
+                                        Create Account
+                                    </Link>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                            </div>
 
-                    {/* Bottom fade */}
-                    <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-gray-950 to-transparent" />
-                </section>
+                            <div className="rounded-3xl border border-gray-200/80 bg-gray-50/80 p-6 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
+                                <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500 mb-5">Why it works</p>
+                                <div className="space-y-4">
+                                    {[
+                                        { icon: '🤖', title: 'AI Face Detection', desc: 'Automatically clusters faces across all photos.' },
+                                        { icon: '⚡', title: '< 5s Matching', desc: 'Guests find all their photos in seconds.' },
+                                        { icon: '🆓', title: '100% Free', desc: 'No cost, no ads, no limits.' },
+                                    ].map((f, i) => (
+                                        <div key={i} className="flex items-start gap-3">
+                                            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-rose-50 dark:bg-rose-500/10 text-base">{f.icon}</div>
+                                            <div>
+                                                <p className="text-sm font-semibold text-gray-900 dark:text-white">{f.title}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mt-0.5">{f.desc}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
 
                 {/* ── HOW IT WORKS — Bento Grid ── */}
                 <section className="relative py-24 sm:py-32">
@@ -365,25 +313,22 @@ export default function EventsPage() {
                 </section>
 
                 {/* ── FINAL CTA ── */}
-                <section className="relative py-24 sm:py-32">
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(244,63,94,0.08),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(244,63,94,0.12),transparent_60%)]" />
-                    <div className="relative max-w-3xl mx-auto px-4 text-center">
-                        <h2 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white mb-6 text-balance leading-tight">
-                            Ready to make event photos
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-purple-400"> effortless</span>?
-                        </h2>
-                        <p className="text-lg text-gray-600 dark:text-gray-400 mb-10 font-light">
-                            Create your first event in 10 seconds. Completely free.
-                        </p>
-                        <Link
-                            to="/signup"
-                            className="group inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-purple-600 dark:from-rose-500 dark:to-purple-600 text-white font-bold py-4 px-10 rounded-2xl shadow-2xl shadow-rose-500/20 hover:shadow-rose-500/40 hover:-translate-y-1 transition-all duration-300 text-lg"
-                        >
-                            Start for Free
-                            <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                        </Link>
+                <section className="max-w-7xl mx-auto px-4 py-12 pb-20 sm:px-6 lg:px-8">
+                    <div className="rounded-3xl border border-rose-500/20 bg-gradient-to-br from-rose-600 to-purple-700 p-6 text-center shadow-xl shadow-rose-500/20 sm:p-8">
+                        <p className="text-xs font-bold uppercase tracking-[0.3em] text-rose-200">Get started</p>
+                        <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">Ready to make event photos effortless?</h2>
+                        <p className="mt-2 text-rose-100 max-w-md mx-auto text-sm leading-relaxed">Create your first event in 10 seconds. Completely free.</p>
+                        <div className="mt-5">
+                            <Link
+                                to="/signup"
+                                className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-rose-700 shadow-sm transition-colors hover:bg-rose-50"
+                            >
+                                Start for Free
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </Link>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -411,63 +356,52 @@ export default function EventsPage() {
     const joinedEvents = events.filter(ev => ev.created_by !== user.id)
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">
+        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
             {/* Header */}
-            <section className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(244,63,94,0.1),transparent_60%)]" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(139,92,246,0.08),transparent_60%)]" />
-
-                <div className="relative max-w-7xl mx-auto px-4 pt-10 pb-10 sm:px-6 lg:px-8 sm:pt-14 sm:pb-14">
-                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-                        <div>
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center shadow-lg shadow-rose-500/20">
-                                    <span className="text-xl">📸</span>
-                                </div>
-                                {/* Feature name now in site header */}
-                            </div>
-                            <p className="text-gray-300 dark:text-gray-400 max-w-md font-light">
-                                Create events, upload photos, and let AI do the rest.
-                            </p>
-                        </div>
-
-                        <button
-                            onClick={() => setShowForm(!showForm)}
-                            className="group inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-rose-500/20 hover:shadow-rose-500/40 hover:-translate-y-0.5 transition-all duration-300 self-start sm:self-auto"
-                        >
-                            {showForm ? (
-                                <>
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                    Cancel
-                                </>
-                            ) : (
-                                <>
-                                    <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    New Event
-                                </>
-                            )}
-                        </button>
-                    </div>
+            <div className="relative overflow-hidden">
+                <div className="pointer-events-none absolute inset-0">
+                    <div className="absolute left-[-10rem] top-8 h-72 w-72 rounded-full bg-rose-500/8 blur-3xl" />
+                    <div className="absolute right-[-8rem] top-4 h-64 w-64 rounded-full bg-purple-500/8 blur-3xl" />
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-rose-500/30 to-transparent" />
                 </div>
-            </section>
+                <section className="relative max-w-7xl mx-auto px-4 pt-10 pb-8 sm:px-6 lg:px-8">
+                    <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-rose-50 via-white to-purple-50 p-6 shadow-xl shadow-rose-100/40 dark:border-white/[0.08] dark:from-rose-500/10 dark:via-gray-950 dark:to-purple-500/10 dark:shadow-none sm:p-8">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div>
+                                <p className="text-xs font-bold uppercase tracking-[0.3em] text-rose-600 dark:text-rose-300">PhotoDrop</p>
+                                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 max-w-md">Create events, upload photos, and let AI do the rest.</p>
+                            </div>
+                            <button
+                                onClick={() => setShowForm(!showForm)}
+                                className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-rose-700 self-start sm:self-auto shrink-0"
+                            >
+                                {showForm ? (
+                                    <>
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Cancel
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        New Event
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
 
             <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 sm:py-10">
                 {/* Create Event Form */}
                 {showForm && (
-                    <div className="mb-10 animate-fade-in-down">
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-white/5 p-6 sm:p-8 max-w-2xl">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center">
-                                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                </div>
-                                Create New Event
-                            </h2>
+                    <div className="mb-8">
+                        <div className="rounded-3xl border border-gray-200/80 bg-white p-6 shadow-xl shadow-gray-100/60 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none sm:p-8 max-w-2xl">
+                            <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500 mb-4">New event</p>
                             <form onSubmit={createEvent} className="space-y-5">
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-400 mb-1.5">Event Name *</label>
@@ -476,7 +410,7 @@ export default function EventsPage() {
                                         value={name}
                                         onChange={e => setName(e.target.value)}
                                         placeholder="e.g. Sarah's Birthday Party"
-                                        className="w-full border border-gray-200 dark:border-white/10 px-4 py-3 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20 dark:focus:ring-rose-500/10 focus:border-rose-400 transition-all bg-gray-50/50 dark:bg-white/5"
+                                        className="w-full border border-gray-200/80 dark:border-white/[0.08] px-4 py-2.5 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20 bg-gray-50/50 dark:bg-white/5 text-sm"
                                     />
                                 </div>
                                 <div>
@@ -485,7 +419,7 @@ export default function EventsPage() {
                                         value={date}
                                         onChange={e => setDate(e.target.value)}
                                         type="date"
-                                        className="w-full border border-gray-200 dark:border-white/10 px-4 py-3 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 dark:focus:ring-rose-500/10 focus:border-rose-400 transition-all bg-gray-50/50 dark:bg-white/5"
+                                        className="w-full border border-gray-200/80 dark:border-white/[0.08] px-4 py-2.5 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 bg-gray-50/50 dark:bg-white/5 text-sm"
                                     />
                                 </div>
                                 <div>
@@ -495,28 +429,26 @@ export default function EventsPage() {
                                         onChange={e => setDesc(e.target.value)}
                                         placeholder="What's the occasion?"
                                         rows={3}
-                                        className="w-full border border-gray-200 dark:border-white/10 px-4 py-3 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20 dark:focus:ring-rose-500/10 focus:border-rose-400 transition-all resize-none bg-gray-50/50 dark:bg-white/5"
+                                        className="w-full border border-gray-200/80 dark:border-white/[0.08] px-4 py-2.5 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-rose-500/20 resize-none bg-gray-50/50 dark:bg-white/5 text-sm"
                                     />
                                 </div>
                                 <div className="flex items-center gap-3 pt-2">
                                     <button
                                         type="submit"
                                         disabled={creating}
-                                        className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white font-bold py-3 px-7 rounded-xl shadow-lg shadow-rose-500/20 hover:shadow-rose-500/30 hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {creating ? (
                                             <>
                                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                                 Creating...
                                             </>
-                                        ) : (
-                                            'Create Event'
-                                        )}
+                                        ) : 'Create Event'}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setShowForm(false)}
-                                        className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white font-medium py-3 px-4 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
+                                        className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white text-sm font-medium py-2.5 px-4 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                                     >
                                         Cancel
                                     </button>
@@ -533,19 +465,17 @@ export default function EventsPage() {
 
                 {/* Events */}
                 {events.length === 0 ? (
-                    <div className="text-center py-24">
-                        <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-rose-50 to-purple-50 dark:from-rose-500/5 dark:to-purple-500/5 flex items-center justify-center border border-rose-100 dark:border-rose-500/20 shadow-lg shadow-rose-100/50 dark:shadow-none">
-                            <span className="text-5xl">📸</span>
+                    <div className="text-center py-20">
+                        <div className="w-20 h-20 mx-auto mb-5 rounded-3xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center border border-rose-100 dark:border-rose-500/20">
+                            <span className="text-4xl">📸</span>
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">No events yet</h3>
-                        <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto font-medium">
-                            Create your first event and start sharing photos with AI-powered face recognition.
-                        </p>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No events yet</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">Create your first event and start sharing photos with AI-powered face recognition.</p>
                         <button
                             onClick={() => setShowForm(true)}
-                            className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-purple-600 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-rose-500/20 hover:shadow-rose-500/40 hover:-translate-y-0.5 transition-all duration-300"
+                            className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-rose-700"
                         >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                             </svg>
                             Create Your First Event
@@ -556,21 +486,19 @@ export default function EventsPage() {
                         {/* My Events */}
                         <div>
                             <div className="flex items-center gap-3 mb-5">
-                                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center shadow-sm">
-                                    <span className="text-white text-sm">👑</span>
-                                </div>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                                <span className="text-base">👑</span>
+                                <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                                     My Events
                                     <span className="ml-2 text-sm font-normal text-gray-400">({ownedEvents.length})</span>
                                 </h2>
                             </div>
 
                             {ownedEvents.length === 0 ? (
-                                <div className="text-center py-12 rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/5 bg-white/50 dark:bg-white/5">
-                                    <p className="text-gray-400 dark:text-gray-500 mb-3">You haven't created any events yet</p>
+                                <div className="text-center py-10 rounded-2xl border border-dashed border-gray-200 dark:border-white/[0.08]">
+                                    <p className="text-sm text-gray-400 dark:text-gray-500 mb-3">You haven't created any events yet</p>
                                     <button
                                         onClick={() => setShowForm(true)}
-                                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-rose-500 hover:text-rose-600 transition-colors"
+                                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-rose-600 hover:text-rose-700 transition-colors"
                                     >
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -585,14 +513,14 @@ export default function EventsPage() {
                                     ))}
                                     <button
                                         onClick={() => setShowForm(true)}
-                                        className="group flex flex-col items-center justify-center min-h-[200px] rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/5 hover:border-rose-300 dark:hover:border-rose-500/30 bg-white/50 dark:bg-white/5 hover:bg-rose-50/20 dark:hover:bg-rose-500/5 transition-all duration-500 hover:-translate-y-1"
+                                        className="group flex flex-col items-center justify-center min-h-[180px] rounded-2xl border border-dashed border-gray-200 dark:border-white/[0.08] hover:border-rose-300 dark:hover:border-rose-500/30 bg-gray-50/50 dark:bg-white/[0.02] hover:bg-rose-50/30 transition-colors"
                                     >
-                                        <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/5 group-hover:bg-gradient-to-br group-hover:from-rose-100 group-hover:to-purple-100 dark:group-hover:from-rose-500/20 dark:group-hover:to-purple-500/20 flex items-center justify-center mb-3 transition-all duration-500">
-                                            <svg className="w-7 h-7 text-gray-400 group-hover:text-rose-500 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div className="w-11 h-11 rounded-2xl bg-white dark:bg-gray-900/60 border border-gray-200/80 dark:border-white/[0.08] flex items-center justify-center mb-2.5 shadow-sm">
+                                            <svg className="w-5 h-5 text-gray-400 group-hover:text-rose-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                                             </svg>
                                         </div>
-                                        <span className="text-sm font-semibold text-gray-400 group-hover:text-rose-500 transition-colors">New Event</span>
+                                        <span className="text-xs font-semibold text-gray-400 group-hover:text-rose-500 transition-colors">New Event</span>
                                     </button>
                                 </div>
                             )}
@@ -602,10 +530,8 @@ export default function EventsPage() {
                         {joinedEvents.length > 0 && (
                             <div>
                                 <div className="flex items-center gap-3 mb-5">
-                                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-sm">
-                                        <span className="text-white text-sm">🤝</span>
-                                    </div>
-                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                                    <span className="text-base">🤝</span>
+                                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                                         Joined Events
                                         <span className="ml-2 text-sm font-normal text-gray-400">({joinedEvents.length})</span>
                                     </h2>

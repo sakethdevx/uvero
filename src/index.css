@@ -4,21 +4,14 @@
 
 @layer base {
   body {
-    @apply bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased transition-colors duration-500;
+    @apply bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
 
-  /* Global Base Scale for Desktop */
-  @media (min-width: 1024px) {
-    html {
-      font-size: 14.5px; /* Scales down all REM units by ~10% */
-    }
-  }
-  
   ::selection {
-    @apply bg-primary-200 text-primary-900;
+    @apply bg-primary-100 text-primary-900;
   }
 
   /* Prevent iOS Safari from zooming in on input focus by forcing 16px minimum text size */
@@ -36,151 +29,55 @@
 }
 
 @layer components {
-  /* Floating Navigation Bar */
-  .floating-nav {
-    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl rounded-3xl border border-white/60 dark:border-white/10;
-    box-shadow: 0 4px 24px rgba(14, 165, 233, 0.1), 
-                0 2px 8px rgba(0, 0, 0, 0.05),
-                inset 0 1px 0 rgba(255, 255, 255, 0.9),
-                inset 0 -1px 0 rgba(14, 165, 233, 0.1);
-    background-image: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(240,249,255,0.8) 50%, rgba(255,255,255,0.9) 100%);
+  /* Site Header */
+  .site-header {
+    @apply bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800;
   }
 
-  .dark .floating-nav {
-    background-image: linear-gradient(135deg, rgba(17, 24, 39, 0.9) 0%, rgba(15, 23, 42, 0.8) 50%, rgba(17, 24, 39, 0.9) 100%);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-  }
-  
-  .floating-nav-scrolled {
-    @apply bg-white/85 dark:bg-gray-900/90 backdrop-blur-3xl rounded-3xl border border-white/70 dark:border-white/15;
-    box-shadow: 0 8px 40px rgba(14, 165, 233, 0.15), 
-                0 4px 12px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 1),
-                inset 0 -1px 0 rgba(14, 165, 233, 0.15);
-    background-image: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,249,255,0.85) 50%, rgba(255,255,255,0.95) 100%);
+  /* Dropdown Menu */
+  .dropdown-menu {
+    @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg;
   }
 
-  .dark .floating-nav-scrolled {
-    background-image: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(17, 24, 39, 0.85) 50%, rgba(15, 23, 42, 0.95) 100%);
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
-  }
-  
-  /* Logo Shine Effect */
-  .logo-shine::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-    transform: rotate(45deg);
-    animation: logo-shine 3s ease-in-out infinite;
-  }
-  
-  @keyframes logo-shine {
-    0%, 100% { transform: translateX(-100%) rotate(45deg); }
-    50% { transform: translateX(100%) rotate(45deg); }
-  }
-  
-  /* Respect user motion preferences */
-  @media (prefers-reduced-motion: reduce) {
-    .logo-shine::before {
-      animation: none;
-    }
-    .animate-gradient-x {
-      animation: none;
-    }
-  }
-  
-  /* Navigation Button Glass Effect */
-  .nav-button-glass {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .nav-button-glass::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    border-radius: inherit;
-  }
-  
-  .nav-button-glass:hover::before {
-    opacity: 1;
-  }
-  
-  /* Navigation Button Glass Pill Effect - For Curved Container */
-  .nav-button-glass-pill {
-    position: relative;
-  }
-  
-  .nav-button-glass-pill:hover {
-    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);
-  }
-  
-  /* Mega Menu Glass Effect - Less Transparent */
-  .mega-menu-glass {
-    @apply bg-gradient-to-br from-white/95 via-white/90 to-white/95 dark:from-gray-900/95 dark:via-gray-950/90 dark:to-gray-900/95 backdrop-blur-2xl;
-    background-image: 
-      radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-      linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,249,255,0.90) 100%);
-  }
-
-  .dark .mega-menu-glass {
-    background-image: 
-      radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-      linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(15, 23, 42, 0.90) 100%);
-  }
-  
-  /* Mobile Menu Glass Effect */
-  .mobile-menu-glass {
-    @apply bg-gradient-to-b from-white/85 to-white/90 dark:from-gray-900/95 dark:to-gray-950/95 backdrop-blur-2xl;
-  }
-  
+  /* Card */
   .card {
-    @apply bg-white dark:bg-gray-900 rounded-xl shadow-md p-4 border border-gray-100 dark:border-white/5 transition-all duration-300;
+    @apply bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800 transition-shadow duration-200;
   }
-  
+
   .card-hover {
-    @apply hover:shadow-xl hover:-translate-y-1 hover:border-primary-100 dark:hover:border-primary-900/30;
+    @apply hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700;
   }
-  
+
+  /* Buttons */
   .btn-primary {
-    @apply bg-gradient-to-r from-primary-600 to-blue-600 hover:from-primary-700 hover:to-blue-700 text-white font-semibold py-2.5 px-5 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-500/25 hover:shadow-xl hover:shadow-primary-500/30 hover:-translate-y-0.5;
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-5 rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
   }
-  
+
   .btn-secondary {
-    @apply bg-white hover:bg-gray-50 text-gray-800 font-semibold py-2.5 px-5 rounded-xl transition-all duration-300 border border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-md;
+    @apply bg-white hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium py-2.5 px-5 rounded-lg transition-colors duration-150 border border-gray-200 dark:border-gray-700;
   }
-  
-  .glass {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20;
-  }
-  
-  .glass-dark {
-    @apply bg-gray-900/80 backdrop-blur-xl border border-gray-700/50;
-  }
-  
+
+  /* Accent text */
   .gradient-text {
-    @apply text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-blue-600 to-indigo-600;
-    background-size: 200% auto;
+    @apply text-primary-600 dark:text-primary-400;
   }
-  
+
+  /* Section headings */
   .section-heading {
     @apply text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3;
   }
-  
+
   .section-subheading {
-    @apply text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto;
+    @apply text-base text-gray-500 dark:text-gray-400 max-w-2xl mx-auto;
+  }
+
+  /* Kept for backward compatibility with feature pages */
+  .glass {
+    @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700;
+  }
+
+  .glass-dark {
+    @apply bg-gray-900 border border-gray-700;
   }
 }
 

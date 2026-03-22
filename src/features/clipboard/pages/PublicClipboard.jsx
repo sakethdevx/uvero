@@ -46,14 +46,11 @@ export default function PublicClipboard() {
                 {/* Header */}
                 <div className="text-center mb-10">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
                         Quick Share Clipboard
                     </div>
                     <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-3 text-gray-900 dark:text-white">
-                        Clipboard{' '}
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500">
-                            #{code}
-                        </span>
+                        Clipboard <span className="text-emerald-600 dark:text-emerald-400">#{code}</span>
                     </h1>
                     <p className="text-gray-500 dark:text-gray-400">Public quick-share clipboard</p>
                 </div>

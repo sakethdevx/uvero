@@ -196,20 +196,22 @@ export default function SplitExpenseHome() {
 
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
-            <section className="relative overflow-hidden border-b border-gray-100 dark:border-white/5">
-                <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute -top-24 -left-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl" />
-                    <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl" />
+            {/* Hero */}
+            <div className="relative overflow-hidden">
+                <div className="pointer-events-none absolute inset-0">
+                    <div className="absolute left-[-10rem] top-16 h-96 w-96 rounded-full bg-emerald-500/8 blur-3xl" />
+                    <div className="absolute right-[-8rem] top-8 h-80 w-80 rounded-full bg-blue-500/8 blur-3xl" />
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
                 </div>
 
-                <div className="relative max-w-7xl mx-auto px-4 pt-12 pb-8 sm:px-6 lg:px-8">
-                    <div className="max-w-3xl">
-                        <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-semibold uppercase tracking-wider">
-                            New Service
-                        </span>
-                        {/* Feature name now in site header */}
-
-                        <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 leading-relaxed">
+                <section className="relative max-w-7xl mx-auto px-4 pt-16 pb-10 sm:px-6 lg:px-8">
+                    <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-8 shadow-xl shadow-emerald-100/40 dark:border-white/[0.08] dark:from-emerald-500/10 dark:via-gray-950 dark:to-blue-500/10 dark:shadow-none sm:p-10">
+                        <p className="text-xs font-bold uppercase tracking-[0.3em] text-emerald-600 dark:text-emerald-300">Split Expense</p>
+                        <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+                            Split trips,{' '}
+                            <span className="text-emerald-600 dark:text-emerald-400">settle instantly.</span>
+                        </h1>
+                        <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300">
                             Split trip expenses, settle fast, and pay via UPI in one tap with shareable links and QR-ready payment details.
                         </p>
 
@@ -223,13 +225,13 @@ export default function SplitExpenseHome() {
                                 </p>
                             </div>
                         ) : (
-                            <div className="mt-6 rounded-xl border border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-300">
+                            <div className="mt-6 rounded-xl border border-emerald-200 dark:border-emerald-500/30 bg-emerald-50/80 dark:bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-300">
                                 Signed in as <span className="font-semibold">{user.email}</span>. You get unlimited groups and all split modes.
                             </div>
                         )}
                     </div>
-                </div>
-            </section>
+                </section>
+            </div>
 
             <section className="max-w-7xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
                 {error && (
@@ -277,7 +279,7 @@ export default function SplitExpenseHome() {
                             <button
                                 type="submit"
                                 disabled={createLoading || authLoading}
-                                className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-blue-600 text-white font-semibold shadow hover:opacity-95 disabled:opacity-60"
+                                className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-700 disabled:opacity-60"
                             >
                                 {authLoading ? 'Checking session...' : createLoading ? 'Creating...' : 'Create group'}
                             </button>
@@ -312,7 +314,7 @@ export default function SplitExpenseHome() {
                             <button
                                 type="submit"
                                 disabled={joinLoading || authLoading}
-                                className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold shadow hover:opacity-95 disabled:opacity-60"
+                                className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-blue-600 text-white font-semibold shadow-sm hover:bg-blue-700 disabled:opacity-60"
                             >
                                 {authLoading ? 'Checking session...' : joinLoading ? 'Joining...' : 'Join group'}
                             </button>
@@ -351,7 +353,7 @@ export default function SplitExpenseHome() {
                                             type="button"
                                             onClick={handleGuestRecover}
                                             disabled={recoverLoading || authLoading}
-                                            className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold shadow hover:opacity-95 disabled:opacity-60"
+                                            className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-700 disabled:opacity-60"
                                         >
                                             {authLoading ? 'Checking session...' : recoverLoading ? 'Recovering...' : 'Recover as guest'}
                                         </button>

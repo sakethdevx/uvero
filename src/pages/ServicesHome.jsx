@@ -14,13 +14,15 @@ const services = [
         description: '55+ powerful tools to convert, compress, resize, and process your files. Images, PDFs, audio, video, documents — all in one place.',
         features: ['Image & PDF Tools', 'Audio & Video Conversion', 'Privacy-First Processing', 'Works Offline'],
         icon: (
-            <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
         ),
-        gradient: 'from-primary-500 via-blue-500 to-indigo-600',
-        lightGradient: 'from-primary-50 via-blue-50 to-indigo-50',
-        accentColor: 'primary',
+        iconBg: 'bg-primary-50 dark:bg-primary-500/10',
+        iconColor: 'text-primary-600 dark:text-primary-300',
+        gradient: 'from-primary-50 via-white to-blue-50',
+        darkGradient: 'dark:from-primary-500/10 dark:via-gray-950 dark:to-blue-500/10',
+        shadow: 'shadow-primary-100/40',
         link: '/tools',
         cta: 'Explore Tools',
     },
@@ -31,14 +33,16 @@ const services = [
         description: 'Create events, upload photos, and let guests find their pictures with smart face recognition. Share memories effortlessly.',
         features: ['Event Photo Sharing', 'Face Recognition', 'QR Code Invites', 'Bulk Download'],
         icon: (
-            <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
             </svg>
         ),
-        gradient: 'from-rose-500 via-pink-500 to-purple-600',
-        lightGradient: 'from-rose-50 via-pink-50 to-purple-50',
-        accentColor: 'rose',
+        iconBg: 'bg-rose-50 dark:bg-rose-500/10',
+        iconColor: 'text-rose-600 dark:text-rose-300',
+        gradient: 'from-rose-50 via-white to-pink-50',
+        darkGradient: 'dark:from-rose-500/10 dark:via-gray-950 dark:to-pink-500/10',
+        shadow: 'shadow-rose-100/40',
         link: '/photodrop',
         cta: 'Get Started',
     },
@@ -49,13 +53,15 @@ const services = [
         description: 'Quick-share text with a 4-digit code or create private boards with syntax highlighting, markdown preview, and security features.',
         features: ['4-Digit Quick Share', 'Syntax Highlighting', 'Password Protection', 'Burn After Read'],
         icon: (
-            <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
             </svg>
         ),
-        gradient: 'from-emerald-500 via-cyan-500 to-teal-600',
-        lightGradient: 'from-emerald-50 via-cyan-50 to-teal-50',
-        accentColor: 'emerald',
+        iconBg: 'bg-emerald-50 dark:bg-emerald-500/10',
+        iconColor: 'text-emerald-600 dark:text-emerald-300',
+        gradient: 'from-emerald-50 via-white to-cyan-50',
+        darkGradient: 'dark:from-emerald-500/10 dark:via-gray-950 dark:to-cyan-500/10',
+        shadow: 'shadow-emerald-100/40',
         link: '/clipboard',
         cta: 'Try Now',
     },
@@ -66,13 +72,15 @@ const services = [
         description: 'Create trip groups, add shared expenses, auto-calculate who owes whom, and settle instantly using UPI IDs, mobile numbers, or QR payment references.',
         features: ['Equal / Exact / % / Shares', 'UPI Deep Links', 'Guest + Signed-In Support', 'Smart Settle-Up Suggestions'],
         icon: (
-            <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 1.12-3 2.5S10.343 13 12 13s3 1.12 3 2.5S13.657 18 12 18m0-10V6m0 12v-2m9-4.5c0 4.971-4.03 9-9 9s-9-4.029-9-9 4.03-9 9-9 9 4.029 9 9z" />
             </svg>
         ),
-        gradient: 'from-emerald-500 via-teal-500 to-cyan-600',
-        lightGradient: 'from-emerald-50 via-teal-50 to-cyan-50',
-        accentColor: 'emerald',
+        iconBg: 'bg-amber-50 dark:bg-amber-500/10',
+        iconColor: 'text-amber-600 dark:text-amber-300',
+        gradient: 'from-amber-50 via-white to-yellow-50',
+        darkGradient: 'dark:from-amber-500/10 dark:via-gray-950 dark:to-yellow-500/10',
+        shadow: 'shadow-amber-100/40',
         link: '/split-expense',
         cta: 'Split Now',
     },
@@ -80,17 +88,19 @@ const services = [
         id: 'qr-tools',
         name: 'QR Tools',
         tagline: 'Generate, scan & validate QR codes',
-        description: 'Create professional QR codes for URLs, WiFi, UPI payments, vCard contacts, WhatsApp, maps, and more. Scan QR codes with your camera or by uploading an image.',
+        description: 'Create professional QR codes for URLs, WiFi, UPI payments, vCard contacts, WhatsApp, maps, and more. Scan with camera or image upload.',
         features: ['12+ Payload Types', 'Logo & Custom Colours', 'Camera & Image Scanner', 'QR Validator & Score'],
         icon: (
-            <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
             </svg>
         ),
-        gradient: 'from-violet-500 via-purple-500 to-indigo-600',
-        lightGradient: 'from-violet-50 via-purple-50 to-indigo-50',
-        accentColor: 'violet',
+        iconBg: 'bg-violet-50 dark:bg-violet-500/10',
+        iconColor: 'text-violet-600 dark:text-violet-300',
+        gradient: 'from-violet-50 via-white to-purple-50',
+        darkGradient: 'dark:from-violet-500/10 dark:via-gray-950 dark:to-purple-500/10',
+        shadow: 'shadow-violet-100/40',
         link: '/qr-tools',
         cta: 'Try QR Tools',
     },
@@ -101,13 +111,15 @@ const services = [
         description: 'A premium online IDE powered by Monaco Editor. Execute code in 20+ programming languages with real-time output, execution metrics, and zero setup required.',
         features: ['20+ Languages', 'Monaco Editor', 'Execution Metrics', 'Cloud Sandboxed'],
         icon: (
-            <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
             </svg>
         ),
-        gradient: 'from-blue-500 via-indigo-500 to-violet-600',
-        lightGradient: 'from-blue-50 via-indigo-50 to-violet-50',
-        accentColor: 'blue',
+        iconBg: 'bg-indigo-50 dark:bg-indigo-500/10',
+        iconColor: 'text-indigo-600 dark:text-indigo-300',
+        gradient: 'from-indigo-50 via-white to-blue-50',
+        darkGradient: 'dark:from-indigo-500/10 dark:via-gray-950 dark:to-blue-500/10',
+        shadow: 'shadow-indigo-100/40',
         link: '/compiler',
         cta: 'Start Coding',
         badge: 'New',
@@ -117,53 +129,53 @@ const services = [
 const platformFeatures = [
     {
         icon: (
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
             </svg>
         ),
         title: 'Privacy First',
         description: 'Your files stay on your device. No uploads, no tracking, no compromise.',
-        color: 'text-emerald-600',
-        bg: 'bg-emerald-50',
+        iconBg: 'bg-emerald-50 dark:bg-emerald-500/10',
+        iconColor: 'text-emerald-600 dark:text-emerald-300',
     },
     {
         icon: (
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
             </svg>
         ),
         title: 'Lightning Fast',
         description: 'Optimized processing with Web Workers for smooth, instant results.',
-        color: 'text-amber-600',
-        bg: 'bg-amber-50',
+        iconBg: 'bg-amber-50 dark:bg-amber-500/10',
+        iconColor: 'text-amber-600 dark:text-amber-300',
     },
     {
         icon: (
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
             </svg>
         ),
         title: 'Works Everywhere',
         description: 'Access from any device, any browser. No installations needed.',
-        color: 'text-blue-600',
-        bg: 'bg-blue-50',
+        iconBg: 'bg-blue-50 dark:bg-blue-500/10',
+        iconColor: 'text-primary-600 dark:text-primary-300',
     },
     {
         icon: (
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
             </svg>
         ),
         title: 'Completely Free',
         description: 'No hidden fees, no subscriptions. Professional tools at zero cost.',
-        color: 'text-purple-600',
-        bg: 'bg-purple-50',
+        iconBg: 'bg-purple-50 dark:bg-purple-500/10',
+        iconColor: 'text-purple-600 dark:text-purple-300',
     },
 ];
 
 export default function ServicesHome() {
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">
+        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
             {/* Announcement Banner */}
             <AnnouncementBanner
                 announcements={[
@@ -173,260 +185,224 @@ export default function ServicesHome() {
             />
 
             {/* Hero Section */}
-            <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 via-white to-white dark:from-gray-900 dark:via-gray-950 dark:to-gray-950">
-                {/* Background decorations */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary-200/20 rounded-full blur-3xl animate-blob" />
-                    <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-rose-200/20 rounded-full blur-3xl animate-blob" style={{ animationDelay: '2s' }} />
-                    <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-indigo-100/15 rounded-full blur-3xl animate-blob" style={{ animationDelay: '4s' }} />
+            <div className="relative overflow-hidden">
+                {/* Subtle background blobs */}
+                <div className="pointer-events-none absolute inset-0">
+                    <div className="absolute left-[-10rem] top-16 h-96 w-96 rounded-full bg-primary-500/8 blur-3xl" />
+                    <div className="absolute right-[-8rem] top-8 h-80 w-80 rounded-full bg-blue-500/8 blur-3xl" />
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-500/30 to-transparent" />
                 </div>
 
-                <div className="relative max-w-7xl mx-auto px-4 pt-16 pb-8 sm:px-6 lg:px-8 sm:pt-24 sm:pb-12">
-                    <div className="text-center max-w-4xl mx-auto">
-                        {/* Badge */}
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/80 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 rounded-full mb-8 animate-fade-in shadow-sm">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
-                            </span>
-                            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Your all-in-one digital toolkit</span>
+                <section className="relative max-w-7xl mx-auto px-4 pt-16 pb-10 sm:px-6 lg:px-8">
+                    <div className="grid gap-6 lg:grid-cols-[1.4fr_0.85fr]">
+                        {/* Main hero card */}
+                        <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-primary-50 via-white to-blue-50 p-8 shadow-xl shadow-primary-100/40 dark:border-white/[0.08] dark:from-primary-500/10 dark:via-gray-950 dark:to-blue-500/10 dark:shadow-none sm:p-10">
+                            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary-600 dark:text-primary-300">Uvero Platform</p>
+                            <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+                                Everything you need,{' '}
+                                <span className="text-primary-600 dark:text-primary-400">one platform</span>
+                            </h1>
+                            <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300">
+                                From file processing to event photo sharing — powerful tools designed for simplicity, speed, and privacy. No sign-up required for most tools.
+                            </p>
+                            <div className="mt-8 flex flex-wrap gap-3">
+                                <Link
+                                    to="/tools"
+                                    className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700"
+                                >
+                                    Explore Tools
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                </Link>
+                                <Link
+                                    to="/photodrop"
+                                    className="inline-flex items-center gap-2 rounded-xl border border-gray-200/80 bg-white/80 px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300 dark:hover:bg-white/[0.08]"
+                                >
+                                    Try PhotoDrop
+                                </Link>
+                            </div>
                         </div>
 
-                        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 dark:text-white mb-6 leading-[1.1] animate-fade-in-up text-balance">
-                            Everything you need,{' '}
-                            <span className="gradient-text animate-gradient-x">
-                                one platform
-                            </span>
-                        </h1>
-
-                        <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-500 dark:text-gray-400 mb-12 animate-fade-in-up leading-relaxed" style={{ animationDelay: '0.1s' }}>
-                            From file processing to event photo sharing — powerful tools designed for simplicity, speed, and privacy.
-                        </p>
+                        {/* Quick stats / highlights card */}
+                        <div className="rounded-3xl border border-gray-200/80 bg-gray-50/80 p-6 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
+                            <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Why Uvero?</p>
+                            <div className="mt-5 space-y-4">
+                                {platformFeatures.map((f, i) => (
+                                    <div key={i} className="flex items-start gap-3">
+                                        <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${f.iconBg} ${f.iconColor}`}>
+                                            {f.icon}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-gray-900 dark:text-white">{f.title}</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mt-0.5">{f.description}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            </div>
 
-            {/* Services Section */}
-            <section className="max-w-7xl mx-auto px-4 pb-20 sm:px-6 lg:px-8 -mt-4">
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                    {services.map((service, idx) => (
+            {/* Services Grid */}
+            <section className="max-w-7xl mx-auto px-4 pb-16 sm:px-6 lg:px-8">
+                <div className="mb-6">
+                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Services</p>
+                    <h2 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">All tools, one place</h2>
+                </div>
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {services.map((service) => (
                         <Link
                             key={service.id}
                             to={service.link}
-                            className={`group relative rounded-3xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 shadow-lg dark:shadow-none hover:shadow-2xl dark:hover:shadow-primary-500/10 transition-all duration-500 hover:-translate-y-2 animate-fade-in-up${idx === services.length - 1 && services.length % 3 !== 0 && services.length % 3 === 2 ? ' lg:col-start-2' : ''}`}
-                            style={{ animationDelay: `${0.15 + idx * 0.1}s` }}
+                            className={`group flex flex-col rounded-3xl border border-gray-200/80 bg-gradient-to-br ${service.gradient} p-6 shadow-xl ${service.shadow} transition-shadow hover:shadow-2xl dark:border-white/[0.08] ${service.darkGradient} dark:shadow-none`}
                         >
-                            {/* Top gradient strip */}
-                            <div className={`h-2 bg-gradient-to-r ${service.gradient}`} />
-
-                            {/* Card content */}
-                            <div className="p-8 sm:p-10">
-                                {/* Icon + Badge */}
-                                <div className="flex items-start justify-between mb-6">
-                                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${service.gradient} flex items-center justify-center text-white shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
-                                        {service.icon}
-                                    </div>
-                                    <svg className="w-6 h-6 text-gray-300 group-hover:text-gray-500 group-hover:translate-x-1 transition-all duration-300 mt-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                    </svg>
+                            {/* Icon + Badge */}
+                            <div className="flex items-start justify-between mb-5">
+                                <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${service.iconBg} ${service.iconColor}`}>
+                                    {service.icon}
                                 </div>
-
-                                {/* Title & Tagline */}
-                                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1 group-hover:text-gray-800 dark:group-hover:text-white transition-colors">
-                                    {service.name}
-                                </h2>
-                                <p className={`text-sm font-semibold bg-gradient-to-r ${service.gradient} bg-clip-text text-transparent mb-4`}>
-                                    {service.tagline}
-                                </p>
-
-                                {/* Description */}
-                                <p className="text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
-                                    {service.description}
-                                </p>
-
-                                {/* Feature pills */}
-                                <div className="flex flex-wrap gap-2 mb-8">
-                                    {service.features.map((feature, fIdx) => (
-                                        <span
-                                            key={fIdx}
-                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r ${service.lightGradient} dark:from-white/5 dark:to-white/5 text-gray-700 dark:text-gray-300 border border-gray-100 dark:border-white/5`}
-                                        >
-                                            <span className={`w-1 h-1 rounded-full bg-gradient-to-r ${service.gradient}`} />
-                                            {feature}
-                                        </span>
-                                    ))}
-                                </div>
-
-                                {/* CTA */}
-                                <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r ${service.gradient} text-white font-semibold shadow-lg group-hover:shadow-xl transition-all duration-300 text-sm`}>
-                                    {service.cta}
-                                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                    </svg>
-                                </div>
+                                {service.badge && (
+                                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-300">
+                                        {service.badge}
+                                    </span>
+                                )}
                             </div>
 
-                            {/* Hover gradient overlay */}
-                            <div className={`absolute inset-0 bg-gradient-to-br ${service.lightGradient} opacity-0 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none`} />
+                            {/* Title & Tagline */}
+                            <h3 className="text-xl font-black tracking-tight text-gray-900 dark:text-white mb-1">
+                                {service.name}
+                            </h3>
+                            <p className={`text-xs font-bold uppercase tracking-[0.2em] mb-3 ${service.iconColor}`}>{service.tagline}</p>
+
+                            {/* Description */}
+                            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-4 flex-1">
+                                {service.description}
+                            </p>
+
+                            {/* Feature tags */}
+                            <div className="flex flex-wrap gap-1.5 mb-5">
+                                {service.features.map((feature, fIdx) => (
+                                    <span
+                                        key={fIdx}
+                                        className="text-xs px-2.5 py-1 rounded-full border border-gray-200/80 bg-white/70 text-gray-600 dark:border-white/[0.08] dark:bg-white/[0.05] dark:text-gray-400"
+                                    >
+                                        {feature}
+                                    </span>
+                                ))}
+                            </div>
+
+                            {/* CTA */}
+                            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-200 group-hover:gap-3 transition-all duration-200">
+                                {service.cta}
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </span>
                         </Link>
                     ))}
                 </div>
 
-                {/* Coming Soon hint */}
-                <div className="text-center mt-10 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                    <p className="text-sm text-gray-400 flex items-center justify-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        More services coming soon
-                    </p>
-                </div>
+                <p className="text-sm text-gray-400 dark:text-gray-600 mt-6 flex items-center gap-1.5">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    More services coming soon
+                </p>
             </section>
 
-            <section className="max-w-7xl mx-auto px-4 pb-20 sm:px-6 lg:px-8 -mt-6">
-                <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-r from-gray-50 via-white to-cyan-50/70 p-6 shadow-lg shadow-gray-100/70 dark:border-white/[0.08] dark:from-gray-900/80 dark:via-gray-950 dark:to-cyan-500/10 dark:shadow-none sm:p-8">
-                    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="max-w-2xl">
-                            <p className="text-xs font-bold uppercase tracking-[0.26em] text-cyan-600 dark:text-cyan-300">CLI Access</p>
-                            <h2 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white">Access Uvero directly from your terminal.</h2>
-                            <p className="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+            {/* CLI Section */}
+            <section className="max-w-7xl mx-auto px-4 pb-16 sm:px-6 lg:px-8">
+                <div className="rounded-3xl border border-gray-200/80 bg-white p-6 shadow-xl shadow-gray-100/60 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none sm:p-8">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:gap-12 gap-6">
+                        <div className="max-w-xl">
+                            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary-600 dark:text-primary-300">CLI Access</p>
+                            <h2 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white">Access Uvero from your terminal.</h2>
+                            <p className="mt-3 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
                                 Install the official Uvero CLI once, then send or fetch clipboard content from the command line whenever you do not want to switch back to the browser.
                             </p>
+                            <Link
+                                to="/cli"
+                                className="inline-flex items-center gap-2 mt-5 rounded-xl border border-gray-200/80 bg-gray-50 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 dark:border-white/[0.08] dark:bg-white/[0.05] dark:text-gray-200 dark:hover:bg-white/[0.08]"
+                            >
+                                Explore CLI usage
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                            </Link>
                         </div>
 
-                        <div className="min-w-0 rounded-2xl border border-gray-200/80 bg-white/90 p-4 shadow-sm dark:border-white/[0.08] dark:bg-gray-950/50 lg:min-w-[360px]">
+                        <div className="flex-1 min-w-0 lg:max-w-sm rounded-2xl border border-gray-200/80 bg-white/85 p-5 shadow-sm dark:border-white/[0.08] dark:bg-gray-950/50">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Install</p>
-                            <code className="mt-3 block overflow-x-auto rounded-xl bg-gray-950 px-3 py-3 text-sm text-cyan-200">
+                            <code className="mt-3 block overflow-x-auto rounded-xl bg-gray-950 px-4 py-3 text-sm text-cyan-200">
                                 {CLI_INSTALL_COMMAND}
                             </code>
-                            <p className="mt-4 text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Example</p>
-                            <code className="mt-3 block overflow-x-auto rounded-xl bg-gray-950 px-3 py-3 text-sm text-cyan-200">
+                            <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500 mt-4">Example</p>
+                            <code className="mt-3 block overflow-x-auto rounded-xl bg-gray-950 px-4 py-3 text-sm text-cyan-200">
                                 uvero send notes.txt
                             </code>
                         </div>
                     </div>
-
-                    <div className="mt-6">
-                        <Link
-                            to="/cli"
-                            className="inline-flex items-center gap-2 rounded-xl border border-cyan-200 bg-cyan-50 px-4 py-2.5 text-sm font-semibold text-cyan-700 transition-colors hover:bg-cyan-100 dark:border-cyan-500/20 dark:bg-cyan-500/10 dark:text-cyan-300 dark:hover:bg-cyan-500/15"
-                        >
-                            Explore CLI usage
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-                        </Link>
-                    </div>
                 </div>
             </section>
 
-            {/* Why Uvero Section */}
-            <section className="bg-gray-50/50 dark:bg-gray-900/30 py-20 sm:py-24 transition-colors">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">Why Uvero?</h2>
-                        <p className="text-gray-500 dark:text-gray-400 text-lg leading-relaxed">Built with privacy, performance, and simplicity at the core</p>
-                    </div>
+            {/* About Section */}
+            <section className="max-w-7xl mx-auto px-4 pb-16 sm:px-6 lg:px-8">
+                <div className="rounded-3xl border border-gray-200/80 bg-white p-6 shadow-xl shadow-gray-100/60 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none sm:p-8">
+                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">About</p>
+                    <h2 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">What Does Uvero Mean?</h2>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">The story behind our name</p>
 
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {platformFeatures.map((feature, idx) => (
-                            <div
-                                key={idx}
-                                className="group text-center p-8 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/10 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-                            >
-                                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl ${feature.bg} dark:bg-white/5 ${feature.color} dark:text-white mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                                    {feature.icon}
+                    <div className="mt-8 grid md:grid-cols-3 gap-6">
+                        {[
+                            { letter: 'U', label: 'Universal', bg: 'bg-primary-50 dark:bg-primary-500/10', color: 'text-primary-600 dark:text-primary-300', desc: 'A wide collection of useful digital tools — an all-in-one platform for everyday tasks.' },
+                            { letter: 'ver', label: 'Versatile', bg: 'bg-purple-50 dark:bg-purple-500/10', color: 'text-purple-600 dark:text-purple-300', desc: 'Multiple functions in one place — transform files, process data, and share memories.' },
+                            { letter: 'o', label: 'Zero Effort', bg: 'bg-emerald-50 dark:bg-emerald-500/10', color: 'text-emerald-600 dark:text-emerald-300', desc: 'Instant results with minimal effort. Complete digital tasks with almost zero friction.' },
+                        ].map((item) => (
+                            <div key={item.letter} className="text-center">
+                                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl ${item.bg} ${item.color} text-2xl font-black mb-3`}>
+                                    {item.letter}
                                 </div>
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                                    {feature.title}
-                                </h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                                    {feature.description}
-                                </p>
+                                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">{item.label}</h3>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{item.desc}</p>
                             </div>
                         ))}
                     </div>
-                </div>
-            </section>
 
-            {/* About Uvero Section */}
-            <section className="py-20 sm:py-24 dark:bg-gray-950 transition-colors">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">What Does Uvero Mean?</h2>
-                        <p className="text-gray-500 dark:text-gray-400 text-lg">The story behind our name</p>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl dark:shadow-none p-8 sm:p-12 border border-gray-100 dark:border-white/5">
-                        <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed mb-8 text-center">
-                            <strong className="text-primary-600 dark:text-primary-400">Uvero</strong> is a coined brand name formed from three core ideas:
+                    <div className="mt-8 pt-6 border-t border-gray-200/80 dark:border-white/[0.08] text-center">
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Uvero = <span className="text-primary-600 dark:text-primary-400 font-semibold">Universal, versatile tools for zero-effort productivity</span>
                         </p>
-
-                        <div className="grid md:grid-cols-3 gap-8 mb-8">
-                            <div className="text-center">
-                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-3xl font-bold mb-4">
-                                    U
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Universal</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-                                    A wide collection of useful digital tools — an all-in-one platform for everyday tasks.
-                                </p>
-                            </div>
-                            <div className="text-center">
-                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-purple-100 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 text-2xl font-bold mb-4">
-                                    ver
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Versatile</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-                                    Multiple functions in one place — transform files, process data, and share memories.
-                                </p>
-                            </div>
-                            <div className="text-center">
-                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-3xl font-bold mb-4">
-                                    o
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Zero Effort</h3>
-                                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-                                    Instant results with minimal effort. Complete digital tasks with almost zero friction.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="text-center pt-6 border-t border-gray-200 dark:border-white/10">
-                            <p className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                                Uvero = <span className="gradient-text">Universal, versatile tools for zero-effort productivity</span>
-                            </p>
-                        </div>
                     </div>
                 </div>
             </section>
 
             {/* CTA Section */}
-            <section className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-blue-600 to-indigo-700" />
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
-
-                <div className="relative max-w-4xl mx-auto px-4 py-20 sm:py-24 text-center">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-5 text-balance">
+            <section className="max-w-7xl mx-auto px-4 pb-20 sm:px-6 lg:px-8">
+                <div className="rounded-3xl border border-primary-500/20 bg-gradient-to-br from-primary-600 to-indigo-700 p-6 text-center shadow-xl shadow-primary-500/20 sm:p-8">
+                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary-200">Get started</p>
+                    <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">
                         Ready to Get Started?
                     </h2>
-                    <p className="text-lg text-blue-100 dark:text-gray-300 mb-8 max-w-xl mx-auto">
+                    <p className="mt-2 text-primary-100 max-w-md mx-auto text-sm leading-relaxed">
                         Pick a service and start right away. No sign-up required for file processing.
                     </p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
                         <Link
                             to="/tools"
-                            className="inline-flex items-center gap-2 bg-white dark:bg-primary-500 text-primary-700 dark:text-white font-semibold py-3.5 px-7 rounded-xl hover:bg-gray-50 dark:hover:bg-primary-600 transition-all duration-300 shadow-xl shadow-black/10 hover:-translate-y-0.5"
+                            className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-primary-700 shadow-sm transition-colors hover:bg-primary-50"
                         >
                             File Processing
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
                         </Link>
                         <Link
                             to="/photodrop"
-                            className="inline-flex items-center gap-2 bg-white/10 text-white font-semibold py-3.5 px-7 rounded-xl hover:bg-white/20 transition-all duration-300 border border-white/20 hover:-translate-y-0.5"
+                            className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/20"
                         >
                             PhotoDrop
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
                         </Link>
@@ -436,3 +412,4 @@ export default function ServicesHome() {
         </div>
     );
 }
+
