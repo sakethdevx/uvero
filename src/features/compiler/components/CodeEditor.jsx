@@ -25,8 +25,10 @@ export default function CodeEditor({ language, value, onChange, isDark = true, f
             // no-op
         });
 
-        // Focus editor
-        editor.focus();
+        // Focus editor — skip on small screens to avoid triggering the virtual keyboard
+        if (!window.matchMedia('(max-width: 1023px)').matches) {
+            editor.focus();
+        }
     }
 
     // Sync theme on dark mode change
