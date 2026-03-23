@@ -220,7 +220,7 @@ export default function CompilerHome() {
                                 />
 
                                 {/* Monaco Editor */}
-                                <div className="flex-1 min-h-[350px] lg:min-h-[520px]">
+                                <div className="h-[350px] lg:h-auto lg:flex-1 lg:min-h-[520px]">
                                     <CodeEditor
                                         language={monacoLang}
                                         value={code}
