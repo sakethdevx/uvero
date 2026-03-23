@@ -8,6 +8,7 @@ import CompilerHome from './features/compiler/pages/CompilerHome';
 import Home from './features/file-processing/pages/Home';
 import ToolPage from './features/file-processing/pages/ToolPage';
 import Privacy from './pages/Privacy';
+import Contact from './pages/Contact';
 import EventsPage from './features/photodrop/pages/Events';
 import EventDetail from './features/photodrop/pages/EventDetail';
 import InvitePage from './features/photodrop/pages/Invite';
@@ -299,6 +300,13 @@ function AppContent() {
                 Privacy
               </Link>
 
+              <Link
+                to="/contact"
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium transition-colors py-2 px-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                Contact
+              </Link>
+
               <div className="ml-2 flex items-center gap-2 pl-3 border-l border-gray-200 dark:border-gray-700">
                 <ThemeToggle />
                 {isFileProcessingRoute && <ModeToggle />}
@@ -375,6 +383,13 @@ function AppContent() {
                 >
                   Privacy
                 </Link>
+                <Link
+                  to="/contact"
+                  className="block text-sm text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium py-2"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Contact
+                </Link>
               </div>
             </div>
           </div>
@@ -406,6 +421,7 @@ function AppContent() {
           <Route path="/invite/:token" element={<InvitePage />} />
           <Route path="/:toolId" element={<ToolPage />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/reset-password" element={<ResetPassword />} />
@@ -472,6 +488,11 @@ function AppContent() {
                 <li>
                   <Link to="/privacy" className="text-gray-400 hover:text-gray-200 transition-colors text-sm">
                     Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/contact" className="text-gray-400 hover:text-gray-200 transition-colors text-sm">
+                    Contact Us
                   </Link>
                 </li>
               </ul>

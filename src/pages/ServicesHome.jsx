@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { CLI_INSTALL_COMMAND } from '../features/clipboard/cliCommands';
 import AnnouncementBanner from '../components/AnnouncementBanner';
+import ContactFormSection from '../components/ContactFormSection';
 
 /**
  * Services Home Page
@@ -376,6 +377,9 @@ export default function ServicesHome() {
                     </div>
                 </div>
             </section>
+
+            {/* Contact / Feedback Section */}
+            <ContactFormSection />
 
             {/* CTA Section */}
             <section className="max-w-7xl mx-auto px-4 pb-20 sm:px-6 lg:px-8">
