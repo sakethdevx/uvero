@@ -18,6 +18,7 @@ const STATIC_ROUTES = [
     { path: '/photodrop', changefreq: 'weekly', priority: '0.9' },
     { path: '/clipboard', changefreq: 'weekly', priority: '0.9' },
     { path: '/cli', changefreq: 'monthly', priority: '0.8' },
+    { path: '/contact', changefreq: 'yearly', priority: '0.5' },
     { path: '/privacy', changefreq: 'yearly', priority: '0.4' },
 ]
 
