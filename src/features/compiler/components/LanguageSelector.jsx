@@ -1,9 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { LANGUAGES, CATEGORIES } from '../data/languages';
 
+const MAX_DROPDOWN_WIDTH = 320;
+const MIN_DROPDOWN_WIDTH = 256;
+const VIEWPORT_PADDING = 12;
+
 export default function LanguageSelector({ selectedLanguage, onLanguageChange }) {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
+    const [maxDropdownWidth, setMaxDropdownWidth] = useState(MAX_DROPDOWN_WIDTH);
     const dropdownRef = useRef(null);
     const searchRef = useRef(null);
 
@@ -33,6 +38,15 @@ export default function LanguageSelector({ selectedLanguage, onLanguageChange })
     useEffect(() => {
         if (isOpen && searchRef.current) {
             searchRef.current.focus();
+        }
+    }, [isOpen]);
+
+    // Recalculate available horizontal space when dropdown opens to prevent viewport overflow
+    useEffect(() => {
+        if (isOpen && dropdownRef.current) {
+            const rect = dropdownRef.current.getBoundingClientRect();
+            const available = Math.floor(window.innerWidth - rect.left - VIEWPORT_PADDING);
+            setMaxDropdownWidth(Math.min(MAX_DROPDOWN_WIDTH, Math.max(MIN_DROPDOWN_WIDTH, available)));
         }
     }, [isOpen]);
 
@@ -70,7 +84,7 @@ export default function LanguageSelector({ selectedLanguage, onLanguageChange })
 
             {/* Dropdown */}
             {isOpen && (
-                <div className="absolute top-full right-0 lg:left-0 mt-3 w-80 bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl shadow-black/20 z-50 overflow-hidden animate-pop-in origin-top-right lg:origin-top-left">
+                <div style={{ maxWidth: `${maxDropdownWidth}px` }} className="absolute top-full left-0 mt-3 w-80 bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl shadow-black/20 z-50 overflow-hidden animate-pop-in origin-top-left">
                     {/* Search */}
                     <div className="p-4 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/[0.02]">
                         <div className="relative group">
@@ -90,7 +104,7 @@ export default function LanguageSelector({ selectedLanguage, onLanguageChange })
                     </div>
 
                     {/* Language List */}
-                    <div className="max-h-[400px] overflow-y-auto py-2 custom-scrollbar">
+                    <div className="max-h-[60vh] sm:max-h-[400px] overflow-y-auto py-2 custom-scrollbar">
                         {filtered ? (
                             // Search results
                             filtered.length > 0 ? (
