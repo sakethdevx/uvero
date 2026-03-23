@@ -40,6 +40,7 @@ export default function Contact() {
                 }),
             });
             const data = await res.json();
+            // FormSubmit returns success as a string 'true' in its AJAX response
             if (data.success === 'true' || data.success === true) {
                 setStatus('success');
                 setForm({ name: '', email: '', subject: '', message: '' });
