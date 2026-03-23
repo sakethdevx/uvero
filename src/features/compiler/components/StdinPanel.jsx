@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 export default function StdinPanel({ value, onChange }) {
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(true);
 
     return (
         <div className="border-b border-gray-200/70 dark:border-white/[0.06] transition-all duration-300">
