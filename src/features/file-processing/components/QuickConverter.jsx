@@ -452,12 +452,12 @@ export default function QuickConverter() {
     const availableOperations = files.length > 0 ? getOperationsForFile(files[0]) : [];
 
     return (
-        <div className="max-w-5xl mx-auto py-6 sm:py-12 px-4 shadow-none">
-            <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">
+        <div className="max-w-5xl mx-auto py-6 sm:py-12 px-3 sm:px-4 shadow-none">
+            <div className="text-center mb-8 sm:mb-12">
+                <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-3 sm:mb-4 tracking-tight">
                     Quick File Converter
                 </h2>
-                <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
                     Process your images, PDFs, audio, and video instantly in your browser.
                     Private, fast, and 100% secure.
                 </p>
@@ -476,16 +476,16 @@ export default function QuickConverter() {
                 ) : (
                     <div className="flex flex-col">
                         {/* File Header */}
-                        <div className="flex items-center justify-between px-6 sm:px-10 py-8 border-b border-gray-100 dark:border-white/5 bg-gray-50/30 dark:bg-white/[0.02]">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-primary-500/10 dark:bg-primary-500/20 rounded-2xl flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold">
+                        <div className="flex items-center justify-between px-4 sm:px-10 py-4 sm:py-8 border-b border-gray-100 dark:border-white/5 bg-gray-50/30 dark:bg-white/[0.02]">
+                            <div className="flex items-center gap-3 sm:gap-4">
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-500/10 dark:bg-primary-500/20 rounded-2xl flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold">
                                     {files.length}
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+                                    <h3 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white leading-tight">
                                         Selected Files
                                     </h3>
-                                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
                                         Ready to process
                                     </p>
                                 </div>
@@ -498,7 +498,7 @@ export default function QuickConverter() {
                                     setResults([]);
                                     setError('');
                                 }}
-                                className="px-5 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all border border-transparent hover:border-red-100 dark:hover:border-red-500/20"
+                                className="px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all border border-transparent hover:border-red-100 dark:hover:border-red-500/20"
                             >
                                 Clear All
                             </button>
@@ -506,35 +506,35 @@ export default function QuickConverter() {
 
                         {/* Results View */}
                         {results.length > 0 ? (
-                            <div className="p-6 sm:p-10 space-y-6">
-                                <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shadow-green-500/30">
+                            <div className="p-4 sm:p-10 space-y-6">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
+                                    <div className="flex items-center gap-3 sm:gap-4">
+                                        <div className="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center text-white text-xl sm:text-2xl shadow-lg shadow-green-500/30">
                                             ✅
                                         </div>
                                         <div>
-                                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Processing Complete!</h3>
-                                            <p className="text-gray-500 dark:text-gray-400">Ready for download.</p>
+                                            <h3 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">Processing Complete!</h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">Ready for download.</p>
                                         </div>
                                     </div>
                                     {results.length > 1 && (
-                                        <button onClick={handleDownloadAll} className="btn-primary py-4 px-10 shadow-xl shadow-primary-500/20">
+                                        <button onClick={handleDownloadAll} className="btn-primary w-full sm:w-auto py-3 sm:py-4 px-8 sm:px-10 shadow-xl shadow-primary-500/20">
                                             Download All
                                         </button>
                                     )}
                                 </div>
-                                <div className="grid gap-4">
+                                <div className="grid gap-3 sm:gap-4">
                                     {results.map(({ original, result, isMerged, sourceFiles }, ridx) => (
-                                        <div key={ridx} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 bg-gray-50 dark:bg-white/5 rounded-3xl border border-gray-100 dark:border-white/5 hover:border-green-500/30 transition-all group">
-                                            <div className="flex items-center gap-5">
-                                                <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center text-2xl shadow-sm border border-gray-100 dark:border-white/5">
+                                        <div key={ridx} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 bg-gray-50 dark:bg-white/5 rounded-2xl sm:rounded-3xl border border-gray-100 dark:border-white/5 hover:border-green-500/30 transition-all group">
+                                            <div className="flex items-center gap-3 sm:gap-5">
+                                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center text-xl sm:text-2xl shadow-sm border border-gray-100 dark:border-white/5 shrink-0">
                                                     {result.isSplit ? '📚' : (original?.type?.startsWith('image/') ? '🖼️' : '📄')}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="font-bold text-gray-900 dark:text-white truncate max-w-[200px] sm:max-w-md">
+                                                    <p className="font-bold text-gray-900 dark:text-white truncate max-w-[160px] sm:max-w-md text-sm sm:text-base">
                                                         {isMerged ? result.file.name : (result.file?.name || original?.name || 'Processed File')}
                                                     </p>
-                                                    <p className="text-sm text-gray-500">
+                                                    <p className="text-xs sm:text-sm text-gray-500">
                                                         {isMerged ? `Merged ${sourceFiles.length} files` : (result.file ? formatFileSize(result.file.size) : '')}
                                                         {result.note && <span className="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded text-[10px] font-bold uppercase">{result.note}</span>}
                                                     </p>
@@ -542,15 +542,15 @@ export default function QuickConverter() {
                                             </div>
                                             <button
                                                 onClick={() => handleDownload(result)}
-                                                className="mt-4 sm:mt-0 btn-secondary dark:bg-white/10 dark:border-white/10 py-3 px-8 font-bold text-gray-900 dark:text-white"
+                                                className="mt-3 sm:mt-0 w-full sm:w-auto btn-secondary dark:bg-white/10 dark:border-white/10 py-2.5 sm:py-3 px-6 sm:px-8 font-bold text-gray-900 dark:text-white text-sm sm:text-base"
                                             >
                                                 Download
                                             </button>
                                         </div>
                                     ))}
                                 </div>
-                                <div className="pt-8 text-center">
-                                    <button onClick={() => { setFiles([]); setResults([]); setSelectedOperation(''); setShowOptions(false); }} className="text-primary-600 dark:text-primary-400 font-bold hover:underline">
+                                <div className="pt-6 sm:pt-8 text-center">
+                                    <button onClick={() => { setFiles([]); setResults([]); setSelectedOperation(''); setShowOptions(false); }} className="text-primary-600 dark:text-primary-400 font-bold hover:underline text-sm sm:text-base">
                                         + Process more files
                                     </button>
                                 </div>
@@ -558,20 +558,20 @@ export default function QuickConverter() {
                         ) : (
                             <>
                                 {/* Selection View */}
-                                <div className="p-6 sm:p-10 space-y-4 max-h-[400px] overflow-y-auto bg-white dark:bg-gray-900 custom-scrollbar">
+                                <div className="p-4 sm:p-10 space-y-3 sm:space-y-4 max-h-[300px] sm:max-h-[400px] overflow-y-auto bg-white dark:bg-gray-900 custom-scrollbar">
                                     {files.map((file, index) => (
-                                        <div key={index} className="flex items-center justify-between p-5 bg-gray-50/50 dark:bg-white/5 rounded-[1.5rem] border border-gray-100 dark:border-white/5 group">
-                                            <div className="flex items-center gap-5 flex-1 min-w-0">
-                                                <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center text-2xl border border-gray-100 dark:border-white/5">
+                                        <div key={index} className="flex items-center justify-between p-3 sm:p-5 bg-gray-50/50 dark:bg-white/5 rounded-2xl sm:rounded-[1.5rem] border border-gray-100 dark:border-white/5 group">
+                                            <div className="flex items-center gap-3 sm:gap-5 flex-1 min-w-0">
+                                                <div className="w-9 h-9 sm:w-12 sm:h-12 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl border border-gray-100 dark:border-white/5 shrink-0">
                                                     {file.type.startsWith('image/') ? '🖼️' : '📄'}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="font-bold text-gray-900 dark:text-white truncate">{file.name}</p>
-                                                    <p className="text-sm font-medium text-gray-400">{formatFileSize(file.size)}</p>
+                                                    <p className="font-bold text-gray-900 dark:text-white truncate text-sm sm:text-base">{file.name}</p>
+                                                    <p className="text-xs sm:text-sm font-medium text-gray-400">{formatFileSize(file.size)}</p>
                                                 </div>
                                             </div>
-                                            <button onClick={() => handleRemoveFile(index)} className="p-2 text-gray-400 hover:text-red-500">
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <button onClick={() => handleRemoveFile(index)} className="p-1.5 sm:p-2 text-gray-400 hover:text-red-500 shrink-0">
+                                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                             </button>
@@ -581,37 +581,37 @@ export default function QuickConverter() {
                                     {!isProcessing && (
                                         <div className="relative group pt-2">
                                             <input type="file" multiple onChange={(e) => Array.from(e.target.files).forEach(handleFileSelect)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                                            <div className="border-2 border-dashed border-gray-200 dark:border-white/10 rounded-[1.5rem] p-8 text-center group-hover:border-primary-500/50 transition-all">
-                                                <p className="text-gray-900 dark:text-white font-bold">+ Add More Files</p>
+                                            <div className="border-2 border-dashed border-gray-200 dark:border-white/10 rounded-[1.5rem] p-5 sm:p-8 text-center group-hover:border-primary-500/50 transition-all">
+                                                <p className="text-gray-900 dark:text-white font-bold text-sm sm:text-base">+ Add More Files</p>
                                             </div>
                                         </div>
                                     )}
                                 </div>
 
                                 {/* Controls */}
-                                <div className="p-8 sm:p-12 bg-gray-50/50 dark:bg-black/40 border-t border-gray-100 dark:border-white/5">
+                                <div className="p-4 sm:p-12 bg-gray-50/50 dark:bg-black/40 border-t border-gray-100 dark:border-white/5">
                                     {isProcessing ? (
-                                        <div className="py-12 text-center space-y-8">
+                                        <div className="py-8 sm:py-12 text-center space-y-6 sm:space-y-8">
                                             <div className="flex justify-center">
-                                                <div className="relative w-28 h-28">
+                                                <div className="relative w-20 h-20 sm:w-28 sm:h-28">
                                                     <div className="absolute inset-0 border-[6px] border-primary-100 dark:border-primary-900/20 rounded-full"></div>
                                                     <div className="absolute inset-0 border-[6px] border-primary-500 rounded-full border-t-transparent animate-spin"></div>
-                                                    <div className="absolute inset-0 flex items-center justify-center font-bold text-2xl text-primary-600 dark:text-primary-400">{progress}%</div>
+                                                    <div className="absolute inset-0 flex items-center justify-center font-bold text-xl sm:text-2xl text-primary-600 dark:text-primary-400">{progress}%</div>
                                                 </div>
                                             </div>
-                                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Processing...</h3>
+                                            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Processing...</h3>
                                             <ProgressBar progress={progress} className="max-w-md mx-auto" />
                                         </div>
                                     ) : showOptions ? (
-                                        <div className="space-y-10 animate-fade-in">
+                                        <div className="space-y-6 sm:space-y-10 animate-fade-in">
                                             <div className="flex items-center justify-between">
-                                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">3. Configure Settings</h3>
-                                                <button onClick={() => { setShowOptions(false); setSelectedOperation(''); }} className="text-sm font-bold text-gray-500 hover:text-primary-600">Back</button>
+                                                <h3 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white">3. Configure Settings</h3>
+                                                <button onClick={() => { setShowOptions(false); setSelectedOperation(''); }} className="text-xs sm:text-sm font-bold text-gray-500 hover:text-primary-600">Back</button>
                                             </div>
 
-                                            <div className="grid gap-10 max-w-2xl mx-auto py-4">
+                                            <div className="grid gap-6 sm:gap-10 max-w-2xl mx-auto py-2 sm:py-4">
                                                 {selectedOperation === 'compress-image' && (
-                                                    <div className="space-y-6">
+                                                    <div className="space-y-4 sm:space-y-6">
                                                         <div className="flex justify-between items-center text-gray-900 dark:text-white font-bold">
                                                             <label>Quality</label>
                                                             <span>{quality}%</span>
@@ -621,60 +621,60 @@ export default function QuickConverter() {
                                                 )}
 
                                                 {selectedOperation === 'convert-image' && (
-                                                    <div className="space-y-8">
-                                                        <div className="grid grid-cols-3 gap-4">
+                                                    <div className="space-y-4 sm:space-y-8">
+                                                        <div className="grid grid-cols-3 gap-2 sm:gap-4">
                                                             {['png', 'jpg', 'webp'].map(f => (
-                                                                <button key={f} onClick={() => setOutputFormat(f)} className={`py-4 rounded-2xl border font-bold uppercase ${outputFormat === f ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{f}</button>
+                                                                <button key={f} onClick={() => setOutputFormat(f)} className={`py-3 sm:py-4 rounded-2xl border font-bold uppercase text-sm sm:text-base ${outputFormat === f ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{f}</button>
                                                             ))}
                                                         </div>
                                                     </div>
                                                 )}
 
                                                 {selectedOperation === 'compress-pdf' && (
-                                                    <div className="grid grid-cols-3 gap-4">
+                                                    <div className="grid grid-cols-3 gap-2 sm:gap-4">
                                                         {['low', 'balanced', 'high'].map(l => (
-                                                            <button key={l} onClick={() => setPdfCompressionLevel(l)} className={`py-4 rounded-2xl border font-bold capitalize ${pdfCompressionLevel === l ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{l}</button>
+                                                            <button key={l} onClick={() => setPdfCompressionLevel(l)} className={`py-3 sm:py-4 rounded-2xl border font-bold capitalize text-sm sm:text-base ${pdfCompressionLevel === l ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{l}</button>
                                                         ))}
                                                     </div>
                                                 )}
 
                                                 {!['compress-image', 'convert-image', 'compress-pdf'].includes(selectedOperation) && (
-                                                    <div className="text-center p-8 bg-primary-50/50 dark:bg-primary-500/5 rounded-3xl">
-                                                        <p className="font-bold text-gray-900 dark:text-white text-lg">Ready to {selectedOperation.replace(/-/g, ' ')}</p>
+                                                    <div className="text-center p-5 sm:p-8 bg-primary-50/50 dark:bg-primary-500/5 rounded-3xl">
+                                                        <p className="font-bold text-gray-900 dark:text-white text-base sm:text-lg">Ready to {selectedOperation.replace(/-/g, ' ')}</p>
                                                     </div>
                                                 )}
 
-                                                <button onClick={handleProcess} className="btn-primary w-full py-6 text-2xl font-black shadow-2xl shadow-primary-500/40">
+                                                <button onClick={handleProcess} className="btn-primary w-full py-4 sm:py-6 text-lg sm:text-2xl font-black shadow-2xl shadow-primary-500/40">
                                                     Process Files
                                                 </button>
                                             </div>
                                         </div>
                                     ) : (
                                         <div className="animate-fade-in">
-                                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-8">2. Choose an Operation</h3>
-                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                            <h3 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-8">2. Choose an Operation</h3>
+                                            <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-4 max-h-[360px] sm:max-h-none overflow-y-auto pb-2 custom-scrollbar">
                                                 {availableOperations.map((op) => (
                                                     <button
                                                         key={op.id}
                                                         onClick={() => handleOperationSelect(op.id)}
-                                                        className={`p-6 rounded-3xl border transition-all flex flex-col items-center ${selectedOperation === op.id
+                                                        className={`p-3 sm:p-6 rounded-2xl sm:rounded-3xl border transition-all flex flex-col items-center ${selectedOperation === op.id
                                                                 ? 'border-primary-500 bg-white dark:bg-gray-800 shadow-xl ring-2 ring-primary-500/10'
                                                                 : 'border-gray-200 dark:border-white/5 bg-white dark:bg-gray-900/50 hover:border-primary-500/50'
                                                             }`}
                                                     >
-                                                        <div className="text-4xl mb-4">{op.icon}</div>
-                                                        <p className={`text-sm font-bold text-center ${selectedOperation === op.id ? 'text-primary-600 dark:text-primary-400' : 'text-gray-900 dark:text-white'}`}>{op.name}</p>
+                                                        <div className="text-2xl sm:text-4xl mb-1.5 sm:mb-4">{op.icon}</div>
+                                                        <p className={`text-xs sm:text-sm font-bold text-center leading-tight ${selectedOperation === op.id ? 'text-primary-600 dark:text-primary-400' : 'text-gray-900 dark:text-white'}`}>{op.name}</p>
                                                     </button>
                                                 ))}
                                             </div>
 
                                             {selectedOperation && (
-                                                <div className="mt-14 flex flex-col items-center gap-6">
-                                                    <button onClick={() => setShowOptions(true)} className="btn-primary px-16 py-6 text-2xl font-black shadow-2xl shadow-primary-500/30">
+                                                <div className="mt-8 sm:mt-14 flex flex-col items-center gap-4 sm:gap-6">
+                                                    <button onClick={() => setShowOptions(true)} className="btn-primary w-full sm:w-auto px-10 sm:px-16 py-4 sm:py-6 text-lg sm:text-2xl font-black shadow-2xl shadow-primary-500/30">
                                                         Continue
                                                     </button>
-                                                    <button onClick={handleProcess} className="text-sm font-bold text-gray-500 uppercase tracking-widest">
-                                                        Skip Settings & Process
+                                                    <button onClick={handleProcess} className="text-xs sm:text-sm font-bold text-gray-500 uppercase tracking-widest">
+                                                        Skip Settings &amp; Process
                                                     </button>
                                                 </div>
                                             )}
@@ -689,16 +689,16 @@ export default function QuickConverter() {
 
             {/* Error */}
             {error && (
-                <div className="mt-8 p-6 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-500/30 rounded-[2rem] flex items-center gap-4">
-                    <span className="text-2xl">⚠️</span>
-                    <p className="text-red-800 dark:text-red-400 font-bold">{error}</p>
+                <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-500/30 rounded-[1.5rem] sm:rounded-[2rem] flex items-start sm:items-center gap-3 sm:gap-4">
+                    <span className="text-xl sm:text-2xl shrink-0">⚠️</span>
+                    <p className="text-red-800 dark:text-red-400 font-bold text-sm sm:text-base">{error}</p>
                 </div>
             )}
 
             {/* Privacy Footer */}
-            <div className="mt-20 py-10 text-center border-t border-gray-100 dark:border-white/5 max-w-2xl mx-auto">
-                <p className="text-gray-900 dark:text-white font-extrabold text-lg mb-2">100% Private & Local</p>
-                <p className="text-gray-500 dark:text-gray-400">Everything runs in your browser. No files are uploaded to any server.</p>
+            <div className="mt-12 sm:mt-20 py-8 sm:py-10 text-center border-t border-gray-100 dark:border-white/5 max-w-2xl mx-auto">
+                <p className="text-gray-900 dark:text-white font-extrabold text-base sm:text-lg mb-2">100% Private &amp; Local</p>
+                <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">Everything runs in your browser. No files are uploaded to any server.</p>
             </div>
         </div>
     );
