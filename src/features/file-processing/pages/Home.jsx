@@ -10,7 +10,7 @@ import QuickConverter from '../components/QuickConverter';
  */
 export default function Home() {
     const popularTools = getPopularTools();
-    const { isOnlineMode, theme } = useMode();
+    const { isOnlineMode } = useMode();
     const [expandedCategory, setExpandedCategory] = useState(null);
 
     const categories = [

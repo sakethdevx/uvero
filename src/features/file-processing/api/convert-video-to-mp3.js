@@ -8,16 +8,6 @@
 import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import { exec } from 'child_process';
-/**
- * Vercel Serverless Function for Video to MP3 Conversion
- * Endpoint: /api/convert-video-to-mp3
- * Method: POST
- * Body: multipart/form-data with 'video' field and 'bitrate' parameter
- */
-
-import { IncomingForm } from 'formidable';
-import fs from 'fs';
-import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 import os from 'os';

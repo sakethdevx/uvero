@@ -30,7 +30,7 @@ self.addEventListener('message', async (e) => {
                 const [page] = await newPdf.copyPages(pdfDoc, [i]);
                 newPdf.addPage(page);
                 pagesRecovered++;
-            } catch (err) {
+            } catch {
                 // Skip damaged page
                 console.warn(`Page ${i + 1} could not be recovered`);
             }
@@ -40,7 +40,7 @@ self.addEventListener('message', async (e) => {
         try {
             newPdf.setTitle(pdfDoc.getTitle() || '');
             newPdf.setAuthor(pdfDoc.getAuthor() || '');
-        } catch (e) {
+        } catch {
             // Metadata copy is optional
         }
 

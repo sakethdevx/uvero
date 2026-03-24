@@ -73,7 +73,7 @@ export default async function handler(req, res) {
         // Clean up temp file
         try {
             fs.unlinkSync(tempImagePath);
-        } catch (e) {
+        } catch {
             // ignore cleanup errors
         }
 
@@ -89,7 +89,7 @@ export default async function handler(req, res) {
         if (tempImagePath && fs.existsSync(tempImagePath)) {
             try {
                 fs.unlinkSync(tempImagePath);
-            } catch (e) {
+            } catch {
                 // ignore
             }
         }

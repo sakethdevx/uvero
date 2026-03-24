@@ -55,18 +55,17 @@ export default function QuickConverter() {
     // Tool-specific options
     const [quality, setQuality] = useState(80);
     const [outputFormat, setOutputFormat] = useState('png');
-    const [width, setWidth] = useState('');
-    const [height, setHeight] = useState('');
+    const [width, _setWidth] = useState('');
+    const [height, _setHeight] = useState('');
     const [pdfCompressionLevel, setPdfCompressionLevel] = useState('balanced');
-    const [pageRange, setPageRange] = useState('all');
-    const [audioBitrate, setAudioBitrate] = useState('192');
-    const [videoQuality, setVideoQuality] = useState('medium');
-    const [pdfSplitMode, setPdfSplitMode] = useState('all');
+    const [pageRange, _setPageRange] = useState('all');
+    const [audioBitrate, _setAudioBitrate] = useState('192');
+    const [videoQuality, _setVideoQuality] = useState('medium');
+    const [pdfSplitMode, _setPdfSplitMode] = useState('all');
     const [pdfTotalPages, setPdfTotalPages] = useState(0);
-    const [pdfPageSpec, setPdfPageSpec] = useState('');
-    const [pdfPassword, setPdfPassword] = useState('');
-    const [pdfPasswordConfirm, setPdfPasswordConfirm] = useState('');
-    const [showPdfPassword, setShowPdfPassword] = useState(false);
+    const [pdfPageSpec, _setPdfPageSpec] = useState('');
+    const [pdfPassword, _setPdfPassword] = useState('');
+    const [pdfPasswordConfirm, _setPdfPasswordConfirm] = useState('');
 
     const validatePdfPassword = useCallback(() => {
         return validatePassword(pdfPassword, pdfPasswordConfirm);
@@ -235,11 +234,12 @@ export default function QuickConverter() {
                         URL.revokeObjectURL(r.url);
                         break;
                     }
-                    case 'compress-pdf':
+                    case 'compress-pdf': {
                         const cb = await pdfCompressorProcessor.compress(file, pdfCompressionLevel, setItemProgress);
                         result = { file: new File([cb], file.name.replace(/\.pdf$/i, '_compressed.pdf'), { type: 'application/pdf' }) };
                         break;
-                    case 'convert-pdf':
+                    }
+                    case 'convert-pdf': {
                         const imgs = await pdfConverterProcessor.convert(file, outputFormat, pageRange, '', setItemProgress);
                         if (imgs.length > 0) {
                             result = {
@@ -248,41 +248,159 @@ export default function QuickConverter() {
                             };
                         }
                         break;
-                    case 'split-pdf':
+                    }
+                    case 'split-pdf': {
                         const sr = await pdfSplitterProcessor.split(file, pdfSplitMode, pdfPageSpec, pdfTotalPages, setItemProgress);
                         result = { files: sr.files, isSplit: true };
                         break;
-                    case 'compress-audio':
+                    }
+                    case 'compress-audio': {
                         const ab = await audioCompressorProcessor.compress(file, parseInt(audioBitrate), setItemProgress);
                         result = { file: new File([ab], file.name.replace(/\.[^.]+$/, '.mp3'), { type: 'audio/mpeg' }) };
                         break;
-                    case 'convert-audio':
-                        const ca = await audioConverterProcessor.convert(file, outputFormat, setItemProgress);
+                    }
+                    case 'convert-audio': {
+                        const ca = await audioConverterProcessor.convert(file, outputFormat, parseInt(audioBitrate), setItemProgress);
                         result = { file: new File([ca.blob], ca.filename, { type: ca.blob.type }) };
                         break;
-                    case 'compress-video':
+                    }
+                    case 'compress-video': {
                         const vb = await videoCompressorProcessor.compress(file, videoQuality, setItemProgress);
                         result = { file: new File([vb], file.name.replace(/\.[^.]+$/, '_compressed.mp4'), { type: 'video/mp4' }) };
                         break;
-                    case 'video-converter':
-                        const cv = await videoConverterProcessor.convert(file, outputFormat, setItemProgress);
+                    }
+                    case 'video-converter': {
+                        const cv = await videoConverterProcessor.convert(file, outputFormat, videoQuality, setItemProgress);
                         result = { file: new File([cv.blob], cv.filename, { type: cv.blob.type }) };
                         break;
-                    case 'video-to-mp3':
+                    }
+                    case 'video-to-mp3': {
                         const m3 = await videoToMp3Processor.convert(file, parseInt(audioBitrate) || 192, setItemProgress);
                         result = { file: new File([m3.blob], m3.filename, { type: 'audio/mpeg' }) };
                         break;
-                    case 'video-to-gif':
+                    }
+                    case 'video-to-gif': {
                         const gr = await gifMakerProcessor.createGIF([file], 'video', { quality: 10, width: 480 }, setItemProgress);
                         result = { file: new File([await fetch(gr.url).then(r => r.blob())], gr.filename, { type: 'image/gif' }) };
                         URL.revokeObjectURL(gr.url);
                         break;
-                    case 'protect-pdf':
+                    }
+                    case 'protect-pdf': {
                         const vErr = validatePdfPassword();
                         if (vErr) throw new Error(vErr);
                         const pb = await protectPdfProcessor.protect(file, pdfPassword, { allowPrinting: true }, setItemProgress);
                         result = { file: new File([pb], `protected_${file.name}`, { type: 'application/pdf' }), note: 'Password protected' };
                         break;
+                    }
+                    case 'crop-image': {
+                        const cropBlob = await new Promise((res, rej) => {
+                            const img = new Image();
+                            img.onload = async () => {
+                                URL.revokeObjectURL(img.src);
+                                const cw = Math.floor(img.width * 0.8);
+                                const ch = Math.floor(img.height * 0.8);
+                                const cx = Math.floor((img.width - cw) / 2);
+                                const cy = Math.floor((img.height - ch) / 2);
+                                try {
+                                    const r = await imageCropperProcessor.cropImage(file, { x: cx, y: cy, width: cw, height: ch }, setItemProgress);
+                                    const b = await fetch(r.url).then(rr => rr.blob());
+                                    URL.revokeObjectURL(r.url);
+                                    res({ blob: b, filename: r.filename });
+                                } catch (e) { rej(e); }
+                            };
+                            img.onerror = () => rej(new Error('Failed to load image'));
+                            img.src = URL.createObjectURL(file);
+                        });
+                        result = { file: new File([cropBlob.blob], cropBlob.filename, { type: 'image/png' }) };
+                        break;
+                    }
+                    case 'remove-background': {
+                        const rbResult = await backgroundRemoverProcessor.removeBackground(file, 'medium', setItemProgress);
+                        result = { file: new File([rbResult.blob], rbResult.filename, { type: 'image/png' }) };
+                        break;
+                    }
+                    case 'watermark': {
+                        const wmResult = await watermarkProcessor.addWatermark(file, { type: 'text', text: 'Watermark', fontSize: 24, opacity: 0.5, position: 'center', color: '#000000' }, setItemProgress);
+                        const wmBlob = await fetch(wmResult.url).then(r => r.blob());
+                        URL.revokeObjectURL(wmResult.url);
+                        result = { file: new File([wmBlob], wmResult.filename, { type: 'image/png' }) };
+                        break;
+                    }
+                    case 'image-to-pdf': {
+                        const itpBlob = await imageToPdfProcessor.convert([file], 'fit', setItemProgress);
+                        result = { file: new File([itpBlob], file.name.replace(/\.[^/.]+$/, '') + '.pdf', { type: 'application/pdf' }) };
+                        break;
+                    }
+                    case 'pdf-to-word': {
+                        const ptw = await pdfToWordProcessor.convert(file, setItemProgress);
+                        result = { file: new File([ptw.blob], file.name.replace(/\.pdf$/i, '.docx'), { type: ptw.blob.type }) };
+                        break;
+                    }
+                    case 'pdf-to-excel': {
+                        const pte = await pdfToExcelProcessor.convert(file, setItemProgress);
+                        result = { file: new File([pte.blob], file.name.replace(/\.pdf$/i, '.xlsx'), { type: pte.blob.type }) };
+                        break;
+                    }
+                    case 'pdf-to-powerpoint': {
+                        const ptp = await pdfToPowerPointProcessor.convert(file, setItemProgress);
+                        result = { file: new File([ptp.blob], file.name.replace(/\.pdf$/i, '.pptx'), { type: ptp.blob.type }) };
+                        break;
+                    }
+                    case 'rotate-pdf': {
+                        const rotBlob = await rotatePdfProcessor.rotate(file, 90, 'all', setItemProgress);
+                        result = { file: new File([rotBlob], `rotated_${file.name}`, { type: 'application/pdf' }) };
+                        break;
+                    }
+                    case 'watermark-pdf': {
+                        const wmpBlob = await watermarkPdfProcessor.addWatermark(file, { type: 'text', text: 'Watermark', fontSize: 20, opacity: 0.4, position: 'center', color: '#000000', rotation: 45 }, setItemProgress);
+                        result = { file: new File([wmpBlob], `watermarked_${file.name}`, { type: 'application/pdf' }) };
+                        break;
+                    }
+                    case 'unlock-pdf': {
+                        const ulBlob = await unlockPdfProcessor.unlock(file, pdfPassword, setItemProgress);
+                        result = { file: new File([ulBlob], `unlocked_${file.name}`, { type: 'application/pdf' }) };
+                        break;
+                    }
+                    case 'page-numbers': {
+                        const pnBlob = await pageNumbersProcessor.addPageNumbers(file, { position: 'bottom-center', startNumber: 1, fontSize: 12 }, setItemProgress);
+                        result = { file: new File([pnBlob], `numbered_${file.name}`, { type: 'application/pdf' }) };
+                        break;
+                    }
+                    case 'repair-pdf': {
+                        const repResult = await repairPdfProcessor.repair(file, setItemProgress);
+                        result = { file: new File([repResult.blob], `repaired_${file.name}`, { type: 'application/pdf' }) };
+                        break;
+                    }
+                    case 'crop-pdf': {
+                        const cpBlob = await cropPdfProcessor.crop(file, { top: 50, right: 50, bottom: 50, left: 50 }, setItemProgress);
+                        result = { file: new File([cpBlob], `cropped_${file.name}`, { type: 'application/pdf' }) };
+                        break;
+                    }
+                    case 'ocr-pdf': {
+                        const ocrResult = await ocrPdfProcessor.processOCR(file, 'eng', setItemProgress);
+                        result = { file: new File([ocrResult.blob], ocrResult.filename, { type: 'application/pdf' }) };
+                        break;
+                    }
+                    case 'word-to-pdf': {
+                        const wtpBlob = await wordToPdfProcessor.convert(file, setItemProgress);
+                        result = { file: new File([wtpBlob], file.name.replace(/\.docx?$/i, '.pdf'), { type: 'application/pdf' }) };
+                        break;
+                    }
+                    case 'excel-to-pdf': {
+                        const etpBlob = await excelToPdfProcessor.convert(file, setItemProgress);
+                        result = { file: new File([etpBlob], file.name.replace(/\.xlsx?$/i, '.pdf'), { type: 'application/pdf' }) };
+                        break;
+                    }
+                    case 'powerpoint-to-pdf': {
+                        const ppBlob = await powerpointToPdfProcessor.convert(file, setItemProgress);
+                        result = { file: new File([ppBlob], file.name.replace(/\.pptx?$/i, '.pdf'), { type: 'application/pdf' }) };
+                        break;
+                    }
+                    case 'epub-to-pdf': {
+                        const epubResult = await epubToPdfProcessor.convert(file, setItemProgress);
+                        result = { file: new File([epubResult.blob], epubResult.file.name, { type: 'application/pdf' }) };
+                        break;
+                    }
                     default:
                         throw new Error(`Operation not yet supported in Quick Converter: ${selectedOperation}`);
                 }
