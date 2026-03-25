@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import Dropzone from '../shared/Dropzone';
 import Button from '../shared/Button';
 import ProgressBar from '../shared/ProgressBar';
+import InteractiveCropSelector from './InteractiveCropSelector';
 import { useMode } from '../context/ModeContext';
 import imageCompressorProcessor from '../tools/image/image-compressor/processor';
 import imageConverterProcessor from '../tools/image/image-converter/processor';
@@ -47,15 +48,6 @@ const WATERMARK_POSITIONS = [
     { value: 'bottom-right', label: '↘ Bottom Right' },
 ];
 
-const CROP_RATIOS = [
-    { value: 'free', label: 'Free', ratio: null },
-    { value: '1:1', label: '1:1 Square', ratio: 1 },
-    { value: '16:9', label: '16:9 Wide', ratio: 16 / 9 },
-    { value: '4:3', label: '4:3 Standard', ratio: 4 / 3 },
-    { value: '9:16', label: '9:16 Portrait', ratio: 9 / 16 },
-    { value: '3:2', label: '3:2 Photo', ratio: 3 / 2 },
-];
-
 /**
  * Quick Converter Component
  * Allows users to drop files on the landing page and perform operations
@@ -84,8 +76,8 @@ export default function QuickConverter() {
     const [watermarkOpacity, setWatermarkOpacity] = useState(50);
     const [watermarkPosition, setWatermarkPosition] = useState('center');
     const [watermarkColor, setWatermarkColor] = useState('#000000');
-    // Crop options
-    const [cropAspectRatio, setCropAspectRatio] = useState('free');
+    // Interactive manual crop coordinates from InteractiveCropSelector
+    const [manualCropData, setManualCropData] = useState(null);
     const [pdfCompressionLevel, setPdfCompressionLevel] = useState('balanced');
     const [pageRange, _setPageRange] = useState('all');
     const [audioBitrate, _setAudioBitrate] = useState('192');
@@ -329,40 +321,33 @@ export default function QuickConverter() {
                         break;
                     }
                     case 'crop-image': {
-                        const cropBlob = await new Promise((res, rej) => {
+                        // Use manual crop coordinates from InteractiveCropSelector if available,
+                        // otherwise fall back to a sensible center-crop default
+                        const cropCoords = await new Promise((res, rej) => {
+                            if (manualCropData) {
+                                res(manualCropData);
+                                return;
+                            }
+                            // Fallback: 90% center crop
                             const img = new Image();
-                            img.onload = async () => {
+                            img.onload = () => {
                                 URL.revokeObjectURL(img.src);
-                                const selectedRatio = CROP_RATIOS.find(r => r.value === cropAspectRatio);
-                                let cw, ch, cx, cy;
-                                if (selectedRatio?.ratio) {
-                                    // Fit the chosen ratio inside the image
-                                    const imgRatio = img.width / img.height;
-                                    if (imgRatio > selectedRatio.ratio) {
-                                        ch = img.height;
-                                        cw = Math.floor(ch * selectedRatio.ratio);
-                                    } else {
-                                        cw = img.width;
-                                        ch = Math.floor(cw / selectedRatio.ratio);
-                                    }
-                                } else {
-                                    // Free crop — use 90% center
-                                    cw = Math.floor(img.width * 0.9);
-                                    ch = Math.floor(img.height * 0.9);
-                                }
-                                cx = Math.floor((img.width - cw) / 2);
-                                cy = Math.floor((img.height - ch) / 2);
-                                try {
-                                    const r = await imageCropperProcessor.cropImage(file, { x: cx, y: cy, width: cw, height: ch }, setItemProgress);
-                                    const b = await fetch(r.url).then(rr => rr.blob());
-                                    URL.revokeObjectURL(r.url);
-                                    res({ blob: b, filename: r.filename });
-                                } catch (e) { rej(e); }
+                                const cw = Math.floor(img.width * 0.9);
+                                const ch = Math.floor(img.height * 0.9);
+                                res({
+                                    x: Math.floor((img.width - cw) / 2),
+                                    y: Math.floor((img.height - ch) / 2),
+                                    width: cw,
+                                    height: ch,
+                                });
                             };
                             img.onerror = () => rej(new Error('Failed to load image'));
                             img.src = URL.createObjectURL(file);
                         });
-                        result = { file: new File([cropBlob.blob], cropBlob.filename, { type: 'image/png' }) };
+                        const cropResult = await imageCropperProcessor.cropImage(file, cropCoords, setItemProgress);
+                        const cropB = await fetch(cropResult.url).then(rr => rr.blob());
+                        URL.revokeObjectURL(cropResult.url);
+                        result = { file: new File([cropB], cropResult.filename, { type: 'image/png' }) };
                         break;
                     }
                     case 'remove-background': {
@@ -730,18 +715,11 @@ export default function QuickConverter() {
                                                     </div>
                                                 )}
 
-                                                {selectedOperation === 'crop-image' && (
-                                                    <div className="space-y-4">
-                                                        <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Crop Aspect Ratio</p>
-                                                        <div className="grid grid-cols-3 gap-2">
-                                                            {CROP_RATIOS.map(r => (
-                                                                <button key={r.value} onClick={() => setCropAspectRatio(r.value)} className={`py-2.5 px-2 rounded-xl border text-xs font-semibold transition-all ${cropAspectRatio === r.value ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-primary-400'}`}>
-                                                                    {r.label}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                        <p className="text-xs text-gray-400">The selected ratio will be cropped from the center of the image.</p>
-                                                    </div>
+                                                {selectedOperation === 'crop-image' && files.length > 0 && (
+                                                    <InteractiveCropSelector
+                                                        file={files[0]}
+                                                        onChange={setManualCropData}
+                                                    />
                                                 )}
 
                                                 {selectedOperation === 'watermark' && (
