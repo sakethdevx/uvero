@@ -37,6 +37,25 @@ import { processor as unlockPdfProcessor } from '../tools/pdf/unlock-pdf/process
 import { processor as protectPdfProcessor } from '../tools/pdf/protect-pdf/processor';
 import { validatePdfPassword as validatePassword, MIN_PASSWORD_LENGTH } from '../utils/passwordValidation';
 
+const WATERMARK_POSITIONS = [
+    { value: 'top-left', label: '↖ Top Left' },
+    { value: 'top-center', label: '↑ Top Center' },
+    { value: 'top-right', label: '↗ Top Right' },
+    { value: 'center', label: '⏺ Center' },
+    { value: 'bottom-left', label: '↙ Bottom Left' },
+    { value: 'bottom-center', label: '↓ Bottom Center' },
+    { value: 'bottom-right', label: '↘ Bottom Right' },
+];
+
+const CROP_RATIOS = [
+    { value: 'free', label: 'Free', ratio: null },
+    { value: '1:1', label: '1:1 Square', ratio: 1 },
+    { value: '16:9', label: '16:9 Wide', ratio: 16 / 9 },
+    { value: '4:3', label: '4:3 Standard', ratio: 4 / 3 },
+    { value: '9:16', label: '9:16 Portrait', ratio: 9 / 16 },
+    { value: '3:2', label: '3:2 Photo', ratio: 3 / 2 },
+];
+
 /**
  * Quick Converter Component
  * Allows users to drop files on the landing page and perform operations
@@ -55,8 +74,18 @@ export default function QuickConverter() {
     // Tool-specific options
     const [quality, setQuality] = useState(80);
     const [outputFormat, setOutputFormat] = useState('png');
-    const [width, _setWidth] = useState('');
-    const [height, _setHeight] = useState('');
+    const [width, setWidth] = useState('');
+    const [height, setHeight] = useState('');
+    const [maintainAspectRatio, setMaintainAspectRatio] = useState(true);
+    const [convertQuality, setConvertQuality] = useState(92);
+    // Watermark options
+    const [watermarkText, setWatermarkText] = useState('Watermark');
+    const [watermarkFontSize, setWatermarkFontSize] = useState(24);
+    const [watermarkOpacity, setWatermarkOpacity] = useState(50);
+    const [watermarkPosition, setWatermarkPosition] = useState('center');
+    const [watermarkColor, setWatermarkColor] = useState('#000000');
+    // Crop options
+    const [cropAspectRatio, setCropAspectRatio] = useState('free');
     const [pdfCompressionLevel, setPdfCompressionLevel] = useState('balanced');
     const [pageRange, _setPageRange] = useState('all');
     const [audioBitrate, _setAudioBitrate] = useState('192');
@@ -66,6 +95,8 @@ export default function QuickConverter() {
     const [pdfPageSpec, _setPdfPageSpec] = useState('');
     const [pdfPassword, _setPdfPassword] = useState('');
     const [pdfPasswordConfirm, _setPdfPasswordConfirm] = useState('');
+
+
 
     const validatePdfPassword = useCallback(() => {
         return validatePassword(pdfPassword, pdfPasswordConfirm);
@@ -226,10 +257,15 @@ export default function QuickConverter() {
                         result = await imageCompressorProcessor.compress(file, quality, setItemProgress);
                         break;
                     case 'convert-image':
-                        result = await imageConverterProcessor.convert(file, outputFormat, parseInt(width) || null, parseInt(height) || null, true, setItemProgress);
+                        result = await imageConverterProcessor.convert(file, outputFormat, parseInt(width) || null, parseInt(height) || null, maintainAspectRatio, convertQuality, setItemProgress);
                         break;
                     case 'resize-image': {
-                        const r = await imageResizerProcessor.resize(file, parseInt(width) || 800, parseInt(height) || 600, setItemProgress);
+                        const rw = parseInt(width) || null;
+                        const rh = parseInt(height) || null;
+                        if (!rw && !rh) throw new Error('Please enter a target width or height for resizing.');
+                        const targetW = rw || (rh && files[0] ? Math.round(rh * 1) : 800);
+                        const targetH = rh || (rw && files[0] ? Math.round(rw * 1) : 600);
+                        const r = await imageResizerProcessor.resize(file, targetW, targetH, setItemProgress);
                         result = { file: new File([await fetch(r.url).then(res => res.blob())], r.filename, { type: file.type }) };
                         URL.revokeObjectURL(r.url);
                         break;
@@ -297,10 +333,25 @@ export default function QuickConverter() {
                             const img = new Image();
                             img.onload = async () => {
                                 URL.revokeObjectURL(img.src);
-                                const cw = Math.floor(img.width * 0.8);
-                                const ch = Math.floor(img.height * 0.8);
-                                const cx = Math.floor((img.width - cw) / 2);
-                                const cy = Math.floor((img.height - ch) / 2);
+                                const selectedRatio = CROP_RATIOS.find(r => r.value === cropAspectRatio);
+                                let cw, ch, cx, cy;
+                                if (selectedRatio?.ratio) {
+                                    // Fit the chosen ratio inside the image
+                                    const imgRatio = img.width / img.height;
+                                    if (imgRatio > selectedRatio.ratio) {
+                                        ch = img.height;
+                                        cw = Math.floor(ch * selectedRatio.ratio);
+                                    } else {
+                                        cw = img.width;
+                                        ch = Math.floor(cw / selectedRatio.ratio);
+                                    }
+                                } else {
+                                    // Free crop — use 90% center
+                                    cw = Math.floor(img.width * 0.9);
+                                    ch = Math.floor(img.height * 0.9);
+                                }
+                                cx = Math.floor((img.width - cw) / 2);
+                                cy = Math.floor((img.height - ch) / 2);
                                 try {
                                     const r = await imageCropperProcessor.cropImage(file, { x: cx, y: cy, width: cw, height: ch }, setItemProgress);
                                     const b = await fetch(r.url).then(rr => rr.blob());
@@ -320,7 +371,7 @@ export default function QuickConverter() {
                         break;
                     }
                     case 'watermark': {
-                        const wmResult = await watermarkProcessor.addWatermark(file, { type: 'text', text: 'Watermark', fontSize: 24, opacity: 0.5, position: 'center', color: '#000000' }, setItemProgress);
+                        const wmResult = await watermarkProcessor.addWatermark(file, { type: 'text', text: watermarkText || 'Watermark', fontSize: watermarkFontSize, opacity: watermarkOpacity / 100, position: watermarkPosition, color: watermarkColor }, setItemProgress);
                         const wmBlob = await fetch(wmResult.url).then(r => r.blob());
                         URL.revokeObjectURL(wmResult.url);
                         result = { file: new File([wmBlob], wmResult.filename, { type: 'image/png' }) };
@@ -613,19 +664,124 @@ export default function QuickConverter() {
                                                 {selectedOperation === 'compress-image' && (
                                                     <div className="space-y-4 sm:space-y-6">
                                                         <div className="flex justify-between items-center text-gray-900 dark:text-white font-bold">
-                                                            <label>Quality</label>
-                                                            <span>{quality}%</span>
+                                                            <label>Compression Quality</label>
+                                                            <span className="text-primary-600 dark:text-primary-400">{quality}%</span>
                                                         </div>
                                                         <input type="range" min="10" max="100" value={quality} onChange={(e) => setQuality(parseInt(e.target.value))} className="w-full h-3 accent-primary-500 appearance-none bg-gray-200 dark:bg-white/10 rounded-full" />
+                                                        <div className="flex justify-between text-xs text-gray-400">
+                                                            <span>Smaller file</span><span>Better quality</span>
+                                                        </div>
                                                     </div>
                                                 )}
 
                                                 {selectedOperation === 'convert-image' && (
-                                                    <div className="space-y-4 sm:space-y-8">
-                                                        <div className="grid grid-cols-3 gap-2 sm:gap-4">
-                                                            {['png', 'jpg', 'webp'].map(f => (
-                                                                <button key={f} onClick={() => setOutputFormat(f)} className={`py-3 sm:py-4 rounded-2xl border font-bold uppercase text-sm sm:text-base ${outputFormat === f ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{f}</button>
+                                                    <div className="space-y-5 sm:space-y-6">
+                                                        <div>
+                                                            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Output Format</p>
+                                                            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                                                                {['png', 'jpg', 'webp'].map(f => (
+                                                                    <button key={f} onClick={() => setOutputFormat(f)} className={`py-3 sm:py-4 rounded-2xl border font-bold uppercase text-sm sm:text-base ${outputFormat === f ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{f}</button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        {['jpg', 'webp'].includes(outputFormat) && (
+                                                            <div>
+                                                                <div className="flex justify-between items-center mb-2">
+                                                                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Quality</p>
+                                                                    <span className="text-sm font-black text-primary-600 dark:text-primary-400">{convertQuality}%</span>
+                                                                </div>
+                                                                <input type="range" min="10" max="100" value={convertQuality} onChange={(e) => setConvertQuality(parseInt(e.target.value))} className="w-full h-3 accent-primary-500 appearance-none bg-gray-200 dark:bg-white/10 rounded-full" />
+                                                                <div className="flex justify-between text-xs text-gray-400 mt-1"><span>Smaller</span><span>Best quality</span></div>
+                                                            </div>
+                                                        )}
+                                                        <div>
+                                                            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Resize (optional)</p>
+                                                            <div className="grid grid-cols-2 gap-2">
+                                                                <input type="number" min="1" placeholder="Width (px)" value={width} onChange={(e) => setWidth(e.target.value)} className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none" />
+                                                                <input type="number" min="1" placeholder="Height (px)" value={height} onChange={(e) => setHeight(e.target.value)} className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none" />
+                                                            </div>
+                                                            <label className="mt-2 flex items-center gap-2 cursor-pointer">
+                                                                <input type="checkbox" checked={maintainAspectRatio} onChange={(e) => setMaintainAspectRatio(e.target.checked)} className="w-4 h-4 rounded text-primary-600 focus:ring-primary-500" />
+                                                                <span className="text-xs text-gray-500 dark:text-gray-400">Maintain aspect ratio</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {selectedOperation === 'resize-image' && (
+                                                    <div className="space-y-4">
+                                                        <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Target Dimensions</p>
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <div>
+                                                                <label className="block text-xs text-gray-400 mb-1">Width (px)</label>
+                                                                <input type="number" min="1" placeholder="e.g. 1280" value={width} onChange={(e) => setWidth(e.target.value)} className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none" />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-xs text-gray-400 mb-1">Height (px)</label>
+                                                                <input type="number" min="1" placeholder="e.g. 720" value={height} onChange={(e) => setHeight(e.target.value)} className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none" />
+                                                            </div>
+                                                        </div>
+                                                        <p className="text-xs text-gray-400">Enter at least one dimension. Both values will be used as-is.</p>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {[['HD', '1280', '720'], ['Full HD', '1920', '1080'], ['Web', '800', '600'], ['Thumbnail', '256', '256']].map(([lbl, w, h]) => (
+                                                                <button key={lbl} onClick={() => { setWidth(w); setHeight(h); }} className="px-3 py-1.5 rounded-xl text-xs font-semibold border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:border-primary-400 transition-all">{lbl} {w}×{h}</button>
                                                             ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {selectedOperation === 'crop-image' && (
+                                                    <div className="space-y-4">
+                                                        <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Crop Aspect Ratio</p>
+                                                        <div className="grid grid-cols-3 gap-2">
+                                                            {CROP_RATIOS.map(r => (
+                                                                <button key={r.value} onClick={() => setCropAspectRatio(r.value)} className={`py-2.5 px-2 rounded-xl border text-xs font-semibold transition-all ${cropAspectRatio === r.value ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-primary-400'}`}>
+                                                                    {r.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                        <p className="text-xs text-gray-400">The selected ratio will be cropped from the center of the image.</p>
+                                                    </div>
+                                                )}
+
+                                                {selectedOperation === 'watermark' && (
+                                                    <div className="space-y-4">
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Watermark Text</label>
+                                                            <input type="text" placeholder="Your watermark text" value={watermarkText} onChange={(e) => setWatermarkText(e.target.value)} className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none" />
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <div>
+                                                                <div className="flex justify-between mb-1">
+                                                                    <label className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Font Size</label>
+                                                                    <span className="text-xs font-semibold text-primary-600 dark:text-primary-400">{watermarkFontSize}px</span>
+                                                                </div>
+                                                                <input type="range" min="12" max="120" value={watermarkFontSize} onChange={(e) => setWatermarkFontSize(parseInt(e.target.value))} className="w-full h-2 accent-primary-500 rounded-full" />
+                                                            </div>
+                                                            <div>
+                                                                <div className="flex justify-between mb-1">
+                                                                    <label className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Opacity</label>
+                                                                    <span className="text-xs font-semibold text-primary-600 dark:text-primary-400">{watermarkOpacity}%</span>
+                                                                </div>
+                                                                <input type="range" min="10" max="100" value={watermarkOpacity} onChange={(e) => setWatermarkOpacity(parseInt(e.target.value))} className="w-full h-2 accent-primary-500 rounded-full" />
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Position</label>
+                                                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
+                                                                {WATERMARK_POSITIONS.map(p => (
+                                                                    <button key={p.value} onClick={() => setWatermarkPosition(p.value)} className={`py-2 px-1.5 rounded-xl border text-[11px] font-semibold transition-all ${watermarkPosition === p.value ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:border-primary-400'}`}>
+                                                                        {p.label}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Text Color</label>
+                                                            <div className="flex items-center gap-3">
+                                                                <input type="color" value={watermarkColor} onChange={(e) => setWatermarkColor(e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer border border-gray-200 dark:border-white/10" />
+                                                                <span className="text-sm text-gray-600 dark:text-gray-400">{watermarkColor}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 )}
@@ -638,7 +794,7 @@ export default function QuickConverter() {
                                                     </div>
                                                 )}
 
-                                                {!['compress-image', 'convert-image', 'compress-pdf'].includes(selectedOperation) && (
+                                                {!['compress-image', 'convert-image', 'resize-image', 'crop-image', 'watermark', 'compress-pdf'].includes(selectedOperation) && (
                                                     <div className="text-center p-5 sm:p-8 bg-primary-50/50 dark:bg-primary-500/5 rounded-3xl">
                                                         <p className="font-bold text-gray-900 dark:text-white text-base sm:text-lg">Ready to {selectedOperation.replace(/-/g, ' ')}</p>
                                                     </div>

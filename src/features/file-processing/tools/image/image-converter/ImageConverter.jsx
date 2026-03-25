@@ -1,75 +1,123 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import processor from './processor';
 
-/**
- * Image Converter Tool
- * Converts images between formats and allows resizing
- */
+const OUTPUT_FORMATS = [
+    { value: 'jpg', label: 'JPG', desc: 'Photos & small files' },
+    { value: 'png', label: 'PNG', desc: 'Lossless & transparency' },
+    { value: 'webp', label: 'WebP', desc: 'Best compression' },
+];
+
+const PRESET_SIZES = [
+    { label: 'Original', w: null, h: null },
+    { label: 'HD 1280×720', w: 1280, h: 720 },
+    { label: 'Full HD 1920×1080', w: 1920, h: 1080 },
+    { label: 'Web 800×600', w: 800, h: 600 },
+    { label: 'Thumbnail 256×256', w: 256, h: 256 },
+    { label: 'Custom', w: 'custom', h: 'custom' },
+];
+
 export default function ImageConverter() {
     const [file, setFile] = useState(null);
     const [outputFormat, setOutputFormat] = useState('png');
-    const [width, setWidth] = useState('');
-    const [height, setHeight] = useState('');
+    const [quality, setQuality] = useState(92);
+    const [sizePreset, setSizePreset] = useState(0); // index into PRESET_SIZES
+    const [customWidth, setCustomWidth] = useState('');
+    const [customHeight, setCustomHeight] = useState('');
     const [maintainAspectRatio, setMaintainAspectRatio] = useState(true);
+    const [imageDimensions, setImageDimensions] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress, setProgress] = useState(0);
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');
     const [previewUrl, setPreviewUrl] = useState('');
+    const [resultPreviewUrl, setResultPreviewUrl] = useState('');
+    const aspectRef = useRef(1);
 
-    // Cleanup on unmount
     useEffect(() => {
         return () => {
             processor.terminate();
             if (previewUrl) URL.revokeObjectURL(previewUrl);
+            if (resultPreviewUrl) URL.revokeObjectURL(resultPreviewUrl);
         };
-    }, [previewUrl]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    // Create preview URL when file is selected
     useEffect(() => {
         if (file) {
             const url = URL.createObjectURL(file);
             setPreviewUrl(url);
+            const img = new Image();
+            img.onload = () => {
+                setImageDimensions({ w: img.naturalWidth, h: img.naturalHeight });
+                aspectRef.current = img.naturalWidth / img.naturalHeight;
+            };
+            img.src = url;
             return () => URL.revokeObjectURL(url);
         }
     }, [file]);
+
+    useEffect(() => {
+        if (result?.blob) {
+            const url = URL.createObjectURL(result.blob);
+            setResultPreviewUrl(url);
+            return () => URL.revokeObjectURL(url);
+        }
+    }, [result]);
+
+    const getTargetDimensions = () => {
+        const preset = PRESET_SIZES[sizePreset];
+        if (!preset || preset.w === null) return { width: null, height: null };
+        if (preset.w === 'custom') {
+            return {
+                width: customWidth ? parseInt(customWidth) : null,
+                height: customHeight ? parseInt(customHeight) : null,
+            };
+        }
+        return { width: preset.w, height: preset.h };
+    };
+
+    const handleWidthChange = (val) => {
+        setCustomWidth(val);
+        if (maintainAspectRatio && val && aspectRef.current) {
+            setCustomHeight(String(Math.round(parseInt(val) / aspectRef.current)));
+        }
+    };
+
+    const handleHeightChange = (val) => {
+        setCustomHeight(val);
+        if (maintainAspectRatio && val && aspectRef.current) {
+            setCustomWidth(String(Math.round(parseInt(val) * aspectRef.current)));
+        }
+    };
 
     const handleFileSelect = (selectedFile) => {
         setFile(selectedFile);
         setResult(null);
         setError('');
         setProgress(0);
+        setImageDimensions(null);
     };
 
     const handleConvert = async () => {
         if (!file) return;
-
         setIsProcessing(true);
         setError('');
         setProgress(0);
-
         try {
-            const widthNum = width ? parseInt(width) : null;
-            const heightNum = height ? parseInt(height) : null;
-
+            const { width, height } = getTargetDimensions();
+            const qualityValue = ['jpg', 'jpeg', 'webp'].includes(outputFormat) ? quality : null;
             const converted = await processor.convert(
-                file,
-                outputFormat,
-                widthNum,
-                heightNum,
-                maintainAspectRatio,
+                file, outputFormat, width, height, maintainAspectRatio, qualityValue,
                 (prog) => setProgress(prog)
             );
-
             setProgress(100);
             setResult(converted);
         } catch (err) {
             setError(err.message || 'Conversion failed. Please try again.');
-            console.error('Conversion error:', err);
         } finally {
             setIsProcessing(false);
         }
@@ -77,7 +125,6 @@ export default function ImageConverter() {
 
     const handleDownload = () => {
         if (!result) return;
-
         const url = URL.createObjectURL(result.blob);
         const a = document.createElement('a');
         a.href = url;
@@ -93,387 +140,311 @@ export default function ImageConverter() {
         setResult(null);
         setError('');
         setProgress(0);
-        setWidth('');
-        setHeight('');
+        setCustomWidth('');
+        setCustomHeight('');
+        setSizePreset(0);
         setMaintainAspectRatio(true);
         setOutputFormat('png');
+        setQuality(92);
+        setImageDimensions(null);
         if (previewUrl) URL.revokeObjectURL(previewUrl);
         setPreviewUrl('');
     };
 
+    const formatSize = (bytes) => {
+        if (!bytes) return '—';
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${(bytes / 1048576).toFixed(2)} MB`;
+    };
+
+    const isLossy = ['jpg', 'jpeg', 'webp'].includes(outputFormat);
+    const selectedPreset = PRESET_SIZES[sizePreset];
+
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 dark:from-gray-900 to-white dark:to-gray-800 py-12 px-4">
-            <div className="max-w-4xl mx-auto">
+        <div className="min-h-screen bg-white dark:bg-gray-950 py-10 px-4">
+            <div className="max-w-4xl mx-auto space-y-6">
+
                 {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-sky-50 via-white to-blue-50 p-8 dark:border-white/[0.08] dark:from-sky-500/10 dark:via-gray-950 dark:to-blue-500/10">
+                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-sky-600 dark:text-sky-400">Image Tools</p>
+                    <h1 className="mt-2 text-3xl font-black tracking-tight text-gray-900 dark:text-white sm:text-4xl">
                         Image Converter
                     </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
-                        Convert images between JPG, PNG, and WebP formats. Resize images while maintaining quality.
-                        All processing happens instantly in your browser.
+                    <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300 max-w-xl">
+                        Convert between JPG, PNG, and WebP. Control output quality and resize in one step.
+                        All processing happens in your browser — completely private.
                     </p>
-
-                    {/* Privacy Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-full">
-                        <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                            100% Private - Files never leave your device
-                        </span>
+                    <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 px-3 py-1.5 text-xs font-semibold text-green-700 dark:text-green-400">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                        100% Private — Files never leave your device
                     </div>
                 </div>
 
-                {/* Main Tool Area */}
-                <div className="space-y-6">
-                    {/* Upload Section */}
-                    {!file && !result && (
+                {/* Upload */}
+                {!file && !result && (
+                    <div className="rounded-3xl border border-gray-200/80 bg-white dark:border-white/[0.08] dark:bg-gray-900/40 p-4">
                         <Dropzone
-                            accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+                            accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,.jpg,.jpeg,.png,.webp,.gif,.bmp"
                             onFileSelect={handleFileSelect}
-                            maxSize={50 * 1024 * 1024} // 50MB limit
+                            maxSize={50 * 1024 * 1024}
                         />
-                    )}
+                    </div>
+                )}
 
-                    {/* File Selected - Show Controls */}
-                    {file && !result && (
-                        <div className="space-y-6">
-                            {/* File Info */}
-                            <FileInfo file={file} />
+                {/* Controls */}
+                {file && !result && (
+                    <div className="space-y-4">
+                        <FileInfo file={file} />
 
+                        {/* Preview + Options side-by-side on desktop */}
+                        <div className="grid gap-4 lg:grid-cols-2">
                             {/* Preview */}
                             {previewUrl && (
-                                <div className="card">
-                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Preview</h3>
-                                    <div className="flex justify-center bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                                        <img
-                                            src={previewUrl}
-                                            alt="Preview"
-                                            className="max-h-64 rounded shadow-md"
-                                        />
+                                <div className="rounded-3xl border border-gray-200/80 bg-white dark:border-white/[0.08] dark:bg-gray-900/40 p-5">
+                                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">Original Preview</p>
+                                    <div className="flex justify-center items-center bg-gray-50 dark:bg-black/20 rounded-2xl p-3 min-h-48">
+                                        <img src={previewUrl} alt="Original" className="max-h-56 max-w-full rounded-xl shadow object-contain" />
                                     </div>
+                                    {imageDimensions && (
+                                        <p className="mt-2 text-center text-xs text-gray-400 dark:text-gray-500">
+                                            {imageDimensions.w} × {imageDimensions.h} px · {formatSize(file.size)}
+                                        </p>
+                                    )}
                                 </div>
                             )}
 
-                            {/* Conversion Options */}
-                            <div className="card">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                    Conversion Options
-                                </h3>
-
+                            {/* Options */}
+                            <div className="rounded-3xl border border-gray-200/80 bg-white dark:border-white/[0.08] dark:bg-gray-900/40 p-5 space-y-5">
                                 {/* Output Format */}
-                                <div className="mb-6">
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                                        Output Format
-                                    </label>
-                                    <div className="grid grid-cols-3 gap-3">
-                                        {['jpg', 'png', 'webp'].map((format) => (
+                                <div>
+                                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">Output Format</p>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {OUTPUT_FORMATS.map((fmt) => (
                                             <button
-                                                key={format}
-                                                onClick={() => setOutputFormat(format)}
+                                                key={fmt.value}
+                                                onClick={() => setOutputFormat(fmt.value)}
                                                 disabled={isProcessing}
-                                                className={`
-                          px-4 py-3 rounded-lg font-semibold text-sm transition-all
-                          ${outputFormat === format
-                                                        ? 'bg-primary-600 text-white shadow-md'
-                                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:bg-gray-600'
-                                                    }
-                          disabled:opacity-50 disabled:cursor-not-allowed
-                        `}
+                                                className={`py-3 px-2 rounded-2xl border text-center transition-all disabled:opacity-50 ${
+                                                    outputFormat === fmt.value
+                                                        ? 'border-sky-500 bg-sky-500 text-white shadow-md shadow-sky-500/20'
+                                                        : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.03] text-gray-700 dark:text-gray-300 hover:border-sky-300 dark:hover:border-sky-500/40'
+                                                }`}
                                             >
-                                                {format.toUpperCase()}
+                                                <p className="font-bold text-sm">{fmt.label}</p>
+                                                <p className={`text-[10px] mt-0.5 ${outputFormat === fmt.value ? 'text-sky-100' : 'text-gray-400'}`}>{fmt.desc}</p>
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
-                                {/* Resize Options */}
-                                <div className="border-t pt-6">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                                            Resize Image (Optional)
-                                        </label>
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={maintainAspectRatio}
-                                                onChange={(e) => setMaintainAspectRatio(e.target.checked)}
-                                                disabled={isProcessing}
-                                                className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
-                                            />
-                                            <span className="text-sm text-gray-600 dark:text-gray-300">Maintain aspect ratio</span>
-                                        </label>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm text-gray-600 dark:text-gray-300 mb-2">Width (px)</label>
-                                            <input
-                                                type="number"
-                                                value={width}
-                                                onChange={(e) => setWidth(e.target.value)}
-                                                disabled={isProcessing}
-                                                placeholder="Original"
-                                                min="1"
-                                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm text-gray-600 dark:text-gray-300 mb-2">Height (px)</label>
-                                            <input
-                                                type="number"
-                                                value={height}
-                                                onChange={(e) => setHeight(e.target.value)}
-                                                disabled={isProcessing}
-                                                placeholder="Original"
-                                                min="1"
-                                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50"
-                                            />
-                                        </div>
-                                    </div>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                                        Leave empty to keep original dimensions
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Processing Progress */}
-                            {isProcessing && (
-                                <div className="card bg-primary-50 border-primary-200">
-                                    <ProgressBar progress={progress} label="Converting image..." />
-                                </div>
-                            )}
-
-                            {/* Error Display */}
-                            {error && (
-                                <div className="card bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/30">
-                                    <p className="text-red-600 dark:text-red-400 font-medium">⚠️ {error}</p>
-                                </div>
-                            )}
-
-                            {/* Action Buttons */}
-                            <div className="flex gap-4">
-                                <Button
-                                    onClick={handleConvert}
-                                    disabled={isProcessing}
-                                    loading={isProcessing}
-                                    fullWidth
-                                    icon={
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                        </svg>
-                                    }
-                                >
-                                    Convert Image
-                                </Button>
-
-                                <Button
-                                    onClick={handleReset}
-                                    variant="secondary"
-                                    disabled={isProcessing}
-                                >
-                                    Cancel
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Result Section */}
-                    {result && (
-                        <div className="space-y-6">
-                            {/* Success Message */}
-                            <div className="card bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/30">
-                                <div className="flex items-center gap-3">
-                                    <svg className="w-8 h-8 text-green-600 dark:text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                    </svg>
+                                {/* Quality Slider (for lossy formats) */}
+                                {isLossy && (
                                     <div>
-                                        <h3 className="text-lg font-semibold text-green-900 dark:text-green-100">Conversion Complete!</h3>
-                                        <p className="text-sm text-green-700 dark:text-green-300">
-                                            Your image has been converted to {result.format} format and is ready to download.
-                                        </p>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <p className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Output Quality</p>
+                                            <span className="text-sm font-black text-sky-600 dark:text-sky-400">{quality}%</span>
+                                        </div>
+                                        <input
+                                            type="range" min="10" max="100" step="1" value={quality}
+                                            onChange={(e) => setQuality(parseInt(e.target.value))}
+                                            disabled={isProcessing}
+                                            className="w-full h-2 rounded-full appearance-none cursor-pointer disabled:opacity-50"
+                                            style={{ background: `linear-gradient(to right, #0ea5e9 0%, #0ea5e9 ${quality}%, #e5e7eb ${quality}%, #e5e7eb 100%)` }}
+                                        />
+                                        <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+                                            <span>Smaller file</span>
+                                            <span>Best quality</span>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
-
-                            {/* Results Display */}
-                            <div className="card">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Conversion Results</h3>
-
-                                <div className="space-y-4">
-                                    {/* Format Change */}
-                                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Format</span>
-                                        <div className="flex items-center gap-2">
-                                            <span className="px-3 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-full text-sm font-semibold">
-                                                {file.type.split('/')[1].toUpperCase()}
-                                            </span>
-                                            <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                            </svg>
-                                            <span className="px-3 py-1 bg-primary-600 text-white rounded-full text-sm font-semibold">
-                                                {result.format}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {/* Dimensions */}
-                                    {result.dimensions && (
-                                        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Dimensions</span>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-sm text-gray-600 dark:text-gray-300">
-                                                    {result.dimensions.original.width} × {result.dimensions.original.height}
-                                                </span>
-                                                {(result.dimensions.original.width !== result.dimensions.converted.width ||
-                                                    result.dimensions.original.height !== result.dimensions.converted.height) && (
-                                                        <>
-                                                            <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                                            </svg>
-                                                            <span className="text-sm font-semibold text-primary-600">
-                                                                {result.dimensions.converted.width} × {result.dimensions.converted.height}
-                                                            </span>
-                                                        </>
-                                                    )}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* File Size */}
-                                    <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">File Size</span>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-sm text-gray-600 dark:text-gray-300">
-                                                {(result.originalSize / 1024).toFixed(1)} KB
-                                            </span>
-                                            <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                            </svg>
-                                            <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                                {(result.convertedSize / 1024).toFixed(1)} KB
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Download Button */}
-                            <Button
-                                onClick={handleDownload}
-                                fullWidth
-                                icon={
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                }
-                            >
-                                Download Converted Image
-                            </Button>
-
-                            {/* Convert Another */}
-                            <Button
-                                onClick={handleReset}
-                                variant="secondary"
-                                fullWidth
-                            >
-                                Convert Another Image
-                            </Button>
                         </div>
-                    )}
-                </div>
 
-                {/* FAQ Section */}
-                <div className="mt-16 space-y-8">
-                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center">
-                        Frequently Asked Questions
-                    </h2>
+                        {/* Resize Options */}
+                        <div className="rounded-3xl border border-gray-200/80 bg-white dark:border-white/[0.08] dark:bg-gray-900/40 p-5">
+                            <p className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">Resize (Optional)</p>
 
-                    <div className="grid gap-6">
-                        {[
-                            {
-                                q: "What image formats can I convert between?",
-                                a: "You can convert between JPG/JPEG, PNG, and WebP formats. These are the most common web image formats and cover the majority of use cases."
-                            },
-                            {
-                                q: "Will converting formats reduce image quality?",
-                                a: "Converting from lossy to lossless (e.g., JPG to PNG) won't improve quality. Converting to JPG or WebP applies compression. We use high-quality settings (92% for JPG) to minimize quality loss."
-                            },
-                            {
-                                q: "Can I resize images during conversion?",
-                                a: "Yes! You can specify custom width and/or height. Enable 'Maintain aspect ratio' to automatically calculate the other dimension and prevent distortion."
-                            },
-                            {
-                                q: "Which format should I choose?",
-                                a: "JPG is best for photos with small file sizes. PNG is perfect for graphics, logos, and images needing transparency. WebP offers the best compression while maintaining quality, but has slightly less browser support."
-                            },
-                            {
-                                q: "Are my images uploaded to a server?",
-                                a: "No! All conversion happens entirely in your browser using Web Workers. Your images never leave your device, ensuring complete privacy and security."
-                            },
-                            {
-                                q: "Is there a file size or quantity limit?",
-                                a: "Individual images can be up to 50MB. The current version processes one image at a time. Batch processing will be available in the Pro version."
-                            },
-                            {
-                                q: "Can I convert animated images or GIFs?",
-                                a: "The current version converts the first frame of animated images. Full animation support for GIFs is planned for a future update."
-                            },
-                            {
-                                q: "Does resizing affect image quality?",
-                                a: "Resizing down (making smaller) typically maintains quality well. Resizing up (making larger) may reduce quality since we're creating pixels that didn't exist. For best results, resize down or keep original dimensions."
-                            }
-                        ].map((faq, idx) => (
-                            <div key={idx} className="card hover:shadow-lg transition-shadow">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                                    {faq.q}
-                                </h3>
-                                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                                    {faq.a}
+                            {/* Presets */}
+                            <div className="flex flex-wrap gap-2 mb-4">
+                                {PRESET_SIZES.map((preset, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => {
+                                            setSizePreset(idx);
+                                            if (preset.w !== 'custom') { setCustomWidth(''); setCustomHeight(''); }
+                                        }}
+                                        disabled={isProcessing}
+                                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all disabled:opacity-50 ${
+                                            sizePreset === idx
+                                                ? 'border-sky-500 bg-sky-500 text-white'
+                                                : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:border-sky-300 dark:hover:border-sky-500/40'
+                                        }`}
+                                    >
+                                        {preset.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Custom size inputs */}
+                            {selectedPreset?.w === 'custom' && (
+                                <div className="space-y-3">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Width (px)</label>
+                                            <input
+                                                type="number" min="1" placeholder={imageDimensions?.w || 'Auto'}
+                                                value={customWidth}
+                                                onChange={(e) => handleWidthChange(e.target.value)}
+                                                disabled={isProcessing}
+                                                className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.03] px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none disabled:opacity-50"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Height (px)</label>
+                                            <input
+                                                type="number" min="1" placeholder={imageDimensions?.h || 'Auto'}
+                                                value={customHeight}
+                                                onChange={(e) => handleHeightChange(e.target.value)}
+                                                disabled={isProcessing}
+                                                className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.03] px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none disabled:opacity-50"
+                                            />
+                                        </div>
+                                    </div>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="checkbox" checked={maintainAspectRatio}
+                                            onChange={(e) => setMaintainAspectRatio(e.target.checked)}
+                                            disabled={isProcessing}
+                                            className="w-4 h-4 rounded text-sky-600 focus:ring-sky-500"
+                                        />
+                                        <span className="text-sm text-gray-600 dark:text-gray-300">Maintain aspect ratio</span>
+                                    </label>
+                                </div>
+                            )}
+                            {selectedPreset?.w !== null && selectedPreset?.w !== 'custom' && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    Output will be resized to {selectedPreset.w} × {selectedPreset.h} px
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Progress */}
+                        {isProcessing && (
+                            <div className="rounded-3xl border border-sky-200/80 dark:border-sky-500/20 bg-sky-50 dark:bg-sky-500/5 p-5">
+                                <ProgressBar progress={progress} label="Converting image…" />
+                            </div>
+                        )}
+
+                        {/* Error */}
+                        {error && (
+                            <div className="rounded-3xl border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/5 p-4">
+                                <p className="text-sm font-semibold text-red-600 dark:text-red-400">⚠️ {error}</p>
+                            </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="flex gap-3">
+                            <Button onClick={handleConvert} disabled={isProcessing} loading={isProcessing} fullWidth
+                                icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>}
+                            >
+                                Convert Image
+                            </Button>
+                            <Button onClick={handleReset} variant="secondary" disabled={isProcessing}>Cancel</Button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Result */}
+                {result && (
+                    <div className="space-y-4">
+                        {/* Success Banner */}
+                        <div className="rounded-3xl border border-green-200 dark:border-green-500/30 bg-green-50 dark:bg-green-500/5 p-5 flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-2xl bg-green-500 flex items-center justify-center text-white text-lg shadow-lg shadow-green-500/30 shrink-0">✓</div>
+                            <div>
+                                <p className="font-bold text-green-900 dark:text-green-100">Conversion Complete!</p>
+                                <p className="text-sm text-green-700 dark:text-green-300">
+                                    Converted to {result.format} · {formatSize(result.convertedSize)}
+                                    {result.dimensions && ` · ${result.dimensions.converted.width} × ${result.dimensions.converted.height} px`}
                                 </p>
                             </div>
-                        ))}
-                    </div>
-                </div>
+                        </div>
 
-                {/* Format Comparison */}
-                <div className="mt-12 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-xl">
-                    <h3 className="text-xl font-semibold text-blue-900 dark:text-blue-100 mb-4">
-                        📊 Format Comparison Guide
-                    </h3>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                            <h4 className="font-bold text-gray-900 dark:text-white mb-2">JPG/JPEG</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Best for photographs</p>
-                            <ul className="text-sm text-gray-700 dark:text-gray-200 space-y-1">
-                                <li>✅ Small file size</li>
-                                <li>✅ Wide compatibility</li>
-                                <li>❌ No transparency</li>
-                                <li>⚠️ Lossy compression</li>
-                            </ul>
+                        {/* Before / After Preview */}
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="rounded-3xl border border-gray-200/80 bg-white dark:border-white/[0.08] dark:bg-gray-900/40 p-4">
+                                <p className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Original</p>
+                                <div className="flex justify-center items-center bg-gray-50 dark:bg-black/20 rounded-2xl p-3 min-h-40">
+                                    {previewUrl && <img src={previewUrl} alt="Original" className="max-h-48 max-w-full rounded-xl object-contain" />}
+                                </div>
+                                <p className="mt-2 text-center text-xs text-gray-400 dark:text-gray-500">
+                                    {file?.type.split('/')[1]?.toUpperCase()} · {formatSize(result.originalSize)}
+                                    {result.dimensions && ` · ${result.dimensions.original.width}×${result.dimensions.original.height}`}
+                                </p>
+                            </div>
+                            <div className="rounded-3xl border border-sky-200/80 bg-sky-50/30 dark:border-sky-500/20 dark:bg-sky-500/5 p-4">
+                                <p className="text-xs font-bold uppercase tracking-wider text-sky-500 dark:text-sky-400 mb-2">Converted</p>
+                                <div className="flex justify-center items-center bg-white/60 dark:bg-black/20 rounded-2xl p-3 min-h-40">
+                                    {resultPreviewUrl && <img src={resultPreviewUrl} alt="Converted" className="max-h-48 max-w-full rounded-xl object-contain" />}
+                                </div>
+                                <p className="mt-2 text-center text-xs text-sky-600 dark:text-sky-400 font-semibold">
+                                    {result.format} · {formatSize(result.convertedSize)}
+                                    {result.dimensions && ` · ${result.dimensions.converted.width}×${result.dimensions.converted.height}`}
+                                </p>
+                            </div>
                         </div>
-                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                            <h4 className="font-bold text-gray-900 dark:text-white mb-2">PNG</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Best for graphics & logos</p>
-                            <ul className="text-sm text-gray-700 dark:text-gray-200 space-y-1">
-                                <li>✅ Transparency support</li>
-                                <li>✅ Lossless quality</li>
-                                <li>✅ Sharp text/lines</li>
-                                <li>❌ Larger file size</li>
-                            </ul>
+
+                        {/* Stats */}
+                        <div className="rounded-3xl border border-gray-200/80 bg-white dark:border-white/[0.08] dark:bg-gray-900/40 p-5">
+                            <p className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-4">Conversion Results</p>
+                            <div className="grid sm:grid-cols-3 gap-3">
+                                <div className="rounded-2xl bg-gray-50 dark:bg-white/[0.03] p-4 text-center">
+                                    <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Format</p>
+                                    <p className="font-bold text-gray-900 dark:text-white">
+                                        {file?.type.split('/')[1]?.toUpperCase()} → {result.format}
+                                    </p>
+                                </div>
+                                <div className="rounded-2xl bg-gray-50 dark:bg-white/[0.03] p-4 text-center">
+                                    <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">File Size</p>
+                                    <p className="font-bold text-gray-900 dark:text-white">
+                                        {formatSize(result.originalSize)} → {formatSize(result.convertedSize)}
+                                    </p>
+                                </div>
+                                {result.dimensions && (
+                                    <div className="rounded-2xl bg-gray-50 dark:bg-white/[0.03] p-4 text-center">
+                                        <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Dimensions</p>
+                                        <p className="font-bold text-gray-900 dark:text-white">
+                                            {result.dimensions.converted.width} × {result.dimensions.converted.height}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                            <h4 className="font-bold text-gray-900 dark:text-white mb-2">WebP</h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">Best for modern web</p>
-                            <ul className="text-sm text-gray-700 dark:text-gray-200 space-y-1">
-                                <li>✅ Superior compression</li>
-                                <li>✅ Transparency support</li>
-                                <li>✅ Better than JPG/PNG</li>
-                                <li>⚠️ Newer format</li>
-                            </ul>
-                        </div>
+
+                        {/* Download */}
+                        <Button onClick={handleDownload} fullWidth
+                            icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>}
+                        >
+                            Download Converted Image
+                        </Button>
+                        <Button onClick={handleReset} variant="secondary" fullWidth>Convert Another Image</Button>
                     </div>
+                )}
+
+                {/* FAQ */}
+                <div className="rounded-3xl border border-gray-200/80 bg-gray-50/80 dark:border-white/[0.08] dark:bg-white/[0.02] p-6 space-y-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">FAQ</p>
+                    {[
+                        { q: 'What formats are supported?', a: 'You can convert between JPG/JPEG, PNG, and WebP. Input also accepts GIF and BMP files.' },
+                        { q: 'What does the quality slider control?', a: 'For JPG and WebP output the quality slider (10–100%) trades file size against visual sharpness. PNG is always lossless, so the slider is hidden.' },
+                        { q: 'Are my images uploaded to a server?', a: 'No. Conversion runs entirely in your browser using a Web Worker. Your files never leave your device.' },
+                        { q: 'Which format should I choose?', a: 'JPG for photos with small file sizes; PNG for graphics and transparency; WebP for the best size-to-quality ratio on the web.' },
+                    ].map((faq, i) => (
+                        <div key={i}>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">{faq.q}</p>
+                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{faq.a}</p>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

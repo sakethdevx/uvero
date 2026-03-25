@@ -4,7 +4,7 @@
  */
 
 self.onmessage = async function (e) {
-    const { file, outputFormat, width, height, maintainAspectRatio } = e.data;
+    const { file, outputFormat, width, height, maintainAspectRatio, quality } = e.data;
 
     try {
         // Read file as array buffer
@@ -53,9 +53,13 @@ self.onmessage = async function (e) {
         const outputType = mimeTypes[outputFormat.toLowerCase()] || 'image/png';
 
         // Convert to blob with specified format
+        // quality param is 1-100; default 92 for JPEG, 100 (lossless) for PNG
+        const qualityValue = quality !== undefined && quality !== null
+            ? quality / 100
+            : (outputType === 'image/jpeg' ? 0.92 : 1);
         const convertedBlob = await canvas.convertToBlob({
             type: outputType,
-            quality: outputType === 'image/jpeg' ? 0.92 : 1
+            quality: qualityValue
         });
 
         // Send result back to main thread
