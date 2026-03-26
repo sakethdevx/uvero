@@ -2,8 +2,15 @@
 // Exposes helpers used across the app: signIn, signUp, signOut, getUser, requireAuth
 import { supabase } from '../lib/supabase/client'
 
-export async function signUp({ email, password }) {
-    const { data, error } = await supabase.auth.signUp({ email, password })
+export async function signUp({ email, password, username }) {
+    const normalizedUsername = String(username || '').trim().toLowerCase()
+    const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            data: normalizedUsername ? { username: normalizedUsername } : undefined
+        }
+    })
     return { data, error }
 }
 

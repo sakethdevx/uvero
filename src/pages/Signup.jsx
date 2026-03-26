@@ -1,23 +1,115 @@
 import React, { useState } from 'react'
 import { signUp, signInWithProvider } from '../auth/authService'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
+import { checkUsernameAvailability } from '../auth/usernameService'
+import { USERNAME_HELP_TEXT, isUsernameValid, normalizeUsernameInput } from '../auth/usernameRules'
 
 export default function Signup() {
+    const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState(null)
     const [info, setInfo] = useState(null)
     const [loading, setLoading] = useState(false)
+    const [usernameChecking, setUsernameChecking] = useState(false)
+    const [usernameStatus, setUsernameStatus] = useState({
+        tone: 'neutral',
+        message: 'Pick your unique username.'
+    })
     const navigate = useNavigate()
     const location = useLocation()
 
     const from = location.state?.from?.pathname || (typeof window !== 'undefined' ? localStorage.getItem('postAuthRedirect') : null) || '/'
 
+    const normalizedUsername = normalizeUsernameInput(username)
+
+    React.useEffect(() => {
+        if (!normalizedUsername) {
+            setUsernameStatus({
+                tone: 'neutral',
+                message: 'Pick your unique username.'
+            })
+            setUsernameChecking(false)
+            return
+        }
+
+        const validation = isUsernameValid(normalizedUsername)
+        if (!validation.valid) {
+            setUsernameStatus({
+                tone: 'invalid',
+                message: validation.message
+            })
+            setUsernameChecking(false)
+            return
+        }
+
+        let active = true
+        const timer = setTimeout(async () => {
+            try {
+                setUsernameChecking(true)
+                const result = await checkUsernameAvailability(validation.username)
+                if (!active) return
+
+                if (result.available) {
+                    setUsernameStatus({
+                        tone: 'available',
+                        message: 'Username is available.'
+                    })
+                } else {
+                    setUsernameStatus({
+                        tone: 'taken',
+                        message: result.message || 'Username is already taken.'
+                    })
+                }
+            } catch {
+                if (!active) return
+                setUsernameStatus({
+                    tone: 'invalid',
+                    message: 'Could not check username right now. Please try again.'
+                })
+            } finally {
+                if (active) setUsernameChecking(false)
+            }
+        }, 300)
+
+        return () => {
+            active = false
+            clearTimeout(timer)
+        }
+    }, [normalizedUsername])
+
+    const usernameStatusClass =
+        usernameStatus.tone === 'available'
+            ? 'text-emerald-600 dark:text-emerald-300'
+            : usernameStatus.tone === 'taken' || usernameStatus.tone === 'invalid'
+                ? 'text-red-600 dark:text-red-300'
+                : 'text-gray-500 dark:text-gray-400'
+
     async function handleSubmit(e) {
         e.preventDefault()
+        const validation = isUsernameValid(normalizedUsername)
+        if (!validation.valid) {
+            setError(validation.message)
+            return
+        }
+
         setLoading(true)
         setError(null)
-        const { data, error } = await signUp({ email, password })
+
+        try {
+            const availability = await checkUsernameAvailability(validation.username)
+            if (!availability.available) {
+                setLoading(false)
+                setError(availability.message || 'Username is already taken. Please choose another one.')
+                return
+            }
+        } catch {
+            setLoading(false)
+            setError('Could not verify username availability. Please try again.')
+            return
+        }
+
+        const { data, error } = await signUp({ email, password, username: validation.username })
         setLoading(false)
         if (error) {
             setError(error.message)
@@ -25,13 +117,13 @@ export default function Signup() {
         }
         // If Supabase returned a session the user is signed in immediately
         if (data?.session) {
-            try { localStorage.removeItem('postAuthRedirect') } catch (e) { }
+            try { localStorage.removeItem('postAuthRedirect') } catch { void 0 }
             navigate(from, { replace: true })
             return
         }
 
         // Otherwise an email confirmation is required — show a clear message and prompt user to sign in after verification
-        setInfo(`A verification email has been sent to ${email}. Please check your inbox and verify your email. After verifying, return here and click "Sign in" to continue.`)
+        setInfo(`A verification email has been sent to ${email}. Your username request is @${validation.username}. Please verify your email, then sign in to complete setup.`)
     }
 
     async function handleProviderSignIn(provider) {
@@ -94,6 +186,22 @@ export default function Signup() {
                                         className="mt-1.5 w-full rounded-xl border border-gray-200/80 bg-white px-4 py-2.5 text-sm text-gray-900 transition-colors focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-white/[0.08] dark:bg-gray-900/60 dark:text-white dark:focus:border-primary-500"
                                     />
                                 </label>
+                                <label htmlFor="signup-username" className="block">
+                                    <span className="text-xs font-bold uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500">Username</span>
+                                    <input
+                                        id="signup-username" name="username" type="text" required
+                                        value={username} onChange={e => setUsername(normalizeUsernameInput(e.target.value))}
+                                        autoCapitalize="none"
+                                        autoCorrect="off"
+                                        spellCheck={false}
+                                        placeholder="yourname"
+                                        className="mt-1.5 w-full rounded-xl border border-gray-200/80 bg-white px-4 py-2.5 text-sm text-gray-900 transition-colors focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-white/[0.08] dark:bg-gray-900/60 dark:text-white dark:focus:border-primary-500"
+                                    />
+                                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{USERNAME_HELP_TEXT}</p>
+                                    <p className={`mt-1 text-xs ${usernameStatusClass}`}>
+                                        {usernameChecking ? 'Checking availability…' : usernameStatus.message}
+                                    </p>
+                                </label>
                                 <label htmlFor="signup-password" className="block">
                                     <span className="text-xs font-bold uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500">Password</span>
                                     <input
@@ -107,7 +215,7 @@ export default function Signup() {
 
                             <button
                                 type="submit"
-                                disabled={loading}
+                                disabled={loading || usernameChecking || usernameStatus.tone === 'taken' || usernameStatus.tone === 'invalid' || !normalizedUsername}
                                 className="w-full rounded-xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700 disabled:opacity-60"
                             >
                                 {loading ? 'Creating account…' : 'Create account'}

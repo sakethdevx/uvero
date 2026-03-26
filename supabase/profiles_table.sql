@@ -38,3 +38,60 @@ create policy "Delete own profile" on public.profiles
 
 -- Helpful: create an index on email
 create index if not exists idx_profiles_email on public.profiles (email);
+
+-- Username support
+alter table public.profiles
+  add column if not exists username text;
+
+update public.profiles
+set username = nullif(lower(trim(username)), '')
+where username is not null;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'profiles_username_lowercase'
+  ) then
+    alter table public.profiles
+      add constraint profiles_username_lowercase
+      check (username is null or username = lower(username));
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'profiles_username_format'
+  ) then
+    alter table public.profiles
+      add constraint profiles_username_format
+      check (
+        username is null
+        or username ~ '^[a-z0-9][a-z0-9._]{1,18}[a-z0-9]$'
+      );
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'profiles_username_no_consecutive_dots'
+  ) then
+    alter table public.profiles
+      add constraint profiles_username_no_consecutive_dots
+      check (
+        username is null
+        or position('..' in username) = 0
+      );
+  end if;
+end $$;
+
+create unique index if not exists idx_profiles_username_unique
+on public.profiles (username)
+where username is not null;

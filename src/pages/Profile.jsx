@@ -4,6 +4,9 @@ import RequireAuth from '../auth/RequireAuth'
 import { signOut } from '../auth/authService'
 import { useNavigate } from 'react-router-dom'
 import { splitApiRequest } from '../features/split-expense/api/client'
+import { supabase } from '../lib/supabase/client'
+import { checkUsernameAvailability, updateMyUsername } from '../auth/usernameService'
+import { USERNAME_HELP_TEXT, isUsernameValid, normalizeUsernameInput } from '../auth/usernameRules'
 
 const GUEST_SESSION_STORAGE_KEY = 'uvero_split_guest_session'
 
@@ -21,6 +24,16 @@ function ProfileContent() {
     const [tripSplitLoading, setTripSplitLoading] = useState(false)
     const [tripSplitMessage, setTripSplitMessage] = useState('')
     const [guestSession, setGuestSession] = useState('')
+    const [usernameInput, setUsernameInput] = useState('')
+    const [savedUsername, setSavedUsername] = useState('')
+    const [usernameLoading, setUsernameLoading] = useState(true)
+    const [usernameChecking, setUsernameChecking] = useState(false)
+    const [usernameSaving, setUsernameSaving] = useState(false)
+    const [usernameMessage, setUsernameMessage] = useState('')
+    const [usernameStatus, setUsernameStatus] = useState({
+        tone: 'neutral',
+        message: 'Choose your username.'
+    })
 
     const [recoverInviteCode, setRecoverInviteCode] = useState('')
     const [recoverCode, setRecoverCode] = useState('')
@@ -30,6 +43,170 @@ function ProfileContent() {
         if (typeof window === 'undefined') return
         setGuestSession(window.localStorage.getItem(GUEST_SESSION_STORAGE_KEY) || '')
     }, [])
+
+    useEffect(() => {
+        let active = true
+
+        async function loadProfileUsername() {
+            if (!user?.id) {
+                setUsernameLoading(false)
+                return
+            }
+
+            try {
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('username')
+                    .eq('id', user.id)
+                    .maybeSingle()
+
+                if (!active) return
+
+                const currentUsername = normalizeUsernameInput(data?.username || '')
+                setSavedUsername(currentUsername)
+                setUsernameInput(currentUsername)
+                setUsernameStatus({
+                    tone: 'neutral',
+                    message: currentUsername
+                        ? `Current username: @${currentUsername}`
+                        : 'Choose your username.'
+                })
+            } catch {
+                if (!active) return
+                setUsernameStatus({
+                    tone: 'invalid',
+                    message: 'Could not load username right now.'
+                })
+            } finally {
+                if (active) setUsernameLoading(false)
+            }
+        }
+
+        loadProfileUsername()
+
+        return () => {
+            active = false
+        }
+    }, [user?.id])
+
+    useEffect(() => {
+        if (usernameLoading) return
+
+        const normalized = normalizeUsernameInput(usernameInput)
+
+        if (!normalized) {
+            setUsernameStatus({
+                tone: 'invalid',
+                message: 'Username is required.'
+            })
+            setUsernameChecking(false)
+            return
+        }
+
+        const validation = isUsernameValid(normalized)
+        if (!validation.valid) {
+            setUsernameStatus({
+                tone: 'invalid',
+                message: validation.message
+            })
+            setUsernameChecking(false)
+            return
+        }
+
+        if (validation.username === savedUsername) {
+            setUsernameStatus({
+                tone: 'neutral',
+                message: `Current username: @${savedUsername}`
+            })
+            setUsernameChecking(false)
+            return
+        }
+
+        let active = true
+        const timer = setTimeout(async () => {
+            try {
+                setUsernameChecking(true)
+                const result = await checkUsernameAvailability(validation.username, user?.access_token)
+                if (!active) return
+
+                if (result.available) {
+                    setUsernameStatus({
+                        tone: 'available',
+                        message: 'Username is available.'
+                    })
+                } else {
+                    setUsernameStatus({
+                        tone: 'taken',
+                        message: result.message || 'Username is already taken.'
+                    })
+                }
+            } catch {
+                if (!active) return
+                setUsernameStatus({
+                    tone: 'invalid',
+                    message: 'Could not check availability right now.'
+                })
+            } finally {
+                if (active) setUsernameChecking(false)
+            }
+        }, 300)
+
+        return () => {
+            active = false
+            clearTimeout(timer)
+        }
+    }, [usernameInput, savedUsername, user?.access_token, usernameLoading])
+
+    async function handleSaveUsername(event) {
+        event.preventDefault()
+        setUsernameMessage('')
+
+        const normalized = normalizeUsernameInput(usernameInput)
+        const validation = isUsernameValid(normalized)
+
+        if (!validation.valid) {
+            setUsernameStatus({ tone: 'invalid', message: validation.message })
+            return
+        }
+
+        if (validation.username === savedUsername) {
+            setUsernameMessage('No changes to save.')
+            return
+        }
+
+        setUsernameSaving(true)
+        try {
+            const availability = await checkUsernameAvailability(validation.username, user?.access_token)
+            if (!availability.available) {
+                setUsernameStatus({ tone: 'taken', message: availability.message || 'Username is already taken.' })
+                return
+            }
+
+            const result = await updateMyUsername(validation.username, user?.access_token)
+            const nextUsername = normalizeUsernameInput(result?.username || validation.username)
+            setSavedUsername(nextUsername)
+            setUsernameInput(nextUsername)
+            setUsernameStatus({ tone: 'neutral', message: `Current username: @${nextUsername}` })
+            try {
+                window.localStorage.removeItem('uvero_username_setup_required')
+                window.dispatchEvent(new Event('uvero-username-setup-changed'))
+            } catch {
+                // ignore
+            }
+            setUsernameMessage('Username updated successfully.')
+        } catch (err) {
+            setUsernameMessage(err.message || 'Failed to update username')
+        } finally {
+            setUsernameSaving(false)
+        }
+    }
+
+    const usernameStatusClass =
+        usernameStatus.tone === 'available'
+            ? 'text-emerald-600 dark:text-emerald-300'
+            : usernameStatus.tone === 'taken' || usernameStatus.tone === 'invalid'
+                ? 'text-red-600 dark:text-red-300'
+                : 'text-gray-500 dark:text-gray-400'
 
     async function handleSignOut() {
         await signOut()
@@ -137,6 +314,37 @@ function ProfileContent() {
                             <span className="text-xs text-gray-500 dark:text-gray-400 font-mono break-all">{user.id}</span>
                         </div>
                     </div>
+
+                    <form onSubmit={handleSaveUsername} className="mt-5 rounded-2xl border border-gray-200/80 bg-white/85 p-5 shadow-sm dark:border-white/[0.08] dark:bg-gray-950/50">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">Username</p>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{USERNAME_HELP_TEXT}</p>
+                        <div className="mt-3">
+                            <input
+                                value={usernameInput}
+                                onChange={e => setUsernameInput(normalizeUsernameInput(e.target.value))}
+                                autoCapitalize="none"
+                                autoCorrect="off"
+                                spellCheck={false}
+                                placeholder="yourname"
+                                className="w-full rounded-xl border border-gray-200/80 bg-white px-4 py-2.5 text-sm text-gray-900 transition-colors focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-white/[0.08] dark:bg-gray-900/60 dark:text-white dark:placeholder-gray-500"
+                            />
+                            <p className={`mt-1 text-xs ${usernameStatusClass}`}>
+                                {usernameChecking ? 'Checking availability…' : usernameStatus.message}
+                            </p>
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={usernameLoading || usernameSaving || usernameChecking || usernameStatus.tone === 'invalid' || usernameStatus.tone === 'taken'}
+                            className="mt-3 inline-flex items-center justify-center rounded-xl bg-primary-600 text-white text-sm font-semibold px-4 py-2.5 hover:bg-primary-700 transition-colors disabled:opacity-60"
+                        >
+                            {usernameSaving ? 'Saving…' : 'Save Username'}
+                        </button>
+                        {usernameMessage && (
+                            <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300">
+                                {usernameMessage}
+                            </div>
+                        )}
+                    </form>
                 </div>
 
                 {/* PaySplit section */}
