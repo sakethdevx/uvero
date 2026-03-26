@@ -22,7 +22,11 @@ const WordToPDF = () => {
 
             if (!validTypes.includes(selectedFile.type) &&
                 !selectedFile.name.match(/\.docx$/i)) {
-                setError('Please select a valid Word document (.docx only). Legacy .doc format is not supported.');
+                if (selectedFile.name.match(/\.doc$/i)) {
+                    setError('Legacy .doc format is not supported. Please save your document as .docx in Microsoft Word (File → Save As → Word Document) and try again.');
+                } else {
+                    setError('Please select a valid Word document (.docx format only)');
+                }
                 return;
             }
 
@@ -37,13 +41,16 @@ const WordToPDF = () => {
         const droppedFile = e.dataTransfer.files[0];
         if (droppedFile) {
             const validTypes = [
-                'application/msword',
                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
             ];
 
             if (!validTypes.includes(droppedFile.type) &&
-                !droppedFile.name.match(/\.(doc|docx)$/i)) {
-                setError('Please drop a valid Word document (.doc or .docx)');
+                !droppedFile.name.match(/\.docx$/i)) {
+                if (droppedFile.name.match(/\.doc$/i)) {
+                    setError('Legacy .doc format is not supported. Please save your document as .docx in Microsoft Word (File → Save As → Word Document) and try again.');
+                } else {
+                    setError('Please drop a valid Word document (.docx format only)');
+                }
                 return;
             }
 
@@ -65,13 +72,6 @@ const WordToPDF = () => {
         setProgress(0);
 
         try {
-            // Check if file is DOCX (mammoth only supports DOCX, not DOC)
-            if (!file.name.endsWith('.docx')) {
-                setError('Currently only DOCX format is supported. DOC format requires server-side conversion.');
-                setConverting(false);
-                return;
-            }
-
             setProgress(10);
 
             // Read the file as ArrayBuffer

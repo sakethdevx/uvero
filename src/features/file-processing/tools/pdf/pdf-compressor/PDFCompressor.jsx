@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
@@ -12,7 +12,6 @@ export default function PDFCompressor() {
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
     const [compressionLevel, setCompressionLevel] = useState('balanced'); // low, balanced, high
-    const fileInputRef = useRef(null);
 
     const handleFileSelect = (selectedFile) => {
         if (selectedFile.type !== 'application/pdf') {
@@ -80,9 +79,6 @@ export default function PDFCompressor() {
         setResult(null);
         setError(null);
         setProgress(0);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
     };
 
     const formatFileSize = (bytes) => {
@@ -140,10 +136,8 @@ export default function PDFCompressor() {
                                 onFileSelect={handleFileSelect}
                                 accept=".pdf,application/pdf"
                                 maxSize={100 * 1024 * 1024}
-                                fileInputRef={fileInputRef}
-                                icon="📄"
-                                title="Drop PDF here or click to browse"
-                                subtitle="Maximum file size: 100MB"
+                                label="Drop your PDF file here or click to browse"
+                                description="PDF files only (Max 100MB)"
                             />
                         )}
 

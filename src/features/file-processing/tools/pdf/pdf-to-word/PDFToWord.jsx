@@ -1,5 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import Button from '../../../shared/Button';
+import Dropzone from '../../../shared/Dropzone';
+import ProgressBar from '../../../shared/ProgressBar';
 import { processor } from './processor';
 
 const PDFToWord = () => {
@@ -8,39 +10,12 @@ const PDFToWord = () => {
     const [convertedDoc, setConvertedDoc] = useState(null);
     const [error, setError] = useState('');
     const [progress, setProgress] = useState(0);
-    const fileInputRef = useRef(null);
 
-    const handleFileSelect = (e) => {
-        const selectedFile = e.target.files[0];
-        if (selectedFile) {
-            if (selectedFile.type !== 'application/pdf') {
-                setError('Please select a valid PDF file');
-                return;
-            }
-
-            setFile(selectedFile);
-            setError('');
-            setConvertedDoc(null);
-        }
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        const droppedFile = e.dataTransfer.files[0];
-        if (droppedFile) {
-            if (droppedFile.type !== 'application/pdf') {
-                setError('Please drop a valid PDF file');
-                return;
-            }
-
-            setFile(droppedFile);
-            setError('');
-            setConvertedDoc(null);
-        }
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
+    const handleFileSelect = (selectedFile) => {
+        setFile(selectedFile);
+        setError('');
+        setConvertedDoc(null);
+        setProgress(0);
     };
 
     const convertToWord = async () => {
@@ -84,9 +59,6 @@ const PDFToWord = () => {
         setConvertedDoc(null);
         setError('');
         setProgress(0);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
     };
 
     const formatFileSize = (bytes) => {
@@ -113,34 +85,13 @@ const PDFToWord = () => {
                 {/* Main Converter */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
-                        <div
-                            onDrop={handleDrop}
-                            onDragOver={handleDragOver}
-                            className="border-3 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-12 text-center hover:border-blue-400 transition-colors cursor-pointer"
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            <div className="flex flex-col items-center">
-                                <svg className="w-16 h-16 text-gray-400 dark:text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                </svg>
-                                <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                    Drop PDF file here or click to browse
-                                </h3>
-                                <p className="text-gray-500 dark:text-gray-400 mb-4">
-                                    Supports PDF format
-                                </p>
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept=".pdf,application/pdf"
-                                    onChange={handleFileSelect}
-                                    className="hidden"
-                                />
-                                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                                    Select PDF File
-                                </Button>
-                            </div>
-                        </div>
+                        <Dropzone
+                            onFileSelect={handleFileSelect}
+                            accept="application/pdf,.pdf"
+                            maxSize={100 * 1024 * 1024}
+                            label="Drop your PDF file here or click to browse"
+                            description="PDF files only (Max 100MB)"
+                        />
                     ) : (
                         <div>
                             {/* File Info */}
@@ -182,18 +133,9 @@ const PDFToWord = () => {
                             )}
 
                             {/* Progress Bar */}
-                            {converting && progress > 0 && (
+                            {converting && (
                                 <div className="mb-6">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Converting...</span>
-                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{Math.round(progress)}%</span>
-                                    </div>
-                                    <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                                        <div
-                                            className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-300"
-                                            style={{ width: `${progress}%` }}
-                                        />
-                                    </div>
+                                    <ProgressBar progress={progress} label="Converting..." />
                                 </div>
                             )}
 

@@ -1,5 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import Button from '../../../shared/Button';
+import Dropzone from '../../../shared/Dropzone';
+import ProgressBar from '../../../shared/ProgressBar';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -9,43 +11,12 @@ const HTMLToPDF = () => {
     const [convertedPDF, setConvertedPDF] = useState(null);
     const [error, setError] = useState('');
     const [progress, setProgress] = useState(0);
-    const fileInputRef = useRef(null);
 
-    const handleFileSelect = (e) => {
-        const selectedFile = e.target.files[0];
-        if (selectedFile) {
-            // Check file type
-            const validTypes = ['text/html'];
-
-            if (!validTypes.includes(selectedFile.type) &&
-                !selectedFile.name.match(/\.html?$/i)) {
-                setError('Please select a valid HTML file (.html or .htm)');
-                return;
-            }
-
-            setFile(selectedFile);
-            setError('');
-            setConvertedPDF(null);
-        }
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        const droppedFile = e.dataTransfer.files[0];
-        if (droppedFile) {
-            if (!droppedFile.name.match(/\.html?$/i)) {
-                setError('Please drop a valid HTML file (.html or .htm)');
-                return;
-            }
-
-            setFile(droppedFile);
-            setError('');
-            setConvertedPDF(null);
-        }
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
+    const handleFileSelect = (selectedFile) => {
+        setFile(selectedFile);
+        setError('');
+        setConvertedPDF(null);
+        setProgress(0);
     };
 
     const convertToPDF = async () => {
@@ -190,9 +161,6 @@ const HTMLToPDF = () => {
         setConvertedPDF(null);
         setError('');
         setProgress(0);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
     };
 
     const formatFileSize = (bytes) => {
@@ -219,34 +187,13 @@ const HTMLToPDF = () => {
                 {/* Main Converter */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
-                        <div
-                            onDrop={handleDrop}
-                            onDragOver={handleDragOver}
-                            className="border-3 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-12 text-center hover:border-blue-400 transition-colors cursor-pointer"
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            <div className="flex flex-col items-center">
-                                <svg className="w-16 h-16 text-gray-400 dark:text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                </svg>
-                                <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                                    Drop HTML file here or click to browse
-                                </h3>
-                                <p className="text-gray-500 dark:text-gray-400 mb-4">
-                                    Supports HTML and HTM formats
-                                </p>
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept=".html,.htm,text/html"
-                                    onChange={handleFileSelect}
-                                    className="hidden"
-                                />
-                                <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                                    Select HTML File
-                                </Button>
-                            </div>
-                        </div>
+                        <Dropzone
+                            onFileSelect={handleFileSelect}
+                            accept=".html,.htm,text/html"
+                            maxSize={10 * 1024 * 1024}
+                            label="Drop your HTML file here or click to browse"
+                            description="HTML and HTM files (Max 10MB)"
+                        />
                     ) : (
                         <div>
                             {/* File Info */}
@@ -285,16 +232,7 @@ const HTMLToPDF = () => {
                             {/* Progress Bar */}
                             {converting && (
                                 <div className="mb-6">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Converting...</span>
-                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{progress}%</span>
-                                    </div>
-                                    <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                                        <div
-                                            className="bg-gradient-to-r from-blue-600 to-indigo-600 h-2 rounded-full transition-all duration-300"
-                                            style={{ width: `${progress}%` }}
-                                        />
-                                    </div>
+                                    <ProgressBar progress={progress} label="Converting..." />
                                 </div>
                             )}
 
