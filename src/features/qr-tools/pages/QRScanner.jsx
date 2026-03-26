@@ -1,10 +1,31 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import jsQR from 'jsqr';
 
 /**
  * QR Scanner — camera live scan + image upload
- * Uses BarcodeDetector API (Chromium 88+) with a canvas-based fallback message.
+ * Uses BarcodeDetector API (Chromium 88+) with jsQR as a universal fallback.
  */
 const isBarcodeDetectorSupported = () => typeof BarcodeDetector !== 'undefined';
+
+/**
+ * Detects QR code from a canvas element.
+ * Tries the native BarcodeDetector API first; falls back to jsQR for full
+ * browser compatibility (Safari, Firefox, etc.).
+ */
+async function detectQRFromCanvas(canvas) {
+    if (isBarcodeDetectorSupported()) {
+        try {
+            const detector = new BarcodeDetector({ formats: ['qr_code'] });
+            const codes = await detector.detect(canvas);
+            if (codes.length > 0) return codes[0].rawValue;
+        } catch { /* fall through to jsQR */ }
+    }
+    // jsQR fallback — works in all browsers including Safari on iOS
+    const ctx = canvas.getContext('2d');
+    const { data, width, height } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(data, width, height);
+    return code ? code.data : null;
+}
 
 function copyToClipboard(text) {
     if (navigator.clipboard) return navigator.clipboard.writeText(text);
@@ -119,7 +140,6 @@ export default function QRScanner() {
     const canvasRef = useRef(null);
     const streamRef = useRef(null);
     const rafRef = useRef(null);
-    const detectorRef = useRef(null);
     const fileInputRef = useRef(null);
 
     const stopCamera = useCallback(() => {
@@ -138,18 +158,6 @@ export default function QRScanner() {
         setCameraError('');
         setResult('');
 
-        if (!isBarcodeDetectorSupported()) {
-            setCameraError('Your browser does not support the BarcodeDetector API. Please use Chrome/Edge 88+ or upload an image instead.');
-            return;
-        }
-
-        try {
-            detectorRef.current = new BarcodeDetector({ formats: ['qr_code'] });
-        } catch {
-            setCameraError('BarcodeDetector could not be initialised. Try uploading an image.');
-            return;
-        }
-
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
             streamRef.current = stream;
@@ -160,7 +168,7 @@ export default function QRScanner() {
             setScanning(true);
 
             const scan = async () => {
-                if (!videoRef.current || !canvasRef.current || !detectorRef.current) return;
+                if (!videoRef.current || !canvasRef.current) return;
                 const video = videoRef.current;
                 if (video.readyState < 2) { rafRef.current = requestAnimationFrame(scan); return; }
 
@@ -171,10 +179,10 @@ export default function QRScanner() {
                 ctx.drawImage(video, 0, 0);
 
                 try {
-                    const codes = await detectorRef.current.detect(canvas);
-                    if (codes.length > 0) {
+                    const value = await detectQRFromCanvas(canvas);
+                    if (value) {
                         stopCamera();
-                        setResult(codes[0].rawValue);
+                        setResult(value);
                         return;
                     }
                 } catch { /* continue scanning */ }
@@ -200,14 +208,7 @@ export default function QRScanner() {
         setUploadPreview(URL.createObjectURL(file));
         setUploadScanning(true);
 
-        if (!isBarcodeDetectorSupported()) {
-            setUploadScanning(false);
-            setError('Your browser does not support QR scanning. Please use Chrome/Edge 88+.');
-            return;
-        }
-
         try {
-            const detector = new BarcodeDetector({ formats: ['qr_code'] });
             const img = new Image();
             img.src = URL.createObjectURL(file);
             await new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
@@ -217,9 +218,9 @@ export default function QRScanner() {
             canvas.height = img.height;
             canvas.getContext('2d').drawImage(img, 0, 0);
 
-            const codes = await detector.detect(canvas);
-            if (codes.length > 0) {
-                setResult(codes[0].rawValue);
+            const value = await detectQRFromCanvas(canvas);
+            if (value) {
+                setResult(value);
             } else {
                 setError('No QR code found in this image. Make sure the QR code is clearly visible.');
             }
@@ -318,10 +319,6 @@ export default function QRScanner() {
                                 {scanning ? 'Stop Camera' : 'Start Camera'}
                             </button>
                         )}
-
-                        {!isBarcodeDetectorSupported() && !cameraError && (
-                            <p className="text-xs text-center text-gray-400">Camera scanning requires Chrome or Edge 88+. Firefox users can use the Upload tab.</p>
-                        )}
                     </div>
                 )}
 
@@ -371,13 +368,6 @@ export default function QRScanner() {
                 {result && (
                     <div className="mt-4">
                         <ResultCard result={result} onClear={clearResult} />
-                    </div>
-                )}
-
-                {/* Browser support note */}
-                {!isBarcodeDetectorSupported() && (
-                    <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-xl text-sm border border-amber-200 dark:border-amber-500/30">
-                        <strong>Browser note:</strong> QR scanning requires Chrome or Edge 88+. The BarcodeDetector API is not available in your current browser. Please switch to Chrome or Edge for the best experience.
                     </div>
                 )}
             </div>
