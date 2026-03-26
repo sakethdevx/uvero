@@ -28,10 +28,16 @@ class ImageConverterProcessor {
      * @param {number} width - Target width (optional)
      * @param {number} height - Target height (optional)
      * @param {boolean} maintainAspectRatio - Maintain aspect ratio when resizing
+     * @param {number} quality - Output quality 1-100 (optional, defaults to 92 for JPEG)
      * @param {Function} onProgress - Progress callback
      * @returns {Promise} Converted file result
      */
-    async convert(file, outputFormat, width, height, maintainAspectRatio, onProgress) {
+    async convert(file, outputFormat, width, height, maintainAspectRatio, quality, onProgress) {
+        // Support legacy call signature without quality parameter
+        if (typeof quality === 'function') {
+            onProgress = quality;
+            quality = null;
+        }
         return new Promise((resolve, reject) => {
             const worker = this.initWorker();
 
@@ -71,7 +77,8 @@ class ImageConverterProcessor {
                 outputFormat,
                 width,
                 height,
-                maintainAspectRatio
+                maintainAspectRatio,
+                quality
             });
 
             // Simulate progress for better UX
