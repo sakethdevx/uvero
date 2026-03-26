@@ -211,11 +211,11 @@ function AppContent() {
     if (path.startsWith('/login')) return 'Sign In';
     if (path.startsWith('/signup')) return 'Sign Up';
     if (path.startsWith('/profile')) return 'Profile';
-    
+
     // Check if it's a specific tool
     const tool = getToolById(path.slice(1));
     if (tool) return tool.name;
-    
+
     return null;
   };
 
@@ -545,12 +545,38 @@ function AuthStatus({ isMobile = false, onNav = () => { } }) {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [signingOut, setSigningOut] = useState(false)
+  const [needsUsernameSetup, setNeedsUsernameSetup] = useState(false)
+
+  useEffect(() => {
+    function syncUsernameSetupFlag() {
+      try {
+        setNeedsUsernameSetup(window.localStorage.getItem('uvero_username_setup_required') === '1')
+      } catch {
+        setNeedsUsernameSetup(false)
+      }
+    }
+
+    syncUsernameSetupFlag()
+    window.addEventListener('storage', syncUsernameSetupFlag)
+    window.addEventListener('uvero-username-setup-changed', syncUsernameSetupFlag)
+
+    return () => {
+      window.removeEventListener('storage', syncUsernameSetupFlag)
+      window.removeEventListener('uvero-username-setup-changed', syncUsernameSetupFlag)
+    }
+  }, [])
 
   async function handleSignOut() {
     setSigningOut(true)
     try {
       const res = await signOut()
       if (res?.error) throw res.error
+      try {
+        window.localStorage.removeItem('uvero_username_setup_required')
+        window.dispatchEvent(new Event('uvero-username-setup-changed'))
+      } catch {
+        // ignore
+      }
       // navigate home and show a brief message
       navigate('/', { replace: true })
       onNav()
@@ -582,6 +608,15 @@ function AuthStatus({ isMobile = false, onNav = () => { } }) {
   if (isMobile) {
     return (
       <div className="flex flex-col gap-3 w-full bg-gray-50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/5">
+        {needsUsernameSetup && (
+          <Link
+            to="/profile"
+            onClick={onNav}
+            className="inline-flex items-center justify-center rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300"
+          >
+            Finish username setup
+          </Link>
+        )}
         <Link to="/profile" onClick={onNav} className="flex items-center justify-center gap-2 text-primary-600 dark:text-primary-400 font-medium">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
           {user.email}
@@ -595,6 +630,14 @@ function AuthStatus({ isMobile = false, onNav = () => { } }) {
 
   return (
     <div className="flex items-center gap-3">
+      {needsUsernameSetup && (
+        <Link
+          to="/profile"
+          className="inline-flex items-center rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-100 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300 dark:hover:bg-amber-500/20"
+        >
+          Set username
+        </Link>
+      )}
       <Link to="/profile" className="text-sm text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium">{user.email}</Link>
       <button onClick={handleSignOut} disabled={signingOut} className="text-sm text-gray-500 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
         {signingOut ? 'Signing out...' : 'Sign out'}

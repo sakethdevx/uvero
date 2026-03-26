@@ -2,6 +2,21 @@ import React, { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase/client'
 import { AuthContext } from './AuthContext'
 
+const USERNAME_SETUP_REQUIRED_STORAGE_KEY = 'uvero_username_setup_required'
+
+function setUsernameSetupRequired(value) {
+    try {
+        if (value) {
+            window.localStorage.setItem(USERNAME_SETUP_REQUIRED_STORAGE_KEY, '1')
+        } else {
+            window.localStorage.removeItem(USERNAME_SETUP_REQUIRED_STORAGE_KEY)
+        }
+        window.dispatchEvent(new Event('uvero-username-setup-changed'))
+    } catch {
+        // ignore
+    }
+}
+
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -39,7 +54,7 @@ export function AuthProvider({ children }) {
             // When a user signs in, call server endpoint to ensure a profiles row exists.
             if (event === 'SIGNED_IN' && session?.access_token) {
                 try {
-                    await fetch('/api/create-profile', {
+                    const response = await fetch('/api/create-profile', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -47,9 +62,21 @@ export function AuthProvider({ children }) {
                         },
                         body: JSON.stringify({
                             email: newUser?.email,
-                            full_name: newUser?.user_metadata?.full_name ?? null
+                            full_name: newUser?.user_metadata?.full_name ?? null,
+                            username: newUser?.user_metadata?.username ?? null
                         })
                     })
+                    const payload = await response.json().catch(() => ({}))
+
+                    const usernameStatus = payload?.username?.status || ''
+                    const needsUsernameSetup =
+                        usernameStatus === 'taken' ||
+                        usernameStatus === 'invalid' ||
+                        usernameStatus === 'not-provided'
+
+                    if (response.ok) {
+                        setUsernameSetupRequired(needsUsernameSetup)
+                    }
                 } catch (err) {
                     console.warn('create-profile request failed', err)
                 }
@@ -78,12 +105,12 @@ export function AuthProvider({ children }) {
                                 localStorage.removeItem('postAuthRedirect')
                                 window.location.href = redirect
                             }
-                        } catch (err) {
+                        } catch {
                             // ignore
                         }
                     }).catch(() => { /* ignore */ })
                 }
-            } catch (err) {
+            } catch {
                 // ignore
             }
         }

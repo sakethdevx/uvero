@@ -20,6 +20,16 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/username-availability') {
+            const mod = await import('../src/features/photodrop/api/username-availability.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/update-username') {
+            const mod = await import('../src/features/photodrop/api/update-username.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/events') {
             const mod = await import('../src/features/photodrop/api/events.js')
             return mod.default(req, res)
