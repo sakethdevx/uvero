@@ -911,14 +911,14 @@ export default function QuickConverter() {
                                                                     <label className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Opacity</label>
                                                                     <span className="text-xs font-semibold text-primary-600 dark:text-primary-400">{watermarkOpacity}%</span>
                                                                 </div>
-                                                                <input type="range" min="10" max="100" value={watermarkOpacity} onChange={e => setWatermarkOpacity(parseInt(e.target.value))} className="w-full h-2 accent-primary-500 rounded-full" />
+                                                                <input type="range" min="10" max="100" value={watermarkOpacity} onChange={e => setWatermarkOpacity(parseInt(e.target.value, 10))} className="w-full h-2 accent-primary-500 rounded-full" />
                                                             </div>
                                                             <div>
                                                                 <div className="flex justify-between mb-1">
                                                                     <label className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Font Size</label>
                                                                     <span className="text-xs font-semibold text-primary-600 dark:text-primary-400">{watermarkFontSize}pt</span>
                                                                 </div>
-                                                                <input type="range" min="12" max="72" value={watermarkFontSize} onChange={e => setWatermarkFontSize(parseInt(e.target.value))} className="w-full h-2 accent-primary-500 rounded-full" />
+                                                                <input type="range" min="12" max="72" value={watermarkFontSize} onChange={e => setWatermarkFontSize(parseInt(e.target.value, 10))} className="w-full h-2 accent-primary-500 rounded-full" />
                                                             </div>
                                                         </div>
                                                         <div>
@@ -957,7 +957,7 @@ export default function QuickConverter() {
                                                                 type="number"
                                                                 min="1"
                                                                 value={pageNumberStart}
-                                                                onChange={e => setPageNumberStart(Math.max(1, parseInt(e.target.value) || 1))}
+                                                                onChange={e => { const parsed = parseInt(e.target.value, 10); setPageNumberStart(Math.max(1, isNaN(parsed) ? 1 : parsed)); }}
                                                                 className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
                                                             />
                                                         </div>
