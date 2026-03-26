@@ -79,14 +79,17 @@ export default function QuickConverter() {
     // Interactive manual crop coordinates from InteractiveCropSelector
     const [manualCropData, setManualCropData] = useState(null);
     const [pdfCompressionLevel, setPdfCompressionLevel] = useState('balanced');
-    const [pageRange, _setPageRange] = useState('all');
-    const [audioBitrate, _setAudioBitrate] = useState('192');
-    const [videoQuality, _setVideoQuality] = useState('medium');
-    const [pdfSplitMode, _setPdfSplitMode] = useState('all');
+    const [pageRange, setPageRange] = useState('all');
+    const [audioBitrate, setAudioBitrate] = useState('192');
+    const [videoQuality, setVideoQuality] = useState('medium');
+    const [pdfSplitMode, setPdfSplitMode] = useState('all');
     const [pdfTotalPages, setPdfTotalPages] = useState(0);
-    const [pdfPageSpec, _setPdfPageSpec] = useState('');
-    const [pdfPassword, _setPdfPassword] = useState('');
-    const [pdfPasswordConfirm, _setPdfPasswordConfirm] = useState('');
+    const [pdfPageSpec, setPdfPageSpec] = useState('');
+    const [pdfPassword, setPdfPassword] = useState('');
+    const [pdfPasswordConfirm, setPdfPasswordConfirm] = useState('');
+    const [pdfRotationAngle, setPdfRotationAngle] = useState(90);
+    const [pageNumberPosition, setPageNumberPosition] = useState('bottom-center');
+    const [pageNumberStart, setPageNumberStart] = useState(1);
 
 
 
@@ -268,7 +271,7 @@ export default function QuickConverter() {
                         break;
                     }
                     case 'convert-pdf': {
-                        const imgs = await pdfConverterProcessor.convert(file, outputFormat, pageRange, '', setItemProgress);
+                        const imgs = await pdfConverterProcessor.convert(file, outputFormat, pageRange, pdfPageSpec, setItemProgress);
                         if (imgs.length > 0) {
                             result = {
                                 file: new File([imgs[0].blob], `${file.name.replace(/\.pdf$/i, '')}_page1.${outputFormat}`, { type: imgs[0].blob.type }),
@@ -383,12 +386,12 @@ export default function QuickConverter() {
                         break;
                     }
                     case 'rotate-pdf': {
-                        const rotBlob = await rotatePdfProcessor.rotate(file, 90, 'all', setItemProgress);
+                        const rotBlob = await rotatePdfProcessor.rotate(file, pdfRotationAngle, 'all', setItemProgress);
                         result = { file: new File([rotBlob], `rotated_${file.name}`, { type: 'application/pdf' }) };
                         break;
                     }
                     case 'watermark-pdf': {
-                        const wmpBlob = await watermarkPdfProcessor.addWatermark(file, { type: 'text', text: 'Watermark', fontSize: 20, opacity: 0.4, position: 'center', color: '#000000', rotation: 45 }, setItemProgress);
+                        const wmpBlob = await watermarkPdfProcessor.addWatermark(file, { type: 'text', text: watermarkText || 'Watermark', fontSize: watermarkFontSize, opacity: watermarkOpacity / 100, position: watermarkPosition, color: watermarkColor, rotation: 45 }, setItemProgress);
                         result = { file: new File([wmpBlob], `watermarked_${file.name}`, { type: 'application/pdf' }) };
                         break;
                     }
@@ -398,7 +401,7 @@ export default function QuickConverter() {
                         break;
                     }
                     case 'page-numbers': {
-                        const pnBlob = await pageNumbersProcessor.addPageNumbers(file, { position: 'bottom-center', startNumber: 1, fontSize: 12 }, setItemProgress);
+                        const pnBlob = await pageNumbersProcessor.addPageNumbers(file, { position: pageNumberPosition, startNumber: pageNumberStart, fontSize: 12 }, setItemProgress);
                         result = { file: new File([pnBlob], `numbered_${file.name}`, { type: 'application/pdf' }) };
                         break;
                     }
@@ -772,7 +775,261 @@ export default function QuickConverter() {
                                                     </div>
                                                 )}
 
-                                                {!['compress-image', 'convert-image', 'resize-image', 'crop-image', 'watermark', 'compress-pdf'].includes(selectedOperation) && (
+                                                {selectedOperation === 'convert-pdf' && (
+                                                    <div className="space-y-4">
+                                                        <div>
+                                                            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Output Format</p>
+                                                            <div className="grid grid-cols-2 gap-3">
+                                                                {['png', 'jpg'].map(f => (
+                                                                    <button key={f} onClick={() => setOutputFormat(f)} className={`py-3 rounded-2xl border font-bold uppercase text-sm ${outputFormat === f ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{f}</button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Pages to Convert</p>
+                                                            <div className="grid grid-cols-3 gap-2">
+                                                                {[['all', 'All Pages'], ['first', 'First Page Only'], ['custom', 'Custom Range']].map(([val, lbl]) => (
+                                                                    <button key={val} onClick={() => setPageRange(val)} className={`py-2 px-2 rounded-xl border font-semibold text-xs ${pageRange === val ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{lbl}</button>
+                                                                ))}
+                                                            </div>
+                                                            {pageRange === 'custom' && (
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="e.g. 1,3,5-7"
+                                                                    value={pdfPageSpec}
+                                                                    onChange={e => setPdfPageSpec(e.target.value)}
+                                                                    className="mt-2 w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                                                                />
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {selectedOperation === 'split-pdf' && (
+                                                    <div className="space-y-4">
+                                                        <div>
+                                                            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Split Method</p>
+                                                            <div className="grid grid-cols-3 gap-2">
+                                                                {[['all', 'All Pages'], ['pages', 'Extract Pages'], ['ranges', 'By Ranges']].map(([val, lbl]) => (
+                                                                    <button key={val} onClick={() => setPdfSplitMode(val)} className={`py-2 px-2 rounded-xl border font-semibold text-xs ${pdfSplitMode === val ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{lbl}</button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        {pdfSplitMode !== 'all' && (
+                                                            <div>
+                                                                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">
+                                                                    {pdfSplitMode === 'pages' ? 'Page Numbers (e.g. 1,3,5-7)' : 'Page Ranges (e.g. 1-5,6-10)'}
+                                                                </p>
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder={pdfSplitMode === 'pages' ? 'e.g. 1,3,5-7' : 'e.g. 1-5,6-10'}
+                                                                    value={pdfPageSpec}
+                                                                    onChange={e => setPdfPageSpec(e.target.value)}
+                                                                    className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                                                                />
+                                                                {pdfTotalPages > 0 && (
+                                                                    <p className="mt-1 text-xs text-gray-400">PDF has {pdfTotalPages} pages</p>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                {selectedOperation === 'protect-pdf' && (
+                                                    <div className="space-y-4">
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Password</label>
+                                                            <input
+                                                                type="password"
+                                                                placeholder="Enter password (min 4 chars)"
+                                                                value={pdfPassword}
+                                                                onChange={e => setPdfPassword(e.target.value)}
+                                                                className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Confirm Password</label>
+                                                            <input
+                                                                type="password"
+                                                                placeholder="Confirm your password"
+                                                                value={pdfPasswordConfirm}
+                                                                onChange={e => setPdfPasswordConfirm(e.target.value)}
+                                                                className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                                                            />
+                                                        </div>
+                                                        {pdfPassword && pdfPasswordConfirm && pdfPassword !== pdfPasswordConfirm && (
+                                                            <p className="text-xs text-red-500">Passwords do not match</p>
+                                                        )}
+                                                        {pdfPassword && pdfPassword.length < MIN_PASSWORD_LENGTH && (
+                                                            <p className="text-xs text-red-500">Password must be at least {MIN_PASSWORD_LENGTH} characters</p>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                {selectedOperation === 'unlock-pdf' && (
+                                                    <div className="space-y-4">
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">PDF Password</label>
+                                                            <input
+                                                                type="password"
+                                                                placeholder="Enter the PDF password to unlock"
+                                                                value={pdfPassword}
+                                                                onChange={e => setPdfPassword(e.target.value)}
+                                                                className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                                                            />
+                                                        </div>
+                                                        <p className="text-xs text-gray-400">Enter the password to remove protection from this PDF</p>
+                                                    </div>
+                                                )}
+
+                                                {selectedOperation === 'rotate-pdf' && (
+                                                    <div className="space-y-4">
+                                                        <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Rotation Angle</p>
+                                                        <div className="grid grid-cols-3 gap-3">
+                                                            {[['90', '↻ 90°'], ['180', '↻ 180°'], ['270', '↺ 90°']].map(([val, lbl]) => (
+                                                                <button key={val} onClick={() => setPdfRotationAngle(parseInt(val))} className={`py-4 rounded-2xl border font-bold text-sm ${pdfRotationAngle === parseInt(val) ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{lbl}</button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {selectedOperation === 'watermark-pdf' && (
+                                                    <div className="space-y-4">
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Watermark Text</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Your watermark text"
+                                                                value={watermarkText}
+                                                                onChange={e => setWatermarkText(e.target.value)}
+                                                                className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                                                            />
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <div>
+                                                                <div className="flex justify-between mb-1">
+                                                                    <label className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Opacity</label>
+                                                                    <span className="text-xs font-semibold text-primary-600 dark:text-primary-400">{watermarkOpacity}%</span>
+                                                                </div>
+                                                                <input type="range" min="10" max="100" value={watermarkOpacity} onChange={e => setWatermarkOpacity(parseInt(e.target.value))} className="w-full h-2 accent-primary-500 rounded-full" />
+                                                            </div>
+                                                            <div>
+                                                                <div className="flex justify-between mb-1">
+                                                                    <label className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Font Size</label>
+                                                                    <span className="text-xs font-semibold text-primary-600 dark:text-primary-400">{watermarkFontSize}pt</span>
+                                                                </div>
+                                                                <input type="range" min="12" max="72" value={watermarkFontSize} onChange={e => setWatermarkFontSize(parseInt(e.target.value))} className="w-full h-2 accent-primary-500 rounded-full" />
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Position</label>
+                                                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
+                                                                {WATERMARK_POSITIONS.map(p => (
+                                                                    <button key={p.value} onClick={() => setWatermarkPosition(p.value)} className={`py-2 px-1.5 rounded-xl border text-[11px] font-semibold transition-all ${watermarkPosition === p.value ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-white/10'}`}>
+                                                                        {p.label}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Color</label>
+                                                            <div className="flex items-center gap-3">
+                                                                <input type="color" value={watermarkColor} onChange={e => setWatermarkColor(e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer border border-gray-200 dark:border-white/10" />
+                                                                <span className="text-sm text-gray-600 dark:text-gray-400">{watermarkColor}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {selectedOperation === 'page-numbers' && (
+                                                    <div className="space-y-4">
+                                                        <div>
+                                                            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Position</p>
+                                                            <div className="grid grid-cols-3 gap-2">
+                                                                {[['bottom-center', '↓ Bottom Center'], ['bottom-left', '↙ Bottom Left'], ['bottom-right', '↘ Bottom Right'], ['top-center', '↑ Top Center'], ['top-left', '↖ Top Left'], ['top-right', '↗ Top Right']].map(([val, lbl]) => (
+                                                                    <button key={val} onClick={() => setPageNumberPosition(val)} className={`py-2 px-1 rounded-xl border text-xs font-semibold ${pageNumberPosition === val ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{lbl}</button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1">Starting Number</label>
+                                                            <input
+                                                                type="number"
+                                                                min="1"
+                                                                value={pageNumberStart}
+                                                                onChange={e => setPageNumberStart(Math.max(1, parseInt(e.target.value) || 1))}
+                                                                className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {selectedOperation === 'compress-audio' && (
+                                                    <div className="space-y-4">
+                                                        <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Audio Bitrate</p>
+                                                        <div className="grid grid-cols-4 gap-2">
+                                                            {['64', '128', '192', '320'].map(b => (
+                                                                <button key={b} onClick={() => setAudioBitrate(b)} className={`py-3 rounded-2xl border font-bold text-sm ${audioBitrate === b ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{b}k</button>
+                                                            ))}
+                                                        </div>
+                                                        <p className="text-xs text-gray-400">Lower bitrate = smaller file, higher bitrate = better quality</p>
+                                                    </div>
+                                                )}
+
+                                                {selectedOperation === 'convert-audio' && (
+                                                    <div className="space-y-4">
+                                                        <div>
+                                                            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Output Format</p>
+                                                            <div className="grid grid-cols-3 gap-2">
+                                                                {['mp3', 'wav', 'ogg'].map(f => (
+                                                                    <button key={f} onClick={() => setOutputFormat(f)} className={`py-3 rounded-2xl border font-bold uppercase text-sm ${outputFormat === f ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{f}</button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Audio Bitrate</p>
+                                                            <div className="grid grid-cols-4 gap-2">
+                                                                {['64', '128', '192', '320'].map(b => (
+                                                                    <button key={b} onClick={() => setAudioBitrate(b)} className={`py-3 rounded-2xl border font-bold text-sm ${audioBitrate === b ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{b}k</button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {selectedOperation === 'compress-video' && (
+                                                    <div className="space-y-4">
+                                                        <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Quality</p>
+                                                        <div className="grid grid-cols-3 gap-3">
+                                                            {[['low', 'Low (smallest)'], ['medium', 'Medium'], ['high', 'High (best)']].map(([val, lbl]) => (
+                                                                <button key={val} onClick={() => setVideoQuality(val)} className={`py-3 rounded-2xl border font-bold text-xs ${videoQuality === val ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{lbl}</button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {selectedOperation === 'video-converter' && (
+                                                    <div className="space-y-4">
+                                                        <div>
+                                                            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Output Format</p>
+                                                            <div className="grid grid-cols-3 gap-2">
+                                                                {['mp4', 'webm', 'avi'].map(f => (
+                                                                    <button key={f} onClick={() => setOutputFormat(f)} className={`py-3 rounded-2xl border font-bold uppercase text-sm ${outputFormat === f ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{f}</button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Quality</p>
+                                                            <div className="grid grid-cols-3 gap-3">
+                                                                {[['low', 'Low'], ['medium', 'Medium'], ['high', 'High']].map(([val, lbl]) => (
+                                                                    <button key={val} onClick={() => setVideoQuality(val)} className={`py-3 rounded-2xl border font-bold text-sm ${videoQuality === val ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>{lbl}</button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {!['compress-image', 'convert-image', 'resize-image', 'crop-image', 'watermark', 'compress-pdf', 'convert-pdf', 'split-pdf', 'protect-pdf', 'unlock-pdf', 'rotate-pdf', 'watermark-pdf', 'page-numbers', 'compress-audio', 'convert-audio', 'compress-video', 'video-converter'].includes(selectedOperation) && (
                                                     <div className="text-center p-5 sm:p-8 bg-primary-50/50 dark:bg-primary-500/5 rounded-3xl">
                                                         <p className="font-bold text-gray-900 dark:text-white text-base sm:text-lg">Ready to {selectedOperation.replace(/-/g, ' ')}</p>
                                                     </div>
