@@ -7,6 +7,30 @@ import jsQR from 'jsqr';
  */
 const isBarcodeDetectorSupported = () => typeof BarcodeDetector !== 'undefined';
 
+const HISTORY_KEY = 'qr-scan-history';
+
+function loadHistory() {
+    try {
+        return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    } catch {
+        return [];
+    }
+}
+
+function saveHistory(entries) {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
+}
+
+function getTypeLabel(value) {
+    if (/^https?:\/\/wa\.me\//i.test(value)) return '🟢 WhatsApp';
+    if (/^https?:\/\//i.test(value)) return '🔗 URL';
+    if (/^upi:\/\//i.test(value)) return '💳 UPI Payment';
+    if (/^mailto:/i.test(value)) return '📧 Email';
+    if (/^tel:/i.test(value)) return '📞 Phone';
+    if (/^WIFI:/i.test(value)) return '📶 WiFi';
+    return '📝 Text';
+}
+
 /**
  * Detects QR code from a canvas element.
  * Tries the native BarcodeDetector API first; falls back to jsQR for full
@@ -51,16 +75,8 @@ function ResultCard({ result, onClear }) {
     const isUpi = /^upi:\/\//i.test(result);
     const isEmail = /^mailto:/i.test(result);
     const isPhone = /^tel:/i.test(result);
-    const isWifi = /^WIFI:/i.test(result);
     const isWhatsApp = /^https?:\/\/wa\.me\//i.test(result);
-
-    const typeLabel = isUrl ? '🔗 URL'
-        : isUpi ? '💳 UPI Payment'
-        : isEmail ? '📧 Email'
-        : isPhone ? '📞 Phone'
-        : isWifi ? '📶 WiFi'
-        : isWhatsApp ? '🟢 WhatsApp'
-        : '📝 Text';
+    const typeLabel = getTypeLabel(result);
 
     return (
         <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl p-5 space-y-4">
@@ -127,6 +143,85 @@ function ResultCard({ result, onClear }) {
     );
 }
 
+function ScanHistoryPanel({ history, onDelete, onDeleteAll }) {
+    const [selected, setSelected] = useState(new Set());
+
+    if (history.length === 0) return null;
+
+    const toggleSelect = (id) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            next.has(id) ? next.delete(id) : next.add(id);
+            return next;
+        });
+    };
+
+    const handleDeleteSelected = () => {
+        onDelete([...selected]);
+        setSelected(new Set());
+    };
+
+    return (
+        <div className="mt-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/5">
+                <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Scan History</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">{history.length}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    {selected.size > 0 && (
+                        <button
+                            onClick={handleDeleteSelected}
+                            className="text-xs px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors"
+                        >
+                            Delete {selected.size} selected
+                        </button>
+                    )}
+                    <button
+                        onClick={onDeleteAll}
+                        className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 font-semibold rounded-lg transition-colors"
+                    >
+                        Clear all
+                    </button>
+                </div>
+            </div>
+
+            <ul className="divide-y divide-gray-50 dark:divide-white/5">
+                {history.map((entry) => (
+                    <li
+                        key={entry.id}
+                        className={`flex items-start gap-3 px-5 py-3.5 transition-colors ${selected.has(entry.id) ? 'bg-sky-50 dark:bg-sky-900/10' : 'hover:bg-gray-50 dark:hover:bg-white/[0.02]'}`}
+                    >
+                        <input
+                            type="checkbox"
+                            checked={selected.has(entry.id)}
+                            onChange={() => toggleSelect(entry.id)}
+                            className="mt-1 rounded border-gray-300 dark:border-gray-600 accent-sky-500 flex-shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                                <span className="text-xs text-gray-400 dark:text-gray-500">{entry.typeLabel}</span>
+                                <span className="text-xs text-gray-300 dark:text-gray-600">·</span>
+                                <span className="text-xs text-gray-400 dark:text-gray-500">{new Date(entry.ts).toLocaleString()}</span>
+                            </div>
+                            <p className="text-sm text-gray-700 dark:text-gray-300 truncate font-mono">{entry.value}</p>
+                        </div>
+                        <button
+                            onClick={() => onDelete([entry.id])}
+                            className="flex-shrink-0 mt-0.5 text-gray-300 dark:text-gray-600 hover:text-red-400 transition-colors"
+                            aria-label="Delete entry"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+
 export default function QRScanner() {
     const [mode, setMode] = useState('camera'); // 'camera' | 'upload'
     const [scanning, setScanning] = useState(false);
@@ -135,12 +230,39 @@ export default function QRScanner() {
     const [cameraError, setCameraError] = useState('');
     const [uploadPreview, setUploadPreview] = useState(null);
     const [uploadScanning, setUploadScanning] = useState(false);
+    const [history, setHistory] = useState(() => loadHistory());
 
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const streamRef = useRef(null);
     const rafRef = useRef(null);
     const fileInputRef = useRef(null);
+
+    const addToHistory = useCallback((value) => {
+        setHistory((prev) => {
+            const id = typeof crypto !== 'undefined' && crypto.randomUUID
+                ? crypto.randomUUID()
+                : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            const entry = { id, value, typeLabel: getTypeLabel(value), ts: Date.now() };
+            const next = [entry, ...prev].slice(0, 50); // keep latest 50
+            saveHistory(next);
+            return next;
+        });
+    }, []);
+
+    const deleteEntries = useCallback((ids) => {
+        setHistory((prev) => {
+            const idSet = new Set(ids);
+            const next = prev.filter((e) => !idSet.has(e.id));
+            saveHistory(next);
+            return next;
+        });
+    }, []);
+
+    const deleteAll = useCallback(() => {
+        saveHistory([]);
+        setHistory([]);
+    }, []);
 
     const stopCamera = useCallback(() => {
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -183,6 +305,7 @@ export default function QRScanner() {
                     if (value) {
                         stopCamera();
                         setResult(value);
+                        addToHistory(value);
                         return;
                     }
                 } catch { /* continue scanning */ }
@@ -197,7 +320,7 @@ export default function QRScanner() {
                 : 'Unable to access camera. Try uploading an image instead.';
             setCameraError(msg);
         }
-    }, [stopCamera]);
+    }, [stopCamera, addToHistory]);
 
     const handleUpload = useCallback(async (e) => {
         const file = e.target.files?.[0];
@@ -221,6 +344,7 @@ export default function QRScanner() {
             const value = await detectQRFromCanvas(canvas);
             if (value) {
                 setResult(value);
+                addToHistory(value);
             } else {
                 setError('No QR code found in this image. Make sure the QR code is clearly visible.');
             }
@@ -229,7 +353,7 @@ export default function QRScanner() {
         } finally {
             setUploadScanning(false);
         }
-    }, []);
+    }, [addToHistory]);
 
     const handleDrop = useCallback((e) => {
         e.preventDefault();
@@ -370,6 +494,9 @@ export default function QRScanner() {
                         <ResultCard result={result} onClear={clearResult} />
                     </div>
                 )}
+
+                {/* Scan history */}
+                <ScanHistoryPanel history={history} onDelete={deleteEntries} onDeleteAll={deleteAll} />
             </div>
         </div>
     );
