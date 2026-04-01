@@ -16,17 +16,17 @@ export default async function handler(req, res) {
 
         // map originalPath to handlers
         if (originalPath === '/api/create-profile') {
-            const mod = await import('../src/features/photodrop/api/create-profile.js')
+            const mod = await import('../src/features/auth/api/create-profile.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/username-availability') {
-            const mod = await import('../src/features/photodrop/api/username-availability.js')
+            const mod = await import('../src/features/auth/api/username-availability.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/update-username') {
-            const mod = await import('../src/features/photodrop/api/update-username.js')
+            const mod = await import('../src/features/auth/api/update-username.js')
             return mod.default(req, res)
         }
 
