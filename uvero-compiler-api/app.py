@@ -14,11 +14,16 @@ import tempfile
 import resource
 import subprocess
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
+try:
+    from analysis import analyze_static_complexity
+except Exception:
+    analyze_static_complexity = None
 
 app = FastAPI(
     title="Uvero Compiler API",
@@ -213,6 +218,7 @@ class ExecuteRequest(BaseModel):
     code: str = Field(..., description="Source code to execute", max_length=100_000)
     stdin: str = Field("", description="Standard input for the program")
     timeout: int = Field(10, description="Execution timeout in seconds", ge=1, le=MAX_TIMEOUT)
+    analyze: bool = Field(False, description="Return static complexity analysis (no code execution)")
 
 
 class ExecuteResponse(BaseModel):
@@ -225,6 +231,7 @@ class ExecuteResponse(BaseModel):
     status: str = "success"  # success | compilation_error | runtime_error | timeout | error
     language: str = ""
     language_name: str = ""
+    analysis: Optional[dict] = None
 
 
 class LanguageInfo(BaseModel):
@@ -373,6 +380,17 @@ async def execute_code(req: ExecuteRequest):
         except Exception as e:
             response.status = "error"
             response.stderr = str(e)
+
+        # ─── Static complexity analysis (tree-sitter) ────────────────
+        if req.analyze and analyze_static_complexity:
+            try:
+                analysis = analyze_static_complexity(req.language, req.code)
+                if analysis:
+                    response.analysis = analysis
+                else:
+                    response.analysis = {"status": "skipped", "reason": "language or parser unavailable"}
+            except Exception as e:  # pragma: no cover
+                response.analysis = {"status": "error", "error": str(e)}
 
     finally:
         # Clean up temp directory
