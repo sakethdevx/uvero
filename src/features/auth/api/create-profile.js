@@ -97,12 +97,19 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: error.message })
         }
 
+        // If the profile already has a username (from an earlier successful setup),
+        // treat the username as set even if the current request didn't provide one.
+        const savedUsername = normalizeUsername(data?.[0]?.username)
+        if (savedUsername) {
+            usernameStatus = 'set'
+        }
+
         return res.status(200).json({
             data,
             username: {
                 status: usernameStatus,
-                value: usernameValidation?.username || null,
-                message: usernameValidation?.valid
+                value: savedUsername || usernameValidation?.username || null,
+                message: usernameStatus === 'set'
                     ? ''
                     : (usernameValidation?.message || '')
             }
