@@ -33,29 +33,119 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-# Load static analysis helper robustly, even if package import fails.
-analyze_static_complexity = None
+# Lightweight built-in static analyzer (Tree-sitter). Avoid external imports failing.
 ANALYSIS_IMPORT_ERROR = None
-_errors = []
 try:
-    from analysis import static_ts as _static_ts  # type: ignore
-    analyze_static_complexity = _static_ts.analyze_static_complexity
-except Exception as e_pkg:
-    _errors.append(str(e_pkg))
-    for candidate in ANALYSIS_CANDIDATES:
-        candidate_file = candidate / "static_ts.py"
-        if candidate_file.exists():
-            try:
-                spec = importlib.util.spec_from_file_location("static_ts", candidate_file)
-                if spec and spec.loader:
-                    module = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(module)  # type: ignore
-                    analyze_static_complexity = module.analyze_static_complexity  # type: ignore
-                    break
-            except Exception as e_file:
-                _errors.append(f"{candidate_file}: {e_file}")
-    if analyze_static_complexity is None:
-        ANALYSIS_IMPORT_ERROR = " | ".join(_errors)
+    from tree_sitter import Language, Parser  # type: ignore
+    from tree_sitter_languages import get_language  # type: ignore
+
+    def _parser(lang: str) -> Optional[Parser]:
+        try:
+            language = get_language(lang)
+            parser = Parser()
+            parser.set_language(language)
+            return parser
+        except Exception:
+            return None
+
+    def _class_from_depth(depth: int, recursive: bool) -> str:
+        if recursive and depth <= 1:
+            return "O(n)"
+        if depth <= 0:
+            return "O(1)"
+        if depth == 1:
+            return "O(n)"
+        if depth == 2:
+            return "O(n^2)"
+        return "O(n^k)"
+
+    def _node_text(node):
+        return getattr(node, "text", b"").decode(errors="ignore") if hasattr(node, "text") else ""
+
+    def _find_identifier(node):
+        for child in node.children:
+            if child.type in {"identifier", "field_identifier"}:
+                return _node_text(child)
+        return None
+
+    def _walk(node, lang: str, ctx: dict):
+        loop_types = {
+            "python": {"for_statement", "while_statement", "for_in_clause"},
+            "javascript": {"for_statement", "for_in_statement", "for_of_statement", "while_statement", "do_statement"},
+            "typescript": {"for_statement", "for_in_statement", "for_of_statement", "while_statement", "do_statement"},
+            "java": {"for_statement", "enhanced_for_statement", "while_statement", "do_statement"},
+            "c": {"for_statement", "while_statement"},
+            "cpp": {"for_statement", "while_statement"},
+        }
+        alloc_nodes = {
+            "python": {"list", "dictionary", "set", "list_comprehension", "set_comprehension", "dictionary_comprehension"},
+            "javascript": {"array", "object"},
+            "typescript": {"array", "object"},
+            "java": {"object_creation_expression", "array_creation_expression"},
+            "c": {"initializer_list"},
+            "cpp": {"initializer_list", "new_expression"},
+        }
+        loop_set = loop_types.get(lang, set())
+        alloc_set = alloc_nodes.get(lang, set())
+
+        if node.type in {"function_definition", "method_declaration", "function_declaration"}:
+            name = _find_identifier(node)
+            if name:
+                ctx.setdefault("func_stack", []).append(name)
+        elif node.type in {"call", "call_expression"} and ctx.get("func_stack"):
+            target = _find_identifier(node)
+            if target and target == ctx["func_stack"][-1]:
+                ctx["recursive"] = 1
+
+        if node.type in loop_set:
+            ctx["loop_depth"] += 1
+            ctx["max_loop_depth"] = max(ctx["max_loop_depth"], ctx["loop_depth"])
+        if node.type in alloc_set:
+            ctx["allocs"] += 1
+
+        for child in node.children:
+            _walk(child, lang, ctx)
+
+        if node.type in loop_set:
+            ctx["loop_depth"] -= 1
+        if node.type in {"function_definition", "method_declaration", "function_declaration"} and ctx.get("func_stack"):
+            ctx["func_stack"].pop()
+
+    def analyze_static_complexity(language: str, code: str) -> Optional[dict]:
+        lang_key = {
+            "python": "python", "py": "python",
+            "javascript": "javascript", "js": "javascript",
+            "typescript": "typescript", "ts": "typescript",
+            "java": "java", "c": "c", "cpp": "cpp", "c++": "cpp",
+        }.get(language.lower())
+        if not lang_key:
+            return None
+        parser = _parser(lang_key)
+        if parser is None:
+            return None
+        tree = parser.parse(code.encode("utf-8"))
+        ctx = {"loop_depth": 0, "max_loop_depth": 0, "allocs": 0, "recursive": 0}
+        _walk(tree.root_node, lang_key, ctx)
+        time_class = _class_from_depth(ctx["max_loop_depth"], bool(ctx["recursive"]))
+        space_class = "O(n)" if ctx["allocs"] > 0 else "O(1)"
+        confidence = 0.6
+        if ctx["allocs"] > 2 or ctx["max_loop_depth"] >= 2:
+            confidence = 0.7
+        if ctx["recursive"]:
+            confidence = max(confidence, 0.75)
+        return {
+            "status": "success",
+            "time_complexity": {"class": time_class, "method": "static", "confidence": round(confidence, 2)},
+            "space_complexity": {"class": space_class, "method": "static", "confidence": round(confidence - 0.1, 2)},
+            "static_notes": [
+                f"Loop depth: {ctx['max_loop_depth']}",
+                "Recursion detected" if ctx["recursive"] else "No recursion",
+                f"Allocations: {ctx['allocs']}",
+            ],
+            "samples": [],
+        }
+except Exception as e:
+    ANALYSIS_IMPORT_ERROR = str(e)
 
 app = FastAPI(
     title="Uvero Compiler API",
