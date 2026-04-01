@@ -13,6 +13,7 @@ import signal
 import tempfile
 import resource
 import subprocess
+import importlib.util
 from pathlib import Path
 from typing import Optional, List
 
@@ -26,17 +27,25 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+# Load static analysis helper robustly, even if package import fails.
+analyze_static_complexity = None
+ANALYSIS_IMPORT_ERROR = None
 try:
-    # Prefer package import; fallback to direct module path
-    from analysis import analyze_static_complexity
-    ANALYSIS_IMPORT_ERROR = None
-except Exception as e:
+    from analysis import static_ts as _static_ts  # type: ignore
+    analyze_static_complexity = _static_ts.analyze_static_complexity
+except Exception as e_pkg:
     try:
-        from static_ts import analyze_static_complexity  # type: ignore
-        ANALYSIS_IMPORT_ERROR = None
-    except Exception as e2:
-        analyze_static_complexity = None
-        ANALYSIS_IMPORT_ERROR = f"{e} | {e2}"
+        spec = importlib.util.spec_from_file_location(
+            "static_ts", ANALYSIS_DIR / "static_ts.py"
+        )
+        if spec and spec.loader:
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)  # type: ignore
+            analyze_static_complexity = module.analyze_static_complexity  # type: ignore
+        else:
+            raise ImportError("spec creation failed")
+    except Exception as e_file:
+        ANALYSIS_IMPORT_ERROR = f"{e_pkg} | {e_file}"
 
 app = FastAPI(
     title="Uvero Compiler API",
