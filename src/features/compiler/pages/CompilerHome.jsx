@@ -93,7 +93,7 @@ export default function CompilerHome() {
         setIsLoading(true);
         setOutput(null);
         try {
-            const result = await executeCode(language, code, stdin);
+            const result = await executeCode(language, code, stdin, 10, { analyze: true });
             setOutput(result);
 
             // Save to execution history
@@ -108,6 +108,7 @@ export default function CompilerHome() {
                 stdout: result.stdout || '',
                 stderr: result.stderr || '',
                 exitCode: result.exit_code,
+                analysis: result.analysis || null,
             });
         } catch (error) {
             setOutput({

@@ -4,7 +4,7 @@
 
 let activeController = null;
 
-export async function executeCode(language, code, stdin = '', timeout = 10) {
+export async function executeCode(language, code, stdin = '', timeout = 10, { analyze = true } = {}) {
     // Cancel any in-flight request
     if (activeController) activeController.abort();
     activeController = new AbortController();
@@ -13,7 +13,7 @@ export async function executeCode(language, code, stdin = '', timeout = 10) {
         const response = await fetch('/api/compiler/execute', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ language, code, stdin, timeout }),
+            body: JSON.stringify({ language, code, stdin, timeout, analyze }),
             signal: activeController.signal,
         });
 
