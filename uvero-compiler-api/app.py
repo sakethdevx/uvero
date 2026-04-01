@@ -16,14 +16,27 @@ import subprocess
 from pathlib import Path
 from typing import Optional, List
 
+CURRENT_DIR = Path(__file__).resolve().parent
+ANALYSIS_DIR = CURRENT_DIR / "analysis"
+for p in (CURRENT_DIR, ANALYSIS_DIR):
+    if str(p) not in sys.path:
+        sys.path.insert(0, str(p))
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 try:
+    # Prefer package import; fallback to direct module path
     from analysis import analyze_static_complexity
-except Exception:
-    analyze_static_complexity = None
+    ANALYSIS_IMPORT_ERROR = None
+except Exception as e:
+    try:
+        from static_ts import analyze_static_complexity  # type: ignore
+        ANALYSIS_IMPORT_ERROR = None
+    except Exception as e2:
+        analyze_static_complexity = None
+        ANALYSIS_IMPORT_ERROR = f\"{e} | {e2}\"
 
 app = FastAPI(
     title="Uvero Compiler API",
@@ -382,15 +395,24 @@ async def execute_code(req: ExecuteRequest):
             response.stderr = str(e)
 
         # ─── Static complexity analysis (tree-sitter) ────────────────
-        if req.analyze and analyze_static_complexity:
-            try:
-                analysis = analyze_static_complexity(req.language, req.code)
-                if analysis:
-                    response.analysis = analysis
-                else:
-                    response.analysis = {"status": "skipped", "reason": "language or parser unavailable"}
-            except Exception as e:  # pragma: no cover
-                response.analysis = {"status": "error", "error": str(e)}
+        if req.analyze:
+            if analyze_static_complexity:
+                try:
+                    analysis = analyze_static_complexity(req.language, req.code)
+                    if analysis:
+                        response.analysis = analysis
+                    else:
+                        response.analysis = {
+                            "status": "skipped",
+                            "reason": "language or parser unavailable",
+                        }
+                except Exception as e:  # pragma: no cover
+                    response.analysis = {"status": "error", "error": str(e)}
+            else:
+                response.analysis = {
+                    "status": "skipped",
+                    "reason": f"analyzer dependency not loaded: {ANALYSIS_IMPORT_ERROR}",
+                }
 
     finally:
         # Clean up temp directory
