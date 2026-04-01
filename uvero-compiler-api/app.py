@@ -13,12 +13,139 @@ import signal
 import tempfile
 import resource
 import subprocess
+import importlib.util
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
+
+CURRENT_DIR = Path(__file__).resolve().parent
+# Candidates where analysis/ might live in different deploy layouts (local vs HF Space)
+ANALYSIS_CANDIDATES = [
+    CURRENT_DIR / "analysis",
+    CURRENT_DIR.parent / "analysis",
+    CURRENT_DIR / "uvero-compiler-api" / "analysis",
+]
+
+for p in [CURRENT_DIR] + ANALYSIS_CANDIDATES:
+    if str(p) not in sys.path and p.exists():
+        sys.path.insert(0, str(p))
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
+# Lightweight built-in static analyzer (Tree-sitter). Avoid external imports failing.
+ANALYSIS_IMPORT_ERROR = None
+try:
+    from tree_sitter import Language, Parser  # type: ignore
+    from tree_sitter_languages import get_language  # type: ignore
+
+    def _parser(lang: str) -> Optional[Parser]:
+        try:
+            language = get_language(lang)
+            parser = Parser()
+            parser.set_language(language)
+            return parser
+        except Exception:
+            return None
+
+    def _class_from_depth(depth: int, recursive: bool) -> str:
+        if recursive and depth <= 1:
+            return "O(n)"
+        if depth <= 0:
+            return "O(1)"
+        if depth == 1:
+            return "O(n)"
+        if depth == 2:
+            return "O(n^2)"
+        return "O(n^k)"
+
+    def _node_text(node):
+        return getattr(node, "text", b"").decode(errors="ignore") if hasattr(node, "text") else ""
+
+    def _find_identifier(node):
+        for child in node.children:
+            if child.type in {"identifier", "field_identifier"}:
+                return _node_text(child)
+        return None
+
+    def _walk(node, lang: str, ctx: dict):
+        loop_types = {
+            "python": {"for_statement", "while_statement", "for_in_clause"},
+            "javascript": {"for_statement", "for_in_statement", "for_of_statement", "while_statement", "do_statement"},
+            "typescript": {"for_statement", "for_in_statement", "for_of_statement", "while_statement", "do_statement"},
+            "java": {"for_statement", "enhanced_for_statement", "while_statement", "do_statement"},
+            "c": {"for_statement", "while_statement"},
+            "cpp": {"for_statement", "while_statement"},
+        }
+        alloc_nodes = {
+            "python": {"list", "dictionary", "set", "list_comprehension", "set_comprehension", "dictionary_comprehension"},
+            "javascript": {"array", "object"},
+            "typescript": {"array", "object"},
+            "java": {"object_creation_expression", "array_creation_expression"},
+            "c": {"initializer_list"},
+            "cpp": {"initializer_list", "new_expression"},
+        }
+        loop_set = loop_types.get(lang, set())
+        alloc_set = alloc_nodes.get(lang, set())
+
+        if node.type in {"function_definition", "method_declaration", "function_declaration"}:
+            name = _find_identifier(node)
+            if name:
+                ctx.setdefault("func_stack", []).append(name)
+        elif node.type in {"call", "call_expression"} and ctx.get("func_stack"):
+            target = _find_identifier(node)
+            if target and target == ctx["func_stack"][-1]:
+                ctx["recursive"] = 1
+
+        if node.type in loop_set:
+            ctx["loop_depth"] += 1
+            ctx["max_loop_depth"] = max(ctx["max_loop_depth"], ctx["loop_depth"])
+        if node.type in alloc_set:
+            ctx["allocs"] += 1
+
+        for child in node.children:
+            _walk(child, lang, ctx)
+
+        if node.type in loop_set:
+            ctx["loop_depth"] -= 1
+        if node.type in {"function_definition", "method_declaration", "function_declaration"} and ctx.get("func_stack"):
+            ctx["func_stack"].pop()
+
+    def analyze_static_complexity(language: str, code: str) -> Optional[dict]:
+        lang_key = {
+            "python": "python", "py": "python",
+            "javascript": "javascript", "js": "javascript",
+            "typescript": "typescript", "ts": "typescript",
+            "java": "java", "c": "c", "cpp": "cpp", "c++": "cpp",
+        }.get(language.lower())
+        if not lang_key:
+            return None
+        parser = _parser(lang_key)
+        if parser is None:
+            return None
+        tree = parser.parse(code.encode("utf-8"))
+        ctx = {"loop_depth": 0, "max_loop_depth": 0, "allocs": 0, "recursive": 0}
+        _walk(tree.root_node, lang_key, ctx)
+        time_class = _class_from_depth(ctx["max_loop_depth"], bool(ctx["recursive"]))
+        space_class = "O(n)" if ctx["allocs"] > 0 else "O(1)"
+        confidence = 0.6
+        if ctx["allocs"] > 2 or ctx["max_loop_depth"] >= 2:
+            confidence = 0.7
+        if ctx["recursive"]:
+            confidence = max(confidence, 0.75)
+        return {
+            "status": "success",
+            "time_complexity": {"class": time_class, "method": "static", "confidence": round(confidence, 2)},
+            "space_complexity": {"class": space_class, "method": "static", "confidence": round(confidence - 0.1, 2)},
+            "static_notes": [
+                f"Loop depth: {ctx['max_loop_depth']}",
+                "Recursion detected" if ctx["recursive"] else "No recursion",
+                f"Allocations: {ctx['allocs']}",
+            ],
+            "samples": [],
+        }
+except Exception as e:
+    ANALYSIS_IMPORT_ERROR = str(e)
 
 app = FastAPI(
     title="Uvero Compiler API",
@@ -213,6 +340,7 @@ class ExecuteRequest(BaseModel):
     code: str = Field(..., description="Source code to execute", max_length=100_000)
     stdin: str = Field("", description="Standard input for the program")
     timeout: int = Field(10, description="Execution timeout in seconds", ge=1, le=MAX_TIMEOUT)
+    analyze: bool = Field(False, description="Return static complexity analysis (no code execution)")
 
 
 class ExecuteResponse(BaseModel):
@@ -225,6 +353,7 @@ class ExecuteResponse(BaseModel):
     status: str = "success"  # success | compilation_error | runtime_error | timeout | error
     language: str = ""
     language_name: str = ""
+    analysis: Optional[dict] = None
 
 
 class LanguageInfo(BaseModel):
@@ -373,6 +502,26 @@ async def execute_code(req: ExecuteRequest):
         except Exception as e:
             response.status = "error"
             response.stderr = str(e)
+
+        # ─── Static complexity analysis (tree-sitter) ────────────────
+        if req.analyze:
+            if analyze_static_complexity:
+                try:
+                    analysis = analyze_static_complexity(req.language, req.code)
+                    if analysis:
+                        response.analysis = analysis
+                    else:
+                        response.analysis = {
+                            "status": "skipped",
+                            "reason": "language or parser unavailable",
+                        }
+                except Exception as e:  # pragma: no cover
+                    response.analysis = {"status": "error", "error": str(e)}
+            else:
+                response.analysis = {
+                    "status": "skipped",
+                    "reason": f"analyzer dependency not loaded: {ANALYSIS_IMPORT_ERROR}",
+                }
 
     finally:
         # Clean up temp directory

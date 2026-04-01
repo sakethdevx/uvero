@@ -38,6 +38,7 @@ export default function useExecutionHistory() {
                 stdout: (entry.stdout || '').slice(0, 500),   // Trim to save space
                 stderr: (entry.stderr || '').slice(0, 500),
                 exitCode: entry.exitCode ?? null,
+                analysis: entry.analysis || null,
             };
             const updated = [newRun, ...prev].slice(0, MAX_ENTRIES);
             saveHistory(updated);
