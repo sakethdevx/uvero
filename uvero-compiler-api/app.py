@@ -36,7 +36,7 @@ except Exception as e:
         ANALYSIS_IMPORT_ERROR = None
     except Exception as e2:
         analyze_static_complexity = None
-        ANALYSIS_IMPORT_ERROR = f\"{e} | {e2}\"
+        ANALYSIS_IMPORT_ERROR = f"{e} | {e2}"
 
 app = FastAPI(
     title="Uvero Compiler API",
