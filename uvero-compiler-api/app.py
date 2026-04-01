@@ -18,9 +18,15 @@ from pathlib import Path
 from typing import Optional, List
 
 CURRENT_DIR = Path(__file__).resolve().parent
-ANALYSIS_DIR = CURRENT_DIR / "analysis"
-for p in (CURRENT_DIR, ANALYSIS_DIR):
-    if str(p) not in sys.path:
+# Candidates where analysis/ might live in different deploy layouts (local vs HF Space)
+ANALYSIS_CANDIDATES = [
+    CURRENT_DIR / "analysis",
+    CURRENT_DIR.parent / "analysis",
+    CURRENT_DIR / "uvero-compiler-api" / "analysis",
+]
+
+for p in [CURRENT_DIR] + ANALYSIS_CANDIDATES:
+    if str(p) not in sys.path and p.exists():
         sys.path.insert(0, str(p))
 
 from fastapi import FastAPI, HTTPException
@@ -30,22 +36,26 @@ from pydantic import BaseModel, Field
 # Load static analysis helper robustly, even if package import fails.
 analyze_static_complexity = None
 ANALYSIS_IMPORT_ERROR = None
+_errors = []
 try:
     from analysis import static_ts as _static_ts  # type: ignore
     analyze_static_complexity = _static_ts.analyze_static_complexity
 except Exception as e_pkg:
-    try:
-        spec = importlib.util.spec_from_file_location(
-            "static_ts", ANALYSIS_DIR / "static_ts.py"
-        )
-        if spec and spec.loader:
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)  # type: ignore
-            analyze_static_complexity = module.analyze_static_complexity  # type: ignore
-        else:
-            raise ImportError("spec creation failed")
-    except Exception as e_file:
-        ANALYSIS_IMPORT_ERROR = f"{e_pkg} | {e_file}"
+    _errors.append(str(e_pkg))
+    for candidate in ANALYSIS_CANDIDATES:
+        candidate_file = candidate / "static_ts.py"
+        if candidate_file.exists():
+            try:
+                spec = importlib.util.spec_from_file_location("static_ts", candidate_file)
+                if spec and spec.loader:
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)  # type: ignore
+                    analyze_static_complexity = module.analyze_static_complexity  # type: ignore
+                    break
+            except Exception as e_file:
+                _errors.append(f"{candidate_file}: {e_file}")
+    if analyze_static_complexity is None:
+        ANALYSIS_IMPORT_ERROR = " | ".join(_errors)
 
 app = FastAPI(
     title="Uvero Compiler API",
