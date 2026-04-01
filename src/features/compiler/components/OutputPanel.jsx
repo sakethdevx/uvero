@@ -122,11 +122,19 @@ export default function OutputPanel({ output, isLoading }) {
             {output.analysis && (
                 <div className="px-4 py-3 border-b border-gray-100 dark:border-white/[0.05] bg-gray-50/50 dark:bg-white/[0.02] flex flex-wrap items-center gap-3 text-[11px]">
                     <span className="font-semibold text-gray-600 dark:text-gray-300">Complexity</span>
-                    <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-200 font-mono">
-                        {output.analysis.time_complexity?.class || 'unknown'}
+                    <span className="flex items-center gap-1">
+                        <span className="text-gray-500 dark:text-gray-400 uppercase tracking-wide">Time</span>
+                        <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-200 font-mono">
+                            {output.analysis.time_complexity?.class || 'unknown'}
+                        </span>
+                        <span className="text-gray-400 dark:text-gray-500">({Math.round((output.analysis.time_complexity?.confidence || 0) * 100)}%)</span>
                     </span>
-                    <span className="px-2 py-1 rounded-full bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-200 font-mono">
-                        {output.analysis.space_complexity?.class || 'unknown'}
+                    <span className="flex items-center gap-1">
+                        <span className="text-gray-500 dark:text-gray-400 uppercase tracking-wide">Space</span>
+                        <span className="px-2 py-1 rounded-full bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-200 font-mono">
+                            {output.analysis.space_complexity?.class || 'unknown'}
+                        </span>
+                        <span className="text-gray-400 dark:text-gray-500">({Math.round((output.analysis.space_complexity?.confidence || 0) * 100)}%)</span>
                     </span>
                     <span className="text-gray-400 dark:text-gray-500">method: {output.analysis.time_complexity?.method || 'static'}</span>
                     {output.analysis.static_notes?.length ? (
