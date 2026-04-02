@@ -10,7 +10,7 @@ export default function BrandLogo({
   showText = true,
   className = '',
   iconClassName = 'w-10 h-10 sm:w-11 sm:h-11',
-  colorClassName = 'text-primary-600 dark:text-primary-300',
+  colorClassName = 'text-primary-500 dark:text-primary-200',
   textClassName = 'text-2xl sm:text-[26px]',
   label = 'Uvero',
 }) {
@@ -34,10 +34,8 @@ export default function BrandLogo({
       />
 
       {showText && (
-        <span className={`font-bold tracking-tight text-gray-900 dark:text-white ${textClassName}`}>
-          <span className="text-primary-700 dark:text-primary-200">U</span>
-          <span className="text-primary-600 dark:text-primary-300">ver</span>
-          <span className="text-gray-900 dark:text-white">o</span>
+        <span className={`font-bold tracking-tight ${textClassName}`}>
+          <span className={`${colorClassName} drop-shadow-sm`}>Uvero</span>
         </span>
       )}
     </div>
