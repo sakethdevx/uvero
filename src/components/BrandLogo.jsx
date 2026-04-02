@@ -9,9 +9,9 @@ import React from 'react'
 export default function BrandLogo({
   showText = true,
   className = '',
-  iconClassName = 'w-9 h-9',
+  iconClassName = 'w-10 h-10 sm:w-11 sm:h-11',
   colorClassName = 'text-primary-600 dark:text-primary-300',
-  textClassName = 'text-xl',
+  textClassName = 'text-2xl sm:text-[26px]',
   label = 'Uvero',
 }) {
   return (
@@ -43,4 +43,3 @@ export default function BrandLogo({
     </div>
   )
 }
-

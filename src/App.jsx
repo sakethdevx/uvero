@@ -229,8 +229,8 @@ function AppContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 shrink-0">
-              <BrandLogo iconClassName="w-8 h-8" textClassName="text-xl" />
+            <Link to="/" className="flex items-center gap-2.5 shrink-0">
+              <BrandLogo iconClassName="w-10 h-10 sm:w-11 sm:h-11" textClassName="text-2xl sm:text-[26px]" />
               {currentFeature && (
                 <div className="flex items-center">
                   <span className="mx-2 text-gray-300 dark:text-gray-700 hidden sm:block">/</span>
@@ -430,7 +430,7 @@ function AppContent() {
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-2 mb-4">
-                <BrandLogo showText colorClassName="text-white" textClassName="text-xl" />
+                <BrandLogo showText colorClassName="text-white" textClassName="text-2xl sm:text-[26px]" iconClassName="w-10 h-10 sm:w-11 sm:h-11" />
               </div>
               <p className="text-gray-400 max-w-sm mb-4 text-sm leading-relaxed">
                 Professional digital tools for simplicity, speed, and privacy.
