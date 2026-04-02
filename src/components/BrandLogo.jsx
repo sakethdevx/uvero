@@ -1,0 +1,45 @@
+import React from 'react'
+
+/**
+ * BrandLogo
+ * Single source of truth for rendering the updated Uvero logo (public/file.svg).
+ * Uses CSS mask so the icon can inherit any color via `text-*` Tailwind classes
+ * while keeping the underlying SVG shape consistent everywhere.
+ */
+export default function BrandLogo({
+  showText = true,
+  className = '',
+  iconClassName = 'w-10 h-10 sm:w-11 sm:h-11',
+  colorClassName = 'text-primary-600 dark:text-primary-300',
+  textClassName = 'text-2xl sm:text-[26px]',
+  label = 'Uvero',
+}) {
+  return (
+    <div className={`inline-flex items-center gap-2 ${className}`} aria-label={label}>
+      <span
+        aria-hidden="true"
+        className={`${iconClassName} ${colorClassName}`}
+        style={{
+          backgroundColor: 'currentColor',
+          maskImage: 'url(/file.svg)',
+          WebkitMaskImage: 'url(/file.svg)',
+          maskRepeat: 'no-repeat',
+          WebkitMaskRepeat: 'no-repeat',
+          maskSize: 'contain',
+          WebkitMaskSize: 'contain',
+          maskPosition: 'center',
+          WebkitMaskPosition: 'center',
+          display: 'inline-block',
+        }}
+      />
+
+      {showText && (
+        <span className={`font-bold tracking-tight text-gray-900 dark:text-white ${textClassName}`}>
+          <span className="text-primary-700 dark:text-primary-200">U</span>
+          <span className="text-primary-600 dark:text-primary-300">ver</span>
+          <span className="text-gray-900 dark:text-white">o</span>
+        </span>
+      )}
+    </div>
+  )
+}
