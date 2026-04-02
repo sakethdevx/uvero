@@ -4,10 +4,12 @@ import { createContext, useContext, useState, useEffect } from 'react';
 const ModeContext = createContext();
 
 export const ModeProvider = ({ children }) => {
-    // Default to offline mode (privacy-first), check localStorage
+    // Default to online (most available); persist user choice
     const [isOnlineMode, setIsOnlineMode] = useState(() => {
         const saved = localStorage.getItem('processingMode');
-        return saved === 'online' ? true : false;
+        if (saved === 'online') return true;
+        if (saved === 'offline') return false;
+        return true; // default: online is generally available
     });
 
     const [theme, setTheme] = useState(() => {

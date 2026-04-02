@@ -549,7 +549,7 @@ export default function QuickConverter() {
                     Quick File Converter
                 </h2>
                 <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl text-center leading-relaxed">
-                    Switch between offline (browser) and online (API) processing with the toggle below.
+                    Switch between offline (browser) and online (API) processing. Online is always available; offline may be limited on some devices.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
                     <ModeToggle />
