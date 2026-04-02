@@ -82,6 +82,12 @@
 }
 
 @layer utilities {
+  /* Let sections using Tailwind's 7xl container stretch with desktop viewports
+     instead of staying capped at the 1280px utility width. */
+  .max-w-7xl {
+    max-width: 100%;
+  }
+
   .text-balance {
     text-wrap: balance;
   }
