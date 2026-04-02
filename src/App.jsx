@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ModeProvider } from './features/file-processing/context/ModeContext';
 import ModeToggle from './features/file-processing/components/ModeToggle';
 import ThemeToggle from './components/ThemeToggle';
+import BrandLogo from './components/BrandLogo';
 import ServicesHome from './pages/ServicesHome';
 import CompilerHome from './features/compiler/pages/CompilerHome';
 import Home from './features/file-processing/pages/Home';
@@ -229,22 +230,15 @@ function AppContent() {
           <div className="flex justify-between items-center h-14">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center shrink-0">
-                <span className="text-white font-bold text-base">U</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-xl font-bold text-gray-900 dark:text-white">
-                  U<span className="text-primary-600">ver</span>o
-                </span>
-                {currentFeature && (
-                  <div className="flex items-center">
-                    <span className="mx-2 text-gray-300 dark:text-gray-700 hidden sm:block">/</span>
-                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400 hidden sm:block">
-                      {currentFeature}
-                    </span>
-                  </div>
-                )}
-              </div>
+              <BrandLogo iconClassName="w-8 h-8" textClassName="text-xl" />
+              {currentFeature && (
+                <div className="flex items-center">
+                  <span className="mx-2 text-gray-300 dark:text-gray-700 hidden sm:block">/</span>
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400 hidden sm:block">
+                    {currentFeature}
+                  </span>
+                </div>
+              )}
             </Link>
 
             {/* Desktop Navigation */}
@@ -436,12 +430,7 @@ function AppContent() {
             {/* Brand */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-base">U</span>
-                </div>
-                <span className="text-xl font-bold text-white">
-                  U<span className="text-primary-400">ver</span>o
-                </span>
+                <BrandLogo showText colorClassName="text-white" textClassName="text-xl" />
               </div>
               <p className="text-gray-400 max-w-sm mb-4 text-sm leading-relaxed">
                 Professional digital tools for simplicity, speed, and privacy.
