@@ -35,9 +35,7 @@ export default function BrandLogo({
 
       {showText && (
         <span className={`font-bold tracking-tight ${textClassName}`}>
-          <span className="text-primary-600 dark:text-primary-200 drop-shadow-sm">U</span>
-          <span className="text-sky-600 dark:text-sky-200 drop-shadow-sm">ver</span>
-          <span className="text-gray-900 dark:text-white drop-shadow-sm">o</span>
+          <span className={`${colorClassName} drop-shadow-sm`}>Uvero</span>
         </span>
       )}
     </div>
