@@ -6,7 +6,7 @@ const ModeToggle = () => {
     return (
         <div className="flex items-center gap-3">
             <span className={`text-sm font-medium transition-colors ${!isOnlineMode ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'}`}>
-                🔒 Offline
+                🔒 Offline (limited)
             </span>
             <button
                 onClick={toggleMode}
@@ -22,7 +22,7 @@ const ModeToggle = () => {
                 />
             </button>
             <span className={`text-sm font-medium transition-colors ${isOnlineMode ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}>
-                ☁️ Online
+                ☁️ Online (recommended)
             </span>
         </div>
     );

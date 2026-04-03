@@ -181,7 +181,7 @@ export default function ServicesHome() {
             <AnnouncementBanner
                 announcements={[
                     { message: "New Feature: Uvero CLI access is now available!", badge: "New" },
-                    { message: "Next Major Service: Online Compiler!", badge: "Upcoming" }
+                    { message: "Next Major Service: Project Helper — coming soon!", badge: "Upcoming" }
                 ]}
             />
 

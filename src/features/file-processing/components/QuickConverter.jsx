@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react';
 import Dropzone from '../shared/Dropzone';
-import Button from '../shared/Button';
 import ProgressBar from '../shared/ProgressBar';
 import InteractiveCropSelector from './InteractiveCropSelector';
 import { useMode } from '../context/ModeContext';
+import ModeToggle from './ModeToggle';
+import { runPdfOnline } from '../tools/pdf/onlineHandlers';
 import imageCompressorProcessor from '../tools/image/image-compressor/processor';
 import imageConverterProcessor from '../tools/image/image-converter/processor';
 import { processor as imageResizerProcessor } from '../tools/image/image-resizer/processor';
@@ -36,7 +37,7 @@ import { processor as watermarkPdfProcessor } from '../tools/pdf/watermark-pdf/p
 import { processor as ocrPdfProcessor } from '../tools/pdf/ocr-pdf/processor';
 import { processor as unlockPdfProcessor } from '../tools/pdf/unlock-pdf/processor';
 import { processor as protectPdfProcessor } from '../tools/pdf/protect-pdf/processor';
-import { validatePdfPassword as validatePassword, MIN_PASSWORD_LENGTH } from '../utils/passwordValidation';
+import { validatePdfPassword as validatePassword } from '../utils/passwordValidation';
 
 const WATERMARK_POSITIONS = [
     { value: 'top-left', label: '↖ Top Left' },
@@ -48,13 +49,31 @@ const WATERMARK_POSITIONS = [
     { value: 'bottom-right', label: '↘ Bottom Right' },
 ];
 
+const PDF_OPERATION_IDS = new Set([
+    'compress-pdf',
+    'convert-pdf',
+    'split-pdf',
+    'merge-pdf',
+    'pdf-to-word',
+    'pdf-to-excel',
+    'pdf-to-powerpoint',
+    'rotate-pdf',
+    'watermark-pdf',
+    'protect-pdf',
+    'unlock-pdf',
+    'page-numbers',
+    'repair-pdf',
+    'crop-pdf',
+    'ocr-pdf',
+]);
+
 /**
  * Quick Converter Component
  * Allows users to drop files on the landing page and perform operations
  * without navigating to specific tool pages
  */
 export default function QuickConverter() {
-    const { isOnlineMode: _isOnlineMode } = useMode();
+    const { isOnlineMode } = useMode();
     const [files, setFiles] = useState([]);
     const [selectedOperation, setSelectedOperation] = useState('');
     const [error, setError] = useState('');
@@ -216,11 +235,47 @@ export default function QuickConverter() {
         setProgress(0);
         const processedResults = [];
 
+        // Route PDF tools through online module when toggle is on
+        if (PDF_OPERATION_IDS.has(selectedOperation) && isOnlineMode && selectedOperation !== 'merge-pdf') {
+            try {
+                const onlineResult = await runPdfOnline(selectedOperation, {
+                    files,
+                    file: files[0],
+                    options: {
+                        level: pdfCompressionLevel,
+                        outputFormat,
+                        pageRange,
+                        splitMode: pdfSplitMode,
+                        pageSpec: pdfPageSpec,
+                        password: pdfPassword,
+                    },
+                });
+
+                if (onlineResult?.file) {
+                    processedResults.push({ original: files[0], result: { file: onlineResult.file } });
+                    setResults(processedResults);
+                    setProgress(100);
+                    setIsProcessing(false);
+                    return;
+                }
+
+                throw new Error('Online mode for this PDF tool is not configured. Please switch to Offline to run locally.');
+            } catch (onlineErr) {
+                throw onlineErr;
+            }
+        }
+
         try {
             if (selectedOperation === 'merge-pdf') {
                 const allPdfs = files.every(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
                 if (!allPdfs) throw new Error('All files must be PDF files for merging');
                 if (files.length < 2) throw new Error('Please select at least 2 PDF files to merge');
+
+                if (isOnlineMode) {
+                    // Online path (stubbed)
+                    await runPdfOnline('merge-pdf', { files, options: {}, onProgress: setProgress });
+                    throw new Error('Online merge is not configured. Switch to offline to merge locally.');
+                }
 
                 const mergeResult = await pdfMergerProcessor.merge(files, (prog) => setProgress(prog));
                 const mergeBlob = await fetch(mergeResult.url).then(r => r.blob());
@@ -489,14 +544,19 @@ export default function QuickConverter() {
 
     return (
         <div className="max-w-5xl mx-auto py-6 sm:py-12 px-3 sm:px-4 shadow-none">
-            <div className="text-center mb-8 sm:mb-12">
-                <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-3 sm:mb-4 tracking-tight">
+            <div className="flex flex-col items-center gap-3 sm:gap-4 mb-8 sm:mb-12">
+                <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                     Quick File Converter
                 </h2>
-                <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                    Process your images, PDFs, audio, and video instantly in your browser.
-                    Private, fast, and 100% secure.
+                <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl text-center leading-relaxed">
+                    Switch between offline (browser) and online (API) processing. Online is always available; offline may be limited on some devices.
                 </p>
+                <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+                    <ModeToggle />
+                    <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {isOnlineMode ? 'Online mode: may use external APIs' : 'Offline mode: stays on-device'}
+                    </span>
+                </div>
             </div>
 
             <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-white/10 shadow-2xl overflow-hidden transition-all duration-500">
