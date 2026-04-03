@@ -381,39 +381,6 @@ export default function ServicesHome() {
 
             {/* Contact / Feedback Section */}
             <ContactFormSection />
-
-            {/* CTA Section */}
-            <section className="max-w-7xl mx-auto px-4 pb-20 sm:px-6 lg:px-8">
-                <div className="rounded-3xl border border-primary-500/20 bg-gradient-to-br from-primary-600 to-indigo-700 p-6 text-center shadow-xl shadow-primary-500/20 sm:p-8">
-                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary-200">Get started</p>
-                    <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-3xl">
-                        Ready to Get Started?
-                    </h2>
-                    <p className="mt-2 text-primary-100 max-w-md mx-auto text-sm leading-relaxed">
-                        Pick a service and start right away. No sign-up required for File Tools.
-                    </p>
-                    <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
-                        <Link
-                            to="/tools"
-                            className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-primary-700 shadow-sm transition-colors hover:bg-primary-50"
-                        >
-                            File Tools
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                        </Link>
-                        <Link
-                            to="/photodrop"
-                            className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/20"
-                        >
-                            PhotoDrop
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                        </Link>
-                    </div>
-                </div>
-            </section>
         </div>
     );
 }
