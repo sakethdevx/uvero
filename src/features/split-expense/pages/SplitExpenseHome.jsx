@@ -24,6 +24,13 @@ export default function SplitExpenseHome() {
     const navigate = useNavigate()
     const [searchParams, setSearchParams] = useSearchParams()
 
+    useEffect(() => {
+        // Only allow signed-in users to use PaySplit. Redirect guests to login.
+        if (!authLoading && !user) {
+            navigate('/login', { replace: true })
+        }
+    }, [authLoading, user, navigate])
+
     const [loadingGroups, setLoadingGroups] = useState(true)
     const [groups, setGroups] = useState([])
     const [error, setError] = useState('')
