@@ -76,7 +76,7 @@ Splitwise-style expense management for trips and shared plans.
 | Routing | React Router 7 |
 | Auth | Supabase (email/password) |
 | Backend API | Vercel Serverless Functions |
-| File Processing | Web Workers, Canvas API, FFmpeg WASM, pdf-lib, pdfjs, jsPDF, SheetJS, Mammoth, Sharp |
+| File Tools | Web Workers, Canvas API, FFmpeg WASM, pdf-lib, pdfjs, jsPDF, SheetJS, Mammoth, Sharp |
 | Image Storage | GitHub Contents API (PhotoDrop + Clipboard) |
 | AI / ML | Hugging Face Inference API (face detection), @imgly/background-removal |
 | QR | qrcode library |
@@ -95,7 +95,7 @@ uvero/
 │   ├── components/                       # Global UI (ThemeToggle)
 │   ├── pages/                            # Login, Signup, ResetPassword, Profile, Privacy
 │   ├── features/
-│   │   ├── file-processing/
+│   │   ├── file-tools/
 │   │   │   ├── tools/                    # 63+ tools organized by category
 │   │   │   │   ├── image/               # 11 image tools
 │   │   │   │   ├── pdf/                 # 27 PDF tools
@@ -238,7 +238,7 @@ npm run preview
 
 ## Architecture
 
-- **Feature-based structure** — Each service (file-processing, photodrop, clipboard) is self-contained under `src/features/`
+- **Feature-based structure** — Each service (file-tools, photodrop, clipboard) is self-contained under `src/features/`
 - **Client-side File Tools** — Web Workers, Canvas API, and WASM keep the main thread free
 - **Serverless API** — Vercel functions with a single router dispatching to feature-specific handlers
 - **GitHub as storage** — PhotoDrop images and clipboard boards stored via the GitHub Contents API

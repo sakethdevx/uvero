@@ -9,7 +9,7 @@ import ContactFormSection from '../components/ContactFormSection';
  */
 const services = [
     {
-        id: 'file-processing',
+        id: 'file-tools',
         name: 'File Tools',
         tagline: 'Convert, compress & transform',
         description: '55+ powerful tools to convert, compress, resize, and process your files. Images, PDFs, audio, video, documents — all in one place.',

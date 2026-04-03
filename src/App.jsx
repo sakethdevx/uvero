@@ -1,13 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { ModeProvider } from './features/file-processing/context/ModeContext';
-import ModeToggle from './features/file-processing/components/ModeToggle';
+import { ModeProvider } from './features/file-tools/context/ModeContext';
+import ModeToggle from './features/file-tools/components/ModeToggle';
 import ThemeToggle from './components/ThemeToggle';
 import BrandLogo from './components/BrandLogo';
 import ServicesHome from './pages/ServicesHome';
 import CompilerHome from './features/compiler/pages/CompilerHome';
-import Home from './features/file-processing/pages/Home';
-import ToolPage from './features/file-processing/pages/ToolPage';
+import Home from './features/file-tools/pages/Home';
+import ToolPage from './features/file-tools/pages/ToolPage';
 import Privacy from './pages/Privacy';
 import Contact from './pages/Contact';
 import EventsPage from './features/photodrop/pages/Events';
@@ -34,7 +34,7 @@ import Profile from './pages/Profile';
 import Maintenance from './pages/Maintenance';
 import { useAuth } from './auth/AuthContext';
 import { signOut } from './auth/authService';
-import { getToolById } from './features/file-processing/tools';
+import { getToolById } from './features/file-tools/tools';
 import { getMaintenanceConfig } from './config/maintenance';
 
 /**
