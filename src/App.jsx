@@ -48,7 +48,7 @@ function AppContent() {
   const dropdownTimerRef = useRef(null);
   const location = useLocation();
 
-  // Determine if we're on a file processing route (for scoping ModeToggle)
+  // Determine if we're on a file tools route (for scoping ModeToggle)
   const isFileProcessingRoute = location.pathname === '/tools' || !!getToolById(location.pathname.slice(1));
 
   // Close mobile menu and scroll to top on route change
@@ -202,7 +202,7 @@ function AppContent() {
     const path = location.pathname;
     if (path === '/') return null;
     if (path.startsWith('/compiler')) return 'Online Compiler';
-    if (path.startsWith('/tools')) return 'File Processing';
+    if (path.startsWith('/tools')) return 'File Tools';
     if (path.startsWith('/photodrop')) return 'PhotoDrop';
     if (path.startsWith('/clipboard') || path.startsWith('/c/')) return 'Online Clipboard';
     if (path.startsWith('/split-expense')) return 'PaySplit';

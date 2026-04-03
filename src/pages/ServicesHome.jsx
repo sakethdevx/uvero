@@ -10,7 +10,7 @@ import ContactFormSection from '../components/ContactFormSection';
 const services = [
     {
         id: 'file-processing',
-        name: 'File Processing',
+        name: 'File Tools',
         tagline: 'Convert, compress & transform',
         description: '55+ powerful tools to convert, compress, resize, and process your files. Images, PDFs, audio, video, documents — all in one place.',
         features: ['Image & PDF Tools', 'Audio & Video Conversion', 'Privacy-First Processing', 'Works Offline'],
@@ -204,7 +204,7 @@ export default function ServicesHome() {
                                 <span className="text-primary-600 dark:text-primary-400">one platform</span>
                             </h1>
                             <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300">
-                                From file processing to event photo sharing — powerful tools designed for simplicity, speed, and privacy. No sign-up required for most tools.
+                                From File Tools to event photo sharing — powerful tools designed for simplicity, speed, and privacy. No sign-up required for most tools.
                             </p>
                             <div className="mt-8 flex flex-wrap gap-3">
                                 <Link
@@ -396,7 +396,7 @@ export default function ServicesHome() {
                             to="/tools"
                             className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-primary-700 shadow-sm transition-colors hover:bg-primary-50"
                         >
-                            File Processing
+                            File Tools
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
