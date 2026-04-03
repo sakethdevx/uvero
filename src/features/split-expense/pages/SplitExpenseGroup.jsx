@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../auth/AuthContext'
 import { splitApiDownload, splitApiRequest } from '../api/client'
 import { formatPaise } from '../shared/splitLogic'
@@ -93,6 +93,14 @@ function buildDefaultSplitInputs(memberIds, mode) {
 export default function SplitExpenseGroup() {
     const { groupId } = useParams()
     const { user, loading: authLoading } = useAuth()
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        // Only allow signed-in users to access a group
+        if (!authLoading && !user) {
+            navigate('/login', { replace: true })
+        }
+    }, [authLoading, user, navigate])
 
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
