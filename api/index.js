@@ -36,17 +36,17 @@ export default async function handler(req, res) {
         }
 
         if (originalPath === '/api/compress') {
-            const mod = await import('../src/features/file-processing/api/compress.js')
+            const mod = await import('../src/features/file-tools/api/compress.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/convert-video-to-mp3') {
-            const mod = await import('../src/features/file-processing/api/convert-video-to-mp3.js')
+            const mod = await import('../src/features/file-tools/api/convert-video-to-mp3.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/convert-heic') {
-            const mod = await import('../src/features/file-processing/api/convert-heic.js')
+            const mod = await import('../src/features/file-tools/api/convert-heic.js')
             return mod.default(req, res)
         }
 

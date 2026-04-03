@@ -1,13 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { ModeProvider } from './features/file-processing/context/ModeContext';
-import ModeToggle from './features/file-processing/components/ModeToggle';
+import { ModeProvider } from './features/file-tools/context/ModeContext';
+import ModeToggle from './features/file-tools/components/ModeToggle';
 import ThemeToggle from './components/ThemeToggle';
 import BrandLogo from './components/BrandLogo';
 import ServicesHome from './pages/ServicesHome';
 import CompilerHome from './features/compiler/pages/CompilerHome';
-import Home from './features/file-processing/pages/Home';
-import ToolPage from './features/file-processing/pages/ToolPage';
+import Home from './features/file-tools/pages/Home';
+import ToolPage from './features/file-tools/pages/ToolPage';
 import Privacy from './pages/Privacy';
 import Contact from './pages/Contact';
 import EventsPage from './features/photodrop/pages/Events';
@@ -34,7 +34,7 @@ import Profile from './pages/Profile';
 import Maintenance from './pages/Maintenance';
 import { useAuth } from './auth/AuthContext';
 import { signOut } from './auth/authService';
-import { getToolById } from './features/file-processing/tools';
+import { getToolById } from './features/file-tools/tools';
 import { getMaintenanceConfig } from './config/maintenance';
 
 /**
@@ -48,7 +48,7 @@ function AppContent() {
   const dropdownTimerRef = useRef(null);
   const location = useLocation();
 
-  // Determine if we're on a file processing route (for scoping ModeToggle)
+  // Determine if we're on a file tools route (for scoping ModeToggle)
   const isFileProcessingRoute = location.pathname === '/tools' || !!getToolById(location.pathname.slice(1));
 
   // Close mobile menu and scroll to top on route change
@@ -202,7 +202,7 @@ function AppContent() {
     const path = location.pathname;
     if (path === '/') return null;
     if (path.startsWith('/compiler')) return 'Online Compiler';
-    if (path.startsWith('/tools')) return 'File Processing';
+    if (path.startsWith('/tools')) return 'File Tools';
     if (path.startsWith('/photodrop')) return 'PhotoDrop';
     if (path.startsWith('/clipboard') || path.startsWith('/c/')) return 'Online Clipboard';
     if (path.startsWith('/split-expense')) return 'PaySplit';
@@ -434,7 +434,7 @@ function AppContent() {
               </div>
               <p className="text-gray-400 max-w-sm mb-4 text-sm leading-relaxed">
                 Professional digital tools for simplicity, speed, and privacy.
-                Privacy-first file processing that works offline.
+                Privacy-first File Tools that work offline.
               </p>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-900/30 border border-green-800/50 rounded-md text-green-400 text-xs font-medium">
                 <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
@@ -449,7 +449,7 @@ function AppContent() {
               <h3 className="text-white font-semibold mb-3 text-sm">Services</h3>
               <ul className="space-y-2">
                 {[
-                  { name: 'File Processing', path: '/tools' },
+                  { name: 'File Tools', path: '/tools' },
                   { name: 'Online Compiler', path: '/compiler' },
                   { name: 'PhotoDrop', path: '/photodrop' },
                   { name: 'Online Clipboard', path: '/clipboard' },

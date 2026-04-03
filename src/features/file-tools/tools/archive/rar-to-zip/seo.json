@@ -1,0 +1,18 @@
+{
+  "title": "RAR to ZIP Converter - Convert RAR Archives to ZIP",
+  "description": "Convert RAR archives to ZIP format online. Free and secure RAR to ZIP converter with online processing.",
+  "keywords": "RAR to ZIP, archive converter, RAR converter, convert RAR ZIP, unrar to zip",
+  "ogTitle": "RAR to ZIP Converter - Free Archive Converter",
+  "ogDescription": "Convert RAR archives to universal ZIP format online.",
+  "structuredData": {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "RAR to ZIP Converter",
+    "description": "Convert RAR archives to ZIP format",
+    "applicationCategory": "UtilityApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0"
+    }
+  }
+}

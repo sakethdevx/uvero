@@ -1,0 +1,18 @@
+{
+  "title": "Time Zone Converter - Convert Time Between Time Zones",
+  "description": "Convert time between different time zones worldwide. Free timezone converter supporting major time zones with live clocks and DST support.",
+  "keywords": "timezone converter, time zone conversion, world time converter, time difference calculator, GMT converter",
+  "ogTitle": "Time Zone Converter - World Time Zones",
+  "ogDescription": "Free online time zone converter with support for 17 major time zones and automatic DST handling.",
+  "structuredData": {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Time Zone Converter",
+    "description": "Convert time between different time zones worldwide",
+    "applicationCategory": "UtilityApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0"
+    }
+  }
+}

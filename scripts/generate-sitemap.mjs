@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 const BASE_URL = 'https://uvero.app'
 const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = path.resolve(ROOT_DIR, '..')
-const TOOLS_DIR = path.join(PROJECT_ROOT, 'src', 'features', 'file-processing', 'tools')
+const TOOLS_DIR = path.join(PROJECT_ROOT, 'src', 'features', 'file-tools', 'tools')
 const TOOL_INDEX_PATH = path.join(TOOLS_DIR, 'index.js')
 const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public')
 const SITEMAP_PATH = path.join(PUBLIC_DIR, 'sitemap.xml')

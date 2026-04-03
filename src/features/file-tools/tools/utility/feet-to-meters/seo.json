@@ -1,0 +1,18 @@
+{
+  "title": "Feet to Meters Converter - Free Ft to M Calculator",
+  "description": "Convert feet (ft) to meters (m) instantly. Fast, accurate, and free feet to meters length converter with quick reference table.",
+  "keywords": "feet to meters, ft to m, length converter, feet meters conversion, ft m calculator",
+  "ogTitle": "Feet to Meters Converter - Convert Ft to M",
+  "ogDescription": "Free online feet to meters converter. Quick, accurate, and easy to use.",
+  "structuredData": {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Feet to Meters Converter",
+    "description": "Convert feet (ft) to meters (m)",
+    "applicationCategory": "UtilityApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0"
+    }
+  }
+}

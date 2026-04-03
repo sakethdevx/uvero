@@ -1,0 +1,25 @@
+{
+    "route": "/convert-pdf",
+    "title": "Free PDF to Image Converter - PNG & JPG | Uvero",
+    "description": "Convert PDF pages to high-quality PNG or JPG images online. Extract all pages or specific ones. Fast, secure, works offline in your browser. No upload required.",
+    "keywords": [
+        "pdf to image",
+        "pdf to png",
+        "pdf to jpg",
+        "pdf to jpeg",
+        "convert pdf to image",
+        "pdf page extractor",
+        "pdf to image converter",
+        "free pdf converter",
+        "online pdf to image",
+        "pdf page to image",
+        "extract pages from pdf",
+        "pdf to picture",
+        "save pdf as image",
+        "offline pdf converter",
+        "client-side pdf conversion",
+        "browser pdf to image"
+    ],
+    "ogImage": "/og-pdf-converter.png",
+    "canonical": "https://uvero.app/convert-pdf"
+}
