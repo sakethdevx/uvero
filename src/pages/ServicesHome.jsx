@@ -180,6 +180,7 @@ export default function ServicesHome() {
             {/* Announcement Banner */}
             <AnnouncementBanner
                 announcements={[
+                    { message: "File Tools are temporarily under maintenance — some tools may be unavailable. We're working on a fix.", badge: "Maintenance" },
                     { message: "New Feature: Uvero CLI access is now available!", badge: "New" },
                     { message: "Next Major Service: Project Helper — coming soon!", badge: "Upcoming" }
                 ]}
