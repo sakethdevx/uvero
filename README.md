@@ -1,14 +1,14 @@
 # Uvero
 
-> Professional digital tools — file processing, photo sharing, and online clipboard — built with privacy and speed in mind.
+> Professional digital tools — File Tools, photo sharing, and online clipboard — built with privacy and speed in mind.
 
 ## Features
 
-Uvero is a multi-service platform deployed on **Vercel**, combining client-side file processing with cloud-powered collaboration tools.
+Uvero is a multi-service platform deployed on **Vercel**, combining client-side File Tools with cloud-powered collaboration tools.
 
-### 🛠️ File Processing — 63+ Tools
+### 🛠️ File Tools — 63+ Tools
 
-All file processing runs **100% client-side** in the browser. No uploads, no servers, completely private.
+All File Tools run **100% client-side** in the browser. No uploads, no servers, completely private.
 
 | Category | Tools |
 |----------|-------|
@@ -219,7 +219,7 @@ npm run preview
 | Path | Page |
 |------|------|
 | `/` | Services home (landing page) |
-| `/tools` | File processing tools hub |
+| `/tools` | File Tools hub |
 | `/:toolId` | Individual tool (e.g. `/compress-image`, `/merge-pdf`) |
 | `/photodrop` | PhotoDrop events |
 | `/photodrop/:id` | Event detail + photos |
@@ -239,7 +239,7 @@ npm run preview
 ## Architecture
 
 - **Feature-based structure** — Each service (file-processing, photodrop, clipboard) is self-contained under `src/features/`
-- **Client-side file processing** — Web Workers, Canvas API, and WASM keep the main thread free
+- **Client-side File Tools** — Web Workers, Canvas API, and WASM keep the main thread free
 - **Serverless API** — Vercel functions with a single router dispatching to feature-specific handlers
 - **GitHub as storage** — PhotoDrop images and clipboard boards stored via the GitHub Contents API
 - **Supabase for metadata & auth** — Board metadata, event data, and user auth managed through Supabase

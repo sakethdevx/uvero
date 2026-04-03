@@ -434,7 +434,7 @@ function AppContent() {
               </div>
               <p className="text-gray-400 max-w-sm mb-4 text-sm leading-relaxed">
                 Professional digital tools for simplicity, speed, and privacy.
-                Privacy-first file processing that works offline.
+                Privacy-first File Tools that work offline.
               </p>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-900/30 border border-green-800/50 rounded-md text-green-400 text-xs font-medium">
                 <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
@@ -449,7 +449,7 @@ function AppContent() {
               <h3 className="text-white font-semibold mb-3 text-sm">Services</h3>
               <ul className="space-y-2">
                 {[
-                  { name: 'File Processing', path: '/tools' },
+                  { name: 'File Tools', path: '/tools' },
                   { name: 'Online Compiler', path: '/compiler' },
                   { name: 'PhotoDrop', path: '/photodrop' },
                   { name: 'Online Clipboard', path: '/clipboard' },

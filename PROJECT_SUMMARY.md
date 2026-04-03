@@ -2,7 +2,7 @@
 
 ## 🎉 What Has Been Delivered
 
-A **production-ready, scalable file processing web platform** with a fully functional Image Compressor tool that processes files entirely client-side.
+A **production-ready, scalable File Tools web platform** with a fully functional Image Compressor tool that processes files entirely client-side.
 
 ---
 

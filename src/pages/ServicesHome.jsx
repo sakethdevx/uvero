@@ -389,7 +389,7 @@ export default function ServicesHome() {
                         Ready to Get Started?
                     </h2>
                     <p className="mt-2 text-primary-100 max-w-md mx-auto text-sm leading-relaxed">
-                        Pick a service and start right away. No sign-up required for file processing.
+                        Pick a service and start right away. No sign-up required for File Tools.
                     </p>
                     <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
                         <Link
