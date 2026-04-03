@@ -326,47 +326,7 @@ export default function SplitExpenseHome() {
                                 {authLoading ? 'Checking session...' : joinLoading ? 'Joining...' : 'Join group'}
                             </button>
 
-                            {isGuest && (
-                                <div className="pt-2">
-                                    <div className="my-3 h-px bg-gray-200 dark:bg-white/10" />
-                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">Recover with code (guest mode)</p>
-                                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                        Use this when your previous guest browser session is lost.
-                                    </p>
-
-                                    <div className="mt-3 space-y-3">
-                                        <input
-                                            value={recoverInviteCode}
-                                            onChange={event => setRecoverInviteCode(event.target.value.toUpperCase())}
-                                            placeholder="Invite code"
-                                            className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-3 py-2.5 text-sm uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-                                        />
-
-                                        <input
-                                            value={recoverCode}
-                                            onChange={event => setRecoverCode(event.target.value.toUpperCase())}
-                                            placeholder="Recovery code"
-                                            className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-3 py-2.5 text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-                                        />
-
-                                        <input
-                                            value={recoverDisplayName}
-                                            onChange={event => setRecoverDisplayName(event.target.value)}
-                                            placeholder="Display name (optional)"
-                                            className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-                                        />
-
-                                        <button
-                                            type="button"
-                                            onClick={handleGuestRecover}
-                                            disabled={recoverLoading || authLoading}
-                                            className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-700 disabled:opacity-60"
-                                        >
-                                            {authLoading ? 'Checking session...' : recoverLoading ? 'Recovering...' : 'Recover as guest'}
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
+                            {/* Guest recovery removed: PaySplit now requires signed-in users */}
                         </div>
                     </form>
                 </div>
