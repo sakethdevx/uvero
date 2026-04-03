@@ -30,7 +30,28 @@ export function AuthProvider({ children }) {
             // Attach access_token to the user object so components can send it in Authorization header
             const session = data?.session ?? null
             if (session) {
-                const newUser = { ...session.user, access_token: session.access_token }
+                let newUser = { ...session.user, access_token: session.access_token }
+                // Try to load profile username and merge into user_metadata so UI can prefer it
+                try {
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('username')
+                        .eq('id', newUser.id)
+                        .maybeSingle()
+
+                    const profileUsername = profile?.username || null
+                    if (profileUsername) {
+                        newUser = {
+                            ...newUser,
+                            user_metadata: {
+                                ...(newUser.user_metadata || {}),
+                                username: profileUsername
+                            }
+                        }
+                    }
+                } catch (err) {
+                    // ignore profile fetch errors
+                }
                 setUser(prev => {
                     if (prev && prev.id === newUser.id && prev.access_token === newUser.access_token) return prev
                     return newUser
@@ -45,10 +66,35 @@ export function AuthProvider({ children }) {
 
         const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
             const newUser = session ? { ...session.user, access_token: session.access_token } : null
+            // Merge profile username into user metadata when available
+            let mergedUser = newUser
+            if (newUser) {
+                try {
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('username')
+                        .eq('id', newUser.id)
+                        .maybeSingle()
+
+                    const profileUsername = profile?.username || null
+                    if (profileUsername) {
+                        mergedUser = {
+                            ...newUser,
+                            user_metadata: {
+                                ...(newUser.user_metadata || {}),
+                                username: profileUsername
+                            }
+                        }
+                    }
+                } catch (err) {
+                    // ignore
+                }
+            }
+
             setUser(prev => {
-                if (!prev && !newUser) return null
-                if (prev && newUser && prev.id === newUser.id && prev.access_token === newUser.access_token) return prev
-                return newUser
+                if (!prev && !mergedUser) return null
+                if (prev && mergedUser && prev.id === mergedUser.id && prev.access_token === mergedUser.access_token) return prev
+                return mergedUser
             })
 
             // When a user signs in, call server endpoint to ensure a profiles row exists.
