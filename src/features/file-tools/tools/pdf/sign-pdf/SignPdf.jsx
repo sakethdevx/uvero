@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
-import { processor } from './processor';
+import signPdfExecutor from './executor';
 
 export default function SignPdf() {
     const [file, setFile] = useState(null);
@@ -127,7 +127,7 @@ export default function SignPdf() {
         setProgress(0);
 
         try {
-            const info = await processor.getPageInfo(selectedFile);
+            const info = await signPdfExecutor.getPageInfo(selectedFile);
             setTotalPages(info.totalPages);
             setPage(1);
         } catch (err) {
@@ -154,23 +154,22 @@ export default function SignPdf() {
 
         try {
             const coords = getPositionCoords();
-            const signedBlob = await processor.sign(
-                file,
-                signatureDataUrl,
-                {
+            const executionResult = await signPdfExecutor.run({
+                files: [file],
+                options: {
+                    signatureDataUrl,
+                    placement: {
                     page: page - 1,
                     x: coords.x,
                     y: coords.y,
                     width: sigWidth,
                     height: sigHeight
+                    },
                 },
-                (progressValue) => setProgress(progressValue)
-            );
-
-            setResult({
-                url: URL.createObjectURL(signedBlob),
-                filename: `signed_${file.name}`
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
+            setResult(executionResult);
             setProgress(100);
         } catch (err) {
             console.error('Sign error:', err);
@@ -181,13 +180,15 @@ export default function SignPdf() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = result.filename;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {

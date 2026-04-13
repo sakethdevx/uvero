@@ -2,17 +2,17 @@ import { useState } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import FileInfo from '../../../shared/FileInfo';
-import { useMode } from '../../../context/ModeContext';
+import rarToZipExecutor from './executor';
 
 /**
  * RAR to ZIP Converter
  * Convert RAR archives to ZIP format
- * Note: RAR extraction requires online processing
+ * Wired for online RAR extraction
  */
 export default function RARToZip() {
     const [file, setFile] = useState(null);
     const [error, setError] = useState('');
-    const { isOnlineMode } = useMode();
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const handleFileSelect = (selectedFile) => {
         setFile(selectedFile);
@@ -24,13 +24,22 @@ export default function RARToZip() {
         setError('');
     };
 
-    const handleConvert = () => {
-        if (!isOnlineMode) {
-            setError('RAR extraction requires online mode. Please switch to online mode to convert RAR files.');
-            return;
+    const handleConvert = async () => {
+        if (!file) return;
+
+        setIsProcessing(true);
+        setError('');
+
+        try {
+            await rarToZipExecutor.run({
+                files: [file],
+                mode: 'online',
+            });
+        } catch (err) {
+            setError(err.message || 'RAR to ZIP conversion is not available right now.');
+        } finally {
+            setIsProcessing(false);
         }
-        
-        alert('Online conversion would be implemented here with server-side RAR extraction.');
     };
 
     return (
@@ -45,22 +54,19 @@ export default function RARToZip() {
                     </p>
                 </div>
 
-                {!isOnlineMode && (
-                    <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 rounded-lg p-4">
-                        <div className="flex items-start gap-3">
-                            <div className="text-2xl">⚠️</div>
-                            <div>
-                                <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-1">
-                                    Online Mode Required
-                                </h3>
-                                <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                                    RAR extraction requires server-side processing due to proprietary format. 
-                                    Please switch to <strong>Online Mode</strong> to use this converter.
-                                </p>
-                            </div>
+                <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                        <div className="text-2xl">⚠️</div>
+                        <div>
+                            <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-1">
+                                Server Extractor Required
+                            </h3>
+                            <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                                This tool is now wired for <strong>online mode</strong>, but it still needs a real server-side RAR extraction service to perform the conversion on this deployment.
+                            </p>
                         </div>
                     </div>
-                )}
+                </div>
 
                 {!file && (
                     <>
@@ -117,11 +123,11 @@ export default function RARToZip() {
                         <div className="flex gap-3">
                             <Button
                                 onClick={handleConvert}
-                                disabled={!isOnlineMode}
+                                disabled={isProcessing}
                                 variant="primary"
                                 className="flex-1"
                             >
-                                {isOnlineMode ? 'Convert to ZIP' : 'Online Mode Required'}
+                                {isProcessing ? 'Checking Service...' : 'Convert to ZIP'}
                             </Button>
                             <Button
                                 onClick={handleReset}
@@ -144,8 +150,8 @@ export default function RARToZip() {
                             <strong>ZIP</strong> is a universal archive format supported by all operating systems without additional software.
                         </p>
                         <p className="mt-4">
-                            <strong>Why online mode?</strong> RAR uses a proprietary compression algorithm that requires 
-                            server-side processing. Your files are processed securely and deleted immediately after conversion.
+                            <strong>Why online mode?</strong> RAR uses a proprietary compression format that needs a server-side extraction service.
+                            This page now uses the same executor-based architecture as the rest of the file tools and will surface a clear error until that backend service is configured.
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
                             Note: For offline RAR extraction, consider using 7-Zip or WinRAR desktop applications.

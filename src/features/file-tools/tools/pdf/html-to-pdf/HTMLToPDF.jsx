@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import Button from '../../../shared/Button';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import htmlToPdfExecutor from './executor';
 
 const HTMLToPDF = () => {
     const [file, setFile] = useState(null);
@@ -56,114 +55,12 @@ const HTMLToPDF = () => {
         setProgress(0);
 
         try {
-            setProgress(10);
-
-            // Read the HTML file
-            const htmlContent = await file.text();
-            setProgress(30);
-
-            // Create a temporary container for the HTML content
-            const container = document.createElement('div');
-            container.style.position = 'absolute';
-            container.style.left = '-9999px';
-            container.style.width = '180mm'; // A4 width minus margins
-            container.style.fontFamily = 'Arial, sans-serif';
-            container.style.fontSize = '11pt';
-            container.style.lineHeight = '1.6';
-            container.style.backgroundColor = 'white';
-            container.style.padding = '0';
-            container.innerHTML = htmlContent;
-            document.body.appendChild(container);
-
-            // Wait for any images to load
-            const images = container.querySelectorAll('img');
-            await Promise.all(
-                Array.from(images).map(img => {
-                    if (img.complete) return Promise.resolve();
-                    return new Promise((resolve) => {
-                        img.onload = resolve;
-                        img.onerror = resolve;
-                    });
-                })
-            );
-
-            setProgress(50);
-
-            // Convert the entire content to canvas
-            const fullCanvas = await html2canvas(container, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#ffffff'
+            const result = await htmlToPdfExecutor.run({
+                files: [file],
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(Math.round(progressValue)),
             });
-
-            setProgress(70);
-
-            // Remove the container
-            document.body.removeChild(container);
-
-            // Create PDF
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-            });
-
-            const pageWidth = 210; // A4 width in mm
-            const pageHeight = 297; // A4 height in mm
-            const margin = 15; // Margins in mm
-
-            // Calculate dimensions
-            const imgWidth = pageWidth - (2 * margin);
-            const imgHeight = (fullCanvas.height * imgWidth) / fullCanvas.width;
-            const contentHeight = pageHeight - (2 * margin);
-
-            // Split the canvas into pages
-            let yPosition = 0;
-            let pageNumber = 0;
-
-            while (yPosition < imgHeight) {
-                setProgress(70 + ((yPosition / imgHeight) * 20)); // Progress from 70% to 90%
-
-                if (pageNumber > 0) {
-                    pdf.addPage();
-                }
-
-                // Calculate the portion of the image for this page
-                const sourceY = (yPosition / imgWidth) * fullCanvas.width * (fullCanvas.height / fullCanvas.width);
-                const sourceHeight = (contentHeight / imgWidth) * fullCanvas.width;
-
-                // Create a temporary canvas for this page
-                const pageCanvas = document.createElement('canvas');
-                pageCanvas.width = fullCanvas.width;
-                pageCanvas.height = Math.min(sourceHeight, fullCanvas.height - sourceY);
-
-                const pageCtx = pageCanvas.getContext('2d');
-                pageCtx.drawImage(
-                    fullCanvas,
-                    0, sourceY,
-                    fullCanvas.width, pageCanvas.height,
-                    0, 0,
-                    pageCanvas.width, pageCanvas.height
-                );
-
-                // Add this page to the PDF
-                const pageImgData = pageCanvas.toDataURL('image/png');
-                const thisPageHeight = (pageCanvas.height * imgWidth) / pageCanvas.width;
-
-                pdf.addImage(pageImgData, 'PNG', margin, margin, imgWidth, thisPageHeight);
-
-                yPosition += contentHeight;
-                pageNumber++;
-            }
-
-            setProgress(90);
-
-            // Create blob and save
-            const pdfBlob = pdf.output('blob');
-            setConvertedPDF(pdfBlob);
-            setProgress(100);
-
+            setConvertedPDF(result);
         } catch (err) {
             console.error('Conversion error:', err);
             setError(err.message || 'Failed to convert HTML file. Please ensure it\'s a valid HTML file.');
@@ -173,12 +70,12 @@ const HTMLToPDF = () => {
     };
 
     const handleDownload = () => {
-        if (!convertedPDF) return;
+        if (!convertedPDF?.primaryFile) return;
 
-        const url = URL.createObjectURL(convertedPDF);
+        const url = URL.createObjectURL(convertedPDF.primaryFile);
         const a = document.createElement('a');
         a.href = url;
-        a.download = file.name.replace(/\.html?$/i, '.pdf');
+        a.download = convertedPDF.primaryFile.name;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

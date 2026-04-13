@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import processor from './processor';
+import imageConverterExecutor from './executor';
 
 const OUTPUT_FORMATS = [
     { value: 'jpg', label: 'JPG', desc: 'Photos & small files' },
@@ -39,7 +39,7 @@ export default function ImageConverter() {
 
     useEffect(() => {
         return () => {
-            processor.terminate();
+            imageConverterExecutor.cleanup?.();
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             if (resultPreviewUrl) URL.revokeObjectURL(resultPreviewUrl);
         };
@@ -61,8 +61,8 @@ export default function ImageConverter() {
     }, [file]);
 
     useEffect(() => {
-        if (result?.blob) {
-            const url = URL.createObjectURL(result.blob);
+        if (result?.primaryFile) {
+            const url = URL.createObjectURL(result.primaryFile);
             setResultPreviewUrl(url);
             return () => URL.revokeObjectURL(url);
         }
@@ -110,10 +110,18 @@ export default function ImageConverter() {
         try {
             const { width, height } = getTargetDimensions();
             const qualityValue = ['jpg', 'jpeg', 'webp'].includes(outputFormat) ? quality : null;
-            const converted = await processor.convert(
-                file, outputFormat, width, height, maintainAspectRatio, qualityValue,
-                (prog) => setProgress(prog)
-            );
+            const converted = await imageConverterExecutor.run({
+                files: [file],
+                options: {
+                    outputFormat,
+                    width,
+                    height,
+                    maintainAspectRatio,
+                    quality: qualityValue,
+                },
+                mode: 'offline',
+                onProgress: setProgress,
+            });
             setProgress(100);
             setResult(converted);
         } catch (err) {
@@ -125,10 +133,10 @@ export default function ImageConverter() {
 
     const handleDownload = () => {
         if (!result) return;
-        const url = URL.createObjectURL(result.blob);
+        const url = URL.createObjectURL(result.primaryFile);
         const a = document.createElement('a');
         a.href = url;
-        a.download = result.file.name;
+        a.download = result.primaryFile.name;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -157,6 +165,11 @@ export default function ImageConverter() {
         if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
         return `${(bytes / 1048576).toFixed(2)} MB`;
     };
+
+    const resultFormat = result?.meta?.format ?? outputFormat.toUpperCase();
+    const resultDimensions = result?.meta?.dimensions;
+    const resultOriginalSize = result?.meta?.originalSize ?? file?.size ?? 0;
+    const resultConvertedSize = result?.meta?.outputSize ?? result?.primaryFile?.size ?? 0;
 
     const isLossy = ['jpg', 'jpeg', 'webp'].includes(outputFormat);
     const selectedPreset = PRESET_SIZES[sizePreset];
@@ -364,8 +377,8 @@ export default function ImageConverter() {
                             <div>
                                 <p className="font-bold text-green-900 dark:text-green-100">Conversion Complete!</p>
                                 <p className="text-sm text-green-700 dark:text-green-300">
-                                    Converted to {result.format} · {formatSize(result.convertedSize)}
-                                    {result.dimensions && ` · ${result.dimensions.converted.width} × ${result.dimensions.converted.height} px`}
+                                    Converted to {resultFormat} · {formatSize(resultConvertedSize)}
+                                    {resultDimensions && ` · ${resultDimensions.converted.width} × ${resultDimensions.converted.height} px`}
                                 </p>
                             </div>
                         </div>
@@ -378,8 +391,8 @@ export default function ImageConverter() {
                                     {previewUrl && <img src={previewUrl} alt="Original" className="max-h-48 max-w-full rounded-xl object-contain" />}
                                 </div>
                                 <p className="mt-2 text-center text-xs text-gray-400 dark:text-gray-500">
-                                    {file?.type.split('/')[1]?.toUpperCase()} · {formatSize(result.originalSize)}
-                                    {result.dimensions && ` · ${result.dimensions.original.width}×${result.dimensions.original.height}`}
+                                    {file?.type.split('/')[1]?.toUpperCase()} · {formatSize(resultOriginalSize)}
+                                    {resultDimensions && ` · ${resultDimensions.original.width}×${resultDimensions.original.height}`}
                                 </p>
                             </div>
                             <div className="rounded-3xl border border-sky-200/80 bg-sky-50/30 dark:border-sky-500/20 dark:bg-sky-500/5 p-4">
@@ -388,8 +401,8 @@ export default function ImageConverter() {
                                     {resultPreviewUrl && <img src={resultPreviewUrl} alt="Converted" className="max-h-48 max-w-full rounded-xl object-contain" />}
                                 </div>
                                 <p className="mt-2 text-center text-xs text-sky-600 dark:text-sky-400 font-semibold">
-                                    {result.format} · {formatSize(result.convertedSize)}
-                                    {result.dimensions && ` · ${result.dimensions.converted.width}×${result.dimensions.converted.height}`}
+                                    {resultFormat} · {formatSize(resultConvertedSize)}
+                                    {resultDimensions && ` · ${resultDimensions.converted.width}×${resultDimensions.converted.height}`}
                                 </p>
                             </div>
                         </div>
@@ -401,20 +414,20 @@ export default function ImageConverter() {
                                 <div className="rounded-2xl bg-gray-50 dark:bg-white/[0.03] p-4 text-center">
                                     <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Format</p>
                                     <p className="font-bold text-gray-900 dark:text-white">
-                                        {file?.type.split('/')[1]?.toUpperCase()} → {result.format}
+                                        {file?.type.split('/')[1]?.toUpperCase()} → {resultFormat}
                                     </p>
                                 </div>
                                 <div className="rounded-2xl bg-gray-50 dark:bg-white/[0.03] p-4 text-center">
                                     <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">File Size</p>
                                     <p className="font-bold text-gray-900 dark:text-white">
-                                        {formatSize(result.originalSize)} → {formatSize(result.convertedSize)}
+                                        {formatSize(resultOriginalSize)} → {formatSize(resultConvertedSize)}
                                     </p>
                                 </div>
-                                {result.dimensions && (
+                                {resultDimensions && (
                                     <div className="rounded-2xl bg-gray-50 dark:bg-white/[0.03] p-4 text-center">
                                         <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Dimensions</p>
                                         <p className="font-bold text-gray-900 dark:text-white">
-                                            {result.dimensions.converted.width} × {result.dimensions.converted.height}
+                                            {resultDimensions.converted.width} × {resultDimensions.converted.height}
                                         </p>
                                     </div>
                                 )}

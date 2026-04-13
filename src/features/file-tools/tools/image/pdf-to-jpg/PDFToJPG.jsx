@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from '../../pdf/pdf-converter/processor';
+import pdfToJpgExecutor from './executor';
 
 export default function PDFToJPG() {
     const [file, setFile] = useState(null);
@@ -13,9 +13,11 @@ export default function PDFToJPG() {
     const [error, setError] = useState(null);
     const [pageRange, setPageRange] = useState('all'); // all, first, custom
     const [customPages, setCustomPages] = useState('');
+    const [previewImages, setPreviewImages] = useState([]);
     const fileInputRef = useRef(null);
 
     const handleFileSelect = (selectedFile) => {
+        previewImages.forEach((image) => URL.revokeObjectURL(image.url));
         if (selectedFile.type !== 'application/pdf') {
             setError('Please select a PDF file');
             return;
@@ -24,6 +26,7 @@ export default function PDFToJPG() {
         setResults(null);
         setError(null);
         setProgress(0);
+        setPreviewImages([]);
     };
 
     const handleConvert = async () => {
@@ -34,20 +37,26 @@ export default function PDFToJPG() {
         setProgress(0);
 
         try {
-            const images = await processor.convert(
-                file,
-                'jpg',
-                pageRange,
-                customPages,
-                (progressValue) => setProgress(progressValue)
-            );
-
-            setResults({
-                images,
-                format: 'jpg',
-                count: images.length
+            previewImages.forEach((image) => URL.revokeObjectURL(image.url));
+            const executionResult = await pdfToJpgExecutor.run({
+                files: [file],
+                options: {
+                    pageRange,
+                    customPages,
+                },
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
-
+            const outputFiles = executionResult.primaryFile
+                ? [executionResult.primaryFile]
+                : (executionResult.files || []);
+            const previews = outputFiles.map((outputFile, index) => ({
+                file: outputFile,
+                url: URL.createObjectURL(outputFile),
+                pageNumber: executionResult.meta?.items?.[index]?.pageNumber || index + 1,
+            }));
+            setPreviewImages(previews);
+            setResults(executionResult);
             setProgress(100);
         } catch (err) {
             console.error('Conversion error:', err);
@@ -60,7 +69,7 @@ export default function PDFToJPG() {
     const handleDownloadSingle = (image, index) => {
         const link = document.createElement('a');
         link.href = image.url;
-        link.download = `page_${index + 1}.jpg`;
+        link.download = image.file?.name || `page_${index + 1}.jpg`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -68,7 +77,7 @@ export default function PDFToJPG() {
 
     const handleDownloadAll = () => {
         if (!results) return;
-        results.images.forEach((image, index) => {
+        previewImages.forEach((image, index) => {
             setTimeout(() => {
                 handleDownloadSingle(image, index);
             }, index * 100);
@@ -76,11 +85,13 @@ export default function PDFToJPG() {
     };
 
     const handleReset = () => {
+        previewImages.forEach((image) => URL.revokeObjectURL(image.url));
         setFile(null);
         setResults(null);
         setError(null);
         setProgress(0);
         setCustomPages('');
+        setPreviewImages([]);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -246,7 +257,7 @@ export default function PDFToJPG() {
                                                 Conversion Complete!
                                             </p>
                                             <p className="text-sm text-green-700 dark:text-green-300">
-                                                Successfully converted {results.count} {results.count === 1 ? 'page' : 'pages'} to JPG
+                                                Successfully converted {previewImages.length} {previewImages.length === 1 ? 'page' : 'pages'} to JPG
                                             </p>
                                         </div>
                                     </div>
@@ -255,18 +266,18 @@ export default function PDFToJPG() {
                                 {/* Image Previews */}
                                 <div className="mb-6 max-h-96 overflow-y-auto">
                                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                        {results.images.map((image, index) => (
+                                        {previewImages.map((image, index) => (
                                             <div key={index} className="group relative">
                                                 <div className="aspect-[3/4] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                                                     <img
                                                         src={image.url}
-                                                        alt={`Page ${index + 1}`}
+                                                        alt={`Page ${image.pageNumber}`}
                                                         className="w-full h-full object-contain"
                                                     />
                                                 </div>
                                                 <div className="mt-2 flex items-center justify-between">
                                                     <span className="text-sm text-gray-600 dark:text-gray-300">
-                                                        Page {index + 1}
+                                                        Page {image.pageNumber}
                                                     </span>
                                                     <button
                                                         onClick={() => handleDownloadSingle(image, index)}

@@ -12,6 +12,7 @@ export default function Home() {
     const popularTools = getPopularTools();
     const { isOnlineMode } = useMode();
     const [expandedCategory, setExpandedCategory] = useState(null);
+    const currentMode = isOnlineMode ? 'online' : 'offline';
 
     const categories = [
         {
@@ -21,7 +22,6 @@ export default function Home() {
             gradient: 'from-sky-500 to-blue-600',
             bg: 'bg-sky-50 dark:bg-sky-950/30',
             categoryId: 'image',
-            count: 11,
             borderColor: 'border-sky-100 dark:border-sky-500/20'
         },
         {
@@ -31,7 +31,6 @@ export default function Home() {
             gradient: 'from-rose-500 to-pink-600',
             bg: 'bg-rose-50 dark:bg-rose-950/30',
             categoryId: 'pdf',
-            count: 27,
             borderColor: 'border-rose-100 dark:border-rose-500/20'
         },
         {
@@ -41,7 +40,6 @@ export default function Home() {
             gradient: 'from-violet-500 to-purple-600',
             bg: 'bg-violet-50 dark:bg-violet-950/30',
             categoryId: 'audio',
-            count: 5,
             borderColor: 'border-violet-100 dark:border-violet-500/20'
         },
         {
@@ -51,7 +49,6 @@ export default function Home() {
             gradient: 'from-emerald-500 to-green-600',
             bg: 'bg-emerald-50 dark:bg-emerald-950/30',
             categoryId: 'video',
-            count: 5,
             borderColor: 'border-emerald-100 dark:border-emerald-500/20'
         },
         {
@@ -61,7 +58,6 @@ export default function Home() {
             gradient: 'from-cyan-500 to-teal-600',
             bg: 'bg-cyan-50 dark:bg-cyan-950/30',
             categoryId: 'utility',
-            count: 8,
             borderColor: 'border-cyan-100 dark:border-cyan-500/20'
         }
     ];
@@ -148,7 +144,10 @@ export default function Home() {
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {categories.map((category, idx) => {
                         const isExpanded = expandedCategory === category.categoryId;
-                        const categoryTools = isExpanded ? getToolsByCategory(category.categoryId) : [];
+                        const modeAwareTools = getToolsByCategory(category.categoryId)
+                            .filter((tool) => tool.modes.includes(currentMode));
+                        const categoryTools = isExpanded ? modeAwareTools : [];
+                        const visibleCount = modeAwareTools.length;
 
                         return (
                             <div key={idx} className="flex flex-col h-full">
@@ -163,7 +162,7 @@ export default function Home() {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <h3 className="text-base font-bold text-gray-900 dark:text-white">{category.name}</h3>
-                                                <span className="text-xs font-bold px-2 py-0.5 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-full">{category.count}</span>
+                                                <span className="text-xs font-bold px-2 py-0.5 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-full">{visibleCount}</span>
                                             </div>
                                             <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{category.description}</p>
                                         </div>

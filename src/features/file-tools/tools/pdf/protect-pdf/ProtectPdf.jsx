@@ -3,8 +3,8 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
-import { validatePdfPassword, MIN_PASSWORD_LENGTH } from '../../../utils/passwordValidation';
+import protectPdfExecutor from './executor';
+import { validatePdfPassword } from '../../../utils/passwordValidation';
 
 export default function ProtectPdf() {
     const [file, setFile] = useState(null);
@@ -44,17 +44,17 @@ export default function ProtectPdf() {
         setProgress(0);
 
         try {
-            const protectedBlob = await processor.protect(
-                file,
-                password,
-                { allowPrinting, allowCopying },
-                (progressValue) => setProgress(progressValue)
-            );
-
-            setResult({
-                url: URL.createObjectURL(protectedBlob),
-                size: protectedBlob.size
+            const executionResult = await protectPdfExecutor.run({
+                files: [file],
+                options: {
+                    password,
+                    allowPrinting,
+                    allowCopying,
+                },
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
+            setResult(executionResult);
 
             setProgress(100);
         } catch (err) {
@@ -66,14 +66,16 @@ export default function ProtectPdf() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = `protected_${file.name}`;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {

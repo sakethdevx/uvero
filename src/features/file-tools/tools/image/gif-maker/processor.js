@@ -44,6 +44,7 @@ const createGIF = (files, inputType, options, onProgress = () => { }) => {
                     : `video_${timestamp}.gif`;
 
                 resolve({
+                    blob: data.blob,
                     url,
                     filename,
                     size: data.blob.size

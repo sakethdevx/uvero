@@ -4,8 +4,7 @@ import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import { useMode } from '../../../context/ModeContext';
-import processor from './processor';
-import { compressImageOnline, isOnlineFeatureAvailable } from '../../../services/imageApi';
+import imageCompressorExecutor from './executor';
 
 const QUALITY_PRESETS = [
     { label: 'Maximum', value: 95, desc: 'Highest quality, larger file' },
@@ -27,7 +26,7 @@ export default function ImageCompressor() {
 
     useEffect(() => {
         return () => {
-            processor.terminate();
+            imageCompressorExecutor.cleanup?.();
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             if (resultPreviewUrl) URL.revokeObjectURL(resultPreviewUrl);
         };
@@ -43,8 +42,8 @@ export default function ImageCompressor() {
     }, [file]);
 
     useEffect(() => {
-        if (result?.blob) {
-            const url = URL.createObjectURL(result.blob);
+        if (result?.primaryFile) {
+            const url = URL.createObjectURL(result.primaryFile);
             setResultPreviewUrl(url);
             return () => URL.revokeObjectURL(url);
         }
@@ -63,24 +62,12 @@ export default function ImageCompressor() {
         setError('');
         setProgress(0);
         try {
-            let compressed;
-            if (isOnlineMode && isOnlineFeatureAvailable('compression')) {
-                setProgress(10);
-                compressed = await compressImageOnline(file, quality);
-                compressed.file = new File(
-                    [compressed.blob],
-                    file.name.replace(/\.[^/.]+$/, '') + '_compressed' + getExtension(compressed.blob.type),
-                    { type: compressed.blob.type }
-                );
-                setProgress(100);
-            } else {
-                if (isOnlineMode) {
-                    setError('Online compression API is currently unavailable. Switching to offline processing…');
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                    setError('');
-                }
-                compressed = await processor.compress(file, quality, (prog) => setProgress(prog));
-            }
+            const compressed = await imageCompressorExecutor.run({
+                files: [file],
+                options: { quality },
+                mode: isOnlineMode ? 'online' : 'offline',
+                onProgress: setProgress,
+            });
             setProgress(100);
             setResult(compressed);
         } catch (err) {
@@ -88,11 +75,6 @@ export default function ImageCompressor() {
         } finally {
             setIsProcessing(false);
         }
-    };
-
-    const getExtension = (mimeType) => {
-        const extensions = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
-        return extensions[mimeType] || '.jpg';
     };
 
     const formatSize = (bytes) => {
@@ -104,10 +86,10 @@ export default function ImageCompressor() {
 
     const handleDownload = () => {
         if (!result) return;
-        const url = URL.createObjectURL(result.blob);
+        const url = URL.createObjectURL(result.primaryFile);
         const a = document.createElement('a');
         a.href = url;
-        a.download = result.file.name;
+        a.download = result.primaryFile.name;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -124,9 +106,9 @@ export default function ImageCompressor() {
         setPreviewUrl('');
     };
 
-    const reduction = result
-        ? Math.round((1 - result.compressedSize / result.originalSize) * 100)
-        : null;
+    const reduction = result?.meta?.reductionPercent ?? null;
+    const originalSize = result?.meta?.originalSize ?? null;
+    const compressedSize = result?.meta?.outputSize ?? result?.primaryFile?.size ?? null;
 
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950 py-10 px-4">
@@ -140,7 +122,9 @@ export default function ImageCompressor() {
                     </h1>
                     <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300 max-w-xl">
                         Reduce image file size while preserving visual quality. Perfect for web, email, and storage.
-                        All processing happens in your browser — completely private.
+                        {isOnlineMode
+                            ? ' Online mode uses server compression for compatible files.'
+                            : ' Offline mode keeps everything on your device.'}
                     </p>
                     <div className="mt-4 flex flex-wrap gap-3">
                         <div className="inline-flex items-center gap-2 rounded-full bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 px-3 py-1.5 text-xs font-semibold text-green-700 dark:text-green-400">
@@ -262,7 +246,7 @@ export default function ImageCompressor() {
                             <div>
                                 <p className="font-bold text-green-900 dark:text-green-100">Compression Complete!</p>
                                 <p className="text-sm text-green-700 dark:text-green-300">
-                                    {formatSize(result.originalSize)} → {formatSize(result.compressedSize)}
+                                    {formatSize(originalSize)} → {formatSize(compressedSize)}
                                     {reduction !== null && reduction > 0 && ` · saved ${reduction}%`}
                                 </p>
                             </div>
@@ -275,7 +259,7 @@ export default function ImageCompressor() {
                                 <div className="flex justify-center items-center bg-gray-50 dark:bg-black/20 rounded-2xl p-3 min-h-40">
                                     {previewUrl && <img src={previewUrl} alt="Original" className="max-h-48 max-w-full rounded-xl object-contain" />}
                                 </div>
-                                <p className="mt-2 text-center text-xs text-gray-400 dark:text-gray-500">{formatSize(result.originalSize)}</p>
+                                <p className="mt-2 text-center text-xs text-gray-400 dark:text-gray-500">{formatSize(originalSize)}</p>
                             </div>
                             <div className="rounded-3xl border border-violet-200/80 bg-violet-50/30 dark:border-violet-500/20 dark:bg-violet-500/5 p-4">
                                 <p className="text-xs font-bold uppercase tracking-wider text-violet-500 dark:text-violet-400 mb-2">Compressed</p>
@@ -283,14 +267,14 @@ export default function ImageCompressor() {
                                     {resultPreviewUrl && <img src={resultPreviewUrl} alt="Compressed" className="max-h-48 max-w-full rounded-xl object-contain" />}
                                 </div>
                                 <p className="mt-2 text-center text-xs text-violet-600 dark:text-violet-400 font-semibold">
-                                    {formatSize(result.compressedSize)}
+                                    {formatSize(compressedSize)}
                                     {reduction !== null && reduction > 0 && ` · −${reduction}%`}
                                 </p>
                             </div>
                         </div>
 
                         {/* Stats */}
-                        <FileInfo file={file} compressedSize={result.compressedSize} showComparison={true} />
+                        <FileInfo file={file} compressedSize={compressedSize} showComparison={true} />
 
                         {/* Download */}
                         <Button onClick={handleDownload} fullWidth
@@ -306,7 +290,7 @@ export default function ImageCompressor() {
                 <div className="rounded-3xl border border-gray-200/80 bg-gray-50/80 dark:border-white/[0.08] dark:bg-white/[0.02] p-6 space-y-4">
                     <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">FAQ</p>
                     {[
-                        { q: 'Is my image data safe?', a: 'All compression happens in your browser. Your files never leave your device — complete privacy guaranteed.' },
+                        { q: 'Is my image data safe?', a: isOnlineMode ? 'Online mode uses the server-backed compression path for this tool. Switch to offline mode if you want processing to stay fully on-device.' : 'Offline mode keeps compression on your device. Your files never leave your browser.' },
                         { q: 'How much can I reduce image size?', a: 'Typically 40–80% depending on the original and quality setting. At 80% quality most users cannot notice any difference.' },
                         { q: 'What formats are supported?', a: 'JPG/JPEG, PNG, and WebP. Compression is most effective on JPEG and WebP images.' },
                         { q: 'Does compression reduce image quality?', a: 'Quality loss is minimal at higher settings. Use the quality slider or presets to find the right balance for your use case.' },

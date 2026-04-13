@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import pageNumbersExecutor from './executor';
 
 export default function PageNumbers() {
     const [file, setFile] = useState(null);
@@ -38,16 +38,13 @@ export default function PageNumbers() {
         setProgress(0);
 
         try {
-            const blob = await processor.addPageNumbers(
-                file,
-                { position, startNumber, fontSize, format, color, margin },
-                (progressValue) => setProgress(progressValue)
-            );
-
-            setResult({
-                url: URL.createObjectURL(blob),
-                fileName: `numbered_${file.name}`
+            const executionResult = await pageNumbersExecutor.run({
+                files: [file],
+                options: { position, startNumber, fontSize, format, color, margin },
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
+            setResult(executionResult);
 
             setProgress(100);
         } catch (err) {
@@ -59,14 +56,16 @@ export default function PageNumbers() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = result.fileName;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {

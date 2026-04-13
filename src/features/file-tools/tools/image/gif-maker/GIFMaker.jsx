@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import gifMakerExecutor from './executor';
 
 const GIFMaker = () => {
     const [files, setFiles] = useState([]);
@@ -33,17 +33,18 @@ const GIFMaker = () => {
         setProgress(0);
 
         try {
-            const result = await processor.createGIF(
+            const result = await gifMakerExecutor.run({
                 files,
-                inputType,
-                {
+                mode: 'offline',
+                options: {
+                    inputType,
                     frameDelay,
                     quality,
                     width,
-                    loop
+                    loop,
                 },
-                (prog) => setProgress(prog)
-            );
+                onProgress: (prog) => setProgress(prog),
+            });
             setResultGIF(result);
         } catch (err) {
             setError(err.message || 'GIF creation failed');
@@ -53,16 +54,18 @@ const GIFMaker = () => {
     };
 
     const handleDownload = () => {
-        if (!resultGIF) return;
+        if (!resultGIF?.primaryFile) return;
         const a = document.createElement('a');
-        a.href = resultGIF.url;
-        a.download = resultGIF.filename;
+        const url = URL.createObjectURL(resultGIF.primaryFile);
+        a.href = url;
+        a.download = resultGIF.primaryFile.name;
         a.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
-        if (resultGIF?.url) {
-            URL.revokeObjectURL(resultGIF.url);
+        if (resultGIF?.previewUrl) {
+            URL.revokeObjectURL(resultGIF.previewUrl);
         }
         setFiles([]);
         setResultGIF(null);
@@ -358,13 +361,13 @@ const GIFMaker = () => {
                                             <div className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Preview:</div>
                                             <div className="flex justify-center bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
                                                 <img
-                                                    src={resultGIF.url}
+                                                    src={resultGIF.previewUrl}
                                                     alt="Generated GIF"
                                                     className="max-w-full max-h-96 rounded-lg"
                                                 />
                                             </div>
                                             <div className="text-center text-sm text-gray-600 dark:text-gray-300 mt-2">
-                                                Size: {formatBytes(resultGIF.size)}
+                                                Size: {formatBytes(resultGIF.primaryFile?.size || 0)}
                                             </div>
                                         </div>
 

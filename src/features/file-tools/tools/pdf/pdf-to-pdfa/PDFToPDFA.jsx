@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import Button from '../../../shared/Button';
-import { PDFDocument, StandardFonts } from 'pdf-lib';
+import pdfToPdfaExecutor from './executor';
 
 const PDFToPDFA = () => {
     const [file, setFile] = useState(null);
@@ -51,53 +51,12 @@ const PDFToPDFA = () => {
         setProgress(0);
 
         try {
-            setProgress(10);
-
-            // Read the PDF file
-            const arrayBuffer = await file.arrayBuffer();
-            setProgress(30);
-
-            // Load the PDF document
-            const pdfDoc = await PDFDocument.load(arrayBuffer);
-            setProgress(50);
-
-            // Add PDF/A metadata
-            // PDF/A-1b requires specific metadata
-            pdfDoc.setTitle(file.name.replace('.pdf', ''));
-            pdfDoc.setAuthor('Uvero Converter');
-            pdfDoc.setSubject('PDF/A Converted Document');
-            pdfDoc.setKeywords(['PDF/A', 'archival', 'long-term preservation']);
-            pdfDoc.setProducer('Uvero PDF to PDF/A Converter');
-            pdfDoc.setCreator('Uvero');
-            pdfDoc.setCreationDate(new Date());
-            pdfDoc.setModificationDate(new Date());
-
-            setProgress(70);
-
-            // Note: True PDF/A compliance requires:
-            // 1. Embedding all fonts
-            // 2. No encryption
-            // 3. Specific color spaces
-            // 4. XMP metadata with PDF/A identifier
-            // This is a simplified conversion that adds metadata
-            // For full PDF/A compliance, server-side processing would be needed
-
-            setProgress(85);
-
-            // Save the PDF with new metadata
-            const pdfBytes = await pdfDoc.save({
-                useObjectStreams: false, // PDF/A requirement
-                addDefaultPage: false,
-                objectsPerTick: 50
+            const result = await pdfToPdfaExecutor.run({
+                files: [file],
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(Math.round(progressValue)),
             });
-
-            setProgress(95);
-
-            // Create blob
-            const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
-            setConvertedPDF(pdfBlob);
-            setProgress(100);
-
+            setConvertedPDF(result);
         } catch (err) {
             console.error('Conversion error:', err);
             setError(err.message || 'Failed to convert PDF. Please ensure it\'s a valid PDF file.');
@@ -107,12 +66,12 @@ const PDFToPDFA = () => {
     };
 
     const handleDownload = () => {
-        if (!convertedPDF) return;
+        if (!convertedPDF?.primaryFile) return;
 
-        const url = URL.createObjectURL(convertedPDF);
+        const url = URL.createObjectURL(convertedPDF.primaryFile);
         const a = document.createElement('a');
         a.href = url;
-        a.download = file.name.replace('.pdf', '-pdfa.pdf');
+        a.download = convertedPDF.primaryFile.name;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import redactPdfExecutor from './executor';
 
 export default function RedactPdf() {
     const [file, setFile] = useState(null);
@@ -34,7 +34,7 @@ export default function RedactPdf() {
         setRedactions([]);
 
         try {
-            const info = await processor.getPageInfo(selectedFile);
+            const info = await redactPdfExecutor.getPageInfo(selectedFile);
             setTotalPages(info.totalPages);
         } catch (err) {
             setError('Failed to read PDF info: ' + err.message);
@@ -86,16 +86,15 @@ export default function RedactPdf() {
         setProgress(0);
 
         try {
-            const redactedBlob = await processor.redact(
-                file,
-                redactions.map(({ page, x, y, width, height, color }) => ({ page, x, y, width, height, color })),
-                (progressValue) => setProgress(progressValue)
-            );
-
-            setResult({
-                url: URL.createObjectURL(redactedBlob),
-                fileName: `redacted_${file.name}`
+            const executionResult = await redactPdfExecutor.run({
+                files: [file],
+                options: {
+                    redactions: redactions.map(({ page, x, y, width, height, color }) => ({ page, x, y, width, height, color })),
+                },
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
+            setResult(executionResult);
 
             setProgress(100);
         } catch (err) {
@@ -107,14 +106,16 @@ export default function RedactPdf() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = result.fileName;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {

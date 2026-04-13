@@ -1,8 +1,6 @@
 import { useState, useRef } from 'react';
 import Button from '../../../shared/Button';
-import * as XLSX from 'xlsx-republish';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import excelToPdfExecutor from './executor';
 
 const ExcelToPDF = () => {
     const [file, setFile] = useState(null);
@@ -59,97 +57,13 @@ const ExcelToPDF = () => {
         setProgress(0);
 
         try {
-            setProgress(10);
-
-            // Read the Excel file
-            const arrayBuffer = await file.arrayBuffer();
-            setProgress(30);
-
-            // Parse the Excel file
-            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-            setProgress(50);
-
-            // Create PDF
-            const pdf = new jsPDF({
-                orientation: 'landscape',
-                unit: 'mm',
-                format: 'a4'
+            const result = await excelToPdfExecutor.run({
+                files: [file],
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(Math.round(progressValue)),
             });
-
-            let isFirstSheet = true;
-
-            // Process each worksheet
-            for (const sheetName of workbook.SheetNames) {
-                const worksheet = workbook.Sheets[sheetName];
-
-                // Convert sheet to JSON
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
-
-                if (jsonData.length === 0) continue;
-
-                // Add new page for each sheet (except first)
-                if (!isFirstSheet) {
-                    pdf.addPage();
-                }
-                isFirstSheet = false;
-
-                // Add sheet title
-                pdf.setFontSize(16);
-                pdf.setTextColor(40);
-                pdf.text(sheetName, 14, 15);
-
-                // Prepare table data
-                const tableData = jsonData.map(row =>
-                    row.map(cell => {
-                        if (cell === null || cell === undefined) return '';
-                        if (typeof cell === 'object') return JSON.stringify(cell);
-                        return String(cell);
-                    })
-                );
-
-                // Create table
-                pdf.autoTable({
-                    startY: 25,
-                    head: tableData.length > 0 ? [tableData[0]] : [],
-                    body: tableData.slice(1),
-                    theme: 'grid',
-                    headStyles: {
-                        fillColor: [66, 139, 202],
-                        textColor: [255, 255, 255],
-                        fontStyle: 'bold',
-                        halign: 'center'
-                    },
-                    styles: {
-                        fontSize: 8,
-                        cellPadding: 2,
-                        overflow: 'linebreak',
-                        halign: 'left'
-                    },
-                    columnStyles: {},
-                    margin: { top: 25, right: 14, bottom: 14, left: 14 },
-                    didDrawPage: (data) => {
-                        // Footer
-                        const pageCount = pdf.internal.getNumberOfPages();
-                        pdf.setFontSize(8);
-                        pdf.setTextColor(150);
-                        pdf.text(
-                            `Page ${data.pageNumber} of ${pageCount}`,
-                            data.settings.margin.left,
-                            pdf.internal.pageSize.height - 10
-                        );
-                    }
-                });
-
-                setProgress(50 + ((workbook.SheetNames.indexOf(sheetName) + 1) / workbook.SheetNames.length) * 40);
-            }
-
-            setProgress(95);
-
-            // Create blob
-            const pdfBlob = pdf.output('blob');
-            setConvertedPDF(pdfBlob);
+            setConvertedPDF(result);
             setProgress(100);
-
         } catch (err) {
             console.error('Conversion error:', err);
             setError(err.message || 'Failed to convert Excel file. Please ensure it\'s a valid Excel file.');
@@ -159,12 +73,12 @@ const ExcelToPDF = () => {
     };
 
     const handleDownload = () => {
-        if (!convertedPDF) return;
+        if (!convertedPDF?.primaryFile) return;
 
-        const url = URL.createObjectURL(convertedPDF);
+        const url = URL.createObjectURL(convertedPDF.primaryFile);
         const a = document.createElement('a');
         a.href = url;
-        a.download = file.name.replace(/\.(xls|xlsx)$/i, '.pdf');
+        a.download = convertedPDF.primaryFile.name;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

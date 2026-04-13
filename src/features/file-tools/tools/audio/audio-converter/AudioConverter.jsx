@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import audioConverterExecutor from './executor';
 
 const AudioConverter = () => {
     const [file, setFile] = useState(null);
@@ -13,6 +13,7 @@ const AudioConverter = () => {
     const [progress, setProgress] = useState(0);
     const [convertedAudio, setConvertedAudio] = useState(null);
     const [error, setError] = useState('');
+    const [previewUrl, setPreviewUrl] = useState('');
 
     const formats = [
         { value: 'mp3', label: 'MP3' },
@@ -42,13 +43,20 @@ const AudioConverter = () => {
         setProgress(0);
 
         try {
-            const result = await processor.convert(
-                file,
-                format,
-                parseInt(bitrate),
-                (progressValue) => setProgress(progressValue)
-            );
-
+            const result = await audioConverterExecutor.run({
+                files: [file],
+                options: {
+                    format,
+                    bitrate: parseInt(bitrate, 10),
+                },
+                mode: 'offline',
+                onProgress: setProgress,
+            });
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+            const nextPreviewUrl = URL.createObjectURL(result.primaryFile);
+            setPreviewUrl(nextPreviewUrl);
             setConvertedAudio(result);
         } catch (err) {
             setError(err.message || 'Conversion failed');
@@ -60,17 +68,23 @@ const AudioConverter = () => {
     const handleDownload = () => {
         if (!convertedAudio) return;
 
+        const url = URL.createObjectURL(convertedAudio.primaryFile);
         const link = document.createElement('a');
-        link.href = convertedAudio.url;
-        link.download = convertedAudio.filename;
+        link.href = url;
+        link.download = convertedAudio.primaryFile.name;
         link.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
         setFile(null);
         setConvertedAudio(null);
         setError('');
         setProgress(0);
+        setPreviewUrl('');
     };
 
     const formatSize = (bytes) => {
@@ -201,7 +215,7 @@ const AudioConverter = () => {
                                                     Conversion Complete!
                                                 </p>
                                                 <p className="text-sm text-green-700 dark:text-green-300">
-                                                    {convertedAudio.filename} • {formatSize(convertedAudio.size)}
+                                                    {convertedAudio.primaryFile.name} • {formatSize(convertedAudio.meta?.outputSize || convertedAudio.primaryFile.size)}
                                                 </p>
                                             </div>
                                         </div>
@@ -210,7 +224,7 @@ const AudioConverter = () => {
                                         <div className="mb-3">
                                             <audio
                                                 controls
-                                                src={convertedAudio.url}
+                                                src={previewUrl}
                                                 className="w-full"
                                             />
                                         </div>
@@ -226,7 +240,7 @@ const AudioConverter = () => {
                                             <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
                                                 <p className="text-gray-600 dark:text-gray-300">Converted</p>
                                                 <p className="font-medium text-gray-900 dark:text-white">
-                                                    {formatSize(convertedAudio.size)}
+                                                    {formatSize(convertedAudio.meta?.outputSize || convertedAudio.primaryFile.size)}
                                                 </p>
                                             </div>
                                         </div>

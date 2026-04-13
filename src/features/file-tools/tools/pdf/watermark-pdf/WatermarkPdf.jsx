@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import watermarkPdfExecutor from './executor';
 
 export default function WatermarkPdf() {
     const [file, setFile] = useState(null);
@@ -73,16 +73,13 @@ export default function WatermarkPdf() {
                 options.imageData = imageBuffer;
             }
 
-            const watermarkedBlob = await processor.addWatermark(
-                file,
+            const executionResult = await watermarkPdfExecutor.run({
+                files: [file],
                 options,
-                (progressValue) => setProgress(progressValue)
-            );
-
-            setResult({
-                url: URL.createObjectURL(watermarkedBlob),
-                blob: watermarkedBlob
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
+            setResult(executionResult);
 
             setProgress(100);
         } catch (err) {
@@ -94,14 +91,16 @@ export default function WatermarkPdf() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = `watermarked_${file.name}`;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {

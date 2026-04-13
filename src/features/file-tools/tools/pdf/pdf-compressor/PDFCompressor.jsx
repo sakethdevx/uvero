@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import pdfCompressorExecutor from './executor';
 
 export default function PDFCompressor() {
     const [file, setFile] = useState(null);
@@ -33,28 +33,13 @@ export default function PDFCompressor() {
         setProgress(0);
 
         try {
-            const compressedBlob = await processor.compress(
-                file,
-                compressionLevel,
-                (progressValue) => setProgress(progressValue)
-            );
-
-            const compressedFile = new File([compressedBlob], file.name, {
-                type: 'application/pdf'
+            const compressedResult = await pdfCompressorExecutor.run({
+                files: [file],
+                options: { compressionLevel },
+                mode: 'offline',
+                onProgress: setProgress,
             });
-
-            const originalSize = file.size;
-            const compressedSize = compressedBlob.size;
-            const savings = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
-
-            setResult({
-                file: compressedFile,
-                originalSize,
-                compressedSize,
-                savings: parseFloat(savings),
-                url: URL.createObjectURL(compressedBlob)
-            });
-
+            setResult(compressedResult);
             setProgress(100);
         } catch (err) {
             console.error('Compression error:', err);
@@ -67,12 +52,14 @@ export default function PDFCompressor() {
     const handleDownload = () => {
         if (!result) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
+        link.href = url;
         link.download = `compressed_${file.name}`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
@@ -92,6 +79,10 @@ export default function PDFCompressor() {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
     };
+
+    const originalSize = result?.meta?.originalSize ?? file?.size ?? 0;
+    const compressedSize = result?.meta?.outputSize ?? result?.primaryFile?.size ?? 0;
+    const savings = result?.meta?.reductionPercent ?? 0;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-red-50 dark:from-gray-900 via-white to-orange-50">
@@ -250,16 +241,16 @@ export default function PDFCompressor() {
                                                 PDF Compressed Successfully!
                                             </h3>
                                             <p className="text-gray-700 dark:text-gray-200 mb-4">
-                                                Your PDF has been compressed by <span className="font-bold text-green-700 dark:text-green-300">{result.savings}%</span>
+                                                Your PDF has been compressed by <span className="font-bold text-green-700 dark:text-green-300">{savings}%</span>
                                             </p>
                                             <div className="grid grid-cols-2 gap-4 text-sm">
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">Original Size</div>
-                                                    <div className="font-semibold text-gray-900 dark:text-white">{formatFileSize(result.originalSize)}</div>
+                                                    <div className="font-semibold text-gray-900 dark:text-white">{formatFileSize(originalSize)}</div>
                                                 </div>
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">Compressed Size</div>
-                                                    <div className="font-semibold text-green-700 dark:text-green-300">{formatFileSize(result.compressedSize)}</div>
+                                                    <div className="font-semibold text-green-700 dark:text-green-300">{formatFileSize(compressedSize)}</div>
                                                 </div>
                                             </div>
                                         </div>

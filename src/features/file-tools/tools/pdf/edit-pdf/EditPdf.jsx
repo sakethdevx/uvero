@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
-import { processor } from './processor';
+import editPdfExecutor from './executor';
 
 export default function EditPdf() {
     const [file, setFile] = useState(null);
@@ -34,7 +34,7 @@ export default function EditPdf() {
         setAnnotations([]);
 
         try {
-            const info = await processor.getPageInfo(selectedFile);
+            const info = await editPdfExecutor.getPageInfo(selectedFile);
             setTotalPages(info.totalPages);
             setPage(1);
         } catch (err) {
@@ -73,16 +73,15 @@ export default function EditPdf() {
         setProgress(0);
 
         try {
-            const editedBlob = await processor.edit(
-                file,
-                annotations,
-                (progressValue) => setProgress(progressValue)
-            );
-
-            setResult({
-                url: URL.createObjectURL(editedBlob),
-                filename: `edited_${file.name}`
+            const executionResult = await editPdfExecutor.run({
+                files: [file],
+                options: {
+                    annotations,
+                },
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
+            setResult(executionResult);
             setProgress(100);
         } catch (err) {
             console.error('Edit error:', err);
@@ -93,13 +92,15 @@ export default function EditPdf() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = result.filename;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {

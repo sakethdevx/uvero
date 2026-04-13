@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from '../audio-converter/processor';
+import mp3ConverterExecutor from './executor';
 
 const MP3Converter = () => {
     const [file, setFile] = useState(null);
@@ -12,6 +12,7 @@ const MP3Converter = () => {
     const [progress, setProgress] = useState(0);
     const [convertedAudio, setConvertedAudio] = useState(null);
     const [error, setError] = useState('');
+    const [previewUrl, setPreviewUrl] = useState('');
 
     const bitrates = [
         { value: '64', label: '64 kbps' },
@@ -36,13 +37,19 @@ const MP3Converter = () => {
         setProgress(0);
 
         try {
-            const result = await processor.convert(
-                file,
-                'mp3',
-                parseInt(bitrate),
-                (progressValue) => setProgress(progressValue)
-            );
-
+            const result = await mp3ConverterExecutor.run({
+                files: [file],
+                options: {
+                    bitrate: parseInt(bitrate, 10),
+                },
+                mode: 'offline',
+                onProgress: setProgress,
+            });
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+            const nextPreviewUrl = URL.createObjectURL(result.primaryFile);
+            setPreviewUrl(nextPreviewUrl);
             setConvertedAudio(result);
         } catch (err) {
             setError(err.message || 'Conversion failed');
@@ -54,17 +61,23 @@ const MP3Converter = () => {
     const handleDownload = () => {
         if (!convertedAudio) return;
 
+        const url = URL.createObjectURL(convertedAudio.primaryFile);
         const link = document.createElement('a');
-        link.href = convertedAudio.url;
-        link.download = convertedAudio.filename;
+        link.href = url;
+        link.download = convertedAudio.primaryFile.name;
         link.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
         setFile(null);
         setConvertedAudio(null);
         setError('');
         setProgress(0);
+        setPreviewUrl('');
     };
 
     const formatSize = (bytes) => {
@@ -148,7 +161,7 @@ const MP3Converter = () => {
                                                 Conversion Complete!
                                             </p>
                                             <p className="text-sm text-green-700 dark:text-green-300">
-                                                {convertedAudio.filename} • {formatSize(convertedAudio.size)}
+                                                {convertedAudio.primaryFile.name} • {formatSize(convertedAudio.meta?.outputSize || convertedAudio.primaryFile.size)}
                                             </p>
                                         </div>
                                     </div>

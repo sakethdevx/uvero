@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
-import { processor } from './processor';
+import scanToPdfExecutor from './executor';
 
 export default function ScanToPdf() {
     const [images, setImages] = useState([]);
@@ -67,13 +67,14 @@ export default function ScanToPdf() {
         setProgress(0);
 
         try {
-            const convertResult = await processor.convert(
-                images.map(img => img.file),
-                { pageSize, orientation, margin, quality },
-                (progressValue) => setProgress(progressValue)
-            );
+            const executionResult = await scanToPdfExecutor.run({
+                files: images.map((img) => img.file),
+                options: { pageSize, orientation, margin, quality },
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
+            });
 
-            setResult(convertResult);
+            setResult(executionResult);
             setProgress(100);
         } catch (err) {
             console.error('Conversion error:', err);
@@ -84,14 +85,16 @@ export default function ScanToPdf() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = result.filename;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
@@ -363,16 +366,16 @@ export default function ScanToPdf() {
                                                 PDF Created Successfully!
                                             </h3>
                                             <p className="text-gray-700 dark:text-gray-200 mb-4">
-                                                Your scanned images have been converted to a <span className="font-bold text-green-700 dark:text-green-300">{result.totalPages}-page</span> PDF.
+                                                Your scanned images have been converted to a <span className="font-bold text-green-700 dark:text-green-300">{result.meta?.totalPages}-page</span> PDF.
                                             </p>
                                             <div className="grid grid-cols-2 gap-4 text-sm">
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">Total Pages</div>
-                                                    <div className="font-semibold text-gray-900 dark:text-white">{result.totalPages}</div>
+                                                    <div className="font-semibold text-gray-900 dark:text-white">{result.meta?.totalPages}</div>
                                                 </div>
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">File Size</div>
-                                                    <div className="font-semibold text-green-700 dark:text-green-300">{formatSize(result.blob.size)}</div>
+                                                    <div className="font-semibold text-green-700 dark:text-green-300">{formatSize(result.meta?.outputSize || result.primaryFile.size)}</div>
                                                 </div>
                                             </div>
                                         </div>

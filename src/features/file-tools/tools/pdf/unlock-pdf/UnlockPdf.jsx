@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import unlockPdfExecutor from './executor';
 
 export default function UnlockPdf() {
     const [file, setFile] = useState(null);
@@ -39,16 +39,15 @@ export default function UnlockPdf() {
         setProgress(0);
 
         try {
-            const unlockedBlob = await processor.unlock(
-                file,
-                password,
-                (progressValue) => setProgress(progressValue)
-            );
-
-            setResult({
-                url: URL.createObjectURL(unlockedBlob),
-                size: unlockedBlob.size
+            const executionResult = await unlockPdfExecutor.run({
+                files: [file],
+                options: {
+                    password,
+                },
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
+            setResult(executionResult);
 
             setProgress(100);
         } catch (err) {
@@ -60,14 +59,16 @@ export default function UnlockPdf() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = `unlocked_${file.name}`;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {

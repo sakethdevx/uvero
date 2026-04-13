@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import imageCropperExecutor from './executor';
 
 const ImageCropper = () => {
     const [file, setFile] = useState(null);
@@ -19,6 +19,7 @@ const ImageCropper = () => {
     const [error, setError] = useState('');
     const [imageDimensions, setImageDimensions] = useState(null);
     const [imageLoading, setImageLoading] = useState(false);
+    const [croppedPreviewUrl, setCroppedPreviewUrl] = useState(null);
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
 
@@ -32,12 +33,19 @@ const ImageCropper = () => {
 
     const handleFileSelect = (selectedFile) => {
         console.log('File selected:', selectedFile.name);
+        if (imageUrl) {
+            URL.revokeObjectURL(imageUrl);
+        }
+        if (croppedPreviewUrl) {
+            URL.revokeObjectURL(croppedPreviewUrl);
+        }
         setFile(selectedFile);
         setImageLoading(true);
         const url = URL.createObjectURL(selectedFile);
         console.log('Image URL created:', url);
         setImageUrl(url);
         setCroppedImage(null);
+        setCroppedPreviewUrl(null);
         setError('');
         setProgress(0);
         setCropArea(null);
@@ -351,11 +359,17 @@ const ImageCropper = () => {
                 height: cropArea.height / imageDimensions.scale
             };
 
-            const result = await processor.cropImage(
-                file,
-                naturalCrop,
-                (prog) => setProgress(prog)
-            );
+            const result = await imageCropperExecutor.run({
+                files: [file],
+                options: { cropArea: naturalCrop },
+                mode: 'offline',
+                onProgress: (prog) => setProgress(prog),
+            });
+            if (croppedPreviewUrl) {
+                URL.revokeObjectURL(croppedPreviewUrl);
+            }
+            const nextPreviewUrl = URL.createObjectURL(result.primaryFile);
+            setCroppedPreviewUrl(nextPreviewUrl);
             setCroppedImage(result);
         } catch (err) {
             setError(err.message || 'Failed to crop image');
@@ -366,22 +380,25 @@ const ImageCropper = () => {
 
     const handleDownload = () => {
         if (!croppedImage) return;
+        const url = URL.createObjectURL(croppedImage.primaryFile);
         const a = document.createElement('a');
-        a.href = croppedImage.url;
-        a.download = croppedImage.filename;
+        a.href = url;
+        a.download = croppedImage.primaryFile.name;
         a.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
         if (imageUrl) {
             URL.revokeObjectURL(imageUrl);
         }
-        if (croppedImage?.url) {
-            URL.revokeObjectURL(croppedImage.url);
+        if (croppedPreviewUrl) {
+            URL.revokeObjectURL(croppedPreviewUrl);
         }
         setFile(null);
         setImageUrl(null);
         setCroppedImage(null);
+        setCroppedPreviewUrl(null);
         setError('');
         setProgress(0);
         setCropArea(null);
@@ -395,6 +412,8 @@ const ImageCropper = () => {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
     };
+
+    const croppedSize = croppedImage?.meta?.outputSize ?? croppedImage?.primaryFile?.size ?? 0;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 py-12 px-4">
@@ -522,7 +541,7 @@ const ImageCropper = () => {
                                             <div className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Preview:</div>
                                             <div className="flex justify-center bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
                                                 <img
-                                                    src={croppedImage.url}
+                                                    src={croppedPreviewUrl}
                                                     alt="Cropped"
                                                     className="max-w-full max-h-96 rounded-lg"
                                                 />
@@ -535,7 +554,7 @@ const ImageCropper = () => {
                                                 <div className="text-center">
                                                     <div className="text-sm text-gray-500 dark:text-gray-400">Cropped</div>
                                                     <div className="font-semibold text-amber-600">
-                                                        {formatBytes(croppedImage.size)}
+                                                        {formatBytes(croppedSize)}
                                                     </div>
                                                 </div>
                                             </div>

@@ -4,7 +4,7 @@ import Button from '../../../shared/Button';
 import Progress from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import { useMode } from '../../../context/ModeContext';
-import processor from './processor';
+import videoToMp3Executor from './executor';
 
 /**
  * Video to MP3 Converter Tool
@@ -20,13 +20,15 @@ export default function VideoToMP3() {
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');
     const [previewUrl, setPreviewUrl] = useState('');
+    const [audioPreviewUrl, setAudioPreviewUrl] = useState('');
 
     // Cleanup on unmount
     useEffect(() => {
         return () => {
             if (previewUrl) URL.revokeObjectURL(previewUrl);
+            if (audioPreviewUrl) URL.revokeObjectURL(audioPreviewUrl);
         };
-    }, [previewUrl]);
+    }, [audioPreviewUrl, previewUrl]);
 
     // Create preview URL when file is selected
     useEffect(() => {
@@ -36,6 +38,14 @@ export default function VideoToMP3() {
             return () => URL.revokeObjectURL(url);
         }
     }, [file]);
+
+    useEffect(() => {
+        if (result?.primaryFile) {
+            const url = URL.createObjectURL(result.primaryFile);
+            setAudioPreviewUrl(url);
+            return () => URL.revokeObjectURL(url);
+        }
+    }, [result]);
 
     const handleFileSelect = (selectedFile) => {
         setFile(selectedFile);
@@ -52,17 +62,12 @@ export default function VideoToMP3() {
         setProgress(0);
 
         try {
-            let converted;
-
-            if (isOnlineMode) {
-                // Online mode: Upload to server for processing
-                setProgress(10);
-                converted = await processor.convertOnline(file, bitrate, (prog) => setProgress(prog));
-            } else {
-                // Offline mode: Client-side processing with Web APIs
-                converted = await processor.convert(file, bitrate, (prog) => setProgress(prog));
-            }
-
+            const converted = await videoToMp3Executor.run({
+                files: [file],
+                options: { bitrate },
+                mode: isOnlineMode ? 'online' : 'offline',
+                onProgress: setProgress,
+            });
             setProgress(100);
             setResult(converted);
         } catch (err) {
@@ -76,10 +81,10 @@ export default function VideoToMP3() {
     const handleDownload = () => {
         if (!result) return;
 
-        const url = URL.createObjectURL(result.blob);
+        const url = URL.createObjectURL(result.primaryFile);
         const a = document.createElement('a');
         a.href = url;
-        a.download = result.file.name;
+        a.download = result.primaryFile.name;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -93,7 +98,9 @@ export default function VideoToMP3() {
         setProgress(0);
         setBitrate(192);
         if (previewUrl) URL.revokeObjectURL(previewUrl);
+        if (audioPreviewUrl) URL.revokeObjectURL(audioPreviewUrl);
         setPreviewUrl('');
+        setAudioPreviewUrl('');
     };
 
     const formatFileSize = (bytes) => {
@@ -293,23 +300,23 @@ export default function VideoToMP3() {
                                     </div>
                                     <div className="p-4 bg-primary-50 rounded-lg">
                                         <p className="text-sm text-primary-600 mb-1">MP3 Audio</p>
-                                        <p className="text-2xl font-bold text-primary-600">{formatFileSize(result.size)}</p>
+                                        <p className="text-2xl font-bold text-primary-600">{formatFileSize(result.meta?.outputSize || result.primaryFile?.size || 0)}</p>
                                     </div>
                                 </div>
 
                                 <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                                     <p className="text-sm text-blue-700 dark:text-blue-300">
-                                        <strong>Bitrate:</strong> {bitrate} kbps | <strong>Duration:</strong> {result.duration || 'N/A'}
+                                        <strong>Bitrate:</strong> {bitrate} kbps | <strong>Duration:</strong> {result.meta?.duration || 'N/A'}
                                     </p>
                                 </div>
                             </div>
 
                             {/* Audio Player */}
-                            {result.blob && (
+                            {audioPreviewUrl && (
                                 <div className="card">
                                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Preview Audio</h3>
                                     <audio
-                                        src={URL.createObjectURL(result.blob)}
+                                        src={audioPreviewUrl}
                                         controls
                                         className="w-full"
                                     />

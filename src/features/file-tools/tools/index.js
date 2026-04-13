@@ -96,6 +96,8 @@ import DocumentConverter from './document/document-converter/DocumentConverter';
 import documentConverterSEO from './document/document-converter/seo.json';
 import ArchiveConverter from './archive/archive-converter/ArchiveConverter';
 import archiveConverterSEO from './archive/archive-converter/seo.json';
+import RARToZip from './archive/rar-to-zip/RARToZip';
+import rarToZipSEO from './archive/rar-to-zip/seo.json';
 import RotatePdf from './pdf/rotate-pdf/RotatePdf';
 import rotatePdfSEO from './pdf/rotate-pdf/seo.json';
 import WatermarkPdf from './pdf/watermark-pdf/WatermarkPdf';
@@ -126,6 +128,7 @@ import ScanToPdf from './pdf/scan-to-pdf/ScanToPdf';
 import scanToPdfSEO from './pdf/scan-to-pdf/seo.json';
 import TranslatePdf from './pdf/translate-pdf/TranslatePdf';
 import translatePdfSEO from './pdf/translate-pdf/seo.json';
+import { getSupportedModesForToolId } from '../core/toolExecutors';
 
 export const tools = {
     'compress-image': {
@@ -612,6 +615,16 @@ export const tools = {
         icon: '🗜️',
         modes: ['offline', 'online']
     },
+    'rar-to-zip': {
+        id: 'rar-to-zip',
+        name: 'RAR to ZIP Converter',
+        description: 'Convert RAR archives to ZIP format with online extraction',
+        component: RARToZip,
+        category: 'archive',
+        seo: rarToZipSEO,
+        icon: '🗜️',
+        modes: ['online']
+    },
     'rotate-pdf': {
         id: 'rotate-pdf',
         name: 'Rotate PDF',
@@ -764,26 +777,57 @@ export const tools = {
     }
 };
 
+const getEffectiveModes = (tool) => {
+    const executorModes = getSupportedModesForToolId(tool.id);
+    const isFileProcessingCategory = ['image', 'pdf', 'audio', 'video', 'document', 'archive'].includes(tool.category);
+
+    if (executorModes) {
+        return executorModes;
+    }
+
+    if (isFileProcessingCategory && Array.isArray(tool.modes) && tool.modes.includes('offline')) {
+        return ['offline'];
+    }
+
+    if (Array.isArray(tool.modes) && tool.modes.length > 0) {
+        return tool.modes;
+    }
+
+    return ['offline'];
+};
+
+const enhanceTool = (tool) => ({
+    ...tool,
+    modes: getEffectiveModes(tool),
+});
+
 /**
  * Get all tools
  */
-export const getAllTools = () => Object.values(tools);
+export const getAllTools = () => Object.values(tools).map(enhanceTool);
 
 /**
  * Get tool by ID
  */
-export const getToolById = (id) => tools[id];
+export const getToolById = (id) => {
+    const tool = tools[id];
+    return tool ? enhanceTool(tool) : undefined;
+};
 
 /**
  * Get tools by category
  */
 export const getToolsByCategory = (category) => {
-    return Object.values(tools).filter(tool => tool.category === category);
+    return Object.values(tools)
+        .filter(tool => tool.category === category)
+        .map(enhanceTool);
 };
 
 /**
  * Get popular tools
  */
 export const getPopularTools = () => {
-    return Object.values(tools).filter(tool => tool.popular);
+    return Object.values(tools)
+        .filter(tool => tool.popular)
+        .map(enhanceTool);
 };

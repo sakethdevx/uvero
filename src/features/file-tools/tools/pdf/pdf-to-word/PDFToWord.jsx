@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import Button from '../../../shared/Button';
-import { processor } from './processor';
+import pdfToWordExecutor from './executor';
 
 const PDFToWord = () => {
     const [file, setFile] = useState(null);
@@ -51,11 +51,11 @@ const PDFToWord = () => {
         setProgress(0);
 
         try {
-            const result = await processor.convert(
-                file,
-                (progressValue) => setProgress(progressValue)
-            );
-
+            const result = await pdfToWordExecutor.run({
+                files: [file],
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
+            });
             setConvertedDoc(result);
             setProgress(100);
         } catch (err) {
@@ -67,12 +67,12 @@ const PDFToWord = () => {
     };
 
     const handleDownload = () => {
-        if (!convertedDoc) return;
+        if (!convertedDoc?.primaryFile) return;
 
-        const url = URL.createObjectURL(convertedDoc.blob);
+        const url = URL.createObjectURL(convertedDoc.primaryFile);
         const a = document.createElement('a');
         a.href = url;
-        a.download = file.name.replace(/\.pdf$/i, '.docx');
+        a.download = convertedDoc.primaryFile.name;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

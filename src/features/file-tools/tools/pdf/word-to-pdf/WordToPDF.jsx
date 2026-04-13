@@ -1,8 +1,6 @@
 import { useState, useRef } from 'react';
 import Button from '../../../shared/Button';
-import mammoth from 'mammoth';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import wordToPdfExecutor from './executor';
 
 const WordToPDF = () => {
     const [file, setFile] = useState(null);
@@ -65,122 +63,13 @@ const WordToPDF = () => {
         setProgress(0);
 
         try {
-            // Check if file is DOCX (mammoth only supports DOCX, not DOC)
-            if (!file.name.endsWith('.docx')) {
-                setError('Currently only DOCX format is supported. DOC format requires server-side conversion.');
-                setConverting(false);
-                return;
-            }
-
-            setProgress(10);
-
-            // Read the file as ArrayBuffer
-            const arrayBuffer = await file.arrayBuffer();
-            setProgress(20);
-
-            // Extract HTML from DOCX using Mammoth
-            const result = await mammoth.convertToHtml({ arrayBuffer });
-            setProgress(30);
-
-            if (!result.value) {
-                throw new Error('Failed to extract content from document');
-            }
-
-            setProgress(40);
-
-            // Create a container to render the full content
-            const fullContainer = document.createElement('div');
-            fullContainer.style.position = 'absolute';
-            fullContainer.style.left = '-9999px';
-            fullContainer.style.width = '180mm'; // A4 width minus margins (210 - 30)
-            fullContainer.style.fontFamily = 'Arial, sans-serif';
-            fullContainer.style.fontSize = '11pt';
-            fullContainer.style.lineHeight = '1.6';
-            fullContainer.style.backgroundColor = 'white';
-            fullContainer.style.padding = '0';
-            fullContainer.innerHTML = result.value;
-            document.body.appendChild(fullContainer);
-
-            // Wait for rendering
-            await new Promise(resolve => setTimeout(resolve, 100));
-
-            setProgress(50);
-
-            // Create PDF
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
+            const result = await wordToPdfExecutor.run({
+                files: [file],
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(Math.round(progressValue)),
             });
-
-            const pageWidth = 210; // A4 width in mm
-            const pageHeight = 297; // A4 height in mm
-            const margin = 15; // Margins in mm
-
-            // Convert the entire content to canvas first
-            const fullCanvas = await html2canvas(fullContainer, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#ffffff'
-            });
-
-            setProgress(70);
-
-            // Remove the container
-            document.body.removeChild(fullContainer);
-
-            // Calculate dimensions
-            const imgWidth = pageWidth - (2 * margin);
-            const imgHeight = (fullCanvas.height * imgWidth) / fullCanvas.width;
-            const contentHeight = pageHeight - (2 * margin);
-
-            // Split the canvas into pages
-            let yPosition = 0;
-            let pageNumber = 0;
-
-            while (yPosition < imgHeight) {
-                setProgress(70 + ((yPosition / imgHeight) * 20)); // Progress from 70% to 90%
-
-                if (pageNumber > 0) {
-                    pdf.addPage();
-                }
-
-                // Calculate the portion of the image for this page
-                const sourceY = (yPosition / imgWidth) * fullCanvas.width * (fullCanvas.height / fullCanvas.width);
-                const sourceHeight = (contentHeight / imgWidth) * fullCanvas.width;
-
-                // Create a temporary canvas for this page
-                const pageCanvas = document.createElement('canvas');
-                pageCanvas.width = fullCanvas.width;
-                pageCanvas.height = Math.min(sourceHeight, fullCanvas.height - sourceY);
-
-                const pageCtx = pageCanvas.getContext('2d');
-                pageCtx.drawImage(
-                    fullCanvas,
-                    0, sourceY, // Source position
-                    fullCanvas.width, pageCanvas.height, // Source dimensions
-                    0, 0, // Destination position
-                    pageCanvas.width, pageCanvas.height // Destination dimensions
-                );
-
-                // Add this page to the PDF
-                const pageImgData = pageCanvas.toDataURL('image/png');
-                const thisPageHeight = (pageCanvas.height * imgWidth) / pageCanvas.width;
-
-                pdf.addImage(pageImgData, 'PNG', margin, margin, imgWidth, thisPageHeight);
-
-                yPosition += contentHeight;
-                pageNumber++;
-            }
-
-            setProgress(90);
-
-            // Create blob and save
-            const pdfBlob = pdf.output('blob');
-            setConvertedPDF(pdfBlob);
+            setConvertedPDF(result);
             setProgress(100);
-
         } catch (err) {
             console.error('Conversion error:', err);
             setError(err.message || 'Failed to convert document. Please ensure it\'s a valid DOCX file.');
@@ -190,12 +79,12 @@ const WordToPDF = () => {
     };
 
     const handleDownload = () => {
-        if (!convertedPDF) return;
+        if (!convertedPDF?.primaryFile) return;
 
-        const url = URL.createObjectURL(convertedPDF);
+        const url = URL.createObjectURL(convertedPDF.primaryFile);
         const a = document.createElement('a');
         a.href = url;
-        a.download = file.name.replace(/\.(doc|docx)$/i, '.pdf');
+        a.download = convertedPDF.primaryFile.name;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -206,6 +95,7 @@ const WordToPDF = () => {
         setFile(null);
         setConvertedPDF(null);
         setError('');
+        setProgress(0);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }

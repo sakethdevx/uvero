@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import audioCompressorExecutor from './executor';
 
 export default function AudioCompressor() {
     const [file, setFile] = useState(null);
@@ -34,28 +34,13 @@ export default function AudioCompressor() {
         setProgress(0);
 
         try {
-            const compressedBlob = await processor.compress(
-                file,
-                bitrate,
-                (progressValue) => setProgress(progressValue)
-            );
-
-            const compressedFile = new File([compressedBlob],
-                file.name.replace(/\.[^.]+$/, '.mp3'),
-                { type: 'audio/mpeg' }
-            );
-
-            const originalSize = file.size;
-            const compressedSize = compressedBlob.size;
-            const savings = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
-
-            setResult({
-                file: compressedFile,
-                originalSize,
-                compressedSize,
-                savings: parseFloat(savings),
-                url: URL.createObjectURL(compressedBlob)
+            const compressed = await audioCompressorExecutor.run({
+                files: [file],
+                mode: 'offline',
+                options: { bitrate },
+                onProgress: (progressValue) => setProgress(progressValue),
             });
+            setResult(compressed);
 
             setProgress(100);
         } catch (err) {
@@ -67,17 +52,22 @@ export default function AudioCompressor() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = `compressed_${file.name.replace(/\.[^.]+$/, '.mp3')}`;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
+        if (result?.previewUrl) {
+            URL.revokeObjectURL(result.previewUrl);
+        }
         setFile(null);
         setResult(null);
         setError(null);
@@ -236,16 +226,16 @@ export default function AudioCompressor() {
                                                 Audio Compressed Successfully!
                                             </h3>
                                             <p className="text-gray-700 dark:text-gray-200 mb-4">
-                                                Your audio has been compressed by <span className="font-bold text-green-700 dark:text-green-300">{result.savings}%</span>
+                                                Your audio has been compressed by <span className="font-bold text-green-700 dark:text-green-300">{result.meta?.savings}%</span>
                                             </p>
                                             <div className="grid grid-cols-2 gap-4 text-sm">
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">Original Size</div>
-                                                    <div className="font-semibold text-gray-900 dark:text-white">{formatFileSize(result.originalSize)}</div>
+                                                    <div className="font-semibold text-gray-900 dark:text-white">{formatFileSize(result.meta?.originalSize || 0)}</div>
                                                 </div>
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">Compressed Size</div>
-                                                    <div className="font-semibold text-green-700 dark:text-green-300">{formatFileSize(result.compressedSize)}</div>
+                                                    <div className="font-semibold text-green-700 dark:text-green-300">{formatFileSize(result.meta?.compressedSize || 0)}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -258,7 +248,7 @@ export default function AudioCompressor() {
                                     <audio
                                         controls
                                         className="w-full"
-                                        src={result.url}
+                                        src={result.previewUrl}
                                     />
                                 </div>
 

@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
-import { processor } from './processor';
+import comparePdfExecutor from './executor';
 
 export default function ComparePdf() {
     const [file1, setFile1] = useState(null);
@@ -44,12 +44,12 @@ export default function ComparePdf() {
         setProgress(0);
 
         try {
-            const comparisonResult = await processor.compare(
-                file1,
-                file2,
-                (progressValue) => setProgress(progressValue)
-            );
-            setResult(comparisonResult);
+            const executionResult = await comparePdfExecutor.run({
+                files: [file1, file2],
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
+            });
+            setResult(executionResult);
             setProgress(100);
         } catch (err) {
             console.error('Comparison error:', err);
@@ -76,6 +76,8 @@ export default function ComparePdf() {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
     };
+
+    const comparison = result?.meta;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-yellow-50 dark:to-gray-800">
@@ -119,7 +121,7 @@ export default function ComparePdf() {
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                     <div className="p-8">
                         {/* Dual Dropzones */}
-                        {!result && (
+                        {!comparison && (
                             <div className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
@@ -224,33 +226,33 @@ export default function ComparePdf() {
                         )}
 
                         {/* Results */}
-                        {result && (
+                        {comparison && (
                             <div className="space-y-6">
                                 {/* Summary */}
-                                <div className={`border rounded-xl p-6 ${result.totalDiffs === 0
+                                <div className={`border rounded-xl p-6 ${comparison.totalDiffs === 0
                                     ? 'bg-gradient-to-r from-green-50 dark:from-gray-900 to-emerald-50 border-green-200 dark:border-green-800/30'
                                     : 'bg-gradient-to-r from-amber-50 to-yellow-50 dark:to-gray-800 border-amber-200'
                                 }`}>
                                     <div className="flex items-start gap-4">
-                                        <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${result.totalDiffs === 0 ? 'bg-green-500' : 'bg-amber-500'
+                                        <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${comparison.totalDiffs === 0 ? 'bg-green-500' : 'bg-amber-500'
                                         }`}>
-                                            <span className="text-2xl">{result.totalDiffs === 0 ? '✓' : '⚠'}</span>
+                                            <span className="text-2xl">{comparison.totalDiffs === 0 ? '✓' : '⚠'}</span>
                                         </div>
                                         <div className="flex-1">
                                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                                                {result.totalDiffs === 0
+                                                {comparison.totalDiffs === 0
                                                     ? 'PDFs are identical!'
-                                                    : `Found differences in ${result.totalDiffs} of ${result.totalPages} page${result.totalPages !== 1 ? 's' : ''}`
+                                                    : `Found differences in ${comparison.totalDiffs} of ${comparison.totalPages} page${comparison.totalPages !== 1 ? 's' : ''}`
                                                 }
                                             </h3>
                                             <div className="grid grid-cols-2 gap-4 text-sm">
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-gray-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">Original PDF</div>
-                                                    <div className="font-semibold text-gray-900 dark:text-white">{result.file1Pages} page{result.file1Pages !== 1 ? 's' : ''}</div>
+                                                    <div className="font-semibold text-gray-900 dark:text-white">{comparison.file1Pages} page{comparison.file1Pages !== 1 ? 's' : ''}</div>
                                                 </div>
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-gray-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">Modified PDF</div>
-                                                    <div className="font-semibold text-gray-900 dark:text-white">{result.file2Pages} page{result.file2Pages !== 1 ? 's' : ''}</div>
+                                                    <div className="font-semibold text-gray-900 dark:text-white">{comparison.file2Pages} page{comparison.file2Pages !== 1 ? 's' : ''}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -258,10 +260,10 @@ export default function ComparePdf() {
                                 </div>
 
                                 {/* Per-page differences */}
-                                {result.differences.length > 0 && (
+                                {comparison.differences.length > 0 && (
                                     <div className="space-y-3">
                                         <h3 className="font-semibold text-gray-900 dark:text-white">Page-by-Page Results</h3>
-                                        {result.differences.map((diff) => (
+                                        {comparison.differences.map((diff) => (
                                             <div key={diff.page} className={`border rounded-lg p-4 ${diff.identical
                                                 ? 'border-green-200 dark:border-green-800/30 bg-green-50 dark:bg-green-900/20'
                                                 : 'border-red-200 dark:border-red-800/30 bg-red-50 dark:bg-red-900/20'

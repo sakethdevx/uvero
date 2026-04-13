@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
-import { processor } from './processor';
+import pdfMergerExecutor from './executor';
 
 const PDFMerger = () => {
     const [files, setFiles] = useState([]);
@@ -52,10 +52,11 @@ const PDFMerger = () => {
         setProgress(0);
 
         try {
-            const result = await processor.merge(
-                files.map(f => f.file),
-                (progressValue) => setProgress(progressValue)
-            );
+            const result = await pdfMergerExecutor.run({
+                files: files.map((item) => item.file),
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
+            });
 
             setMergedPDF(result);
         } catch (err) {
@@ -66,12 +67,14 @@ const PDFMerger = () => {
     };
 
     const handleDownload = () => {
-        if (!mergedPDF) return;
+        if (!mergedPDF?.primaryFile) return;
 
+        const url = URL.createObjectURL(mergedPDF.primaryFile);
         const link = document.createElement('a');
-        link.href = mergedPDF.url;
-        link.download = mergedPDF.filename;
+        link.href = url;
+        link.download = mergedPDF.primaryFile.name;
         link.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
@@ -217,7 +220,7 @@ const PDFMerger = () => {
                                             PDFs Merged Successfully!
                                         </p>
                                         <p className="text-sm text-green-700 dark:text-green-300">
-                                            {mergedPDF.filename} • {formatSize(mergedPDF.size)}
+                                            {mergedPDF.primaryFile.name} • {formatSize(mergedPDF.meta?.outputSize || mergedPDF.primaryFile.size)}
                                         </p>
                                     </div>
                                     <div className="text-4xl">✅</div>
@@ -234,13 +237,13 @@ const PDFMerger = () => {
                                     <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
                                         <p className="text-gray-600 dark:text-gray-300">Total Pages</p>
                                         <p className="font-semibold text-gray-900 dark:text-white text-lg">
-                                            {mergedPDF.totalPages}
+                                            {mergedPDF.meta?.totalPages}
                                         </p>
                                     </div>
                                     <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
                                         <p className="text-gray-600 dark:text-gray-300">File Size</p>
                                         <p className="font-semibold text-gray-900 dark:text-white text-lg">
-                                            {formatSize(mergedPDF.size)}
+                                            {formatSize(mergedPDF.meta?.outputSize || mergedPDF.primaryFile.size)}
                                         </p>
                                     </div>
                                 </div>

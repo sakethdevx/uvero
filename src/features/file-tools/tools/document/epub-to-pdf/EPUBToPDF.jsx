@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import processor from './processor';
+import epubToPdfExecutor from './executor';
 
 /**
  * EPUB to PDF Converter
@@ -15,15 +15,6 @@ export default function EPUBToPDF() {
     const [progress, setProgress] = useState(0);
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');
-
-    // Cleanup on unmount
-    useEffect(() => {
-        return () => {
-            if (result?.blob) {
-                URL.revokeObjectURL(result.blob);
-            }
-        };
-    }, [result]);
 
     const handleFileSelect = (selectedFile) => {
         setFile(selectedFile);
@@ -40,10 +31,11 @@ export default function EPUBToPDF() {
         setProgress(0);
 
         try {
-            const converted = await processor.convert(
-                file,
-                (prog) => setProgress(prog)
-            );
+            const converted = await epubToPdfExecutor.run({
+                files: [file],
+                mode: 'offline',
+                onProgress: (prog) => setProgress(prog),
+            });
 
             setProgress(100);
             setResult(converted);
@@ -56,12 +48,12 @@ export default function EPUBToPDF() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
-        const url = URL.createObjectURL(result.blob);
+        const url = URL.createObjectURL(result.primaryFile);
         const a = document.createElement('a');
         a.href = url;
-        a.download = result.file.name;
+        a.download = result.primaryFile.name;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -180,7 +172,7 @@ export default function EPUBToPDF() {
                                     <p className="text-sm text-green-700 dark:text-green-300 mb-3">
                                         Your EPUB has been converted to PDF successfully.
                                     </p>
-                                    <FileInfo file={result.file} />
+                                    <FileInfo file={result.primaryFile} />
                                 </div>
                             </div>
                         </div>
