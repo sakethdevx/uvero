@@ -173,6 +173,12 @@ const platformFeatures = [
     },
 ];
 
+const heroHighlights = [
+    { value: '6', label: 'Core services' },
+    { value: '55+', label: 'File tools' },
+    { value: '100%', label: 'Privacy-first' },
+];
+
 export default function ServicesHome() {
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
@@ -195,33 +201,64 @@ export default function ServicesHome() {
                 </div>
 
                 <section className="relative max-w-7xl mx-auto px-4 pt-16 pb-10 sm:px-6 lg:px-8">
-                    <div className="grid gap-6 lg:grid-cols-[1.4fr_0.85fr]">
+                    <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_0.85fr]">
                         {/* Main hero card */}
                         <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-primary-50 via-white to-blue-50 p-8 shadow-xl shadow-primary-100/40 dark:border-white/[0.08] dark:from-primary-500/10 dark:via-gray-950 dark:to-blue-500/10 dark:shadow-none sm:p-10">
-                            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary-600 dark:text-primary-300">Uvero Platform</p>
-                            <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-                                Everything you need,{' '}
-                                <span className="text-primary-600 dark:text-primary-400">one platform</span>
-                            </h1>
-                            <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300">
-                                From File Tools to event photo sharing — powerful tools designed for simplicity, speed, and privacy. No sign-up required for most tools.
-                            </p>
-                            <div className="mt-8 flex flex-wrap gap-3">
-                                <Link
-                                    to="/tools"
-                                    className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700"
-                                >
-                                    Explore Tools
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                    </svg>
-                                </Link>
-                                <Link
-                                    to="/photodrop"
-                                    className="inline-flex items-center gap-2 rounded-xl border border-gray-200/80 bg-white/80 px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300 dark:hover:bg-white/[0.08]"
-                                >
-                                    Try PhotoDrop
-                                </Link>
+                            <div className="max-w-3xl">
+                                <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary-600 dark:text-primary-300">Uvero Platform</p>
+                                <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+                                    Everything you need,{' '}
+                                    <span className="text-primary-600 dark:text-primary-400">one platform</span>
+                                </h1>
+                                <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300">
+                                    From File Tools to event photo sharing — powerful tools designed for simplicity, speed, and privacy. No sign-up required for most tools.
+                                </p>
+                                <div className="mt-8 flex flex-wrap gap-3">
+                                    <Link
+                                        to="/tools"
+                                        className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700"
+                                    >
+                                        Explore Tools
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        </svg>
+                                    </Link>
+                                    <Link
+                                        to="/photodrop"
+                                        className="inline-flex items-center gap-2 rounded-xl border border-gray-200/80 bg-white/80 px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300 dark:hover:bg-white/[0.08]"
+                                    >
+                                        Try PhotoDrop
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <div className="mt-10 grid gap-4 lg:grid-cols-[0.9fr_1.2fr]">
+                                <div className="grid grid-cols-3 gap-3">
+                                    {heroHighlights.map((item) => (
+                                        <div
+                                            key={item.label}
+                                            className="rounded-2xl border border-white/70 bg-white/75 px-4 py-4 shadow-sm backdrop-blur dark:border-white/[0.08] dark:bg-white/[0.04]"
+                                        >
+                                            <p className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">{item.value}</p>
+                                            <p className="mt-1 text-xs font-medium text-gray-500 dark:text-gray-400">{item.label}</p>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    {platformFeatures.map((feature) => (
+                                        <div
+                                            key={feature.title}
+                                            className="rounded-2xl border border-white/70 bg-white/75 p-4 shadow-sm backdrop-blur dark:border-white/[0.08] dark:bg-white/[0.04]"
+                                        >
+                                            <div className={`flex h-9 w-9 items-center justify-center rounded-2xl ${feature.iconBg} ${feature.iconColor}`}>
+                                                {feature.icon}
+                                            </div>
+                                            <h3 className="mt-3 text-sm font-bold text-gray-900 dark:text-white">{feature.title}</h3>
+                                            <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">{feature.description}</p>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
 
