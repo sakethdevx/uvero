@@ -3,7 +3,6 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { useMode } from '../../../context/ModeContext';
 import imageCompressorExecutor from './executor';
 
 const QUALITY_PRESETS = [
@@ -13,8 +12,7 @@ const QUALITY_PRESETS = [
     { label: 'Low', value: 50, desc: 'Smallest file, visible loss' },
 ];
 
-export default function ImageCompressor() {
-    const { isOnlineMode } = useMode();
+export default function ImageCompressor({ mode = 'offline', isOnlineMode = mode === 'online' }) {
     const [file, setFile] = useState(null);
     const [quality, setQuality] = useState(80);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -65,7 +63,7 @@ export default function ImageCompressor() {
             const compressed = await imageCompressorExecutor.run({
                 files: [file],
                 options: { quality },
-                mode: isOnlineMode ? 'online' : 'offline',
+                mode,
                 onProgress: setProgress,
             });
             setProgress(100);

@@ -3,7 +3,6 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import Progress from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { useMode } from '../../../context/ModeContext';
 import videoToMp3Executor from './executor';
 
 /**
@@ -11,8 +10,7 @@ import videoToMp3Executor from './executor';
  * Extracts audio from video files and converts to MP3
  * Supports offline (Web APIs) and online (server-side) processing
  */
-export default function VideoToMP3() {
-    const { isOnlineMode } = useMode();
+export default function VideoToMP3({ mode = 'offline', isOnlineMode = mode === 'online' }) {
     const [file, setFile] = useState(null);
     const [bitrate, setBitrate] = useState(192);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -65,7 +63,7 @@ export default function VideoToMP3() {
             const converted = await videoToMp3Executor.run({
                 files: [file],
                 options: { bitrate },
-                mode: isOnlineMode ? 'online' : 'offline',
+                mode,
                 onProgress: setProgress,
             });
             setProgress(100);

@@ -3,11 +3,9 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { useMode } from '../../../context/ModeContext';
 import mp4ToMp3Executor from './executor';
 
-const MP4ToMP3 = () => {
-    const { isOnlineMode } = useMode();
+const MP4ToMP3 = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [bitrate, setBitrate] = useState('192');
     const [isConverting, setIsConverting] = useState(false);
@@ -48,7 +46,7 @@ const MP4ToMP3 = () => {
                 options: {
                     bitrate: parseInt(bitrate, 10),
                 },
-                mode: isOnlineMode ? 'online' : 'offline',
+                mode,
                 onProgress: setProgress,
             });
             if (previewUrl) {

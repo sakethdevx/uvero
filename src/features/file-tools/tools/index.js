@@ -307,8 +307,8 @@ export const tools = {
         popular: true,
         modes: ['offline', 'online']
     },
-    'video-converter': {
-        id: 'video-converter',
+    'convert-video': {
+        id: 'convert-video',
         name: 'Video Converter',
         description: 'Convert videos between MP4, WebM, AVI, MOV, MKV',
         component: VideoConverter,
@@ -600,7 +600,7 @@ export const tools = {
     'document-converter': {
         id: 'document-converter',
         name: 'Document Converter',
-        description: 'Convert between various document formats',
+        description: 'Browse document conversion tools and ebook utilities',
         component: DocumentConverter,
         category: 'document',
         seo: documentConverterSEO,
@@ -610,7 +610,7 @@ export const tools = {
     'epub-to-mobi': {
         id: 'epub-to-mobi',
         name: 'EPUB to MOBI',
-        description: 'Convert EPUB ebooks to MOBI format for Kindle devices',
+        description: 'Online-only EPUB to MOBI path for Kindle, pending backend availability',
         component: EPUBToMOBI,
         category: 'document',
         seo: epubToMobiSEO,
@@ -630,7 +630,7 @@ export const tools = {
     'rar-to-zip': {
         id: 'rar-to-zip',
         name: 'RAR to ZIP Converter',
-        description: 'Convert RAR archives to ZIP format with online extraction',
+        description: 'Convert supported RAR archives to ZIP online with server extraction',
         component: RARToZip,
         category: 'archive',
         seo: rarToZipSEO,

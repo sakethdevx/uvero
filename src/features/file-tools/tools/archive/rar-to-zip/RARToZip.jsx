@@ -113,19 +113,19 @@ export default function RARToZip() {
                             <div className="text-center p-4">
                                 <div className="text-3xl mb-2">🔓</div>
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                    Extract & Repack
+                                    Supported Archives
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    Extracts RAR and repacks as ZIP
+                                    Single-volume, non-password-protected RAR files only
                                 </p>
                             </div>
                             <div className="text-center p-4">
-                                <div className="text-3xl mb-2">⚡</div>
+                                <div className="text-3xl mb-2">☁️</div>
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                    Fast Processing
+                                    Online Extraction
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    Quick conversion with online processing
+                                    Archive contents are extracted on the server and repacked as ZIP
                                 </p>
                             </div>
                         </div>

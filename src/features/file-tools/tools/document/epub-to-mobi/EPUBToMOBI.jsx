@@ -65,30 +65,30 @@ export default function EPUBToMOBI() {
                         {/* Features */}
                         <div className="mt-8 grid md:grid-cols-3 gap-4">
                             <div className="text-center p-4">
-                                <div className="text-3xl mb-2">📱</div>
+                                <div className="text-3xl mb-2">☁️</div>
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                    Kindle Compatible
+                                    Online-Only Route
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    Convert ebooks for Kindle devices
+                                    This tool appears only in online mode
                                 </p>
                             </div>
                             <div className="text-center p-4">
-                                <div className="text-3xl mb-2">🔒</div>
+                                <div className="text-3xl mb-2">🧩</div>
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                    Secure Processing
+                                    Backend Pending
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    Your files are processed securely
+                                    The executor path is ready, but the converter backend is not live yet
                                 </p>
                             </div>
                             <div className="text-center p-4">
-                                <div className="text-3xl mb-2">⚡</div>
+                                <div className="text-3xl mb-2">📚</div>
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                    Fast Conversion
+                                    Kindle Guidance
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    Quick EPUB to MOBI conversion
+                                    Use Calibre or Send to Kindle until the backend is enabled
                                 </p>
                             </div>
                         </div>
@@ -150,8 +150,7 @@ export default function EPUBToMOBI() {
                             <strong>MOBI</strong> is the ebook format used by Amazon Kindle devices and apps.
                         </p>
                         <p>
-                            Converting EPUB to MOBI allows you to read your ebooks on Kindle devices, 
-                            which don't natively support EPUB format.
+                            This page intentionally exposes the future online conversion route, but the actual server-side MOBI conversion service is not configured in this deployment yet.
                         </p>
                         <p className="mt-4">
                             <strong>Note:</strong> For offline MOBI conversion, we recommend using:

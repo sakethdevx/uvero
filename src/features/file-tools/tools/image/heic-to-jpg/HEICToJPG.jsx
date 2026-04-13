@@ -1,11 +1,9 @@
 import { useState, useRef } from 'react';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
-import { useMode } from '../../../context/ModeContext';
 import heicToJpgExecutor from './executor';
 
-export default function HEICToJPG() {
-    const { isOnlineMode } = useMode();
+export default function HEICToJPG({ mode = 'offline', isOnlineMode = mode === 'online' }) {
     const [files, setFiles] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -67,7 +65,7 @@ export default function HEICToJPG() {
             const executionResult = await heicToJpgExecutor.run({
                 files,
                 options: { quality },
-                mode: isOnlineMode ? 'online' : 'offline',
+                mode,
                 onProgress: setProgress,
             });
             const convertedFiles = executionResult.primaryFile
