@@ -1,4 +1,8 @@
-import { createModeNotSupportedError, ModeNotSupportedError } from './errors';
+import {
+    createModeNotSupportedError,
+    ModeNotSupportedError,
+    ServiceUnavailableError,
+} from './errors';
 
 export function assertModeSupported(executor, mode, toolId = executor?.toolId || 'unknown-tool') {
     if (!executor?.supportedModes?.includes(mode)) {
@@ -42,4 +46,8 @@ export function aggregateProgress(onProgress, index, totalFiles) {
 
 export function isModeNotSupportedError(error) {
     return error instanceof ModeNotSupportedError || error?.name === 'ModeNotSupportedError';
+}
+
+export function isServiceUnavailableError(error) {
+    return error instanceof ServiceUnavailableError || error?.name === 'ServiceUnavailableError';
 }

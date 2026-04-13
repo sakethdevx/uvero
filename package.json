@@ -33,6 +33,7 @@
     "mammoth": "^1.11.0",
     "mime": "^3.0.0",
     "moment-timezone": "^0.6.0",
+    "node-unrar-js": "^2.0.2",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^5.4.624",
     "pptxgenjs": "^4.0.1",

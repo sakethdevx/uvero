@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from '../video-converter/processor';
+import mp4ConverterExecutor from './executor';
 
 const MP4Converter = () => {
     const [file, setFile] = useState(null);
@@ -34,12 +34,12 @@ const MP4Converter = () => {
         setProgress(0);
 
         try {
-            const result = await processor.convert(
-                file,
-                'mp4',
-                quality,
-                (prog) => setProgress(prog)
-            );
+            const result = await mp4ConverterExecutor.run({
+                files: [file],
+                mode: 'offline',
+                options: { quality },
+                onProgress: (prog) => setProgress(prog),
+            });
             setConvertedVideo(result);
         } catch (err) {
             setError(err.message || 'Conversion failed');
@@ -49,16 +49,17 @@ const MP4Converter = () => {
     };
 
     const handleDownload = () => {
-        if (!convertedVideo) return;
+        if (!convertedVideo?.primaryFile) return;
         const a = document.createElement('a');
-        a.href = convertedVideo.url;
-        a.download = convertedVideo.filename;
+        a.href = URL.createObjectURL(convertedVideo.primaryFile);
+        a.download = convertedVideo.primaryFile.name;
         a.click();
+        URL.revokeObjectURL(a.href);
     };
 
     const handleReset = () => {
-        if (convertedVideo?.url) {
-            URL.revokeObjectURL(convertedVideo.url);
+        if (convertedVideo?.previewUrl) {
+            URL.revokeObjectURL(convertedVideo.previewUrl);
         }
         setFile(null);
         setConvertedVideo(null);
@@ -157,7 +158,7 @@ const MP4Converter = () => {
                                                 Conversion Complete!
                                             </p>
                                             <p className="text-sm text-green-700 dark:text-green-300">
-                                                {convertedVideo.filename} • {formatBytes(convertedVideo.size)}
+                                                {convertedVideo.primaryFile.name} • {formatBytes(convertedVideo.meta?.outputSize || convertedVideo.primaryFile.size)}
                                             </p>
                                         </div>
                                     </div>

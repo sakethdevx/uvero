@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import videoConverterExecutor from './executor';
 
 const VideoConverter = () => {
     const [file, setFile] = useState(null);
@@ -43,12 +43,12 @@ const VideoConverter = () => {
         setProgress(0);
 
         try {
-            const result = await processor.convert(
-                file,
-                outputFormat,
-                quality,
-                (prog) => setProgress(prog)
-            );
+            const result = await videoConverterExecutor.run({
+                files: [file],
+                mode: 'offline',
+                options: { outputFormat, quality },
+                onProgress: (prog) => setProgress(prog),
+            });
             setConvertedVideo(result);
         } catch (err) {
             setError(err.message || 'Conversion failed');
@@ -58,16 +58,17 @@ const VideoConverter = () => {
     };
 
     const handleDownload = () => {
-        if (!convertedVideo) return;
+        if (!convertedVideo?.primaryFile) return;
         const a = document.createElement('a');
-        a.href = convertedVideo.url;
-        a.download = convertedVideo.filename;
+        a.href = URL.createObjectURL(convertedVideo.primaryFile);
+        a.download = convertedVideo.primaryFile.name;
         a.click();
+        URL.revokeObjectURL(a.href);
     };
 
     const handleReset = () => {
-        if (convertedVideo?.url) {
-            URL.revokeObjectURL(convertedVideo.url);
+        if (convertedVideo?.previewUrl) {
+            URL.revokeObjectURL(convertedVideo.previewUrl);
         }
         setFile(null);
         setConvertedVideo(null);
@@ -223,10 +224,10 @@ const VideoConverter = () => {
                                             <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
                                                 <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Converted</div>
                                                 <div className="font-semibold text-purple-600 dark:text-purple-400">
-                                                    {formatBytes(convertedVideo.size)}
+                                                    {formatBytes(convertedVideo.meta?.outputSize || convertedVideo.primaryFile.size)}
                                                 </div>
                                                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                    {outputFormat.toUpperCase()}
+                                                    {(convertedVideo.meta?.outputFormat || outputFormat).toUpperCase()}
                                                 </div>
                                             </div>
                                         </div>
@@ -235,7 +236,7 @@ const VideoConverter = () => {
                                         <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
                                             <div className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Preview:</div>
                                             <video
-                                                src={convertedVideo.url}
+                                                src={convertedVideo.previewUrl}
                                                 controls
                                                 className="w-full max-h-96 rounded-lg bg-black"
                                             />

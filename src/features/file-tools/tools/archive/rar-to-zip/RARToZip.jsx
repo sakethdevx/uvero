@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import FileInfo from '../../../shared/FileInfo';
+import ProgressBar from '../../../shared/ProgressBar';
 import rarToZipExecutor from './executor';
 
 /**
@@ -13,15 +14,21 @@ export default function RARToZip() {
     const [file, setFile] = useState(null);
     const [error, setError] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [result, setResult] = useState(null);
 
     const handleFileSelect = (selectedFile) => {
         setFile(selectedFile);
         setError('');
+        setResult(null);
+        setProgress(0);
     };
 
     const handleReset = () => {
         setFile(null);
         setError('');
+        setResult(null);
+        setProgress(0);
     };
 
     const handleConvert = async () => {
@@ -29,17 +36,33 @@ export default function RARToZip() {
 
         setIsProcessing(true);
         setError('');
+        setProgress(0);
 
         try {
-            await rarToZipExecutor.run({
+            const conversionResult = await rarToZipExecutor.run({
                 files: [file],
                 mode: 'online',
+                onProgress: (value) => setProgress(value),
             });
+            setResult(conversionResult);
         } catch (err) {
             setError(err.message || 'RAR to ZIP conversion is not available right now.');
         } finally {
             setIsProcessing(false);
         }
+    };
+
+    const handleDownload = () => {
+        if (!result?.primaryFile) return;
+
+        const url = URL.createObjectURL(result.primaryFile);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = result.primaryFile.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     return (
@@ -54,15 +77,15 @@ export default function RARToZip() {
                     </p>
                 </div>
 
-                <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 rounded-lg p-4">
+                <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg p-4">
                     <div className="flex items-start gap-3">
-                        <div className="text-2xl">⚠️</div>
+                        <div className="text-2xl">ℹ️</div>
                         <div>
-                            <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-1">
-                                Server Extractor Required
+                            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                                Online Extraction Enabled
                             </h3>
-                            <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                                This tool is now wired for <strong>online mode</strong>, but it still needs a real server-side RAR extraction service to perform the conversion on this deployment.
+                            <p className="text-sm text-blue-700 dark:text-blue-300">
+                                This tool now uses the real online executor path. It supports single-volume, non-password-protected RAR archives and converts them to ZIP on the server.
                             </p>
                         </div>
                     </div>
@@ -111,7 +134,11 @@ export default function RARToZip() {
 
                 {file && (
                     <div className="space-y-4">
-                        <FileInfo file={file} onRemove={() => setFile(null)} />
+                        <FileInfo file={file} onRemove={handleReset} />
+
+                        {isProcessing && (
+                            <ProgressBar progress={progress} />
+                        )}
 
                         {error && (
                             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-200 rounded-lg p-4">
@@ -120,21 +147,50 @@ export default function RARToZip() {
                             </div>
                         )}
 
+                        {result && (
+                            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 text-green-800 dark:text-green-200 rounded-lg p-4">
+                                <p className="font-medium">Conversion complete</p>
+                                <p className="text-sm">
+                                    {result.primaryFile.name} • {result.meta?.extractedFiles || 0} extracted files
+                                </p>
+                            </div>
+                        )}
+
                         <div className="flex gap-3">
-                            <Button
-                                onClick={handleConvert}
-                                disabled={isProcessing}
-                                variant="primary"
-                                className="flex-1"
-                            >
-                                {isProcessing ? 'Checking Service...' : 'Convert to ZIP'}
-                            </Button>
-                            <Button
-                                onClick={handleReset}
-                                variant="secondary"
-                            >
-                                Cancel
-                            </Button>
+                            {!result ? (
+                                <>
+                                    <Button
+                                        onClick={handleConvert}
+                                        disabled={isProcessing}
+                                        variant="primary"
+                                        className="flex-1"
+                                    >
+                                        {isProcessing ? 'Converting...' : 'Convert to ZIP'}
+                                    </Button>
+                                    <Button
+                                        onClick={handleReset}
+                                        variant="secondary"
+                                    >
+                                        Cancel
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <Button
+                                        onClick={handleDownload}
+                                        variant="primary"
+                                        className="flex-1"
+                                    >
+                                        Download ZIP
+                                    </Button>
+                                    <Button
+                                        onClick={handleReset}
+                                        variant="secondary"
+                                    >
+                                        Convert Another
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     </div>
                 )}
@@ -150,11 +206,10 @@ export default function RARToZip() {
                             <strong>ZIP</strong> is a universal archive format supported by all operating systems without additional software.
                         </p>
                         <p className="mt-4">
-                            <strong>Why online mode?</strong> RAR uses a proprietary compression format that needs a server-side extraction service.
-                            This page now uses the same executor-based architecture as the rest of the file tools and will surface a clear error until that backend service is configured.
+                            <strong>Why online mode?</strong> RAR uses a proprietary compression format that is handled by a server-side extraction service before being repacked as ZIP.
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
-                            Note: For offline RAR extraction, consider using 7-Zip or WinRAR desktop applications.
+                            Note: Password-protected and multi-volume RAR archives are not supported in this first server-backed version.
                         </p>
                     </div>
                 </div>

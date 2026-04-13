@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import videoCompressorExecutor from './executor';
 
 const VideoCompressor = () => {
     const [file, setFile] = useState(null);
@@ -42,13 +42,12 @@ const VideoCompressor = () => {
         setProgress(0);
 
         try {
-            const result = await processor.compress(
-                file,
-                quality,
-                resolution,
-                (progressValue) => setProgress(progressValue)
-            );
-
+            const result = await videoCompressorExecutor.run({
+                files: [file],
+                mode: 'offline',
+                options: { quality, resolution },
+                onProgress: (progressValue) => setProgress(progressValue),
+            });
             setCompressedVideo(result);
         } catch (err) {
             setError(err.message || 'Compression failed. Note: Video compression requires FFmpeg.wasm which may take time to load initially.');
@@ -58,15 +57,18 @@ const VideoCompressor = () => {
     };
 
     const handleDownload = () => {
-        if (!compressedVideo) return;
-
+        if (!compressedVideo?.primaryFile) return;
         const link = document.createElement('a');
-        link.href = compressedVideo.url;
-        link.download = compressedVideo.filename;
+        link.href = URL.createObjectURL(compressedVideo.primaryFile);
+        link.download = compressedVideo.primaryFile.name;
         link.click();
+        URL.revokeObjectURL(link.href);
     };
 
     const handleReset = () => {
+        if (compressedVideo?.previewUrl) {
+            URL.revokeObjectURL(compressedVideo.previewUrl);
+        }
         setFile(null);
         setCompressedVideo(null);
         setError('');
@@ -82,7 +84,7 @@ const VideoCompressor = () => {
     };
 
     const savedPercentage = compressedVideo
-        ? Math.round((1 - compressedVideo.size / file.size) * 100)
+        ? compressedVideo.meta?.reductionPercent ?? Math.round((1 - compressedVideo.primaryFile.size / file.size) * 100)
         : 0;
 
     return (
@@ -211,10 +213,10 @@ const VideoCompressor = () => {
                                         </div>
 
                                         {/* Video Preview */}
-                                        <div className="mb-4 rounded-lg overflow-hidden bg-black">
+                                                <div className="mb-4 rounded-lg overflow-hidden bg-black">
                                             <video
                                                 controls
-                                                src={compressedVideo.url}
+                                                src={compressedVideo.previewUrl}
                                                 className="w-full"
                                             />
                                         </div>
@@ -230,7 +232,7 @@ const VideoCompressor = () => {
                                             <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
                                                 <p className="text-gray-600 dark:text-gray-300">Compressed</p>
                                                 <p className="font-semibold text-green-600 dark:text-green-400 text-lg">
-                                                    {formatSize(compressedVideo.size)}
+                                                    {formatSize(compressedVideo.meta?.outputSize || compressedVideo.primaryFile.size)}
                                                 </p>
                                             </div>
                                         </div>

@@ -109,6 +109,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://uvero.app/epub-to-mobi</loc>
+    <lastmod>2026-04-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://uvero.app/epub-to-pdf</loc>
     <lastmod>2026-04-13</lastmod>
     <changefreq>monthly</changefreq>

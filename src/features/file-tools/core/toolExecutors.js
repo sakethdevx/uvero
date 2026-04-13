@@ -44,6 +44,12 @@ import excelToPdfExecutor from '../tools/pdf/excel-to-pdf/executor';
 import powerPointToPdfExecutor from '../tools/pdf/powerpoint-to-pdf/executor';
 import archiveConverterExecutor from '../tools/archive/archive-converter/executor';
 import rarToZipExecutor from '../tools/archive/rar-to-zip/executor';
+import videoCompressorExecutor from '../tools/video/video-compressor/executor';
+import videoConverterExecutor from '../tools/video/video-converter/executor';
+import mp4ConverterExecutor from '../tools/video/mp4-converter/executor';
+import videoToGifExecutor from '../tools/video/video-to-gif/executor';
+import movToMp4Executor from '../tools/video/mov-to-mp4/executor';
+import epubToMobiExecutor from '../tools/document/epub-to-mobi/executor';
 
 const toolExecutors = {
     'compress-image': imageCompressorExecutor,
@@ -92,6 +98,12 @@ const toolExecutors = {
     'powerpoint-to-pdf': powerPointToPdfExecutor,
     'archive-converter': archiveConverterExecutor,
     'rar-to-zip': rarToZipExecutor,
+    'compress-video': videoCompressorExecutor,
+    'convert-video': videoConverterExecutor,
+    'mp4-converter': mp4ConverterExecutor,
+    'video-to-gif': videoToGifExecutor,
+    'mov-to-mp4': movToMp4Executor,
+    'epub-to-mobi': epubToMobiExecutor,
 };
 
 export function getToolExecutor(toolId) {

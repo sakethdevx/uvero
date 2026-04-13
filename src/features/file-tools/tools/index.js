@@ -92,6 +92,8 @@ import TimeZoneConverter from './utility/timezone-converter/TimeZoneConverter';
 import timezoneConverterSEO from './utility/timezone-converter/seo.json';
 import EPUBToPDF from './document/epub-to-pdf/EPUBToPDF';
 import epubToPdfSEO from './document/epub-to-pdf/seo.json';
+import EPUBToMOBI from './document/epub-to-mobi/EPUBToMOBI';
+import epubToMobiSEO from './document/epub-to-mobi/seo.json';
 import DocumentConverter from './document/document-converter/DocumentConverter';
 import documentConverterSEO from './document/document-converter/seo.json';
 import ArchiveConverter from './archive/archive-converter/ArchiveConverter';
@@ -605,6 +607,16 @@ export const tools = {
         icon: '📄',
         modes: ['offline', 'online']
     },
+    'epub-to-mobi': {
+        id: 'epub-to-mobi',
+        name: 'EPUB to MOBI',
+        description: 'Convert EPUB ebooks to MOBI format for Kindle devices',
+        component: EPUBToMOBI,
+        category: 'document',
+        seo: epubToMobiSEO,
+        icon: '📚',
+        modes: ['online']
+    },
     'archive-converter': {
         id: 'archive-converter',
         name: 'Archive Converter',
@@ -779,10 +791,15 @@ export const tools = {
 
 const getEffectiveModes = (tool) => {
     const executorModes = getSupportedModesForToolId(tool.id);
+    const executorOptionalToolIds = new Set(['document-converter']);
     const isFileProcessingCategory = ['image', 'pdf', 'audio', 'video', 'document', 'archive'].includes(tool.category);
 
     if (executorModes) {
         return executorModes;
+    }
+
+    if (executorOptionalToolIds.has(tool.id)) {
+        return tool.modes;
     }
 
     if (isFileProcessingCategory && Array.isArray(tool.modes) && tool.modes.includes('offline')) {

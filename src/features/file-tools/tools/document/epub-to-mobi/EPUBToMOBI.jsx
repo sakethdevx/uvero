@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import FileInfo from '../../../shared/FileInfo';
+import epubToMobiExecutor from './executor';
 
 /**
  * EPUB to MOBI Converter
@@ -10,13 +11,35 @@ import FileInfo from '../../../shared/FileInfo';
  */
 export default function EPUBToMOBI() {
     const [file, setFile] = useState(null);
+    const [error, setError] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const handleFileSelect = (selectedFile) => {
         setFile(selectedFile);
+        setError('');
     };
 
     const handleReset = () => {
         setFile(null);
+        setError('');
+    };
+
+    const handleConvert = async () => {
+        if (!file) return;
+
+        setIsProcessing(true);
+        setError('');
+
+        try {
+            await epubToMobiExecutor.run({
+                files: [file],
+                mode: 'online',
+            });
+        } catch (err) {
+            setError(err.message || 'EPUB to MOBI conversion is not available right now.');
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     return (
@@ -81,27 +104,33 @@ export default function EPUBToMOBI() {
                                 <div className="text-3xl">ℹ️</div>
                                 <div className="flex-1">
                                     <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                                        Online Conversion Required
+                                        Online Conversion Path Registered
                                     </h3>
                                     <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                                        MOBI conversion requires specialized server-side processing. 
-                                        Switch to <strong>Online Mode</strong> to enable this conversion.
+                                        MOBI conversion requires specialized server-side processing. This tool now lives in the proper
+                                        <strong> online-only</strong> executor path, but the conversion backend is not configured on this deployment yet.
                                     </p>
                                     <p className="text-sm text-blue-700 dark:text-blue-300">
-                                        Alternatively, you can use tools like Calibre (a free desktop application) 
-                                        for EPUB to MOBI conversion with advanced options.
+                                        Until that backend exists, you can use tools like Calibre or Amazon Send to Kindle for EPUB delivery and conversion.
                                     </p>
                                 </div>
                             </div>
                         </div>
 
+                        {error && (
+                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
+                                <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
+                            </div>
+                        )}
+
                         <div className="flex gap-3">
                             <Button
-                                onClick={() => alert('Please switch to Online Mode or use Calibre for MOBI conversion')}
+                                onClick={handleConvert}
                                 variant="primary"
                                 className="flex-1"
+                                disabled={isProcessing}
                             >
-                                Convert to MOBI (Online Mode Required)
+                                {isProcessing ? 'Checking Service...' : 'Convert to MOBI'}
                             </Button>
                             <Button
                                 onClick={handleReset}

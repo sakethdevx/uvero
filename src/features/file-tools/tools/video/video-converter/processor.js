@@ -38,6 +38,7 @@ const convert = (file, outputFormat = 'mp4', quality = 'high', onProgress = () =
                 const filename = `${originalName}_converted.${outputFormat}`;
 
                 resolve({
+                    blob: data.blob,
                     url,
                     filename,
                     size: data.blob.size

@@ -1,9 +1,9 @@
 {
   "title": "RAR to ZIP Converter - Convert RAR Archives to ZIP",
-  "description": "RAR to ZIP conversion requires an online server-side extraction service. This tool is wired for online mode and will show availability based on deployment support.",
-  "keywords": "RAR to ZIP, archive converter, RAR converter, online archive tool, rar extraction service",
+  "description": "Convert single-volume RAR archives to ZIP online. Free RAR to ZIP converter with secure server-side extraction and ZIP repacking.",
+  "keywords": "RAR to ZIP, archive converter, RAR converter, online archive tool, rar extraction service, convert rar online",
   "ogTitle": "RAR to ZIP Converter - Online Archive Tool",
-  "ogDescription": "RAR to ZIP conversion requires a configured online archive service.",
+  "ogDescription": "Convert supported RAR archives to ZIP online with secure server-side extraction.",
   "structuredData": {
     "@context": "https://schema.org",
     "@type": "WebApplication",
