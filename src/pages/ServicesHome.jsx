@@ -286,22 +286,6 @@ export default function ServicesHome() {
                                     </Link>
                                 ))}
                             </div>
-
-                            <div className="mt-5 rounded-2xl border border-gray-200/80 bg-white/80 p-4 dark:border-white/[0.08] dark:bg-white/[0.03]">
-                                <div className="grid grid-cols-2 gap-3">
-                                    {platformFeatures.map((feature) => (
-                                        <div key={feature.title} className="flex items-start gap-2.5">
-                                            <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${feature.iconBg} ${feature.iconColor}`}>
-                                                {feature.icon}
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-semibold text-gray-900 dark:text-white">{feature.title}</p>
-                                                <p className="mt-0.5 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">{feature.description}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </section>
