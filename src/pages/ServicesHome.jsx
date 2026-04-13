@@ -232,8 +232,8 @@ export default function ServicesHome() {
                                 </div>
                             </div>
 
-                            <div className="mt-10 grid gap-4 lg:grid-cols-[0.9fr_1.2fr]">
-                                <div className="grid grid-cols-3 gap-3">
+                            <div className="mt-10">
+                                <div className="grid grid-cols-3 gap-3 lg:max-w-md">
                                     {heroHighlights.map((item) => (
                                         <div
                                             key={item.label}
@@ -241,21 +241,6 @@ export default function ServicesHome() {
                                         >
                                             <p className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">{item.value}</p>
                                             <p className="mt-1 text-xs font-medium text-gray-500 dark:text-gray-400">{item.label}</p>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="grid gap-3 sm:grid-cols-2">
-                                    {platformFeatures.map((feature) => (
-                                        <div
-                                            key={feature.title}
-                                            className="rounded-2xl border border-white/70 bg-white/75 p-4 shadow-sm backdrop-blur dark:border-white/[0.08] dark:bg-white/[0.04]"
-                                        >
-                                            <div className={`flex h-9 w-9 items-center justify-center rounded-2xl ${feature.iconBg} ${feature.iconColor}`}>
-                                                {feature.icon}
-                                            </div>
-                                            <h3 className="mt-3 text-sm font-bold text-gray-900 dark:text-white">{feature.title}</h3>
-                                            <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">{feature.description}</p>
                                         </div>
                                     ))}
                                 </div>
