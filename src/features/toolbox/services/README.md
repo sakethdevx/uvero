@@ -1,6 +1,6 @@
 # Online Processing API Services
 
-This directory contains service modules for online File Tools.
+This directory contains service modules for online Toolbox processing flows.
 
 ## ✅ Server-Side Processing Enabled
 

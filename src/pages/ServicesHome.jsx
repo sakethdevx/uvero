@@ -9,8 +9,8 @@ import ContactFormSection from '../components/ContactFormSection';
  */
 const services = [
     {
-        id: 'file-tools',
-        name: 'File Tools',
+        id: 'toolbox',
+        name: 'Toolbox',
         tagline: 'Convert, compress & transform',
         description: '55+ powerful tools to convert, compress, resize, and process your files. Images, PDFs, audio, video, documents — all in one place.',
         features: ['Image & PDF Tools', 'Audio & Video Conversion', 'Privacy-First Processing', 'Works Offline'],
@@ -24,7 +24,7 @@ const services = [
         cardBg: 'from-primary-50 via-white to-blue-50 dark:from-primary-500/10 dark:via-gray-950 dark:to-blue-500/10',
         badge: 'Popular',
         badgeClassName: 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-300',
-        link: '/tools',
+        link: '/toolbox',
         cta: 'Explore Tools',
     },
     {
@@ -175,7 +175,7 @@ const platformFeatures = [
 
 const heroHighlights = [
     { value: '6', label: 'Core services' },
-    { value: '55+', label: 'File tools' },
+    { value: '55+', label: 'Toolbox tools' },
     { value: '100%', label: 'Privacy-first' },
 ];
 
@@ -185,7 +185,7 @@ export default function ServicesHome() {
             {/* Announcement Banner */}
             <AnnouncementBanner
                 announcements={[
-                    { message: "File Tools are temporarily under maintenance — some tools may be unavailable. We're working on a fix.", badge: "Maintenance" },
+                    { message: "Uvero Toolbox is temporarily under maintenance — some tools may be unavailable. We're working on a fix.", badge: "Maintenance" },
                     { message: "New Feature: Uvero CLI access is now available!", badge: "New" },
                     { message: "Next Major Service: Project Helper — coming soon!", badge: "Upcoming" }
                 ]}
@@ -211,11 +211,11 @@ export default function ServicesHome() {
                                     <span className="text-primary-600 dark:text-primary-400">one platform</span>
                                 </h1>
                                 <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300">
-                                    From File Tools to event photo sharing — powerful tools designed for simplicity, speed, and privacy. No sign-up required for most tools.
+                                    From Uvero Toolbox to event photo sharing — powerful tools designed for simplicity, speed, and privacy. No sign-up required for most tools.
                                 </p>
                                 <div className="mt-8 flex flex-wrap gap-3">
                                     <Link
-                                        to="/tools"
+                                        to="/toolbox"
                                         className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700"
                                     >
                                         Explore Tools

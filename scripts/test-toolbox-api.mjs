@@ -3,15 +3,15 @@ import assert from 'node:assert/strict'
 import {
     classifyTransformImageError,
     normalizeOutputFormat,
-} from '../src/features/file-tools/api/transform-image.js'
+} from '../src/features/toolbox/api/transform-image.js'
 import {
     classifyTransformAudioError,
     normalizeAudioFormat,
-} from '../src/features/file-tools/api/transform-audio.js'
+} from '../src/features/toolbox/api/transform-audio.js'
 import {
     classifyTransformVideoError,
     normalizeVideoFormat,
-} from '../src/features/file-tools/api/transform-video.js'
+} from '../src/features/toolbox/api/transform-video.js'
 
 test('normalizeOutputFormat maps jpg to jpeg and rejects unsupported formats', () => {
     assert.equal(normalizeOutputFormat('jpg'), 'jpeg')

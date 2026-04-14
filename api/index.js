@@ -36,47 +36,52 @@ export default async function handler(req, res) {
         }
 
         if (originalPath === '/api/compress') {
-            const mod = await import('../src/features/file-tools/api/compress.js')
+            const mod = await import('../src/features/toolbox/api/compress.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/convert-video-to-mp3') {
-            const mod = await import('../src/features/file-tools/api/convert-video-to-mp3.js')
+            const mod = await import('../src/features/toolbox/api/convert-video-to-mp3.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/convert-heic') {
-            const mod = await import('../src/features/file-tools/api/convert-heic.js')
+            const mod = await import('../src/features/toolbox/api/convert-heic.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/transform-image') {
-            const mod = await import('../src/features/file-tools/api/transform-image.js')
+            const mod = await import('../src/features/toolbox/api/transform-image.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/transform-audio') {
-            const mod = await import('../src/features/file-tools/api/transform-audio.js')
+            const mod = await import('../src/features/toolbox/api/transform-audio.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/transform-video') {
-            const mod = await import('../src/features/file-tools/api/transform-video.js')
+            const mod = await import('../src/features/toolbox/api/transform-video.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/convert-rar-to-zip') {
-            const mod = await import('../src/features/file-tools/api/convert-rar-to-zip.js')
+            const mod = await import('../src/features/toolbox/api/convert-rar-to-zip.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/convert-epub-to-mobi') {
-            const mod = await import('../src/features/file-tools/api/convert-epub-to-mobi.js')
+            const mod = await import('../src/features/toolbox/api/convert-epub-to-mobi.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/toolbox/runtime-status') {
+            const mod = await import('../src/features/toolbox/api/toolbox-runtime-status.js')
             return mod.default(req, res)
         }
 
         if (originalPath === '/api/file-tools/runtime-status') {
-            const mod = await import('../src/features/file-tools/api/file-tools-runtime-status.js')
+            const mod = await import('../src/features/toolbox/api/toolbox-runtime-status.js')
             return mod.default(req, res)
         }
 

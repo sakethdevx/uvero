@@ -53,7 +53,7 @@ export default function ToolPage() {
 
         // Cleanup
         return () => {
-            document.title = 'Uvero - Free Online File Tools';
+            document.title = 'Uvero Toolbox';
         };
     }, [tool]);
 

@@ -1,13 +1,13 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { ModeProvider } from './features/file-tools/context/ModeContext';
-import ModeToggle from './features/file-tools/components/ModeToggle';
+import { ModeProvider } from './features/toolbox/context/ModeContext';
+import ModeToggle from './features/toolbox/components/ModeToggle';
 import ThemeToggle from './components/ThemeToggle';
 import BrandLogo from './components/BrandLogo';
 import ServicesHome from './pages/ServicesHome';
 import CompilerHome from './features/compiler/pages/CompilerHome';
-import Home from './features/file-tools/pages/Home';
-import ToolPage from './features/file-tools/pages/ToolPage';
+import Home from './features/toolbox/pages/Home';
+import ToolPage from './features/toolbox/pages/ToolPage';
 import Privacy from './pages/Privacy';
 import Contact from './pages/Contact';
 import EventsPage from './features/photodrop/pages/Events';
@@ -34,7 +34,7 @@ import Profile from './pages/Profile';
 import Maintenance from './pages/Maintenance';
 import { useAuth } from './auth/AuthContext';
 import { signOut } from './auth/authService';
-import { getToolById } from './features/file-tools/tools';
+import { getToolById } from './features/toolbox/tools';
 import { getMaintenanceConfig } from './config/maintenance';
 
 /**
@@ -48,8 +48,8 @@ function AppContent() {
   const dropdownTimerRef = useRef(null);
   const location = useLocation();
 
-  // Determine if we're on a file tools route (for scoping ModeToggle)
-  const isFileProcessingRoute = location.pathname === '/tools' || !!getToolById(location.pathname.slice(1));
+  // Determine if we're on a toolbox route (for scoping ModeToggle)
+  const isToolboxRoute = location.pathname === '/toolbox' || location.pathname === '/tools' || !!getToolById(location.pathname.slice(1));
 
   // Close mobile menu and scroll to top on route change
   useEffect(() => {
@@ -202,7 +202,7 @@ function AppContent() {
     const path = location.pathname;
     if (path === '/') return null;
     if (path.startsWith('/compiler')) return 'Online Compiler';
-    if (path.startsWith('/tools')) return 'File Tools';
+    if (path.startsWith('/toolbox') || path.startsWith('/tools')) return 'Toolbox';
     if (path.startsWith('/photodrop')) return 'PhotoDrop';
     if (path.startsWith('/clipboard') || path.startsWith('/c/')) return 'Online Clipboard';
     if (path.startsWith('/split-expense')) return 'PaySplit';
@@ -244,13 +244,13 @@ function AppContent() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-1">
               {/* Tools Dropdown */}
-              {isFileProcessingRoute && (
+              {isToolboxRoute && (
                 <div className="relative" ref={dropdownRef} onMouseEnter={handleDropdownEnter} onMouseLeave={handleDropdownLeave}>
                   <button
                     onClick={() => setIsToolsDropdownOpen(!isToolsDropdownOpen)}
                     className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium transition-colors py-2 px-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
                   >
-                    Tools
+                    Toolbox
                     <svg className={`w-4 h-4 transition-transform duration-200 ${isToolsDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                     </svg>
@@ -303,7 +303,7 @@ function AppContent() {
 
               <div className="ml-2 flex items-center gap-2 pl-3 border-l border-gray-200 dark:border-gray-700">
                 <ThemeToggle />
-                {isFileProcessingRoute && <ModeToggle />}
+                {isToolboxRoute && <ModeToggle />}
                 <AuthStatus />
               </div>
             </div>
@@ -337,7 +337,7 @@ function AppContent() {
                 <ThemeToggle />
               </div>
 
-              {isFileProcessingRoute && (
+              {isToolboxRoute && (
                 <div className="pb-3 border-b border-gray-100 dark:border-gray-800">
                   <ModeToggle />
                 </div>
@@ -347,7 +347,7 @@ function AppContent() {
                 <AuthStatus isMobile={true} onNav={() => setIsMenuOpen(false)} />
               </div>
 
-              {isFileProcessingRoute && toolCategories.map((category, idx) => (
+              {isToolboxRoute && toolCategories.map((category, idx) => (
                 <div key={idx}>
                   <div className="flex items-center gap-2 mb-1.5 font-semibold text-gray-900 dark:text-gray-100">
                     <span>{category.icon}</span>
@@ -395,7 +395,8 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<ServicesHome />} />
           <Route path="/compiler" element={<CompilerHome />} />
-          <Route path="/tools" element={<Home />} />
+          <Route path="/toolbox" element={<Home />} />
+          <Route path="/tools" element={<Navigate to="/toolbox" replace />} />
           <Route path="/photodrop" element={<EventsPage />} />
           <Route path="/photodrop/:id" element={<EventDetail />} />
           <Route path="/clipboard" element={<Clipboard />} />
@@ -434,7 +435,7 @@ function AppContent() {
               </div>
               <p className="text-gray-400 max-w-sm mb-4 text-sm leading-relaxed">
                 Professional digital tools for simplicity, speed, and privacy.
-                Privacy-first File Tools that work offline.
+                Privacy-first utilities with clear offline and online processing paths.
               </p>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-900/30 border border-green-800/50 rounded-md text-green-400 text-xs font-medium">
                 <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
@@ -449,7 +450,7 @@ function AppContent() {
               <h3 className="text-white font-semibold mb-3 text-sm">Services</h3>
               <ul className="space-y-2">
                 {[
-                  { name: 'File Tools', path: '/tools' },
+                  { name: 'Toolbox', path: '/toolbox' },
                   { name: 'Online Compiler', path: '/compiler' },
                   { name: 'PhotoDrop', path: '/photodrop' },
                   { name: 'Online Clipboard', path: '/clipboard' },

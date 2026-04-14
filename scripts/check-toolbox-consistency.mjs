@@ -6,13 +6,13 @@ import {
     QUICK_CONVERTER_ELIGIBLE_TOOL_IDS,
     TOOLS_REQUIRING_SHARED_METADATA,
     getToolMetadata,
-} from '../src/features/file-tools/core/toolMetadata.js'
+} from '../src/features/toolbox/core/toolMetadata.js'
 
 const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = path.resolve(ROOT_DIR, '..')
 
-const TOOL_INDEX_PATH = path.join(PROJECT_ROOT, 'src', 'features', 'file-tools', 'tools', 'index.js')
-const EXECUTORS_PATH = path.join(PROJECT_ROOT, 'src', 'features', 'file-tools', 'core', 'toolExecutors.js')
+const TOOL_INDEX_PATH = path.join(PROJECT_ROOT, 'src', 'features', 'toolbox', 'tools', 'index.js')
+const EXECUTORS_PATH = path.join(PROJECT_ROOT, 'src', 'features', 'toolbox', 'core', 'toolExecutors.js')
 const APP_PATH = path.join(PROJECT_ROOT, 'src', 'App.jsx')
 const EXECUTOR_EXEMPT_TOOL_IDS = new Set(['document-converter'])
 
@@ -232,7 +232,7 @@ async function main() {
     ].filter(Boolean)
 
     if (failures.length > 0) {
-        console.error('File-tools consistency check failed:\n')
+        console.error('Toolbox consistency check failed:\n')
         for (const failure of failures) {
             console.error(`- ${failure}`)
         }
@@ -240,10 +240,10 @@ async function main() {
         return
     }
 
-    console.log(`File-tools consistency check passed for ${tools.length} tools, ${executorIds.size} executors, and ${navToolIds.size} nav-linked routes.`)
+    console.log(`Toolbox consistency check passed for ${tools.length} tools, ${executorIds.size} executors, and ${navToolIds.size} nav-linked routes.`)
 }
 
 main().catch((error) => {
-    console.error('Failed to run file-tools consistency check:', error)
+    console.error('Failed to run toolbox consistency check:', error)
     process.exitCode = 1
 })

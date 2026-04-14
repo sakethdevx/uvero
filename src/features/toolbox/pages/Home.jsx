@@ -94,7 +94,7 @@ export default function Home() {
                 <section className="relative max-w-7xl mx-auto px-4 pt-16 pb-10 sm:px-6 lg:px-8">
                     <div className="grid gap-6 lg:grid-cols-[1.4fr_0.85fr]">
                         <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-primary-50 via-white to-blue-50 p-8 shadow-xl shadow-primary-100/40 dark:border-white/[0.08] dark:from-primary-500/10 dark:via-gray-950 dark:to-blue-500/10 dark:shadow-none sm:p-10">
-                            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary-600 dark:text-primary-300">File Tools</p>
+                            <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary-600 dark:text-primary-300">Uvero Toolbox</p>
                             <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
                                 Powerful tools,{' '}
                                 <span className="text-primary-600 dark:text-primary-400">clear processing paths.</span>
@@ -104,7 +104,7 @@ export default function Home() {
                             </p>
                             <div className="mt-8 flex flex-wrap gap-3">
                                 <a href="#quick-convert" className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700">
-                                    Start with File Tools
+                                    Start with Toolbox
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                     </svg>
@@ -287,7 +287,7 @@ export default function Home() {
                     <div className="grid md:grid-cols-3 gap-6">
                         {[
                             { icon: '🛡️', title: 'Privacy Guaranteed', desc: 'Offline-supported tools stay on-device, and online flows are explicitly labeled when they need a server runtime.' },
-                            { icon: '💨', title: 'Client-Side Speed', desc: 'Most file tools still avoid upload delays and process locally at native browser speed.' },
+                            { icon: '💨', title: 'Client-Side Speed', desc: 'Most toolbox workflows still avoid upload delays and process locally at native browser speed.' },
                             { icon: '📶', title: 'Offline Where Supported', desc: 'Core browser-based tools keep working offline, while specialized server-backed tools stay clearly marked.' },
                         ].map((item, i) => (
                             <div key={i} className="flex items-start gap-4">

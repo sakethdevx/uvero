@@ -1,17 +1,17 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { getFileToolsRuntimeStatus } from '../src/features/file-tools/api/file-tools-runtime-status.js'
+import { getToolboxRuntimeStatus } from '../src/features/toolbox/api/toolbox-runtime-status.js'
 import {
     createRuntimeVerificationFailure,
     normalizeToolRuntimeStatus,
-} from '../src/features/file-tools/core/toolRuntimeStatus.js'
+} from '../src/features/toolbox/core/toolRuntimeStatus.js'
 
 test('runtime status reports EPUB converter as deployment required when unset', () => {
     const previous = process.env.EPUB_TO_MOBI_BINARY_PATH
     delete process.env.EPUB_TO_MOBI_BINARY_PATH
 
     try {
-        const status = getFileToolsRuntimeStatus()
+        const status = getToolboxRuntimeStatus()
         assert.equal(status.tools['epub-to-mobi'].available, false)
         assert.equal(status.tools['epub-to-mobi'].status, 'deployment_required')
         assert.equal(status.tools['epub-to-mobi'].runtime, null)
@@ -23,7 +23,7 @@ test('runtime status reports EPUB converter as deployment required when unset', 
 })
 
 test('runtime status reports RAR tool as limited but available', () => {
-    const status = getFileToolsRuntimeStatus()
+    const status = getToolboxRuntimeStatus()
     assert.equal(status.tools['rar-to-zip'].available, true)
     assert.equal(status.tools['rar-to-zip'].status, 'limited')
     assert.deepEqual(status.tools['rar-to-zip'].limits, [

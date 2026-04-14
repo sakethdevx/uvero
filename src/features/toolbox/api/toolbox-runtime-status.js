@@ -47,7 +47,7 @@ function getRarToZipStatus() {
     };
 }
 
-export function getFileToolsRuntimeStatus() {
+export function getToolboxRuntimeStatus() {
     return {
         tools: {
             'epub-to-mobi': getEpubToMobiStatus(),
@@ -73,5 +73,5 @@ export default function handler(req, res) {
         });
     }
 
-    return res.status(200).json(getFileToolsRuntimeStatus());
+    return res.status(200).json(getToolboxRuntimeStatus());
 }
