@@ -187,6 +187,47 @@ async function transformResize(buffer, metadata, fields) {
     };
 }
 
+async function transformCrop(buffer, metadata, fields) {
+    const rawX = parseFloatValue(getFieldValue(fields.x), null);
+    const rawY = parseFloatValue(getFieldValue(fields.y), null);
+    const rawWidth = parseFloatValue(getFieldValue(fields.width), null);
+    const rawHeight = parseFloatValue(getFieldValue(fields.height), null);
+
+    if (
+        rawX === null || rawY === null || rawWidth === null || rawHeight === null ||
+        rawWidth <= 0 || rawHeight <= 0
+    ) {
+        throw createClientError('Valid crop coordinates are required.', 'INVALID_CROP_AREA');
+    }
+
+    const normalizedBuffer = await sharp(buffer).rotate().toBuffer();
+    const normalizedMetadata = await sharp(normalizedBuffer).metadata();
+    const sourceWidth = normalizedMetadata.width || 0;
+    const sourceHeight = normalizedMetadata.height || 0;
+
+    if (!sourceWidth || !sourceHeight) {
+        throw createClientError('Unable to determine image dimensions for cropping.', 'INVALID_DIMENSIONS');
+    }
+
+    const left = Math.max(0, Math.min(Math.round(rawX), sourceWidth - 1));
+    const top = Math.max(0, Math.min(Math.round(rawY), sourceHeight - 1));
+    const width = Math.max(1, Math.min(Math.round(rawWidth), sourceWidth - left));
+    const height = Math.max(1, Math.min(Math.round(rawHeight), sourceHeight - top));
+
+    const outputBuffer = await sharp(normalizedBuffer)
+        .extract({ left, top, width, height })
+        .png({ compressionLevel: 9 })
+        .toBuffer();
+    const outputMetadata = await sharp(outputBuffer).metadata();
+
+    return {
+        buffer: outputBuffer,
+        format: 'png',
+        contentType: 'image/png',
+        metadata: outputMetadata,
+    };
+}
+
 async function createWatermarkOverlaySvg(fields, files, baseMetadata) {
     const watermarkType = getFieldValue(fields.type) || 'text';
     const opacity = Math.min(1, Math.max(0.1, parseFloatValue(getFieldValue(fields.opacity), 0.5)));
@@ -271,6 +312,8 @@ async function applyImageTransform(operation, buffer, metadata, fields, files) {
             return transformConvert(buffer, metadata, fields);
         case 'resize':
             return transformResize(buffer, metadata, fields);
+        case 'crop':
+            return transformCrop(buffer, metadata, fields);
         case 'watermark':
             return transformWatermark(buffer, metadata, fields, files);
         default:
@@ -311,6 +354,14 @@ export function classifyTransformImageError(error) {
             status: 400,
             error: message,
             code: 'UNSUPPORTED_TRANSFORM_OPERATION',
+        };
+    }
+
+    if (/extract_area|bad extract area|invalid crop area/i.test(message)) {
+        return {
+            status: 400,
+            error: 'The selected crop area is outside the image bounds.',
+            code: 'INVALID_CROP_AREA',
         };
     }
 

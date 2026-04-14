@@ -209,7 +209,7 @@ export const tools = {
         seo: imageCropperSEO,
         icon: '✂️',
         popular: true,
-        modes: ['offline']
+        modes: ['offline', 'online']
     }, 'remove-background': {
         id: 'remove-background',
         name: 'Background Remover',

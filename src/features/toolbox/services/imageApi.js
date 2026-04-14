@@ -69,6 +69,10 @@ async function transformImageOnline(file, operation, params = {}, extraFiles = {
     });
 
     if (!response.ok) {
+        if (response.status === 413) {
+            throw new Error('This image is too large for online mode on this deployment. Switch to offline mode for large image cropping.');
+        }
+
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || errorData.message || 'Image transform failed.');
     }
@@ -110,6 +114,15 @@ export async function resizeImageOnline(file, options = {}) {
     });
 }
 
+export async function cropImageOnline(file, options = {}) {
+    return transformImageOnline(file, 'crop', {
+        x: options.x ?? null,
+        y: options.y ?? null,
+        width: options.width ?? null,
+        height: options.height ?? null,
+    });
+}
+
 export async function watermarkImageOnline(file, options = {}) {
     return transformImageOnline(
         file,
@@ -145,6 +158,7 @@ export function isOnlineFeatureAvailable(feature) {
         compression: true,
         conversion: true,
         resize: true,
+        crop: true,
         watermark: true,
         backgroundRemoval: false,
     };

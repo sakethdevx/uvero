@@ -5,7 +5,7 @@ import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import imageCropperExecutor from './executor';
 
-const ImageCropper = () => {
+const ImageCropper = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [imageUrl, setImageUrl] = useState(null);
     const [cropMode, setCropMode] = useState('freeform'); // 'freeform', 'square', '16:9', '4:3', '1:1'
@@ -362,7 +362,7 @@ const ImageCropper = () => {
             const result = await imageCropperExecutor.run({
                 files: [file],
                 options: { cropArea: naturalCrop },
-                mode: 'offline',
+                mode,
                 onProgress: (prog) => setProgress(prog),
             });
             if (croppedPreviewUrl) {
@@ -421,6 +421,12 @@ const ImageCropper = () => {
 
                 {/* Main Content */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+                    {isOnlineMode && (
+                        <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-200">
+                            Online mode uses server-side cropping. Very large images may exceed this deployment's upload limit, and offline mode is better for those files.
+                        </div>
+                    )}
+
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
