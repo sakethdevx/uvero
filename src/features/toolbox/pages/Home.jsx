@@ -95,7 +95,7 @@ export default function Home() {
     });
 
     const selectedCategory = categories.find((category) => category.categoryId === activeCategory) || categories[0];
-    const selectedCategoryTools = selectedCategory.modeAwareTools;
+    const selectedCategoryTools = selectedCategory.allTools;
     const selectedCategoryPopularTools = selectedCategoryTools.filter((tool) => tool.popular).slice(0, 3);
 
     return (
@@ -164,7 +164,7 @@ export default function Home() {
 
             {/* Quick Converter Section */}
             <section id="quick-convert" className="max-w-6xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
-                <div className="rounded-3xl border border-gray-200/80 bg-white p-4 shadow-xl shadow-gray-100/60 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none sm:p-6">
+                <div className="overflow-hidden rounded-[2.5rem] border border-gray-200/80 bg-gradient-to-br from-white via-primary-50/30 to-blue-50/50 p-3 shadow-xl shadow-gray-100/60 dark:border-white/[0.08] dark:from-gray-900/80 dark:via-gray-900/60 dark:to-primary-950/20 dark:shadow-none sm:p-4">
                     <QuickConverter />
                 </div>
             </section>
@@ -187,23 +187,23 @@ export default function Home() {
                         </span>
                     </div>
                     <p className="mt-3 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
-                        Pick a lane on the left and get a focused tool board on the right. The list stays mode-aware, so you only see tools available in your current processing mode.
+                        Pick a lane on the left and get a focused tool board on the right. The board now keeps the full category visible, while the current mode is still clearly reflected in counts and tool states.
                     </p>
                 </div>
 
                 <div className="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
-                    <div className="rounded-[2rem] border border-gray-200/80 bg-gray-50/80 p-3 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
+                    <div className="rounded-[2rem] border border-gray-200/80 bg-gray-50/80 p-3 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04] lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-hidden">
                         <div className="rounded-[1.5rem] border border-white/80 bg-white/70 p-4 backdrop-blur dark:border-white/[0.08] dark:bg-gray-950/40">
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Category Rail</p>
                             <p className="mt-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-                                Switch categories without opening dropdowns. The board updates instantly with the tools available in your current mode.
+                                Switch categories without opening dropdowns. The rail stays scrollable so this section remains compact even as more categories are added.
                             </p>
                         </div>
 
-                        <div className="mt-3 space-y-2">
+                        <div className="mt-3 space-y-2 lg:max-h-[calc(100vh-17rem)] lg:overflow-y-auto lg:pr-1 custom-scrollbar">
                             {categories.map((category) => {
                                 const isActive = category.categoryId === selectedCategory.categoryId;
-                                const previewNames = category.modeAwareTools.slice(0, 3).map((tool) => tool.name).join(' · ');
+                                const previewNames = category.allTools.slice(0, 3).map((tool) => tool.name).join(' · ');
 
                                 return (
                                     <button
@@ -227,14 +227,17 @@ export default function Home() {
                                                             ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-300'
                                                             : 'bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400'
                                                     }`}>
-                                                        {category.visibleCount}
+                                                        {category.totalCount}
                                                     </span>
                                                 </div>
                                                 <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
                                                     {category.description}
                                                 </p>
                                                 <p className="mt-2 text-[11px] text-gray-400 dark:text-gray-500">
-                                                    {previewNames || `No tools available in ${isOnlineMode ? 'online' : 'offline'} mode.`}
+                                                    {previewNames || 'Tools will appear here as categories grow.'}
+                                                </p>
+                                                <p className="mt-1 text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                                                    {category.visibleCount} available in {isOnlineMode ? 'online' : 'offline'} mode
                                                 </p>
                                             </div>
                                         </div>
@@ -289,13 +292,13 @@ export default function Home() {
                         </div>
 
                         <div className="p-5 sm:p-6">
-                            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                                <div>
-                                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Tools in view</p>
-                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                        Open any tool directly from this board. Availability badges still reflect runtime requirements.
-                                    </p>
-                                </div>
+                                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                                    <div>
+                                        <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Tools in view</p>
+                                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                            Full category inventory stays visible here. Tools that do not match the current mode are still browseable, but they are visually softened.
+                                        </p>
+                                    </div>
                                 <div className="inline-flex items-center gap-2 rounded-full border border-gray-200/80 bg-gray-50 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300">
                                     <span className={`h-2 w-2 rounded-full ${isOnlineMode ? 'bg-blue-500' : 'bg-primary-500'}`} />
                                     Showing {isOnlineMode ? 'online-ready' : 'offline-ready'} tools
@@ -306,12 +309,15 @@ export default function Home() {
                                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                                     {selectedCategoryTools.map((tool) => {
                                         const availabilityBadge = getToolAvailabilityBadge(tool);
+                                        const isAvailableInCurrentMode = isToolAvailableInMode(tool, currentMode);
 
                                         return (
                                             <Link
                                                 key={tool.id}
                                                 to={`/${tool.id}`}
-                                                className="group rounded-[1.5rem] border border-gray-200/80 bg-gray-50/80 p-4 transition-all hover:-translate-y-0.5 hover:border-primary-200 hover:bg-white hover:shadow-lg hover:shadow-gray-100/70 dark:border-white/[0.08] dark:bg-white/[0.03] dark:hover:border-primary-500/30 dark:hover:bg-white/[0.05] dark:hover:shadow-none"
+                                                className={`group rounded-[1.5rem] border border-gray-200/80 bg-gray-50/80 p-4 transition-all hover:-translate-y-0.5 hover:border-primary-200 hover:bg-white hover:shadow-lg hover:shadow-gray-100/70 dark:border-white/[0.08] dark:bg-white/[0.03] dark:hover:border-primary-500/30 dark:hover:bg-white/[0.05] dark:hover:shadow-none ${
+                                                    !isAvailableInCurrentMode ? 'opacity-70' : ''
+                                                }`}
                                             >
                                                 <div className="flex items-start gap-3">
                                                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-gray-200/80 bg-white text-2xl shadow-sm dark:border-white/[0.08] dark:bg-gray-900/60">
@@ -322,6 +328,11 @@ export default function Home() {
                                                             <h4 className="text-sm font-bold text-gray-900 transition-colors group-hover:text-primary-600 dark:text-white dark:group-hover:text-primary-400">
                                                                 {tool.name}
                                                             </h4>
+                                                            {!isAvailableInCurrentMode && (
+                                                                <span className="inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-600 dark:bg-white/5 dark:text-gray-300">
+                                                                    {isOnlineMode ? 'Offline Only' : 'Online Only'}
+                                                                </span>
+                                                            )}
                                                             {availabilityBadge && (
                                                                 <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${availabilityBadge.className}`}>
                                                                     {availabilityBadge.label}
@@ -344,9 +355,9 @@ export default function Home() {
                                 </div>
                             ) : (
                                 <div className="rounded-[1.75rem] border border-dashed border-gray-200/80 bg-gray-50/80 p-8 text-center dark:border-white/[0.08] dark:bg-white/[0.03]">
-                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">No tools available in this mode</p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">No tools found in this category</p>
                                     <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                        Switch to {isOnlineMode ? 'offline' : 'online'} mode to explore additional {selectedCategory.name.toLowerCase()} workflows.
+                                        Add tools to this category and they will appear here automatically.
                                     </p>
                                 </div>
                             )}
