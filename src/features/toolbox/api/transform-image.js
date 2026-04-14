@@ -188,8 +188,6 @@ async function transformResize(buffer, metadata, fields) {
 }
 
 async function transformCrop(buffer, metadata, fields) {
-    const sourceWidth = metadata.width || 0;
-    const sourceHeight = metadata.height || 0;
     const rawX = parseFloatValue(getFieldValue(fields.x), null);
     const rawY = parseFloatValue(getFieldValue(fields.y), null);
     const rawWidth = parseFloatValue(getFieldValue(fields.width), null);
@@ -202,6 +200,11 @@ async function transformCrop(buffer, metadata, fields) {
         throw createClientError('Valid crop coordinates are required.', 'INVALID_CROP_AREA');
     }
 
+    const normalizedBuffer = await sharp(buffer).rotate().toBuffer();
+    const normalizedMetadata = await sharp(normalizedBuffer).metadata();
+    const sourceWidth = normalizedMetadata.width || 0;
+    const sourceHeight = normalizedMetadata.height || 0;
+
     if (!sourceWidth || !sourceHeight) {
         throw createClientError('Unable to determine image dimensions for cropping.', 'INVALID_DIMENSIONS');
     }
@@ -211,8 +214,7 @@ async function transformCrop(buffer, metadata, fields) {
     const width = Math.max(1, Math.min(Math.round(rawWidth), sourceWidth - left));
     const height = Math.max(1, Math.min(Math.round(rawHeight), sourceHeight - top));
 
-    const outputBuffer = await sharp(buffer)
-        .rotate()
+    const outputBuffer = await sharp(normalizedBuffer)
         .extract({ left, top, width, height })
         .png({ compressionLevel: 9 })
         .toBuffer();
@@ -352,6 +354,14 @@ export function classifyTransformImageError(error) {
             status: 400,
             error: message,
             code: 'UNSUPPORTED_TRANSFORM_OPERATION',
+        };
+    }
+
+    if (/extract_area|bad extract area|invalid crop area/i.test(message)) {
+        return {
+            status: 400,
+            error: 'The selected crop area is outside the image bounds.',
+            code: 'INVALID_CROP_AREA',
         };
     }
 
