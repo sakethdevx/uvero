@@ -55,6 +55,11 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/convert-epub-to-mobi') {
+            const mod = await import('../src/features/file-tools/api/convert-epub-to-mobi.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/delete-event') {
             const mod = await import('../src/features/photodrop/api/delete-event.js')
             return mod.default(req, res)

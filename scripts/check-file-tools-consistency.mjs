@@ -8,6 +8,7 @@ const PROJECT_ROOT = path.resolve(ROOT_DIR, '..')
 const TOOL_INDEX_PATH = path.join(PROJECT_ROOT, 'src', 'features', 'file-tools', 'tools', 'index.js')
 const EXECUTORS_PATH = path.join(PROJECT_ROOT, 'src', 'features', 'file-tools', 'core', 'toolExecutors.js')
 const APP_PATH = path.join(PROJECT_ROOT, 'src', 'App.jsx')
+const EXECUTOR_EXEMPT_TOOL_IDS = new Set(['document-converter'])
 
 function parseToolEntries(source) {
     const match = source.match(/export const tools = \{([\s\S]*?)\n\};/)
@@ -29,6 +30,7 @@ function parseToolEntries(source) {
             key,
             id: idMatch?.[1] || key,
             category: categoryMatch?.[1] || null,
+            hasSeo: /seo:\s*[A-Za-z0-9_]+/.test(block),
         })
     }
 
@@ -91,15 +93,26 @@ async function main() {
         .filter((tool) => !executorOptionalIds.has(tool.id))
         .map((tool) => tool.id)
 
+    const processingToolsWithoutSeo = tools
+        .filter((tool) => isFileProcessingCategory(tool.category))
+        .filter((tool) => executorIds.has(tool.id))
+        .filter((tool) => !tool.hasSeo)
+        .map((tool) => tool.id)
+
     const executorOptionalInvalid = [...executorOptionalIds]
         .filter((toolId) => !tools.some((tool) => tool.id === toolId) || executorIds.has(toolId))
+
+    const executorOptionalUnexpected = [...executorOptionalIds]
+        .filter((toolId) => !EXECUTOR_EXEMPT_TOOL_IDS.has(toolId))
 
     const failures = [
         registryKeyMismatches.length && `Registry key/id mismatches: ${registryKeyMismatches.join(', ')}`,
         navMissingRegistry.length && `Nav routes missing registry tools: ${navMissingRegistry.join(', ')}`,
         executorWithoutRegistry.length && `Executor ids missing registry tools: ${executorWithoutRegistry.join(', ')}`,
         processingToolsWithoutExecutor.length && `File-processing tools missing executors: ${processingToolsWithoutExecutor.join(', ')}`,
+        processingToolsWithoutSeo.length && `Executor-backed processing tools missing SEO metadata: ${processingToolsWithoutSeo.join(', ')}`,
         executorOptionalInvalid.length && `Invalid executor-optional ids: ${executorOptionalInvalid.join(', ')}`,
+        executorOptionalUnexpected.length && `Unexpected executor-optional ids: ${executorOptionalUnexpected.join(', ')}`,
     ].filter(Boolean)
 
     if (failures.length > 0) {

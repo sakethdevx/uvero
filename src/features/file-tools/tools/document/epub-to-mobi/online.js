@@ -1,11 +1,44 @@
-import { ensureFiles } from '../../../core/executorUtils';
+import {
+    ensureFiles,
+    normalizeSingleFileResult,
+} from '../../../core/executorUtils';
 import { createServiceUnavailableError } from '../../../core/errors';
 
 export async function run({ files, onProgress }) {
-    ensureFiles(files);
-    onProgress?.(10);
-    throw createServiceUnavailableError(
-        'epub-to-mobi',
-        'EPUB to MOBI is available only in online mode, but this deployment does not have a MOBI conversion backend configured yet.'
-    );
+    const [file] = ensureFiles(files);
+    const formData = new FormData();
+    formData.append('ebook', file);
+
+    onProgress?.(15);
+
+    const response = await fetch('/api/convert-epub-to-mobi', {
+        method: 'POST',
+        body: formData,
+    });
+
+    onProgress?.(70);
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const message = errorData.error || errorData.message || 'EPUB to MOBI conversion failed.';
+
+        if (response.status >= 500) {
+            throw createServiceUnavailableError('epub-to-mobi', message, response.status);
+        }
+
+        throw new Error(message);
+    }
+
+    const blob = await response.blob();
+    const outputFile = new File([blob], `${file.name.replace(/\.epub$/i, '')}.mobi`, {
+        type: 'application/x-mobipocket-ebook',
+    });
+
+    onProgress?.(100);
+
+    return normalizeSingleFileResult(outputFile, {
+        originalSize: file.size,
+        outputSize: outputFile.size,
+        note: `Converted with ${response.headers.get('X-Converter-Binary') || 'server-side MOBI runtime'}`,
+    });
 }

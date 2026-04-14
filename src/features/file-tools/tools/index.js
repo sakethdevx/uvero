@@ -610,7 +610,7 @@ export const tools = {
     'epub-to-mobi': {
         id: 'epub-to-mobi',
         name: 'EPUB to MOBI',
-        description: 'Online-only EPUB to MOBI path for Kindle, pending backend availability',
+        description: 'Convert EPUB ebooks to MOBI online when a server-side Kindle runtime is configured',
         component: EPUBToMOBI,
         category: 'document',
         seo: epubToMobiSEO,

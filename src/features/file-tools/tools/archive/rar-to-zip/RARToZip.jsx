@@ -81,14 +81,17 @@ export default function RARToZip() {
                     <div className="flex items-start gap-3">
                         <div className="text-2xl">ℹ️</div>
                         <div>
-                            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
-                                Online Extraction Enabled
-                            </h3>
-                            <p className="text-sm text-blue-700 dark:text-blue-300">
-                                This tool now uses the real online executor path. It supports single-volume, non-password-protected RAR archives and converts them to ZIP on the server.
-                            </p>
+                                <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                                    Online Extraction Enabled
+                                </h3>
+                                <p className="text-sm text-blue-700 dark:text-blue-300">
+                                    This tool now uses the real online executor path. It supports single-volume, non-password-protected RAR archives and converts them to ZIP on the server.
+                                </p>
+                                <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
+                                    Multipart, password-protected, and damaged archives are rejected with explicit server responses so the failure mode stays predictable.
+                                </p>
+                            </div>
                         </div>
-                    </div>
                 </div>
 
                 {!file && (

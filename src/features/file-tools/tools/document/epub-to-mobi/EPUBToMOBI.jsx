@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import FileInfo from '../../../shared/FileInfo';
+import ProgressBar from '../../../shared/ProgressBar';
 import epubToMobiExecutor from './executor';
 
 /**
@@ -13,15 +14,21 @@ export default function EPUBToMOBI() {
     const [file, setFile] = useState(null);
     const [error, setError] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [result, setResult] = useState(null);
 
     const handleFileSelect = (selectedFile) => {
         setFile(selectedFile);
         setError('');
+        setResult(null);
+        setProgress(0);
     };
 
     const handleReset = () => {
         setFile(null);
         setError('');
+        setResult(null);
+        setProgress(0);
     };
 
     const handleConvert = async () => {
@@ -29,17 +36,34 @@ export default function EPUBToMOBI() {
 
         setIsProcessing(true);
         setError('');
+        setResult(null);
+        setProgress(0);
 
         try {
-            await epubToMobiExecutor.run({
+            const conversionResult = await epubToMobiExecutor.run({
                 files: [file],
                 mode: 'online',
+                onProgress: (value) => setProgress(value),
             });
+            setResult(conversionResult);
         } catch (err) {
             setError(err.message || 'EPUB to MOBI conversion is not available right now.');
         } finally {
             setIsProcessing(false);
         }
+    };
+
+    const handleDownload = () => {
+        if (!result?.primaryFile) return;
+
+        const url = URL.createObjectURL(result.primaryFile);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = result.primaryFile.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     return (
@@ -76,10 +100,10 @@ export default function EPUBToMOBI() {
                             <div className="text-center p-4">
                                 <div className="text-3xl mb-2">🧩</div>
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                    Backend Pending
+                                    Server API Ready
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    The executor path is ready, but the converter backend is not live yet
+                                    Conversion runs through a real online API when this deployment provides a MOBI runtime
                                 </p>
                             </div>
                             <div className="text-center p-4">
@@ -104,18 +128,21 @@ export default function EPUBToMOBI() {
                                 <div className="text-3xl">ℹ️</div>
                                 <div className="flex-1">
                                     <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                                        Online Conversion Path Registered
+                                        Server Conversion Runtime Required
                                     </h3>
                                     <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                                        MOBI conversion requires specialized server-side processing. This tool now lives in the proper
-                                        <strong> online-only</strong> executor path, but the conversion backend is not configured on this deployment yet.
+                                        MOBI conversion now runs through the proper <strong>online-only</strong> API route. It will work on deployments that provide a compatible converter runtime such as KindleGen or Calibre&apos;s <code>ebook-convert</code>.
                                     </p>
                                     <p className="text-sm text-blue-700 dark:text-blue-300">
-                                        Until that backend exists, you can use tools like Calibre or Amazon Send to Kindle for EPUB delivery and conversion.
+                                        If this deployment has not configured that runtime yet, you&apos;ll see a clear service-unavailable message instead of a placeholder flow.
                                     </p>
                                 </div>
                             </div>
                         </div>
+
+                        {isProcessing && (
+                            <ProgressBar progress={progress} />
+                        )}
 
                         {error && (
                             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-4">
@@ -123,21 +150,51 @@ export default function EPUBToMOBI() {
                             </div>
                         )}
 
+                        {result?.primaryFile && (
+                            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg p-4">
+                                <p className="text-green-800 dark:text-green-200 font-medium">Conversion complete</p>
+                                <p className="text-green-700 dark:text-green-300 text-sm">
+                                    {result.primaryFile.name}
+                                    {result.meta?.note ? ` • ${result.meta.note}` : ''}
+                                </p>
+                            </div>
+                        )}
+
                         <div className="flex gap-3">
-                            <Button
-                                onClick={handleConvert}
-                                variant="primary"
-                                className="flex-1"
-                                disabled={isProcessing}
-                            >
-                                {isProcessing ? 'Checking Service...' : 'Convert to MOBI'}
-                            </Button>
-                            <Button
-                                onClick={handleReset}
-                                variant="secondary"
-                            >
-                                Cancel
-                            </Button>
+                            {!result ? (
+                                <>
+                                    <Button
+                                        onClick={handleConvert}
+                                        variant="primary"
+                                        className="flex-1"
+                                        disabled={isProcessing}
+                                    >
+                                        {isProcessing ? 'Converting...' : 'Convert to MOBI'}
+                                    </Button>
+                                    <Button
+                                        onClick={handleReset}
+                                        variant="secondary"
+                                    >
+                                        Cancel
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <Button
+                                        onClick={handleDownload}
+                                        variant="primary"
+                                        className="flex-1"
+                                    >
+                                        Download MOBI
+                                    </Button>
+                                    <Button
+                                        onClick={handleReset}
+                                        variant="secondary"
+                                    >
+                                        Convert Another
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     </div>
                 )}
@@ -150,10 +207,10 @@ export default function EPUBToMOBI() {
                             <strong>MOBI</strong> is the ebook format used by Amazon Kindle devices and apps.
                         </p>
                         <p>
-                            This page intentionally exposes the future online conversion route, but the actual server-side MOBI conversion service is not configured in this deployment yet.
+                            This tool now calls a real online conversion API. The deployment still needs a server-side converter runtime configured before EPUB uploads can be turned into MOBI files.
                         </p>
                         <p className="mt-4">
-                            <strong>Note:</strong> For offline MOBI conversion, we recommend using:
+                            <strong>Fallback options:</strong> If the runtime is not configured here yet, we recommend:
                         </p>
                         <ul className="list-disc list-inside space-y-1 ml-4">
                             <li>Calibre (Free desktop application)</li>

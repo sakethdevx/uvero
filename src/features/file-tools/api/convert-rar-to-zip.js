@@ -33,7 +33,7 @@ const parseForm = async (req) => {
     });
 };
 
-const sanitizeArchivePath = (inputPath) => {
+export const sanitizeArchivePath = (inputPath) => {
     const normalized = inputPath
         .replace(/\\/g, '/')
         .split('/')
@@ -44,7 +44,14 @@ const sanitizeArchivePath = (inputPath) => {
     return normalized.replace(/^\/+/, '');
 };
 
-const classifyExtractionError = (error) => {
+export const classifyExtractionError = (error) => {
+    if (error?.code === 1009 || /maxFileSize|maxTotalFileSize/i.test(error?.message || '')) {
+        return {
+            status: 413,
+            error: 'The uploaded RAR archive exceeds the maximum allowed size for this deployment.',
+        };
+    }
+
     if (error?.reason === 'ERAR_MISSING_PASSWORD' || error?.reason === 'ERAR_BAD_PASSWORD') {
         return {
             status: 400,

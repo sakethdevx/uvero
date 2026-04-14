@@ -7,6 +7,8 @@ import ModeToggle from './ModeToggle';
 import { getToolById } from '../tools';
 import { getToolExecutor } from '../core/toolExecutors';
 
+// Quick Converter stays intentionally curated. Only include executor-backed tools
+// that are single-step, compact in options, and safe for batch execution.
 const QUICK_CONVERTER_OPERATIONS = [
     {
         id: 'compress-image',
@@ -333,7 +335,7 @@ export default function QuickConverter() {
                     Quick File Converter
                 </h2>
                 <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl text-center leading-relaxed">
-                    Quick Converter now runs only on the shared executor path. Current support includes image compression, image conversion, image resizing, HEIC conversion, PDF compression, and video audio extraction.
+                    Quick Converter now runs only on the shared executor path. It stays focused on simple, compact, batch-safe actions, while advanced tool flows remain on their dedicated pages.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
                     <ModeToggle />
@@ -696,7 +698,7 @@ export default function QuickConverter() {
                                                 <div className="rounded-3xl border border-amber-200 bg-amber-50 dark:border-amber-500/20 dark:bg-amber-500/5 p-5 sm:p-8">
                                                     <p className="font-bold text-amber-900 dark:text-amber-300">No quick actions available for this file set in {mode} mode.</p>
                                                     <p className="mt-2 text-sm text-amber-800 dark:text-amber-200">
-                                                        Quick Converter only shows migrated executor-backed tools. Try matching file types, or switch modes if this tool only supports one of them.
+                                                        Quick Converter only shows curated executor-backed tools. Try matching file types, switch modes if needed, or open the full tool page for more advanced workflows.
                                                     </p>
                                                 </div>
                                             ) : (
