@@ -87,20 +87,8 @@ const GIFMaker = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-pink-50 dark:from-gray-900 to-rose-50 py-12 px-4">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        GIF Maker
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Create animated GIFs from images or videos
-                    </p>
-                </div>
-
-                {/* Main Content */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {files.length === 0 ? (
                         <>
                             {/* Input Type Selection */}
@@ -393,86 +381,6 @@ const GIFMaker = () => {
                         </>
                     )}
                 </div>
-
-                {/* Info Section */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                        About GIF Maker
-                    </h2>
-                    <div className="space-y-4 text-gray-600 dark:text-gray-300">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Create GIFs From</h3>
-                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                <li><strong>Multiple Images:</strong> Combine 2+ images into an animated GIF</li>
-                                <li><strong>Video Files:</strong> Convert MP4, WebM, MOV videos to GIF</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Customization Options</h3>
-                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                <li><strong>Frame Delay:</strong> Control animation speed (images only)</li>
-                                <li><strong>Quality:</strong> Balance between file size and visual quality</li>
-                                <li><strong>Size:</strong> Set output width (240-1080px)</li>
-                                <li><strong>Loop:</strong> Play once, 3 times, or infinitely</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Best Practices</h3>
-                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                <li>Keep GIFs under 5MB for fast loading</li>
-                                <li>Use 480px width for social media</li>
-                                <li>Lower quality settings for smaller files</li>
-                                <li>Shorter videos (5-10 seconds) work best</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                {/* FAQ */}
-                <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                        Frequently Asked Questions
-                    </h2>
-                    <div className="space-y-4">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                How many images can I use?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                You can use as many images as needed (minimum 2). However, more images = larger GIF file size.
-                                For best results, use 5-20 images.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                What's the best frame delay?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                500ms (half second) is good for most animations. Use 100-200ms for fast animations,
-                                and 1000ms+ for slideshows.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                Why is my GIF so large?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                GIFs can be large! Reduce file size by: lowering quality setting, reducing width,
-                                using fewer frames, or converting shorter video clips.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                Is processing done on my device?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                Yes! All GIF creation happens in your browser. Your files never leave your device,
-                                ensuring complete privacy.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

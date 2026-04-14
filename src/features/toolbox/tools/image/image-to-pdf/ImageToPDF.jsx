@@ -134,44 +134,8 @@ export default function ImageToPDF() {
     const resultSize = result?.meta?.outputSize ?? result?.primaryFile?.size ?? 0;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 dark:from-gray-900 via-white to-teal-50">
-            {/* Hero Section */}
-            <div className="bg-white dark:bg-gray-800 border-b">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="text-center max-w-3xl mx-auto">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-500 to-teal-500 rounded-2xl mb-6 shadow-lg">
-                            <span className="text-3xl">📄</span>
-                        </div>
-                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                            Image to PDF Converter
-                        </h1>
-                        <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
-                            Combine multiple images into a single PDF. Drag to reorder, choose page size, and download.
-                        </p>
-                        <div className="flex flex-wrap gap-3 justify-center text-sm text-gray-600 dark:text-gray-300">
-                            <div className="flex items-center gap-2">
-                                <span className="text-green-500">✓</span>
-                                <span>100% Client-side</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-green-500">✓</span>
-                                <span>Multiple Images</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-green-500">✓</span>
-                                <span>Custom Order</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-green-500">✓</span>
-                                <span>Privacy First</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Tool Section */}
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div>
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                     <div className="p-8">
                         {/* File Upload */}
@@ -395,82 +359,6 @@ export default function ImageToPDF() {
                                 </div>
                             </div>
                         )}
-                    </div>
-                </div>
-
-                {/* Features Grid */}
-                <div className="mt-12 grid md:grid-cols-3 gap-6">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <span className="text-2xl">📱</span>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Multiple Images</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Combine up to 50 images into a single PDF document. Perfect for reports and presentations.
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center mb-4">
-                            <span className="text-2xl">🔄</span>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Reorder Pages</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Easily rearrange images before creating the PDF using simple up/down controls.
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
-                            <span className="text-2xl">📏</span>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Custom Page Sizes</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Choose from fit-to-image, A4, or Letter page sizes for your PDF output.
-                        </p>
-                    </div>
-                </div>
-
-                {/* FAQ Section */}
-                <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">How many images can I add?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                You can combine up to 50 images in a single PDF. Each image should be under 10MB.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Which image formats are supported?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                JPG, PNG, and WebP image formats are supported. Most common image files will work.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What page size should I choose?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                <strong>Fit to Image:</strong> Each PDF page matches the image dimensions (best for mixed sizes).<br />
-                                <strong>A4:</strong> Standard international paper size, great for printing.<br />
-                                <strong>Letter:</strong> Standard US paper size (8.5" × 11").
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Can I reorder the images?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Yes! Use the up/down arrow buttons next to each image to change the page order before creating the PDF.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is my data secure?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Absolutely! All processing happens locally in your browser. Your images never leave your device.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is this tool free?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Yes! Our image to PDF converter is completely free with unlimited usage. No sign-up required.
-                            </p>
-                        </div>
                     </div>
                 </div>
             </div>

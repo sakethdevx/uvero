@@ -122,25 +122,8 @@ const Watermark = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 dark:to-gray-800 py-12 px-4">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        Add Watermark to Image
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Protect your images with text or logo watermarks
-                    </p>
-                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-                        {isOnlineMode
-                            ? 'Online mode uses the server image runtime to apply the watermark.'
-                            : 'Offline mode keeps watermarking local in your browser.'}
-                    </p>
-                </div>
-
-                {/* Main Content */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
@@ -415,86 +398,6 @@ const Watermark = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
                         </>
                     )}
                 </div>
-
-                {/* Info Section */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                        About Watermark Tool
-                    </h2>
-                    <div className="space-y-4 text-gray-600 dark:text-gray-300">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Protect Your Images</h3>
-                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                <li><strong>Text Watermark:</strong> Add copyright text, website URL, or custom message</li>
-                                <li><strong>Logo Watermark:</strong> Brand your images with company logo</li>
-                                <li><strong>Customizable:</strong> Adjust size, opacity, position, and color</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Best Practices</h3>
-                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                <li>Use 30-50% opacity for subtle watermarks</li>
-                                <li>Bottom-right corner is the most common position</li>
-                                <li>White text works well on dark images, black on light</li>
-                                <li>Keep watermarks readable but not too distracting</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy & Security</h3>
-                            <p className="text-sm">
-                                {isOnlineMode
-                                    ? 'Online mode uploads the image to the server transform runtime to apply the watermark before returning the result.'
-                                    : 'Offline mode keeps watermarking in your browser so the image stays on your device.'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* FAQ */}
-                <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                        Frequently Asked Questions
-                    </h2>
-                    <div className="space-y-4">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                Can I use a transparent logo?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                Yes! Upload PNG or SVG files with transparency. The transparent areas will
-                                blend naturally with your image.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                What's the best watermark opacity?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                30-50% is ideal for most images. It's visible enough to protect your work but
-                                doesn't heavily distract from the image content.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                Does the watermark affect image quality?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                The watermark is overlaid without compressing the original image. However, the
-                                output is saved as PNG for best quality with transparency support.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                Can I batch watermark multiple images?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                Currently, you can watermark one image at a time. After downloading, simply
-                                upload another image with the same settings applied.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

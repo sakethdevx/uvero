@@ -119,23 +119,9 @@ export default function HEICToJPG({ mode = 'offline', isOnlineMode = mode === 'o
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 dark:from-gray-900 to-pink-50 dark:to-gray-800 py-12 px-4">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        HEIC to JPG Converter
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert Apple HEIC/HEIF images to JPG/JPEG format with a clear offline and online path.
-                    </p>
-                    <p className="mt-3 text-sm font-medium text-purple-700 dark:text-purple-300">
-                        Current mode: {isOnlineMode ? 'Online' : 'Offline'}
-                    </p>
-                </div>
-
-                {/* Main Converter */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div className="mx-auto max-w-5xl space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {files.length === 0 ? (
                         <div
                             onDrop={handleDrop}
@@ -289,63 +275,7 @@ export default function HEICToJPG({ mode = 'offline', isOnlineMode = mode === 'o
                         </div>
                     )}
                 </div>
-
-                {/* Features */}
-                <div className="grid md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Apple Format</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Convert HEIC/HEIF images from iPhone and iPad to universal JPG format
-                        </p>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-pink-600 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Batch Convert</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Convert multiple HEIC files to JPG at once
-                        </p>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            {isOnlineMode
-                                ? 'Online mode prefers client-side conversion first and only uses server rescue when the browser path cannot decode the file.'
-                                : 'Offline mode keeps conversion fully in your browser so files stay on your device.'}
-                        </p>
-                    </div>
-                </div>
-
-                {/* Info Section */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">About HEIC to JPG Conversion</h2>
-                    <div className="space-y-4 text-gray-600 dark:text-gray-300">
-                        <p>
-                            HEIC (High Efficiency Image Container) is the default image format used by Apple devices since iOS 11.
-                            While HEIC offers better compression and quality, it's not universally supported across all platforms.
-                        </p>
-                        <p>
-                            Converting HEIC to JPG makes your images compatible with virtually all devices, browsers, and applications.
-                            JPG is the most widely supported image format and works everywhere.
-                        </p>
-                    </div>
-                </div>
-            </div>
+        </div>
         </div>
     );
 }

@@ -110,44 +110,8 @@ export default function PDFConverter() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 dark:from-gray-900 via-white to-indigo-50 dark:to-gray-800">
-            {/* Hero Section */}
-            <div className="bg-white dark:bg-gray-800 border-b">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="text-center max-w-3xl mx-auto">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl mb-6 shadow-lg">
-                            <span className="text-3xl">📄</span>
-                        </div>
-                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                            PDF to Image Converter
-                        </h1>
-                        <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
-                            Convert PDF pages to high-quality PNG or JPG images. Extract all pages or specific ones.
-                        </p>
-                        <div className="flex flex-wrap gap-3 justify-center text-sm text-gray-600 dark:text-gray-300">
-                            <div className="flex items-center gap-2">
-                                <span className="text-green-500">✓</span>
-                                <span>100% Client-side</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-green-500">✓</span>
-                                <span>No Upload Required</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-green-500">✓</span>
-                                <span>High Quality</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-green-500">✓</span>
-                                <span>Page Selection</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Tool Section */}
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div>
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                     <div className="p-8">
                         {/* Dropzone */}
@@ -363,84 +327,6 @@ export default function PDFConverter() {
                                 </Button>
                             </div>
                         )}
-                    </div>
-                </div>
-
-                {/* Features Grid */}
-                <div className="mt-12 grid md:grid-cols-3 gap-6">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <span className="text-2xl">🔒</span>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy First</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            All processing happens in your browser. Your PDFs never leave your device.
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <span className="text-2xl">⚡</span>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">High Quality</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            PDF.js rendering ensures crisp, high-resolution images from your PDF pages.
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <span className="text-2xl">🎯</span>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Flexible Selection</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Convert all pages, just the first, or specific pages you choose.
-                        </p>
-                    </div>
-                </div>
-
-                {/* FAQ Section */}
-                <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">PNG or JPG - which should I choose?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                <strong>PNG:</strong> Best for PDFs with text, diagrams, or graphics. Lossless quality with transparency support.<br />
-                                <strong>JPG:</strong> Best for PDFs with photos or scanned documents. Smaller file sizes, good for web use.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What resolution are the images?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Images are rendered at 2x scale (192 DPI) for high quality output suitable for printing and professional use.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Can I convert password-protected PDFs?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Currently, password-protected PDFs cannot be converted. Please remove the password protection first.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">How do I specify custom pages?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Use commas to separate individual pages and hyphens for ranges. Examples:<br />
-                                "1,3,5" - converts pages 1, 3, and 5<br />
-                                "1-5" - converts pages 1 through 5<br />
-                                "1,3,5-7,10" - converts pages 1, 3, 5, 6, 7, and 10
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is there a page limit?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                You can convert PDFs up to 50MB. For very large PDFs, consider converting specific pages rather than all pages.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is this tool free?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Yes! Our PDF to image converter is completely free with unlimited usage. No sign-up required.
-                            </p>
-                        </div>
                     </div>
                 </div>
             </div>

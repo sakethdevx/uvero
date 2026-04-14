@@ -124,12 +124,6 @@ const ImageCropper = () => {
         return () => clearTimeout(timer);
     }, [imageUrl]);
 
-    useEffect(() => {
-        if (cropArea && imageDimensions) {
-            drawCropOverlay();
-        }
-    }, [cropArea, imageDimensions, drawCropOverlay]);
-
     const drawCropOverlay = useCallback(() => {
         if (!canvasRef.current || !imageUrl || !cropArea) return;
 
@@ -180,6 +174,12 @@ const ImageCropper = () => {
         };
         img.src = imageUrl;
     }, [imageUrl, cropArea, imageDimensions]);
+
+    useEffect(() => {
+        if (cropArea && imageDimensions) {
+            drawCropOverlay();
+        }
+    }, [cropArea, imageDimensions, drawCropOverlay]);
 
     const handleMouseDown = (e) => {
         if (!cropArea || !canvasRef.current) return;
@@ -416,17 +416,8 @@ const ImageCropper = () => {
     const croppedSize = croppedImage?.meta?.outputSize ?? croppedImage?.primaryFile?.size ?? 0;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 py-12 px-4">
+        <div className="mx-auto max-w-5xl space-y-6">
             <div className="max-w-5xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        Image Cropper
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Crop images to any size or aspect ratio
-                    </p>
-                </div>
 
                 {/* Main Content */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
@@ -581,87 +572,6 @@ const ImageCropper = () => {
                             )}
                         </>
                     )}
-                </div>
-
-                {/* Info Section */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                        About Image Cropper
-                    </h2>
-                    <div className="space-y-4 text-gray-600 dark:text-gray-300">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Aspect Ratios</h3>
-                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                <li><strong>Freeform:</strong> Crop to any size</li>
-                                <li><strong>Square (1:1):</strong> Perfect for profile pictures, Instagram posts</li>
-                                <li><strong>Widescreen (16:9):</strong> YouTube thumbnails, desktop wallpapers</li>
-                                <li><strong>Standard (4:3):</strong> Traditional photos, presentations</li>
-                                <li><strong>Portrait (9:16):</strong> Instagram Stories, TikTok, mobile screens</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">How to Use</h3>
-                            <ol className="list-decimal list-inside space-y-1 text-sm">
-                                <li>Upload your image</li>
-                                <li>Select desired aspect ratio</li>
-                                <li>Drag the corner handle to adjust crop area</li>
-                                <li>Click "Crop Image" to process</li>
-                                <li>Download your cropped image</li>
-                            </ol>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy & Security</h3>
-                            <p className="text-sm">
-                                All cropping happens in your browser. Your images never leave your device,
-                                ensuring complete privacy.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* FAQ */}
-                <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                        Frequently Asked Questions
-                    </h2>
-                    <div className="space-y-4">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                Does cropping reduce image quality?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                No! Cropping removes pixels but doesn't compress the remaining image.
-                                The cropped area maintains its original quality.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                What aspect ratio should I use?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                It depends on your use case: Square for social media profiles, 16:9 for
-                                YouTube and presentations, 9:16 for mobile Stories, or Freeform for custom needs.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                Can I crop the same image multiple times?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                Yes! After cropping, click "Crop Another" to upload the same or a different image.
-                                You can also download the cropped version and upload it again for further cropping.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                What format is the output?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                The cropped image is saved as PNG to preserve quality. If you need a different
-                                format, use our Image Converter tool after cropping.
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </div >
         </div >

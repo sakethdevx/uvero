@@ -18,17 +18,6 @@ export default function DocumentConverter() {
     return (
         <div className="max-w-6xl mx-auto">
             <div className="card">
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">
-                        📄 Document Converter
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Explore document and ebook tools with clear offline, online, and deployment-backed labels
-                    </p>
-                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        Showing tools available in {isOnlineMode ? 'online' : 'offline'} mode.
-                    </p>
-                </div>
 
                 {/* Converter Grid */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">

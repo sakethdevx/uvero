@@ -88,14 +88,6 @@ export default function CSTToEST() {
     return (
         <div className="max-w-2xl mx-auto">
             <div className="card">
-                <div className="text-center mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        🌍 CST to EST Converter
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-300">
-                        Convert Central Standard Time to Eastern Standard Time
-                    </p>
-                </div>
 
                 {/* Current Time Display */}
                 <div className="grid grid-cols-2 gap-4 mb-6">

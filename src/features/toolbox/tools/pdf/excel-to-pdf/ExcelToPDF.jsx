@@ -104,17 +104,8 @@ const ExcelToPDF = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 dark:from-gray-900 to-teal-50 py-12 px-4">
+        <div className="mx-auto max-w-5xl space-y-6">
             <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        Excel to PDF Converter
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert Microsoft Excel spreadsheets to PDF format
-                    </p>
-                </div>
 
                 {/* Main Converter */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
@@ -227,80 +218,6 @@ const ExcelToPDF = () => {
                             </div>
                         </div>
                     )}
-                </div>
-
-                {/* Features */}
-                <div className="grid md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">All Worksheets</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Converts all worksheets in your Excel file to separate PDF pages
-                        </p>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Table Formatting</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Preserves table structure and data formatting in the PDF output
-                        </p>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Client-Side</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            All conversion happens locally - your files never leave your device
-                        </p>
-                    </div>
-                </div>
-
-                {/* FAQ */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
-
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">How do I convert Excel to PDF?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Simply drag and drop your Excel file (XLS or XLSX) into the converter, or click to browse and select your file. Then click "Convert to PDF" and download the result.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Are all worksheets converted?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Yes, all worksheets in your Excel file will be converted to separate pages in the PDF, with each worksheet's name displayed as a title.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Will formulas be included?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                The PDF will show the calculated values from your formulas, not the formulas themselves. This is similar to printing an Excel file.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is the conversion secure?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Yes! All conversions happen locally in your browser. Your Excel files are never uploaded to any server, ensuring complete privacy.
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

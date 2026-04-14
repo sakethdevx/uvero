@@ -128,20 +128,8 @@ const QRGenerator = () => {
     const selectedType = inputTypes.find(t => t.value === inputType);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 dark:from-gray-900 to-purple-50 dark:to-gray-800 py-12 px-4">
-            <div className="max-w-5xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        QR Code Generator
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Create custom QR codes for URLs, text, WiFi, and more
-                    </p>
-                </div>
-
-                {/* Main Content */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {/* Input Type Selection */}
                     <div className="mb-6">
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
@@ -352,84 +340,6 @@ const QRGenerator = () => {
                         </div>
                     )}
                 </div>
-
-                {/* Info Section */}
-                <div className="grid md:grid-cols-2 gap-6 mb-8">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Customize Your QR Code</h3>
-                                <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                    Choose from multiple types, adjust size, colors, and error correction level. Perfect for business cards, posters, products, and more.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private & Secure</h3>
-                                <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                    All QR codes are generated locally in your browser. Your data never leaves your device, ensuring complete privacy and security.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* FAQ Section */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
-
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What types of QR codes can I create?</h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                You can create QR codes for URLs, plain text, emails, phone numbers, SMS messages, and WiFi credentials. Each type is optimized for its specific use case.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What's the difference between PNG and SVG?</h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                PNG is a raster format perfect for web and print at a specific size. SVG is a vector format that scales infinitely without quality loss - ideal for large prints or when you need flexibility.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What is error correction?</h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                Error correction allows the QR code to be readable even if partially damaged or obscured. Higher levels (H) are more durable but create larger, more complex codes. Medium (M) or Quartile (Q) are recommended for most uses.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Do QR codes expire?</h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                No! QR codes generated here never expire and will work forever. Since they're static codes created locally, there's no tracking or expiration - they contain the data directly.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Can I use custom colors?</h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                Yes! You can customize both the QR code color and background color. For best scanning reliability, ensure high contrast between the two colors (dark code on light background works best).
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

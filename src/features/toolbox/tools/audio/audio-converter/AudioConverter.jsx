@@ -96,20 +96,8 @@ const AudioConverter = ({ mode = 'offline', isOnlineMode = mode === 'online' }) 
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 dark:from-gray-900 to-pink-50 dark:to-gray-800 py-12 px-4">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        Audio Converter
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert your audio files between MP3 and WAV formats with {isOnlineMode ? 'server-backed' : 'on-device'} processing
-                    </p>
-                </div>
-
-                {/* Main Content */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
@@ -260,80 +248,6 @@ const AudioConverter = ({ mode = 'offline', isOnlineMode = mode === 'online' }) 
                         </>
                     )}
                 </div>
-
-                {/* Features */}
-                <div className="grid md:grid-cols-3 gap-6 mb-12">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-                        <div className="text-3xl mb-3">🎵</div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Multiple Formats</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Convert between MP3 and WAV audio formats easily
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-                        <div className="text-3xl mb-3">⚡</div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Fast Processing</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Quick conversion with real-time progress tracking
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-                        <div className="text-3xl mb-3">🔒</div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            {isOnlineMode
-                                ? 'Online mode uses secure server processing for broader compatibility on supported uploads.'
-                                : 'Offline mode keeps conversion in your browser so files stay on your device.'}
-                        </p>
-                    </div>
-                </div>
-
-                {/* FAQ */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                        Frequently Asked Questions
-                    </h2>
-                    <div className="space-y-4">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                What audio formats are supported?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                You can upload MP3, WAV, WebM, M4A, AAC, and FLAC files.
-                                You can convert to MP3 or WAV format.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                What bitrate should I choose?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                For MP3: 128 kbps for decent quality, 192 kbps for good quality,
-                                320 kbps for maximum quality. Higher bitrates result in larger files.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                Is WAV better than MP3?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                WAV is uncompressed and offers the highest quality but results in much
-                                larger file sizes. MP3 is compressed and more suitable for sharing and streaming.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                Are my files uploaded to a server?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                {isOnlineMode
-                                    ? 'Only in online mode. Supported uploads are processed server-side and returned immediately after conversion.'
-                                    : 'No. In offline mode, audio conversion happens directly in your browser using Web APIs.'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

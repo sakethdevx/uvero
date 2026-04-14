@@ -98,17 +98,8 @@ const PDFToPowerPoint = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 dark:to-gray-800 py-12 px-4">
+        <div className="mx-auto max-w-5xl space-y-6">
             <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        PDF to PowerPoint Converter
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert PDF documents to Microsoft PowerPoint format (PPTX)
-                    </p>
-                </div>
 
                 {/* Main Converter */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
@@ -244,80 +235,6 @@ const PDFToPowerPoint = () => {
                             </div>
                         </div>
                     )}
-                </div>
-
-                {/* Features */}
-                <div className="grid md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Text to Slides</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Converts PDF content into editable PowerPoint slides
-                        </p>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-red-100 dark:bg-red-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Fast Conversion</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Quick and efficient conversion process for your presentations
-                        </p>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Your documents remain private and are never uploaded to servers
-                        </p>
-                    </div>
-                </div>
-
-                {/* FAQ */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
-
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">How do I convert PDF to PowerPoint?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Simply drag and drop your PDF document into the converter, or click to browse and select your file. Then click "Convert to PowerPoint" and download the result in PPTX format.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is the conversion secure?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Yes! All conversions happen locally in your browser. Your documents are never uploaded to any server, ensuring complete privacy.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What happens to my formatting?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                The converter extracts text content from your PDF and creates PowerPoint slides. Each page becomes a separate slide with the extracted text. Complex layouts and images may require manual adjustment in PowerPoint.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Can I edit the PowerPoint after conversion?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Yes! The converted file is a fully editable PPTX file that can be opened and modified in Microsoft PowerPoint, Google Slides, LibreOffice Impress, and other compatible presentation software.
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

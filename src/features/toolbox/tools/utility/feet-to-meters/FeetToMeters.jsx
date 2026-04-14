@@ -40,14 +40,6 @@ export default function FeetToMeters() {
     return (
         <div className="max-w-2xl mx-auto">
             <div className="card">
-                <div className="text-center mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        📏 Feet to Meters Converter
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-300">
-                        Convert feet (ft) to meters (m) instantly
-                    </p>
-                </div>
 
                 <div className="space-y-6">
                     {/* Input Section */}
