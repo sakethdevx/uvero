@@ -6,7 +6,7 @@ import ThemeToggle from './components/ThemeToggle';
 import BrandLogo from './components/BrandLogo';
 import ServicesHome from './pages/ServicesHome';
 import CompilerHome from './features/compiler/pages/CompilerHome';
-import Home from './features/toolbox/pages/Home';
+import ToolboxHome from './features/toolbox/pages/ToolboxHome';
 import ToolPage from './features/toolbox/pages/ToolPage';
 import Privacy from './pages/Privacy';
 import Contact from './pages/Contact';
@@ -395,7 +395,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<ServicesHome />} />
           <Route path="/compiler" element={<CompilerHome />} />
-          <Route path="/toolbox" element={<Home />} />
+          <Route path="/toolbox" element={<ToolboxHome />} />
           <Route path="/photodrop" element={<EventsPage />} />
           <Route path="/photodrop/:id" element={<EventDetail />} />
           <Route path="/clipboard" element={<Clipboard />} />

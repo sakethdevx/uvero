@@ -772,7 +772,7 @@ export default function QuickConverter() {
                 </div>
             )}
 
-            <div className="mt-12 sm:mt-20 py-8 sm:py-10 text-center border-t border-gray-100 dark:border-white/5 max-w-2xl mx-auto">
+            <div className="mt-8 sm:mt-10 pt-5 sm:pt-6 text-center border-t border-gray-100 dark:border-white/5 max-w-2xl mx-auto">
                 <p className="text-gray-900 dark:text-white font-extrabold text-base sm:text-lg mb-2">Executor-backed Quick Actions</p>
                 <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
                     This surface now shares the same mode-aware runtime contract as the standalone pilot tools.

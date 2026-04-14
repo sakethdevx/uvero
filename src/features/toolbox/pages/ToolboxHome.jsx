@@ -9,7 +9,7 @@ import { getToolAvailabilityBadge, isToolAvailableInMode } from '../core/toolMet
  * Home Page
  * Landing page with tool categories and featured tools
  */
-export default function Home() {
+export default function ToolboxHome() {
     const popularTools = getPopularTools();
     const { isOnlineMode } = useMode();
     const currentMode = isOnlineMode ? 'online' : 'offline';
