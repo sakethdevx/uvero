@@ -20,7 +20,7 @@ export function useToolRuntimeStatus(toolId) {
             setIsLoading(true);
 
             try {
-                const response = await fetch('/api/file-tools/runtime-status');
+                const response = await fetch('/api/toolbox/runtime-status');
                 if (!response.ok) {
                     throw new Error('Failed to load runtime status.');
                 }

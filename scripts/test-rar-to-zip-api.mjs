@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {
     classifyExtractionError,
     sanitizeArchivePath,
-} from '../src/features/file-tools/api/convert-rar-to-zip.js'
+} from '../src/features/toolbox/api/convert-rar-to-zip.js'
 
 test('sanitizeArchivePath strips traversal and invalid characters', () => {
     assert.equal(

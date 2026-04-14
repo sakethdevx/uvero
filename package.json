@@ -6,12 +6,12 @@
   "scripts": {
     "dev": "vite",
     "generate:sitemap": "node scripts/generate-sitemap.mjs",
-    "check:file-tools": "node scripts/check-file-tools-consistency.mjs",
-    "test:file-tools-routes": "node scripts/test-file-tools-routes.mjs",
-    "test:file-tools-runtime-status": "node scripts/test-file-tools-runtime-status.mjs",
-    "test:file-tools-api": "node scripts/test-file-tools-api.mjs",
+    "check:toolbox": "node scripts/check-toolbox-consistency.mjs",
+    "test:toolbox-routes": "node scripts/test-toolbox-routes.mjs",
+    "test:toolbox-runtime-status": "node scripts/test-toolbox-runtime-status.mjs",
+    "test:toolbox-api": "node scripts/test-toolbox-api.mjs",
     "test:rar-to-zip": "node scripts/test-rar-to-zip-api.mjs",
-    "prebuild": "npm run check:file-tools && npm run test:file-tools-routes && npm run test:file-tools-runtime-status && npm run test:file-tools-api && npm run test:rar-to-zip && npm run generate:sitemap",
+    "prebuild": "npm run check:toolbox && npm run test:toolbox-routes && npm run test:toolbox-runtime-status && npm run test:toolbox-api && npm run test:rar-to-zip && npm run generate:sitemap",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

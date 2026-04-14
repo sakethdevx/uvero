@@ -1,4 +1,4 @@
-name: File Tools
+name: Toolbox
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   pull_request:
 
 jobs:
-  validate-file-tools:
+  validate-toolbox:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,14 +24,14 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Check File Tools Consistency
-        run: npm run check:file-tools
+      - name: Check Toolbox Consistency
+        run: npm run check:toolbox
 
-      - name: Smoke Test Representative File Tool Routes
-        run: npm run test:file-tools-routes
+      - name: Smoke Test Representative Toolbox Routes
+        run: npm run test:toolbox-routes
 
-      - name: Test File Tool Runtime Status
-        run: npm run test:file-tools-runtime-status
+      - name: Test Toolbox Runtime Status
+        run: npm run test:toolbox-runtime-status
 
       - name: Test RAR to ZIP API Error Handling
         run: npm run test:rar-to-zip

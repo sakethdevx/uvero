@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 const BASE_URL = 'https://uvero.app'
 const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = path.resolve(ROOT_DIR, '..')
-const TOOLS_DIR = path.join(PROJECT_ROOT, 'src', 'features', 'file-tools', 'tools')
+const TOOLS_DIR = path.join(PROJECT_ROOT, 'src', 'features', 'toolbox', 'tools')
 const TOOL_INDEX_PATH = path.join(TOOLS_DIR, 'index.js')
 const PUBLIC_DIR = path.join(PROJECT_ROOT, 'public')
 const SITEMAP_PATH = path.join(PUBLIC_DIR, 'sitemap.xml')
@@ -14,7 +14,7 @@ const TODAY = new Date().toISOString().slice(0, 10)
 
 const STATIC_ROUTES = [
     { path: '/', changefreq: 'daily', priority: '1.0' },
-    { path: '/tools', changefreq: 'weekly', priority: '0.95' },
+    { path: '/toolbox', changefreq: 'weekly', priority: '0.95' },
     { path: '/photodrop', changefreq: 'weekly', priority: '0.9' },
     { path: '/clipboard', changefreq: 'weekly', priority: '0.9' },
     { path: '/cli', changefreq: 'monthly', priority: '0.8' },

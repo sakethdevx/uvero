@@ -1,12 +1,12 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { DOCUMENT_CONVERTER_ENTRIES } from '../src/features/file-tools/core/toolMetadata.js'
+import { DOCUMENT_CONVERTER_ENTRIES } from '../src/features/toolbox/core/toolMetadata.js'
 
 const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = path.resolve(ROOT_DIR, '..')
 
-const TOOL_INDEX_PATH = path.join(PROJECT_ROOT, 'src', 'features', 'file-tools', 'tools', 'index.js')
+const TOOL_INDEX_PATH = path.join(PROJECT_ROOT, 'src', 'features', 'toolbox', 'tools', 'index.js')
 const APP_PATH = path.join(PROJECT_ROOT, 'src', 'App.jsx')
 
 const SMOKE_TOOL_IDS = [
@@ -41,6 +41,14 @@ function parseNavIds(source) {
     return new Set([...match[1].matchAll(/path:\s*'\/([^']+)'/g)].map(([, toolId]) => toolId))
 }
 
+function hasCanonicalToolboxRoute(source) {
+    return /<Route path="\/toolbox" element={<Home \/>} \/>/.test(source)
+}
+
+function hasLegacyToolsRoute(source) {
+    return /<Route path="\/tools"/.test(source)
+}
+
 async function main() {
     const [toolIndexSource, appSource] = await Promise.all([
         readFile(TOOL_INDEX_PATH, 'utf8'),
@@ -56,13 +64,21 @@ async function main() {
         failures.push('getToolById accessor no longer matches the registry-backed resolver contract.')
     }
 
+    if (!hasCanonicalToolboxRoute(appSource)) {
+        failures.push('App router is missing the canonical /toolbox route.')
+    }
+
+    if (hasLegacyToolsRoute(appSource)) {
+        failures.push('App router still contains the legacy /tools route.')
+    }
+
     for (const toolId of SMOKE_TOOL_IDS) {
         if (!registryIds.has(toolId)) {
             failures.push(`Tool "${toolId}" is missing from the registry.`)
         }
 
         if (!navIds.has(toolId)) {
-            failures.push(`Tool "${toolId}" is missing from the file-tools navigation.`)
+            failures.push(`Tool "${toolId}" is missing from the toolbox navigation.`)
         }
     }
 
@@ -77,7 +93,7 @@ async function main() {
     }
 
     if (failures.length > 0) {
-        console.error('File-tools route smoke test failed:\n')
+        console.error('Toolbox route smoke test failed:\n')
         for (const failure of failures) {
             console.error(`- ${failure}`)
         }
@@ -85,10 +101,10 @@ async function main() {
         return
     }
 
-    console.log(`File-tools route smoke test passed for ${SMOKE_TOOL_IDS.length} representative tool routes.`)
+    console.log(`Toolbox route smoke test passed for ${SMOKE_TOOL_IDS.length} representative tool routes.`)
 }
 
 main().catch((error) => {
-    console.error('Failed to run file-tools route smoke test:', error)
+    console.error('Failed to run toolbox route smoke test:', error)
     process.exitCode = 1
 })

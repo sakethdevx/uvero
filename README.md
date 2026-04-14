@@ -1,14 +1,14 @@
 # Uvero
 
-> Professional digital tools — File Tools, photo sharing, and online clipboard — built with privacy and speed in mind.
+> Professional digital tools — Uvero Toolbox, photo sharing, and online clipboard — built with privacy and speed in mind.
 
 ## Features
 
-Uvero is a multi-service platform deployed on **Vercel**, combining client-side File Tools with cloud-powered collaboration tools.
+Uvero is a multi-service platform deployed on **Vercel**, combining Uvero Toolbox with cloud-powered collaboration tools.
 
-### 🛠️ File Tools — 63+ Tools
+### 🧰 Uvero Toolbox — 63+ Tools
 
-All File Tools run **100% client-side** in the browser. No uploads, no servers, completely private.
+Most Toolbox workflows run client-side in the browser, while a few advanced conversions use clearly labeled server-backed runtimes when required.
 
 | Category | Tools |
 |----------|-------|
@@ -76,7 +76,7 @@ Splitwise-style expense management for trips and shared plans.
 | Routing | React Router 7 |
 | Auth | Supabase (email/password) |
 | Backend API | Vercel Serverless Functions |
-| File Tools | Web Workers, Canvas API, FFmpeg WASM, pdf-lib, pdfjs, jsPDF, SheetJS, Mammoth, Sharp |
+| Uvero Toolbox | Web Workers, Canvas API, FFmpeg WASM, pdf-lib, pdfjs, jsPDF, SheetJS, Mammoth, Sharp |
 | Image Storage | GitHub Contents API (PhotoDrop + Clipboard) |
 | AI / ML | Hugging Face Inference API (face detection), @imgly/background-removal |
 | QR | qrcode library |
@@ -95,7 +95,7 @@ uvero/
 │   ├── components/                       # Global UI (ThemeToggle)
 │   ├── pages/                            # Login, Signup, ResetPassword, Profile, Privacy
 │   ├── features/
-│   │   ├── file-tools/
+│   │   ├── toolbox/
 │   │   │   ├── tools/                    # 63+ tools organized by category
 │   │   │   │   ├── image/               # 11 image tools
 │   │   │   │   ├── pdf/                 # 27 PDF tools
@@ -219,7 +219,7 @@ npm run preview
 | Path | Page |
 |------|------|
 | `/` | Services home (landing page) |
-| `/tools` | File Tools hub |
+| `/toolbox` | Uvero Toolbox hub |
 | `/:toolId` | Individual tool (e.g. `/compress-image`, `/merge-pdf`) |
 | `/photodrop` | PhotoDrop events |
 | `/photodrop/:id` | Event detail + photos |
@@ -238,8 +238,8 @@ npm run preview
 
 ## Architecture
 
-- **Feature-based structure** — Each service (file-tools, photodrop, clipboard) is self-contained under `src/features/`
-- **Client-side File Tools** — Web Workers, Canvas API, and WASM keep the main thread free
+- **Feature-based structure** — Each service (toolbox, photodrop, clipboard) is self-contained under `src/features/`
+- **Client-side Toolbox flows** — Web Workers, Canvas API, and WASM keep the main thread free
 - **Serverless API** — Vercel functions with a single router dispatching to feature-specific handlers
 - **GitHub as storage** — PhotoDrop images and clipboard boards stored via the GitHub Contents API
 - **Supabase for metadata & auth** — Board metadata, event data, and user auth managed through Supabase

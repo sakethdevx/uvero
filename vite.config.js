@@ -28,9 +28,9 @@ export default defineConfig({
       useCredentials: true,
       includeAssets: ['logo.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
-        name: 'Uvero - Free Online File Tools',
+        name: 'Uvero Toolbox',
         short_name: 'Uvero',
-        description: 'Compress, convert, and process files right in your browser. No uploads, 100% private.',
+        description: 'Uvero Toolbox brings privacy-first image, PDF, audio, video, and utility tools together in one place.',
         theme_color: '#0ea5e9',
         background_color: '#ffffff',
         display: 'standalone',
