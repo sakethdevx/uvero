@@ -132,20 +132,8 @@ export default function JPGToPDF() {
     const resultSize = result?.meta?.outputSize ?? result?.primaryFile?.size ?? 0;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 dark:from-gray-900 to-indigo-50 dark:to-gray-800 py-12 px-4">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        JPG to PDF Converter
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert JPG/JPEG images to PDF documents
-                    </p>
-                </div>
-
-                {/* Main Converter */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {files.length === 0 ? (
                         <div
                             onDrop={handleDrop}
@@ -307,46 +295,6 @@ export default function JPGToPDF() {
                         </div>
                     )}
                 </div>
-
-                {/* Features */}
-                <div className="grid md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Multiple Files</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Combine multiple JPG images into a single PDF document
-                        </p>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16V8a4 4 0 014-4h8a4 4 0 014 4v8m-4 4H8a4 4 0 01-4-4" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Custom Page Size</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Choose from fit-to-image, A4, or Letter page sizes
-                        </p>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            All processing happens in your browser - files never leave your device
-                        </p>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 }

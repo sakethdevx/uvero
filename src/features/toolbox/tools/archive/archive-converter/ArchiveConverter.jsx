@@ -82,14 +82,6 @@ export default function ArchiveConverter() {
     return (
         <div className="max-w-4xl mx-auto">
             <div className="card">
-                <div className="text-center mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        🗜️ Archive Converter
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-300">
-                        Convert and optimize archive files
-                    </p>
-                </div>
 
                 <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg p-4">
                     <div className="flex items-start gap-3">

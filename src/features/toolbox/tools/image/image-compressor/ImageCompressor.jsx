@@ -109,34 +109,8 @@ export default function ImageCompressor({ mode = 'offline', isOnlineMode = mode 
     const compressedSize = result?.meta?.outputSize ?? result?.primaryFile?.size ?? null;
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 py-10 px-4">
+        <div className="mx-auto max-w-5xl space-y-6">
             <div className="max-w-4xl mx-auto space-y-6">
-
-                {/* Header */}
-                <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-violet-50 via-white to-purple-50 p-8 dark:border-white/[0.08] dark:from-violet-500/10 dark:via-gray-950 dark:to-purple-500/10">
-                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-violet-600 dark:text-violet-400">Image Tools</p>
-                    <h1 className="mt-2 text-3xl font-black tracking-tight text-gray-900 dark:text-white sm:text-4xl">
-                        Image Compressor
-                    </h1>
-                    <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300 max-w-xl">
-                        Reduce image file size while preserving visual quality. Perfect for web, email, and storage.
-                        {isOnlineMode
-                            ? ' Online mode uses server compression for compatible files.'
-                            : ' Offline mode keeps everything on your device.'}
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-3">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 px-3 py-1.5 text-xs font-semibold text-green-700 dark:text-green-400">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                            100% Private — Files never leave your device
-                        </div>
-                        {isOnlineMode && (
-                            <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:text-blue-400">
-                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                                Online Mode — Enhanced Processing
-                            </div>
-                        )}
-                    </div>
-                </div>
 
                 {/* Upload */}
                 {!file && !result && (
@@ -283,22 +257,6 @@ export default function ImageCompressor({ mode = 'offline', isOnlineMode = mode 
                         <Button onClick={handleReset} variant="secondary" fullWidth>Compress Another Image</Button>
                     </div>
                 )}
-
-                {/* FAQ */}
-                <div className="rounded-3xl border border-gray-200/80 bg-gray-50/80 dark:border-white/[0.08] dark:bg-white/[0.02] p-6 space-y-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">FAQ</p>
-                    {[
-                        { q: 'Is my image data safe?', a: isOnlineMode ? 'Online mode uses the server-backed compression path for this tool. Switch to offline mode if you want processing to stay fully on-device.' : 'Offline mode keeps compression on your device. Your files never leave your browser.' },
-                        { q: 'How much can I reduce image size?', a: 'Typically 40–80% depending on the original and quality setting. At 80% quality most users cannot notice any difference.' },
-                        { q: 'What formats are supported?', a: 'JPG/JPEG, PNG, and WebP. Compression is most effective on JPEG and WebP images.' },
-                        { q: 'Does compression reduce image quality?', a: 'Quality loss is minimal at higher settings. Use the quality slider or presets to find the right balance for your use case.' },
-                    ].map((faq, i) => (
-                        <div key={i}>
-                            <p className="text-sm font-bold text-gray-900 dark:text-white">{faq.q}</p>
-                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{faq.a}</p>
-                        </div>
-                    ))}
-                </div>
             </div>
         </div>
     );

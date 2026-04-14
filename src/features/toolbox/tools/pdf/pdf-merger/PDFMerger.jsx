@@ -95,20 +95,8 @@ const PDFMerger = () => {
     const totalSize = files.reduce((sum, f) => sum + f.file.size, 0);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-red-50 dark:from-gray-900 to-orange-50 py-12 px-4">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        PDF Merger
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Combine multiple PDF files into a single document
-                    </p>
-                </div>
-
-                {/* Main Content */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!mergedPDF ? (
                         <>
                             {/* File List */}
@@ -261,78 +249,6 @@ const PDFMerger = () => {
                         </div>
                     )}
                 </div>
-
-                {/* Features */}
-                <div className="grid md:grid-cols-3 gap-6 mb-12">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-                        <div className="text-3xl mb-3">📑</div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Unlimited Pages</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Merge up to 20 PDF files with any number of pages
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-                        <div className="text-3xl mb-3">🔄</div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Custom Order</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Reorder files before merging with simple arrow buttons
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-                        <div className="text-3xl mb-3">🔒</div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Secure</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            All merging happens in your browser. Files never uploaded
-                        </p>
-                    </div>
-                </div>
-
-                {/* FAQ */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                        Frequently Asked Questions
-                    </h2>
-                    <div className="space-y-4">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                How many PDFs can I merge at once?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                You can merge up to 20 PDF files in a single operation. Each file
-                                can be up to 100MB in size.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                Can I change the order of the PDFs?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                Yes! Use the up (↑) and down (↓) arrow buttons next to each file to
-                                reorder them before merging. The order you arrange will be the order
-                                in the final merged PDF.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                Will the merged PDF preserve bookmarks and links?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                The tool preserves the content and pages of your PDFs. However,
-                                internal bookmarks and links may not be preserved during the merge process.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                Are my PDF files uploaded to a server?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                No! All PDF merging happens locally in your browser using Web APIs.
-                                Your files never leave your device, ensuring complete privacy and security.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

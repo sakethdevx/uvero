@@ -68,14 +68,6 @@ export default function RARToZip() {
     return (
         <div className="max-w-4xl mx-auto">
             <div className="card">
-                <div className="text-center mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        🗜️ RAR to ZIP Converter
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-300">
-                        Convert RAR archives to ZIP format
-                    </p>
-                </div>
 
                 {!file && (
                     <>

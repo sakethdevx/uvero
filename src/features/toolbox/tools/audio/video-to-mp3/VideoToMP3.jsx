@@ -110,55 +110,9 @@ export default function VideoToMP3({ mode = 'offline', isOnlineMode = mode === '
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 dark:from-gray-900 to-white dark:to-gray-800 py-12 px-4">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                        Video to MP3 Converter
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
-                        Extract audio from video files and convert to MP3. Supports MP4, MOV, AVI, WebM, and more.
-                        Choose your preferred bitrate for quality control.
-                    </p>
-
-                    {/* Mode Indicator */}
-                    <div className="flex items-center justify-center gap-4 mb-4">
-                        {/* Privacy Badge */}
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-full">
-                            <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                            <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                                100% Secure - All processing happens {isOnlineMode ? 'on our secure servers' : 'in your browser'}
-                            </span>
-                        </div>
-
-                        {/* Current Mode Badge */}
-                        {isOnlineMode ? (
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-full">
-                                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                                </svg>
-                                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                                    Online Mode (Server Processing)
-                                </span>
-                            </div>
-                        ) : (
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-full">
-                                <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                                    Offline Mode (Client-Side)
-                                </span>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Main Tool Area */}
-                <div className="space-y-6">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div className="mx-auto max-w-5xl space-y-6">
+            <div className="space-y-6">
                     {/* Upload Section */}
                     {!file && !result && (
                         <Dropzone
@@ -345,55 +299,7 @@ export default function VideoToMP3({ mode = 'offline', isOnlineMode = mode === '
                         </div>
                     )}
                 </div>
-
-                {/* FAQ Section */}
-                <div className="mt-16 card">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                        Frequently Asked Questions
-                    </h2>
-
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                                What video formats are supported?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                We support all common video formats including MP4, MOV, AVI, WebM, MKV, FLV, and WMV.
-                                The audio track will be extracted and converted to MP3.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                                What bitrate should I choose?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                For speech/podcasts: 64-128 kbps is sufficient. For music: 192 kbps provides good quality.
-                                For archival/high quality: use 320 kbps.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                                Is there a file size limit?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                In offline mode, limits depend on your device's memory. In online mode, the maximum file size is 500MB.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                                Are my videos stored anywhere?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                No! In offline mode, everything happens in your browser. In online mode, videos are processed
-                                and immediately deleted from our servers after conversion.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        </div>
         </div>
     );
 }

@@ -86,20 +86,8 @@ const VideoConverter = ({ mode = 'offline', isOnlineMode = mode === 'online' }) 
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 dark:from-gray-900 to-indigo-50 dark:to-gray-800 py-12 px-4">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        Video Converter
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert videos between different formats with {isOnlineMode ? 'server-backed' : 'on-device'} processing
-                    </p>
-                </div>
-
-                {/* Main Content */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
@@ -264,87 +252,6 @@ const VideoConverter = ({ mode = 'offline', isOnlineMode = mode === 'online' }) 
                         </>
                     )}
                 </div>
-
-                {/* Info Section */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                        About Video Converter
-                    </h2>
-                    <div className="space-y-4 text-gray-600 dark:text-gray-300">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Supported Formats</h3>
-                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                <li><strong>MP4:</strong> Universal format, works on all devices</li>
-                                <li><strong>WebM:</strong> Web-optimized, great for websites</li>
-                                <li><strong>AVI:</strong> High quality, larger file sizes</li>
-                                <li><strong>MOV:</strong> Apple QuickTime format</li>
-                                <li><strong>MKV:</strong> Open-source, high quality</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Quality Settings</h3>
-                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                <li><strong>Low:</strong> Faster conversion, smaller files</li>
-                                <li><strong>Medium:</strong> Balanced quality and file size</li>
-                                <li><strong>High:</strong> Best quality, larger files</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy & Security</h3>
-                            <p className="text-sm">
-                                {isOnlineMode
-                                    ? 'Online mode processes supported uploads server-side and returns the converted video immediately.'
-                                    : 'Offline mode converts videos directly in your browser using FFmpeg.wasm, so files stay on your device.'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* FAQ */}
-                <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                        Frequently Asked Questions
-                    </h2>
-                    <div className="space-y-4">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                Which format should I choose?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                MP4 is recommended for maximum compatibility across all devices and platforms.
-                                WebM is great for web use. Choose AVI or MKV for archiving high-quality videos.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                How long does conversion take?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                Conversion time depends on file size and your device performance.
-                                A 100MB video typically takes 2-5 minutes on modern devices.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                Is my video uploaded to a server?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                No! All conversion happens in your browser using WebAssembly.
-                                Your video never leaves your device, ensuring complete privacy.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                What's the maximum file size?
-                            </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                You can convert videos up to 500MB. For larger files, consider using
-                                desktop software or splitting your video into smaller parts.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

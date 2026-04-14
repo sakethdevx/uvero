@@ -77,20 +77,8 @@ const MP4Converter = ({ mode = 'offline', isOnlineMode = mode === 'online' }) =>
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 dark:from-gray-900 to-purple-50 dark:to-gray-800 py-12 px-4">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        MP4 Converter
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert any video format to MP4 with {isOnlineMode ? 'server-backed' : 'on-device'} processing
-                    </p>
-                </div>
-
-                {/* Main Content */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
@@ -196,64 +184,6 @@ const MP4Converter = ({ mode = 'offline', isOnlineMode = mode === 'online' }) =>
                         </div>
                     )}
                 </div>
-
-                {/* Features */}
-                <div className="grid md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Universal Format</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            MP4 works on all devices, players, and platforms
-                        </p>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Quality Options</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Choose from low, medium, or high quality output
-                        </p>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            {isOnlineMode
-                                ? 'Online mode uses secure server processing for supported MP4 conversions.'
-                                : 'Offline mode keeps conversion local in your browser.'}
-                        </p>
-                    </div>
-                </div>
-
-                {/* Info Section */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Why Convert to MP4?</h2>
-                    <div className="space-y-4 text-gray-600 dark:text-gray-300">
-                        <p>
-                            MP4 (MPEG-4 Part 14) is the most widely supported video format in the world. It offers excellent
-                            compression while maintaining high quality, making it perfect for sharing videos online, storing
-                            on devices, and playing on any platform.
-                        </p>
-                        <p>
-                            Whether you have AVI, MOV, MKV, WebM, or any other video format, converting to MP4 ensures
-                            your videos will play everywhere - from smartphones and tablets to smart TVs and web browsers.
-                        </p>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

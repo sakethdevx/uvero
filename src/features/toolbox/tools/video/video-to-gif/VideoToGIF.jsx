@@ -95,20 +95,8 @@ const VideoToGIF = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-pink-50 dark:from-gray-900 to-rose-50 py-12 px-4">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        Video to GIF Converter
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert your videos into animated GIFs with {isOnlineMode ? 'server-backed' : 'on-device'} processing
-                    </p>
-                </div>
-
-                {/* Main Content */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
@@ -247,70 +235,6 @@ const VideoToGIF = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
                         </div>
                     )}
                 </div>
-
-                {/* Features */}
-                <div className="grid md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-pink-600 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Animated GIFs</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Create looping animated GIFs from your video files
-                        </p>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Customizable</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Control quality, size, and animation speed
-                        </p>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            {isOnlineMode
-                                ? 'Online mode uses secure server processing for supported video-to-GIF conversions.'
-                                : 'Offline mode keeps GIF creation local in your browser.'}
-                        </p>
-                    </div>
-                </div>
-
-                {/* Info Section */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">About Video to GIF Conversion</h2>
-                    <div className="space-y-4 text-gray-600 dark:text-gray-300">
-                        <p>
-                            GIFs are perfect for sharing short video clips on social media, messaging apps, and websites.
-                            They play automatically, loop infinitely, and don't require a video player.
-                        </p>
-                        <p>
-                            Our Video to GIF converter lets you control the quality, size, and animation speed to create
-                            the perfect GIF for your needs. Smaller sizes and lower quality settings result in smaller file
-                            sizes, making them easier to share.
-                        </p>
-                        <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded">
-                            <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                                <strong>Tip:</strong> For best results, use short video clips (under 10 seconds).
-                                Longer videos will result in larger GIF files.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

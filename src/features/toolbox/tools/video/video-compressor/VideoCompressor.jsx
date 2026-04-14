@@ -88,20 +88,8 @@ const VideoCompressor = ({ mode = 'offline', isOnlineMode = mode === 'online' })
         : 0;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 dark:from-gray-900 to-teal-50 py-12 px-4">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        Video Compressor
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Reduce video file size while maintaining quality with {isOnlineMode ? 'server-backed' : 'on-device'} processing
-                    </p>
-                </div>
-
-                {/* Main Content */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
@@ -252,90 +240,6 @@ const VideoCompressor = ({ mode = 'offline', isOnlineMode = mode === 'online' })
                         </>
                     )}
                 </div>
-
-                {/* Important Note */}
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 rounded-xl p-6 mb-8">
-                    <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">⚠️ Important Note</h3>
-                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                        {isOnlineMode
-                            ? 'Online mode uses server-side FFmpeg for supported uploads and can be more reliable for larger files.'
-                            : 'Offline mode uses FFmpeg.wasm in the browser. First-time use may take longer as it loads necessary libraries (~30MB).'}
-                    </p>
-                </div>
-
-                {/* Features */}
-                <div className="grid md:grid-cols-3 gap-6 mb-12">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-                        <div className="text-3xl mb-3">🎬</div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Multiple Formats</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Support for MP4, WebM, OGG, and MOV video files
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-                        <div className="text-3xl mb-3">⚙️</div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Customizable</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Choose quality level and output resolution
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-                        <div className="text-3xl mb-3">🔒</div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            {isOnlineMode
-                                ? 'Online mode processes supported uploads securely on the server.'
-                                : 'Offline mode keeps compression in your browser.'}
-                        </p>
-                    </div>
-                </div>
-
-                {/* FAQ */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                        Frequently Asked Questions
-                    </h2>
-                    <div className="space-y-4">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                How much can I reduce the file size?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                Typical compression saves 30-70% depending on the original video and settings chosen.
-                                Higher quality settings preserve more detail but result in larger files.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                Why does the first compression take longer?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                The first time you use this tool, it needs to download FFmpeg.wasm (~30MB) which
-                                enables video processing in the browser. Subsequent compressions will be faster.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                What's the maximum video size?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                The tool accepts videos up to 500MB. For larger videos, browser-based compression
-                                may be slow or fail. Consider using desktop software for very large files.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                Are my videos uploaded to a server?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                {isOnlineMode
-                                    ? 'Only in online mode. Supported uploads are processed server-side and returned immediately after compression.'
-                                    : 'No. In offline mode, video compression happens locally in your browser using FFmpeg.wasm.'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

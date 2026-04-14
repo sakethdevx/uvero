@@ -86,44 +86,8 @@ export default function AudioCompressor({ mode = 'offline', isOnlineMode = mode 
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 dark:from-gray-900 via-white to-pink-50 dark:to-gray-800">
-            {/* Hero Section */}
-            <div className="bg-white dark:bg-gray-800 border-b">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="text-center max-w-3xl mx-auto">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl mb-6 shadow-lg">
-                            <span className="text-3xl">🎵</span>
-                        </div>
-                        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                            Audio Compressor
-                        </h1>
-                        <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
-                            Reduce audio file size while preserving quality. Convert to MP3 with customizable bitrate.
-                        </p>
-                        <div className="flex flex-wrap gap-3 justify-center text-sm text-gray-600 dark:text-gray-300">
-                            <div className="flex items-center gap-2">
-                                <span className="text-green-500">✓</span>
-                                <span>{isOnlineMode ? 'Server-backed option' : '100% Client-side'}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-green-500">✓</span>
-                                <span>{isOnlineMode ? 'Online processing ready' : 'No Upload Required'}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-green-500">✓</span>
-                                <span>{isOnlineMode ? 'Flexible processing' : 'Privacy First'}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-green-500">✓</span>
-                                <span>MP3 Output</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Tool Section */}
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div>
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                     <div className="p-8">
                         {/* Dropzone */}
@@ -270,90 +234,6 @@ export default function AudioCompressor({ mode = 'offline', isOnlineMode = mode 
                                 </div>
                             </div>
                         )}
-                    </div>
-                </div>
-
-                {/* Features Grid */}
-                <div className="mt-12 grid md:grid-cols-3 gap-6">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <span className="text-2xl">🔒</span>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy First</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            {isOnlineMode
-                                ? 'Online mode processes supported files on the server and returns compressed audio immediately.'
-                                : 'Offline mode keeps compression in your browser so audio files never leave your device.'}
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <span className="text-2xl">⚡</span>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Fast Processing</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Web Worker technology ensures smooth compression without freezing your browser.
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg flex items-center justify-center mb-4">
-                            <span className="text-2xl">🎯</span>
-                        </div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Flexible Bitrates</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Choose from 5 bitrate options to balance file size and audio quality.
-                        </p>
-                    </div>
-                </div>
-
-                {/* FAQ Section */}
-                <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
-                    <div className="space-y-6">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Which bitrate should I choose?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                <strong>64 kbps:</strong> Smallest files, suitable for voice recordings and podcasts.<br />
-                                <strong>128 kbps:</strong> Standard quality, great for most music and general use.<br />
-                                <strong>192 kbps:</strong> High quality, ideal for music with good detail.<br />
-                                <strong>256 kbps:</strong> Very high quality, minimal quality loss.<br />
-                                <strong>320 kbps:</strong> Maximum MP3 quality, near-lossless for most listeners.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">What formats are supported?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Input: MP3, WAV, OGG files up to 50MB. Output: MP3 format with your chosen bitrate.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is my audio secure?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                {isOnlineMode
-                                    ? 'Yes. Online mode uploads the file only for the duration of server-side compression and returns the result immediately.'
-                                    : 'Yes. Offline mode keeps your audio on-device and compresses it locally in the browser.'}
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">How much can I reduce file size?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Compression depends on your source file and chosen bitrate. Converting WAV to 128 kbps MP3
-                                can reduce size by 85-90%. MP3 to MP3 compression varies based on original bitrate.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Will compression affect audio quality?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                MP3 is a lossy format, so some quality reduction occurs. Higher bitrates (192+ kbps) preserve
-                                excellent quality that most listeners can't distinguish from the original.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is this tool free?</h3>
-                            <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Yes! Our audio compressor is completely free with unlimited usage. No sign-up, no hidden fees.
-                            </p>
-                        </div>
                     </div>
                 </div>
             </div>

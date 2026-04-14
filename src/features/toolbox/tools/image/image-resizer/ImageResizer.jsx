@@ -142,25 +142,8 @@ const ImageResizer = ({ mode = 'offline', isOnlineMode = mode === 'online' }) =>
     const resizedSize = resizedImage?.meta?.outputSize ?? resizedImage?.primaryFile?.size ?? 0;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 dark:to-gray-800 py-12 px-4">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                        Image Resizer
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Resize images by dimensions or percentage
-                    </p>
-                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-                        {isOnlineMode
-                            ? 'Online mode uses the server image runtime for resizing.'
-                            : 'Offline mode keeps resizing local in your browser.'}
-                    </p>
-                </div>
-
-                {/* Main Content */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+        <div className="mx-auto max-w-5xl space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
                     {!file ? (
                         <Dropzone
                             onFileSelect={handleFileSelect}
@@ -376,78 +359,6 @@ const ImageResizer = ({ mode = 'offline', isOnlineMode = mode === 'online' }) =>
                         </>
                     )}
                 </div>
-
-                {/* Features */}
-                <div className="grid md:grid-cols-3 gap-6 mb-12">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-                        <div className="text-3xl mb-3">📏</div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Precise Control</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Set exact dimensions or scale by percentage
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-                        <div className="text-3xl mb-3">🔒</div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Aspect Ratio Lock</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            Maintain proportions or resize freely
-                        </p>
-                    </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-                        <div className="text-3xl mb-3">⚡</div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Instant Preview</h3>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            See results immediately before download
-                        </p>
-                    </div>
-                </div>
-
-                {/* FAQ */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                        Frequently Asked Questions
-                    </h2>
-                    <div className="space-y-4">
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                What's the difference between the two resize methods?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                <strong>By Dimensions:</strong> Set exact width and height in pixels.
-                                <strong> By Percentage:</strong> Scale proportionally (e.g., 50% makes it half the size).
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                Will resizing reduce image quality?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                Enlarging images (scaling up) may reduce quality. Reducing size generally maintains quality.
-                                The tool uses high-quality resampling algorithms for best results.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                Can I resize multiple images at once?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                Currently, images are resized one at a time. Process each image individually for
-                                precise control over dimensions.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                Are my images uploaded to a server?
-                            </h3>
-                            <p className="text-gray-600 dark:text-gray-300">
-                                {isOnlineMode
-                                    ? 'Yes in online mode. The selected image is uploaded to the server transform runtime for resizing.'
-                                    : 'No in offline mode. Image resizing happens locally in your browser using the worker-based canvas path.'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };
