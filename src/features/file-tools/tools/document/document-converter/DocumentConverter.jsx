@@ -1,75 +1,32 @@
 import { Link } from 'react-router-dom';
+import { useMode } from '../../../context/ModeContext';
+import { getToolById } from '../../index';
+import {
+    getDocumentConverterEntries,
+    getToolAvailabilityBadge,
+} from '../../../core/toolMetadata';
 
 /**
  * Document Converter
  * Hub for all document conversion tools
  */
 export default function DocumentConverter() {
-    const converters = [
-        {
-            name: 'Word to PDF',
-            description: 'Convert Microsoft Word documents to PDF',
-            icon: '📝',
-            path: '/word-to-pdf',
-            formats: 'DOCX → PDF'
-        },
-        {
-            name: 'Excel to PDF',
-            description: 'Convert Excel spreadsheets to PDF',
-            icon: '📈',
-            path: '/excel-to-pdf',
-            formats: 'XLSX → PDF'
-        },
-        {
-            name: 'PowerPoint to PDF',
-            description: 'Convert PowerPoint presentations to PDF',
-            icon: '📊',
-            path: '/powerpoint-to-pdf',
-            formats: 'PPTX → PDF'
-        },
-        {
-            name: 'HTML to PDF',
-            description: 'Convert HTML files to PDF',
-            icon: '🌐',
-            path: '/html-to-pdf',
-            formats: 'HTML → PDF'
-        },
-        {
-            name: 'PDF to Word',
-            description: 'Convert PDF to editable Word documents',
-            icon: '📝',
-            path: '/pdf-to-word',
-            formats: 'PDF → DOCX'
-        },
-        {
-            name: 'PDF to Excel',
-            description: 'Convert PDF to Excel spreadsheets',
-            icon: '📈',
-            path: '/pdf-to-excel',
-            formats: 'PDF → XLSX'
-        },
-        {
-            name: 'PDF to PowerPoint',
-            description: 'Convert PDF to PowerPoint presentations',
-            icon: '📊',
-            path: '/pdf-to-powerpoint',
-            formats: 'PDF → PPTX'
-        },
-        {
-            name: 'EPUB to PDF',
-            description: 'Convert EPUB ebooks to PDF',
-            icon: '📚',
-            path: '/epub-to-pdf',
-            formats: 'EPUB → PDF'
-        },
-        {
-            name: 'EPUB to MOBI',
-            description: 'Convert EPUB to MOBI when the online runtime is configured',
-            icon: '📚',
-            path: '/epub-to-mobi',
-            formats: 'EPUB → MOBI'
-        }
-    ];
+    const { isOnlineMode } = useMode();
+    const mode = isOnlineMode ? 'online' : 'offline';
+    const converters = getDocumentConverterEntries()
+        .map((entry) => {
+            const tool = getToolById(entry.id);
+
+            if (!tool || !tool.modes.includes(mode)) {
+                return null;
+            }
+
+            return {
+                ...tool,
+                formatLabel: entry.format,
+            };
+        })
+        .filter(Boolean);
 
     return (
         <div className="max-w-6xl mx-auto">
@@ -79,29 +36,47 @@ export default function DocumentConverter() {
                         📄 Document Converter
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert between various document formats
+                        Explore document and ebook tools with clear offline, online, and deployment-backed labels
+                    </p>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                        Showing tools available in {isOnlineMode ? 'online' : 'offline'} mode.
                     </p>
                 </div>
 
                 {/* Converter Grid */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    {converters.map((converter, index) => (
+                    {converters.map((converter) => {
+                        const availabilityBadge = getToolAvailabilityBadge(converter);
+
+                        return (
                         <Link
-                            key={index}
-                            to={converter.path}
+                            key={converter.id}
+                            to={`/${converter.id}`}
                             className="group block p-6 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary-500 hover:shadow-lg transition-all duration-200"
                         >
                             <div className="flex items-start gap-4">
                                 <div className="text-4xl">{converter.icon}</div>
                                 <div className="flex-1">
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-primary-600 mb-1">
-                                        {converter.name}
-                                    </h3>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-primary-600">
+                                            {converter.name}
+                                        </h3>
+                                        {availabilityBadge && (
+                                            <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${availabilityBadge.className}`}>
+                                                {availabilityBadge.label}
+                                            </span>
+                                        )}
+                                    </div>
                                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
                                         {converter.description}
                                     </p>
+                                    {converter.availabilityNote && (
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                            {converter.availabilityNote}
+                                        </p>
+                                    )}
                                     <span className="inline-block px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs font-mono rounded-full">
-                                        {converter.formats}
+                                        {converter.formatLabel}
                                     </span>
                                 </div>
                                 <svg
@@ -114,7 +89,7 @@ export default function DocumentConverter() {
                                 </svg>
                             </div>
                         </Link>
-                    ))}
+                    )})}
                 </div>
 
                 {/* Features */}

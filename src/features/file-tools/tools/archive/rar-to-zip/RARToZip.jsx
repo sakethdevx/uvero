@@ -4,7 +4,6 @@ import Button from '../../../shared/Button';
 import FileInfo from '../../../shared/FileInfo';
 import ProgressBar from '../../../shared/ProgressBar';
 import rarToZipExecutor from './executor';
-import { getToolMetadata } from '../../../core/toolMetadata';
 
 /**
  * RAR to ZIP Converter
@@ -12,7 +11,6 @@ import { getToolMetadata } from '../../../core/toolMetadata';
  * Wired for online RAR extraction
  */
 export default function RARToZip() {
-    const tool = getToolMetadata('rar-to-zip');
     const [file, setFile] = useState(null);
     const [error, setError] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -79,30 +77,6 @@ export default function RARToZip() {
                     </p>
                 </div>
 
-                <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                        <div className="text-2xl">ℹ️</div>
-                        <div>
-                                <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
-                                    Online Extraction Enabled
-                                </h3>
-                                <p className="text-sm text-blue-700 dark:text-blue-300">
-                                    {tool.availabilityNote}
-                                </p>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                    {tool.limits.map((limit) => (
-                                        <span
-                                            key={limit}
-                                            className="inline-flex rounded-full border border-blue-200 bg-white/70 px-2.5 py-1 text-xs font-medium text-blue-700 dark:border-blue-500/20 dark:bg-blue-500/5 dark:text-blue-200"
-                                        >
-                                            {limit}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                </div>
-
                 {!file && (
                     <>
                         <Dropzone
@@ -128,7 +102,7 @@ export default function RARToZip() {
                                     Supported Archives
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    {tool.limits.join(' • ')}
+                                    Check the tool notice above for the currently supported RAR subset
                                 </p>
                             </div>
                             <div className="text-center p-4">

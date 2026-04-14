@@ -12,6 +12,26 @@ export const QUICK_CONVERTER_ELIGIBLE_TOOL_IDS = [
     'video-to-mp3',
 ];
 
+export const DOCUMENT_CONVERTER_ENTRIES = [
+    { id: 'word-to-pdf', format: 'DOCX -> PDF' },
+    { id: 'excel-to-pdf', format: 'XLSX -> PDF' },
+    { id: 'powerpoint-to-pdf', format: 'PPTX -> PDF' },
+    { id: 'html-to-pdf', format: 'HTML -> PDF' },
+    { id: 'pdf-to-word', format: 'PDF -> DOCX' },
+    { id: 'pdf-to-excel', format: 'PDF -> XLSX' },
+    { id: 'pdf-to-powerpoint', format: 'PDF -> PPTX' },
+    { id: 'epub-to-pdf', format: 'EPUB -> PDF' },
+    { id: 'epub-to-mobi', format: 'EPUB -> MOBI' },
+];
+
+export const DOCUMENT_CONVERTER_TOOL_IDS = DOCUMENT_CONVERTER_ENTRIES.map((entry) => entry.id);
+
+export const TOOLS_REQUIRING_SHARED_METADATA = [
+    'document-converter',
+    'epub-to-mobi',
+    'rar-to-zip',
+];
+
 const TOOL_METADATA = {
     'document-converter': {
         availability: 'ready',
@@ -45,6 +65,14 @@ export function getToolMetadata(toolId) {
         quickConverterEligible: QUICK_CONVERTER_ELIGIBLE_TOOL_IDS.includes(toolId),
         ...TOOL_METADATA[toolId],
     };
+}
+
+export function getDocumentConverterEntries() {
+    return DOCUMENT_CONVERTER_ENTRIES.map((entry) => ({ ...entry }));
+}
+
+export function getDocumentConverterFormat(toolId) {
+    return DOCUMENT_CONVERTER_ENTRIES.find((entry) => entry.id === toolId)?.format || null;
 }
 
 export function getToolAvailabilityBadge(tool) {

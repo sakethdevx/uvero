@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { DOCUMENT_CONVERTER_ENTRIES } from '../src/features/file-tools/core/toolMetadata.js'
 
 const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = path.resolve(ROOT_DIR, '..')
@@ -15,13 +16,20 @@ const SMOKE_TOOL_IDS = [
     'rar-to-zip',
 ]
 
-function parseRegistryIds(source) {
+function parseRegistryEntries(source) {
     const match = source.match(/export const tools = \{([\s\S]*?)\n\};/)
     if (!match) {
         throw new Error('Could not find tool registry block.')
     }
 
-    return new Set([...match[1].matchAll(/id:\s*'([^']+)'/g)].map(([, toolId]) => toolId))
+    return [...match[1].matchAll(/'([^']+)':\s*\{([\s\S]*?)\n\s*\},?/g)].map(([, key, block]) => ({
+        key,
+        id: block.match(/id:\s*'([^']+)'/)?.[1] || key,
+    }))
+}
+
+function hasRegistryAccessor(source) {
+    return /export const getToolById = \(id\) => \{[\s\S]*?const tool = tools\[id\];[\s\S]*?enhanceTool\(tool\)[\s\S]*?\}/.test(source)
 }
 
 function parseNavIds(source) {
@@ -39,9 +47,14 @@ async function main() {
         readFile(APP_PATH, 'utf8'),
     ])
 
-    const registryIds = parseRegistryIds(toolIndexSource)
+    const registryEntries = parseRegistryEntries(toolIndexSource)
+    const registryIds = new Set(registryEntries.map((entry) => entry.id))
     const navIds = parseNavIds(appSource)
     const failures = []
+
+    if (!hasRegistryAccessor(toolIndexSource)) {
+        failures.push('getToolById accessor no longer matches the registry-backed resolver contract.')
+    }
 
     for (const toolId of SMOKE_TOOL_IDS) {
         if (!registryIds.has(toolId)) {
@@ -50,6 +63,16 @@ async function main() {
 
         if (!navIds.has(toolId)) {
             failures.push(`Tool "${toolId}" is missing from the file-tools navigation.`)
+        }
+    }
+
+    for (const entry of DOCUMENT_CONVERTER_ENTRIES) {
+        if (!registryIds.has(entry.id)) {
+            failures.push(`Document hub tool "${entry.id}" is missing from the registry.`)
+        }
+
+        if (!entry.format) {
+            failures.push(`Document hub tool "${entry.id}" is missing its format label.`)
         }
     }
 

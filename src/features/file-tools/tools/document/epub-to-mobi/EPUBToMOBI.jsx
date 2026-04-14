@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import FileInfo from '../../../shared/FileInfo';
 import ProgressBar from '../../../shared/ProgressBar';
 import epubToMobiExecutor from './executor';
-import { getToolMetadata } from '../../../core/toolMetadata';
+import useToolRuntimeStatus from '../../../core/useToolRuntimeStatus';
 
 /**
  * EPUB to MOBI Converter
@@ -12,46 +12,17 @@ import { getToolMetadata } from '../../../core/toolMetadata';
  * This provides information and basic file handling
  */
 export default function EPUBToMOBI() {
-    const tool = getToolMetadata('epub-to-mobi');
     const [file, setFile] = useState(null);
     const [error, setError] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress, setProgress] = useState(0);
     const [result, setResult] = useState(null);
-    const [runtimeStatus, setRuntimeStatus] = useState(null);
-    const [isCheckingStatus, setIsCheckingStatus] = useState(true);
-
-    useEffect(() => {
-        let cancelled = false;
-
-        const loadRuntimeStatus = async () => {
-            try {
-                const response = await fetch('/api/file-tools/runtime-status');
-                if (!response.ok) {
-                    throw new Error('Failed to load runtime status.');
-                }
-
-                const data = await response.json();
-                if (!cancelled) {
-                    setRuntimeStatus(data.tools?.['epub-to-mobi'] || null);
-                }
-            } catch {
-                if (!cancelled) {
-                    setRuntimeStatus(null);
-                }
-            } finally {
-                if (!cancelled) {
-                    setIsCheckingStatus(false);
-                }
-            }
-        };
-
-        loadRuntimeStatus();
-
-        return () => {
-            cancelled = true;
-        };
-    }, []);
+    const {
+        isLoading: isCheckingStatus,
+        isAvailable: isRuntimeAvailable,
+        hasVerificationFailure,
+        runtime,
+    } = useToolRuntimeStatus('epub-to-mobi');
 
     const handleFileSelect = (selectedFile) => {
         setFile(selectedFile);
@@ -68,7 +39,7 @@ export default function EPUBToMOBI() {
     };
 
     const handleConvert = async () => {
-        if (!file || runtimeStatus?.available === false) return;
+        if (!file || !isRuntimeAvailable) return;
 
         setIsProcessing(true);
         setError('');
@@ -102,10 +73,6 @@ export default function EPUBToMOBI() {
         URL.revokeObjectURL(url);
     };
 
-    const availabilityNote = runtimeStatus?.note || tool?.availabilityNote;
-    const limits = runtimeStatus?.limits || tool?.limits || [];
-    const isRuntimeUnavailable = runtimeStatus?.available === false;
-
     return (
         <div className="max-w-4xl mx-auto">
             <div className="card">
@@ -134,7 +101,7 @@ export default function EPUBToMOBI() {
                                     Online-Only Route
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    This tool appears only in online mode
+                                    This tool appears only in online mode when server processing is allowed
                                 </p>
                             </div>
                             <div className="text-center p-4">
@@ -163,37 +130,6 @@ export default function EPUBToMOBI() {
                     <div className="space-y-4">
                         <FileInfo file={file} onRemove={() => setFile(null)} />
 
-                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg p-6">
-                            <div className="flex items-start gap-4">
-                                <div className="text-3xl">ℹ️</div>
-                                <div className="flex-1">
-                                    <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                                        Server Conversion Runtime Required
-                                    </h3>
-                                    <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
-                                        {availabilityNote}
-                                    </p>
-                                    {limits.length > 0 && (
-                                        <div className="flex flex-wrap gap-2">
-                                            {limits.map((limit) => (
-                                                <span
-                                                    key={limit}
-                                                    className="inline-flex rounded-full border border-blue-200 bg-white/70 px-2.5 py-1 text-xs font-medium text-blue-700 dark:border-blue-500/20 dark:bg-blue-500/5 dark:text-blue-200"
-                                                >
-                                                    {limit}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    )}
-                                    {runtimeStatus?.runtime && (
-                                        <p className="mt-3 text-xs text-blue-700 dark:text-blue-300">
-                                            Active runtime: <strong>{runtimeStatus.runtime}</strong>
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
                         {isProcessing && (
                             <ProgressBar progress={progress} />
                         )}
@@ -204,10 +140,28 @@ export default function EPUBToMOBI() {
                             </div>
                         )}
 
-                        {!error && isRuntimeUnavailable && (
+                        {!error && isCheckingStatus && (
+                            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg p-4">
+                                <p className="text-blue-900 dark:text-blue-200 text-sm">
+                                    Checking whether this deployment can run EPUB to MOBI conversion...
+                                </p>
+                            </div>
+                        )}
+
+                        {!error && !isCheckingStatus && !isRuntimeAvailable && (
                             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-lg p-4">
                                 <p className="text-amber-900 dark:text-amber-200 text-sm">
-                                    This deployment is missing the configured MOBI runtime. Conversion is disabled until the server runtime is provisioned.
+                                    {hasVerificationFailure
+                                        ? 'We could not verify the MOBI runtime on this deployment. Conversion stays disabled until the runtime status can be confirmed.'
+                                        : 'This deployment is missing the configured MOBI runtime. Conversion is disabled until the server runtime is provisioned.'}
+                                </p>
+                            </div>
+                        )}
+
+                        {!error && !isCheckingStatus && isRuntimeAvailable && runtime && (
+                            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg p-4">
+                                <p className="text-green-900 dark:text-green-200 text-sm">
+                                    Runtime verified: <strong>{runtime}</strong>
                                 </p>
                             </div>
                         )}
@@ -229,7 +183,7 @@ export default function EPUBToMOBI() {
                                         onClick={handleConvert}
                                         variant="primary"
                                         className="flex-1"
-                                        disabled={isProcessing || isCheckingStatus || isRuntimeUnavailable}
+                                        disabled={isProcessing || isCheckingStatus || !isRuntimeAvailable}
                                     >
                                         {isCheckingStatus ? 'Checking Runtime...' : isProcessing ? 'Converting...' : 'Convert to MOBI'}
                                     </Button>

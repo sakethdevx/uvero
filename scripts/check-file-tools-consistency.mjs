@@ -1,6 +1,11 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import {
+    DOCUMENT_CONVERTER_ENTRIES,
+    TOOLS_REQUIRING_SHARED_METADATA,
+    getToolMetadata,
+} from '../src/features/file-tools/core/toolMetadata.js'
 
 const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = path.resolve(ROOT_DIR, '..')
@@ -105,6 +110,27 @@ async function main() {
     const executorOptionalUnexpected = [...executorOptionalIds]
         .filter((toolId) => !EXECUTOR_EXEMPT_TOOL_IDS.has(toolId))
 
+    const documentConverterMissingRegistry = DOCUMENT_CONVERTER_ENTRIES
+        .filter((entry) => !tools.some((tool) => tool.id === entry.id))
+        .map((entry) => entry.id)
+
+    const documentConverterMissingFormats = DOCUMENT_CONVERTER_ENTRIES
+        .filter((entry) => !entry.format || typeof entry.format !== 'string')
+        .map((entry) => entry.id)
+
+    const documentConverterDuplicateIds = DOCUMENT_CONVERTER_ENTRIES
+        .map((entry) => entry.id)
+        .filter((toolId, index, entries) => entries.indexOf(toolId) !== index)
+
+    const sharedMetadataMissing = TOOLS_REQUIRING_SHARED_METADATA
+        .filter((toolId) => !tools.some((tool) => tool.id === toolId))
+        .concat(
+            TOOLS_REQUIRING_SHARED_METADATA.filter((toolId) => {
+                const metadata = getToolMetadata(toolId)
+                return !metadata.availability || !metadata.availabilityNote || !Array.isArray(metadata.limits)
+            })
+        )
+
     const failures = [
         registryKeyMismatches.length && `Registry key/id mismatches: ${registryKeyMismatches.join(', ')}`,
         navMissingRegistry.length && `Nav routes missing registry tools: ${navMissingRegistry.join(', ')}`,
@@ -113,6 +139,10 @@ async function main() {
         processingToolsWithoutSeo.length && `Executor-backed processing tools missing SEO metadata: ${processingToolsWithoutSeo.join(', ')}`,
         executorOptionalInvalid.length && `Invalid executor-optional ids: ${executorOptionalInvalid.join(', ')}`,
         executorOptionalUnexpected.length && `Unexpected executor-optional ids: ${executorOptionalUnexpected.join(', ')}`,
+        documentConverterMissingRegistry.length && `Document hub tool ids missing registry entries: ${documentConverterMissingRegistry.join(', ')}`,
+        documentConverterMissingFormats.length && `Document hub tools missing format labels: ${documentConverterMissingFormats.join(', ')}`,
+        documentConverterDuplicateIds.length && `Document hub contains duplicate tool ids: ${[...new Set(documentConverterDuplicateIds)].join(', ')}`,
+        sharedMetadataMissing.length && `Tools missing required shared metadata: ${[...new Set(sharedMetadataMissing)].join(', ')}`,
     ].filter(Boolean)
 
     if (failures.length > 0) {

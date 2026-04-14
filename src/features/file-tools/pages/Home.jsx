@@ -97,10 +97,10 @@ export default function Home() {
                             <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary-600 dark:text-primary-300">File Tools</p>
                             <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
                                 Powerful tools,{' '}
-                                <span className="text-primary-600 dark:text-primary-400">zero upload.</span>
+                                <span className="text-primary-600 dark:text-primary-400">clear processing paths.</span>
                             </h1>
                             <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300">
-                                Transform images, PDFs, audio, and video directly in your browser. Privacy-first processing that works offline.
+                                Transform images, PDFs, audio, and video with a privacy-first tool suite. Most workflows run on-device, while specialized online paths stay clearly marked whenever a server runtime is involved.
                             </p>
                             <div className="mt-8 flex flex-wrap gap-3">
                                 <a href="#quick-convert" className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700">
@@ -119,9 +119,9 @@ export default function Home() {
                             <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Why choose us</p>
                             <div className="mt-5 space-y-4">
                                 {[
-                                    { icon: '🛡️', title: 'Privacy First', desc: 'Files never leave your device.' },
-                                    { icon: '💨', title: 'Client-Side Speed', desc: 'No upload wait times.' },
-                                    { icon: '📶', title: 'Works Offline', desc: 'Use all tools without internet.' },
+                                    { icon: '🛡️', title: 'Privacy First', desc: 'Offline mode keeps supported tools fully on-device.' },
+                                    { icon: '💨', title: 'Fast by Default', desc: 'Most conversions skip upload wait times and run locally in your browser.' },
+                                    { icon: '☁️', title: 'Clearly Labeled Online Flows', desc: 'A few advanced tools use server-backed runtimes with visible limits and setup notes.' },
                                 ].map((f, i) => (
                                     <div key={i} className="flex items-start gap-3">
                                         <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-50 dark:bg-primary-500/10 text-base">
@@ -136,7 +136,7 @@ export default function Home() {
                                 <div className="mt-2 pt-3 border-t border-gray-200/80 dark:border-white/[0.08]">
                                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 dark:bg-primary-500/10 border border-primary-100/80 dark:border-primary-500/20 text-primary-700 dark:text-primary-400 text-xs font-semibold">
                                         <span className="w-1.5 h-1.5 rounded-full bg-primary-500" />
-                                        100% Client-Side Processing
+                                        Mode-aware processing with clear online/offline boundaries
                                     </div>
                                 </div>
                             </div>
@@ -282,9 +282,9 @@ export default function Home() {
                     <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500 mb-5">Why it works</p>
                     <div className="grid md:grid-cols-3 gap-6">
                         {[
-                            { icon: '🛡️', title: 'Privacy Guaranteed', desc: 'Files are processed in-memory and never stored. Your data remains yours.' },
-                            { icon: '💨', title: 'Client-Side Speed', desc: 'Skip the wait times of uploading large files. Process everything locally at native speed.' },
-                            { icon: '📶', title: 'Works Offline', desc: 'Once loaded, use all browser-based tools without any internet connection.' },
+                            { icon: '🛡️', title: 'Privacy Guaranteed', desc: 'Offline-supported tools stay on-device, and online flows are explicitly labeled when they need a server runtime.' },
+                            { icon: '💨', title: 'Client-Side Speed', desc: 'Most file tools still avoid upload delays and process locally at native browser speed.' },
+                            { icon: '📶', title: 'Offline Where Supported', desc: 'Core browser-based tools keep working offline, while specialized server-backed tools stay clearly marked.' },
                         ].map((item, i) => (
                             <div key={i} className="flex items-start gap-4">
                                 <div className="w-10 h-10 rounded-2xl bg-white dark:bg-gray-900/60 border border-gray-200/80 dark:border-white/[0.08] flex items-center justify-center text-xl shrink-0 shadow-sm">
