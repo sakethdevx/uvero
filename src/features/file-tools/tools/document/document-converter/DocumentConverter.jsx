@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useMode } from '../../../context/ModeContext';
 import { getToolById } from '../../index';
 import {
-    getDocumentConverterEntries,
+    getDocumentConverterTools,
     getToolAvailabilityBadge,
 } from '../../../core/toolMetadata';
 
@@ -13,20 +13,7 @@ import {
 export default function DocumentConverter() {
     const { isOnlineMode } = useMode();
     const mode = isOnlineMode ? 'online' : 'offline';
-    const converters = getDocumentConverterEntries()
-        .map((entry) => {
-            const tool = getToolById(entry.id);
-
-            if (!tool || !tool.modes.includes(mode)) {
-                return null;
-            }
-
-            return {
-                ...tool,
-                formatLabel: entry.format,
-            };
-        })
-        .filter(Boolean);
+    const converters = getDocumentConverterTools(getToolById, mode);
 
     return (
         <div className="max-w-6xl mx-auto">

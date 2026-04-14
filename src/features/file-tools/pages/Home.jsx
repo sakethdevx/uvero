@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { getPopularTools, getToolsByCategory } from '../tools';
 import { useMode } from '../context/ModeContext';
 import QuickConverter from '../components/QuickConverter';
-import { getToolAvailabilityBadge } from '../core/toolMetadata';
+import { getToolAvailabilityBadge, isToolAvailableInMode } from '../core/toolMetadata';
 
 /**
  * Home Page
@@ -164,7 +164,7 @@ export default function Home() {
                     {categories.map((category, idx) => {
                         const isExpanded = expandedCategory === category.categoryId;
                         const modeAwareTools = getToolsByCategory(category.categoryId)
-                            .filter((tool) => tool.modes.includes(currentMode));
+                            .filter((tool) => isToolAvailableInMode(tool, currentMode));
                         const categoryTools = isExpanded ? modeAwareTools : [];
                         const visibleCount = modeAwareTools.length;
 
@@ -198,30 +198,34 @@ export default function Home() {
                                 {isExpanded && categoryTools.length > 0 && (
                                     <div className="mt-3 p-5 rounded-3xl border border-gray-200/80 bg-white shadow-xl shadow-gray-100/60 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none max-h-80 overflow-y-auto">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                            {categoryTools.map((tool) => (
-                                                <Link
-                                                    key={tool.id}
-                                                    to={`/${tool.id}`}
-                                                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 text-sm text-gray-700 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors font-medium"
-                                                >
-                                                    <span className="text-lg flex-shrink-0">{tool.icon}</span>
-                                                    <div className="min-w-0 flex-1">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="truncate">{tool.name}</span>
-                                                            {getToolAvailabilityBadge(tool) && (
-                                                                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getToolAvailabilityBadge(tool).className}`}>
-                                                                    {getToolAvailabilityBadge(tool).label}
-                                                                </span>
+                                            {categoryTools.map((tool) => {
+                                                const availabilityBadge = getToolAvailabilityBadge(tool);
+
+                                                return (
+                                                    <Link
+                                                        key={tool.id}
+                                                        to={`/${tool.id}`}
+                                                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 text-sm text-gray-700 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors font-medium"
+                                                    >
+                                                        <span className="text-lg flex-shrink-0">{tool.icon}</span>
+                                                        <div className="min-w-0 flex-1">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="truncate">{tool.name}</span>
+                                                                {availabilityBadge && (
+                                                                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${availabilityBadge.className}`}>
+                                                                        {availabilityBadge.label}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            {tool.availabilityNote && (
+                                                                <p className="mt-0.5 truncate text-[11px] font-normal text-gray-500 dark:text-gray-400">
+                                                                    {tool.availabilityNote}
+                                                                </p>
                                                             )}
                                                         </div>
-                                                        {tool.availabilityNote && (
-                                                            <p className="mt-0.5 truncate text-[11px] font-normal text-gray-500 dark:text-gray-400">
-                                                                {tool.availabilityNote}
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                </Link>
-                                            ))}
+                                                    </Link>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}
@@ -241,7 +245,7 @@ export default function Home() {
 
                         <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {popularTools.slice(0, 9).map((tool) => {
-                                const isAvailable = tool.modes.includes(isOnlineMode ? 'online' : 'offline');
+                                const isAvailable = isToolAvailableInMode(tool, currentMode);
                                 const availabilityBadge = getToolAvailabilityBadge(tool);
                                 return (
                                     <Link

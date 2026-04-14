@@ -1,20 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getToolMetadata } from './toolMetadata';
-
-function createUnavailableStatus(tool, note) {
-    return {
-        available: false,
-        status: tool.availability === 'deployment_required' ? 'deployment_required' : 'limited',
-        runtime: null,
-        note,
-        limits: tool.limits || [],
-    };
-}
+import { getToolMetadata } from './toolMetadata.js';
+import {
+    createRuntimeVerificationFailure,
+    normalizeToolRuntimeStatus,
+} from './toolRuntimeStatus.js';
 
 export function useToolRuntimeStatus(toolId) {
     const tool = useMemo(() => getToolMetadata(toolId), [toolId]);
     const [runtimeStatus, setRuntimeStatus] = useState(() =>
-        createUnavailableStatus(tool, tool.availabilityNote)
+        normalizeToolRuntimeStatus(toolId, null)
     );
     const [isLoading, setIsLoading] = useState(true);
     const [hasVerificationFailure, setHasVerificationFailure] = useState(false);
@@ -39,21 +33,12 @@ export function useToolRuntimeStatus(toolId) {
                 }
 
                 if (!cancelled) {
-                    setRuntimeStatus({
-                        ...nextStatus,
-                        note: nextStatus.note || tool.availabilityNote,
-                        limits: nextStatus.limits || tool.limits || [],
-                    });
+                    setRuntimeStatus(normalizeToolRuntimeStatus(toolId, nextStatus));
                     setHasVerificationFailure(false);
                 }
             } catch {
                 if (!cancelled) {
-                    setRuntimeStatus(
-                        createUnavailableStatus(
-                            tool,
-                            'Unable to verify the server-side runtime on this deployment right now.'
-                        )
-                    );
+                    setRuntimeStatus(createRuntimeVerificationFailure(toolId));
                     setHasVerificationFailure(true);
                 }
             } finally {

@@ -71,8 +71,25 @@ export function getDocumentConverterEntries() {
     return DOCUMENT_CONVERTER_ENTRIES.map((entry) => ({ ...entry }));
 }
 
-export function getDocumentConverterFormat(toolId) {
-    return DOCUMENT_CONVERTER_ENTRIES.find((entry) => entry.id === toolId)?.format || null;
+export function isToolAvailableInMode(tool, mode) {
+    return Boolean(tool?.modes?.includes(mode));
+}
+
+export function getDocumentConverterTools(resolveTool, mode) {
+    return DOCUMENT_CONVERTER_ENTRIES
+        .map((entry) => {
+            const tool = resolveTool(entry.id);
+
+            if (!tool || !isToolAvailableInMode(tool, mode)) {
+                return null;
+            }
+
+            return {
+                ...tool,
+                formatLabel: entry.format,
+            };
+        })
+        .filter(Boolean);
 }
 
 export function getToolAvailabilityBadge(tool) {

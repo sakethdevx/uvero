@@ -1,6 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { getFileToolsRuntimeStatus } from '../src/features/file-tools/api/file-tools-runtime-status.js'
+import {
+    createRuntimeVerificationFailure,
+    normalizeToolRuntimeStatus,
+} from '../src/features/file-tools/core/toolRuntimeStatus.js'
 
 test('runtime status reports EPUB converter as deployment required when unset', () => {
     const previous = process.env.EPUB_TO_MOBI_BINARY_PATH
@@ -27,4 +31,30 @@ test('runtime status reports RAR tool as limited but available', () => {
         'No password-protected archives',
         'No split or multipart archives',
     ])
+})
+
+test('normalizeToolRuntimeStatus fills in shared note and limits when runtime payload is partial', () => {
+    const status = normalizeToolRuntimeStatus('epub-to-mobi', {
+        available: true,
+        status: 'ready',
+        runtime: 'ebook-convert',
+    })
+
+    assert.equal(status.available, true)
+    assert.equal(status.status, 'ready')
+    assert.equal(status.runtime, 'ebook-convert')
+    assert.equal(status.note, 'Requires a configured server-side MOBI conversion runtime on this deployment.')
+    assert.deepEqual(status.limits, [
+        'Online mode only',
+        'Requires KindleGen or ebook-convert on the server',
+    ])
+})
+
+test('createRuntimeVerificationFailure returns a fail-closed deployment status', () => {
+    const status = createRuntimeVerificationFailure('epub-to-mobi')
+
+    assert.equal(status.available, false)
+    assert.equal(status.status, 'deployment_required')
+    assert.equal(status.runtime, null)
+    assert.equal(status.note, 'Unable to verify the server-side runtime on this deployment right now.')
 })

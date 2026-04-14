@@ -3,6 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
     DOCUMENT_CONVERTER_ENTRIES,
+    QUICK_CONVERTER_ELIGIBLE_TOOL_IDS,
     TOOLS_REQUIRING_SHARED_METADATA,
     getToolMetadata,
 } from '../src/features/file-tools/core/toolMetadata.js'
@@ -122,6 +123,12 @@ async function main() {
         .map((entry) => entry.id)
         .filter((toolId, index, entries) => entries.indexOf(toolId) !== index)
 
+    const quickConverterMissingRegistry = QUICK_CONVERTER_ELIGIBLE_TOOL_IDS
+        .filter((toolId) => !tools.some((tool) => tool.id === toolId))
+
+    const quickConverterMissingExecutor = QUICK_CONVERTER_ELIGIBLE_TOOL_IDS
+        .filter((toolId) => !executorIds.has(toolId))
+
     const sharedMetadataMissing = TOOLS_REQUIRING_SHARED_METADATA
         .filter((toolId) => !tools.some((tool) => tool.id === toolId))
         .concat(
@@ -142,6 +149,8 @@ async function main() {
         documentConverterMissingRegistry.length && `Document hub tool ids missing registry entries: ${documentConverterMissingRegistry.join(', ')}`,
         documentConverterMissingFormats.length && `Document hub tools missing format labels: ${documentConverterMissingFormats.join(', ')}`,
         documentConverterDuplicateIds.length && `Document hub contains duplicate tool ids: ${[...new Set(documentConverterDuplicateIds)].join(', ')}`,
+        quickConverterMissingRegistry.length && `Quick Converter tool ids missing registry entries: ${quickConverterMissingRegistry.join(', ')}`,
+        quickConverterMissingExecutor.length && `Quick Converter tool ids missing executors: ${quickConverterMissingExecutor.join(', ')}`,
         sharedMetadataMissing.length && `Tools missing required shared metadata: ${[...new Set(sharedMetadataMissing)].join(', ')}`,
     ].filter(Boolean)
 
