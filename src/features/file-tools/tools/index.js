@@ -306,7 +306,7 @@ export const tools = {
         seo: videoCompressorSEO,
         icon: '🎬',
         popular: true,
-        modes: ['offline']
+        modes: ['offline', 'online']
     },
     'convert-video': {
         id: 'convert-video',
@@ -317,7 +317,7 @@ export const tools = {
         seo: videoConverterSEO,
         icon: '🔄',
         popular: true,
-        modes: ['offline']
+        modes: ['offline', 'online']
     },
     'qr-generator': {
         id: 'qr-generator',
@@ -506,7 +506,7 @@ export const tools = {
         category: 'video',
         seo: mp4ConverterSEO,
         icon: '🎬',
-        modes: ['offline']
+        modes: ['offline', 'online']
     },
     'video-to-gif': {
         id: 'video-to-gif',
@@ -516,7 +516,7 @@ export const tools = {
         category: 'video',
         seo: videoToGIFSEO,
         icon: '🎞️',
-        modes: ['offline']
+        modes: ['offline', 'online']
     },
     'mov-to-mp4': {
         id: 'mov-to-mp4',
@@ -526,7 +526,7 @@ export const tools = {
         category: 'video',
         seo: movToMP4SEO,
         icon: '🎥',
-        modes: ['offline']
+        modes: ['offline', 'online']
     },
     'lbs-to-kg': {
         id: 'lbs-to-kg',

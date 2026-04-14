@@ -5,7 +5,7 @@ import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import movToMp4Executor from './executor';
 
-const MOVToMP4 = () => {
+const MOVToMP4 = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [quality, setQuality] = useState('high');
     const [isConverting, setIsConverting] = useState(false);
@@ -41,7 +41,7 @@ const MOVToMP4 = () => {
         try {
             const result = await movToMp4Executor.run({
                 files: [file],
-                mode: 'offline',
+                mode,
                 options: { quality },
                 onProgress: (prog) => setProgress(prog),
             });
@@ -90,7 +90,7 @@ const MOVToMP4 = () => {
                         MOV to MP4 Converter
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert Apple QuickTime MOV videos to universal MP4 format
+                        Convert Apple QuickTime MOV videos to universal MP4 format with {isOnlineMode ? 'server-backed' : 'on-device'} processing
                     </p>
                 </div>
 
@@ -236,7 +236,9 @@ const MOVToMP4 = () => {
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
                         <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            All processing happens locally in your browser
+                            {isOnlineMode
+                                ? 'Online mode uses secure server processing for supported MOV uploads.'
+                                : 'Offline mode keeps conversion local in your browser.'}
                         </p>
                     </div>
                 </div>

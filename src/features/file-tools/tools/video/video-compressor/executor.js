@@ -1,12 +1,18 @@
 import { assertModeSupported } from '../../../core/executorUtils';
 import { run as runOffline } from './offline';
+import { run as runOnline } from './online';
 
 const toolId = 'compress-video';
-const supportedModes = ['offline'];
+const supportedModes = ['offline', 'online'];
 
 async function run(input) {
     const mode = input.mode || 'offline';
     assertModeSupported(videoCompressorExecutor, mode, toolId);
+
+    if (mode === 'online') {
+        return runOnline(input);
+    }
+
     return runOffline(input);
 }
 

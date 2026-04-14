@@ -1,14 +1,14 @@
 import { assertModeSupported } from '../../../core/executorUtils';
-import { run as runOffline } from '../video-converter/offline';
+import videoConverterExecutor from '../video-converter/executor';
 
 const toolId = 'mp4-converter';
-const supportedModes = ['offline'];
+const supportedModes = [...videoConverterExecutor.supportedModes];
 
 async function run(input) {
     const mode = input.mode || 'offline';
     assertModeSupported(mp4ConverterExecutor, mode, toolId);
 
-    return runOffline({
+    return videoConverterExecutor.run({
         ...input,
         options: {
             ...(input.options || {}),

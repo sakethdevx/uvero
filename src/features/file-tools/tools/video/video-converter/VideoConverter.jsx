@@ -5,7 +5,7 @@ import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import videoConverterExecutor from './executor';
 
-const VideoConverter = () => {
+const VideoConverter = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [outputFormat, setOutputFormat] = useState('mp4');
     const [quality, setQuality] = useState('high');
@@ -45,7 +45,7 @@ const VideoConverter = () => {
         try {
             const result = await videoConverterExecutor.run({
                 files: [file],
-                mode: 'offline',
+                mode,
                 options: { outputFormat, quality },
                 onProgress: (prog) => setProgress(prog),
             });
@@ -94,7 +94,7 @@ const VideoConverter = () => {
                         Video Converter
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert videos between different formats easily
+                        Convert videos between different formats with {isOnlineMode ? 'server-backed' : 'on-device'} processing
                     </p>
                 </div>
 
@@ -292,8 +292,9 @@ const VideoConverter = () => {
                         <div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy & Security</h3>
                             <p className="text-sm">
-                                All video conversion happens directly in your browser using FFmpeg.wasm.
-                                Your videos never leave your device, ensuring complete privacy.
+                                {isOnlineMode
+                                    ? 'Online mode processes supported uploads server-side and returns the converted video immediately.'
+                                    : 'Offline mode converts videos directly in your browser using FFmpeg.wasm, so files stay on your device.'}
                             </p>
                         </div>
                     </div>

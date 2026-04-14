@@ -5,7 +5,7 @@ import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import videoToGifExecutor from './executor';
 
-const VideoToGIF = () => {
+const VideoToGIF = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [frameDelay, setFrameDelay] = useState(100); // milliseconds
     const [quality, setQuality] = useState(10); // 1-30, lower = better
@@ -49,7 +49,7 @@ const VideoToGIF = () => {
         try {
             const result = await videoToGifExecutor.run({
                 files: [file],
-                mode: 'offline',
+                mode,
                 options: {
                     frameDelay,
                     quality,
@@ -103,7 +103,7 @@ const VideoToGIF = () => {
                         Video to GIF Converter
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert your videos into animated GIFs
+                        Convert your videos into animated GIFs with {isOnlineMode ? 'server-backed' : 'on-device'} processing
                     </p>
                 </div>
 
@@ -282,7 +282,9 @@ const VideoToGIF = () => {
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
                         <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            All processing happens locally in your browser
+                            {isOnlineMode
+                                ? 'Online mode uses secure server processing for supported video-to-GIF conversions.'
+                                : 'Offline mode keeps GIF creation local in your browser.'}
                         </p>
                     </div>
                 </div>
