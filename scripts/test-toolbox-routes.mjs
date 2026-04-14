@@ -42,7 +42,7 @@ function parseNavIds(source) {
 }
 
 function hasCanonicalToolboxRoute(source) {
-    return /<Route path="\/toolbox" element={<Home \/>} \/>/.test(source)
+    return /<Route path="\/toolbox" element={<[A-Z][A-Za-z0-9]* \/>} \/>/.test(source)
 }
 
 function hasLegacyToolsRoute(source) {

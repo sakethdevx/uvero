@@ -329,25 +329,53 @@ export default function QuickConverter() {
     const currentOperation = availableOperations.find((operation) => operation.id === selectedOperation);
 
     return (
-        <div className="max-w-5xl mx-auto py-6 sm:py-12 px-3 sm:px-4 shadow-none">
-            <div className="flex flex-col items-center gap-3 sm:gap-4 mb-8 sm:mb-12">
-                <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                    Quick File Converter
-                </h2>
-                <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl text-center leading-relaxed">
-                    Quick Converter now runs only on the shared executor path. It stays focused on simple, compact, batch-safe actions, while advanced tool flows remain on their dedicated pages.
-                </p>
-                <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
-                    <ModeToggle />
-                    <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
-                        {isOnlineMode ? 'Online mode uses tool-specific server paths where implemented.' : 'Offline mode keeps processing on-device.'}
-                    </span>
+        <div className="mx-auto w-full max-w-5xl px-3 py-4 shadow-none sm:px-4 sm:py-6">
+            <div className="mb-8 grid gap-4 lg:grid-cols-[1.25fr_0.9fr]">
+                <div className="rounded-[2rem] border border-gray-200/80 bg-white/80 p-6 shadow-sm backdrop-blur dark:border-white/[0.08] dark:bg-gray-950/40 sm:p-7">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-primary-100 bg-primary-50 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-primary-700 dark:border-primary-500/20 dark:bg-primary-500/10 dark:text-primary-300">
+                        <span className="h-2 w-2 rounded-full bg-primary-500" />
+                        Quick Convert
+                    </div>
+                    <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+                        Drop a file, pick a fast path.
+                    </h2>
+                    <p className="mt-3 max-w-2xl text-sm leading-relaxed text-gray-600 dark:text-gray-400 sm:text-base">
+                        This surface is tuned for compact, executor-backed actions that feel instant. It is intentionally focused: simple inputs here, deeper workflows on the dedicated tool pages.
+                    </p>
+                    <div className="mt-5 flex flex-wrap gap-2">
+                        {['Images', 'PDFs', 'HEIC', 'Video to audio'].map((item) => (
+                            <span
+                                key={item}
+                                className="inline-flex items-center rounded-full border border-gray-200/80 bg-gray-50 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300"
+                            >
+                                {item}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="rounded-[2rem] border border-gray-200/80 bg-gradient-to-br from-gray-900 to-gray-800 p-6 text-white shadow-sm dark:border-white/[0.08] dark:from-gray-900 dark:to-black sm:p-7">
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/60">Processing Mode</p>
+                    <div className="mt-4">
+                        <ModeToggle />
+                    </div>
+                    <p className="mt-4 text-sm leading-relaxed text-white/75">
+                        {isOnlineMode
+                            ? 'Online mode unlocks tool-specific server paths where they exist, while still keeping the quick flow compact.'
+                            : 'Offline mode keeps supported quick actions in the browser so you can work without upload overhead.'}
+                    </p>
+                    <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/50">Why this surface works</p>
+                        <p className="mt-2 text-sm text-white/80">
+                            Curated actions, fewer decisions, and direct handoff into executor-backed processing.
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] border border-gray-100 dark:border-white/10 shadow-2xl overflow-hidden transition-all duration-500">
+            <div className="overflow-hidden rounded-[2.5rem] border border-gray-200/80 bg-white/90 shadow-2xl transition-all duration-500 dark:border-white/10 dark:bg-gray-900/80">
                 {files.length === 0 ? (
-                    <div className="p-2 sm:p-4 animate-fade-in">
+                    <div className="animate-fade-in p-3 sm:p-4">
                         <Dropzone
                             onFileSelect={handleFileSelect}
                             multiple={true}
@@ -744,7 +772,7 @@ export default function QuickConverter() {
                 </div>
             )}
 
-            <div className="mt-12 sm:mt-20 py-8 sm:py-10 text-center border-t border-gray-100 dark:border-white/5 max-w-2xl mx-auto">
+            <div className="mt-8 sm:mt-10 pt-5 sm:pt-6 text-center border-t border-gray-100 dark:border-white/5 max-w-2xl mx-auto">
                 <p className="text-gray-900 dark:text-white font-extrabold text-base sm:text-lg mb-2">Executor-backed Quick Actions</p>
                 <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
                     This surface now shares the same mode-aware runtime contract as the standalone pilot tools.
