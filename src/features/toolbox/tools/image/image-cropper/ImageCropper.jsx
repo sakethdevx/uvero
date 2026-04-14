@@ -5,7 +5,7 @@ import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import imageCropperExecutor from './executor';
 
-const ImageCropper = () => {
+const ImageCropper = ({ mode = 'offline' }) => {
     const [file, setFile] = useState(null);
     const [imageUrl, setImageUrl] = useState(null);
     const [cropMode, setCropMode] = useState('freeform'); // 'freeform', 'square', '16:9', '4:3', '1:1'
@@ -362,7 +362,7 @@ const ImageCropper = () => {
             const result = await imageCropperExecutor.run({
                 files: [file],
                 options: { cropArea: naturalCrop },
-                mode: 'offline',
+                mode,
                 onProgress: (prog) => setProgress(prog),
             });
             if (croppedPreviewUrl) {

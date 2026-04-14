@@ -110,6 +110,15 @@ export async function resizeImageOnline(file, options = {}) {
     });
 }
 
+export async function cropImageOnline(file, options = {}) {
+    return transformImageOnline(file, 'crop', {
+        x: options.x ?? null,
+        y: options.y ?? null,
+        width: options.width ?? null,
+        height: options.height ?? null,
+    });
+}
+
 export async function watermarkImageOnline(file, options = {}) {
     return transformImageOnline(
         file,
@@ -145,6 +154,7 @@ export function isOnlineFeatureAvailable(feature) {
         compression: true,
         conversion: true,
         resize: true,
+        crop: true,
         watermark: true,
         backgroundRemoval: false,
     };
