@@ -55,11 +55,27 @@ const MIME_BY_FORMAT = {
     webp: 'image/webp',
 };
 
-const normalizeOutputFormat = (value, fallback = 'png') => {
+function createClientError(message, code, status = 400, details = undefined) {
+    const error = new Error(message);
+    error.status = status;
+    error.code = code;
+    error.details = details;
+    return error;
+}
+
+function createServerError(message, code, status = 503, details = undefined) {
+    const error = new Error(message);
+    error.status = status;
+    error.code = code;
+    error.details = details;
+    return error;
+}
+
+export const normalizeOutputFormat = (value, fallback = 'png') => {
     const normalized = (value || fallback).toLowerCase();
     if (normalized === 'jpg') return 'jpeg';
     if (['jpeg', 'png', 'webp'].includes(normalized)) return normalized;
-    throw new Error(`Unsupported output format: ${value}`);
+    throw createClientError(`Unsupported output format: ${value}`, 'UNSUPPORTED_IMAGE_FORMAT');
 };
 
 const escapeXml = (value) => String(value)
@@ -139,7 +155,7 @@ async function transformResize(buffer, metadata, fields) {
     const height = parseInteger(getFieldValue(fields.height), null);
 
     if (!width || !height) {
-        throw new Error('Width and height are required for resizing.');
+        throw createClientError('Width and height are required for resizing.', 'INVALID_DIMENSIONS');
     }
 
     const sourceFormat = (metadata.format || 'png').toLowerCase();
@@ -181,7 +197,7 @@ async function createWatermarkOverlaySvg(fields, files, baseMetadata) {
     if (watermarkType === 'image') {
         const watermarkFile = files.watermarkImage?.[0] || files.watermarkImage;
         if (!watermarkFile) {
-            throw new Error('A watermark image is required for image watermark mode.');
+            throw createClientError('A watermark image is required for image watermark mode.', 'MISSING_WATERMARK_IMAGE');
         }
 
         const watermarkBuffer = fs.readFileSync(watermarkFile.filepath);
@@ -258,8 +274,51 @@ async function applyImageTransform(operation, buffer, metadata, fields, files) {
         case 'watermark':
             return transformWatermark(buffer, metadata, fields, files);
         default:
-            throw new Error(`Unsupported transform operation: ${operation}`);
+            throw createClientError(`Unsupported transform operation: ${operation}`, 'UNSUPPORTED_TRANSFORM_OPERATION');
     }
+}
+
+export function classifyTransformImageError(error) {
+    if (error?.code === 1009) {
+        return {
+            status: 413,
+            error: 'The uploaded image exceeds the maximum allowed size for this deployment.',
+            code: 'FILE_TOO_LARGE',
+        };
+    }
+
+    if (error?.status || error?.code) {
+        return {
+            status: error.status || 500,
+            error: error.message || 'Image transform failed.',
+            code: error.code || 'TRANSFORM_FAILED',
+            details: error.details,
+        };
+    }
+
+    const message = error?.message || 'Image transform failed.';
+
+    if (/unsupported image format/i.test(message) || /Input buffer contains unsupported image format/i.test(message)) {
+        return {
+            status: 400,
+            error: 'The uploaded image file could not be processed.',
+            code: 'INVALID_FILE',
+        };
+    }
+
+    if (/unsupported transform operation/i.test(message)) {
+        return {
+            status: 400,
+            error: message,
+            code: 'UNSUPPORTED_TRANSFORM_OPERATION',
+        };
+    }
+
+    return {
+        status: 500,
+        error: createServerError('Image transform failed.', 'TRANSFORM_FAILED', 500).message,
+        code: 'TRANSFORM_FAILED',
+    };
 }
 
 export default async function handler(req, res) {
@@ -321,10 +380,8 @@ export default async function handler(req, res) {
         return res.status(200).send(transformed.buffer);
     } catch (error) {
         console.error('Image transform error:', error);
-        return res.status(500).json({
-            error: error.message || 'Image transform failed.',
-            code: 'TRANSFORM_FAILED',
-        });
+        const classified = classifyTransformImageError(error);
+        return res.status(classified.status).json(classified);
     } finally {
         if (imagePath && fs.existsSync(imagePath)) {
             fs.unlinkSync(imagePath);

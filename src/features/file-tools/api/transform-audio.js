@@ -55,7 +55,7 @@ const parseInteger = (value, fallback) => {
     return Number.isFinite(parsed) ? parsed : fallback;
 };
 
-const normalizeFormat = (format) => {
+export const normalizeAudioFormat = (format) => {
     const normalized = String(format || 'mp3').toLowerCase();
     if (normalized === 'mpeg') return 'mp3';
     if (normalized === 'wave') return 'wav';
@@ -115,7 +115,7 @@ async function transformAudioFile(filePath, fields) {
     const operation = getFieldValue(fields.operation) || 'convert';
     const outputFormat = operation === 'compress'
         ? 'mp3'
-        : normalizeFormat(getFieldValue(fields.outputFormat) || 'mp3');
+        : normalizeAudioFormat(getFieldValue(fields.outputFormat) || 'mp3');
     const bitrate = parseInteger(getFieldValue(fields.bitrate), operation === 'compress' ? 128 : 192);
     const outputPath = path.join(os.tmpdir(), `audio_${Date.now()}_${Math.random().toString(36).slice(2)}.${outputFormat}`);
 
@@ -132,7 +132,7 @@ async function transformAudioFile(filePath, fields) {
     };
 }
 
-function mapExecutionError(error) {
+export function classifyTransformAudioError(error) {
     const message = error?.message || 'Audio transformation failed.';
 
     if (error?.code === 'ENOENT') {
@@ -199,7 +199,7 @@ export default async function handler(req, res) {
 
         return res.status(200).send(outputBuffer);
     } catch (rawError) {
-        const error = rawError?.code || rawError?.status ? rawError : mapExecutionError(rawError);
+        const error = rawError?.code || rawError?.status ? rawError : classifyTransformAudioError(rawError);
         return res.status(error.status || 500).json({
             error: error.message || 'Audio transformation failed.',
             code: error.code || 'AUDIO_TRANSFORM_FAILED',

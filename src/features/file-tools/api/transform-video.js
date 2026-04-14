@@ -65,7 +65,7 @@ const parseInteger = (value, fallback) => {
     return Number.isFinite(parsed) ? parsed : fallback;
 };
 
-const normalizeFormat = (format) => {
+export const normalizeVideoFormat = (format) => {
     const normalized = String(format || 'mp4').toLowerCase();
     if (['mp4', 'webm', 'avi', 'mov', 'mkv', 'gif'].includes(normalized)) return normalized;
     throw createClientError(`Unsupported video output format: ${format}`, 'UNSUPPORTED_VIDEO_FORMAT');
@@ -198,7 +198,7 @@ async function transformVideoFile(filePath, fields) {
     }
 
     if (operation === 'convert') {
-        const outputFormat = normalizeFormat(getFieldValue(fields.outputFormat) || 'mp4');
+        const outputFormat = normalizeVideoFormat(getFieldValue(fields.outputFormat) || 'mp4');
         const outputPath = path.join(os.tmpdir(), `video_${Date.now()}_${Math.random().toString(36).slice(2)}.${outputFormat}`);
         await convertVideo(filePath, outputPath, outputFormat, quality);
         return { outputPath, outputFormat };
@@ -229,7 +229,7 @@ async function transformVideoFile(filePath, fields) {
     throw createClientError(`Unsupported video operation: ${operation}`, 'UNSUPPORTED_VIDEO_OPERATION');
 }
 
-function mapExecutionError(error) {
+export function classifyTransformVideoError(error) {
     const message = error?.message || 'Video transformation failed.';
 
     if (error?.code === 'ENOENT') {
@@ -295,7 +295,7 @@ export default async function handler(req, res) {
 
         return res.status(200).send(outputBuffer);
     } catch (rawError) {
-        const error = rawError?.code || rawError?.status ? rawError : mapExecutionError(rawError);
+        const error = rawError?.code || rawError?.status ? rawError : classifyTransformVideoError(rawError);
         return res.status(error.status || 500).json({
             error: error.message || 'Video transformation failed.',
             code: error.code || 'VIDEO_TRANSFORM_FAILED',
