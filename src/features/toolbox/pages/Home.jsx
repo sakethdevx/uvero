@@ -12,10 +12,8 @@ import { getToolAvailabilityBadge, isToolAvailableInMode } from '../core/toolMet
 export default function Home() {
     const popularTools = getPopularTools();
     const { isOnlineMode } = useMode();
-    const [expandedCategory, setExpandedCategory] = useState(null);
     const currentMode = isOnlineMode ? 'online' : 'offline';
-
-    const categories = [
+    const categoryDefinitions = [
         {
             name: 'Image Tools',
             icon: '🖼️',
@@ -80,6 +78,25 @@ export default function Home() {
             borderColor: 'border-slate-100 dark:border-slate-500/20'
         }
     ];
+
+    const [activeCategory, setActiveCategory] = useState(categoryDefinitions[0].categoryId);
+
+    const categories = categoryDefinitions.map((category) => {
+        const allTools = getToolsByCategory(category.categoryId);
+        const modeAwareTools = allTools.filter((tool) => isToolAvailableInMode(tool, currentMode));
+
+        return {
+            ...category,
+            allTools,
+            modeAwareTools,
+            visibleCount: modeAwareTools.length,
+            totalCount: allTools.length,
+        };
+    });
+
+    const selectedCategory = categories.find((category) => category.categoryId === activeCategory) || categories[0];
+    const selectedCategoryTools = selectedCategory.modeAwareTools;
+    const selectedCategoryPopularTools = selectedCategoryTools.filter((tool) => tool.popular).slice(0, 3);
 
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
@@ -154,84 +171,187 @@ export default function Home() {
 
             {/* Categories Section */}
             <section id="categories" className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-                <div className="mb-6">
+                <div className="mb-8">
                     <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Tools</p>
                     <h2 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">Browse by category</h2>
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Over 63+ specialized tools crafted for speed and precision.</p>
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-primary-100 bg-primary-50 px-3 py-1.5 text-primary-700 dark:border-primary-500/20 dark:bg-primary-500/10 dark:text-primary-300">
+                            <span className="h-2 w-2 rounded-full bg-primary-500" />
+                            {isOnlineMode ? 'Online mode' : 'Offline mode'}
+                        </span>
+                        <span className="inline-flex items-center rounded-full border border-gray-200/80 bg-white px-3 py-1.5 text-gray-600 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300">
+                            63+ specialized tools
+                        </span>
+                        <span className="inline-flex items-center rounded-full border border-gray-200/80 bg-white px-3 py-1.5 text-gray-600 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300">
+                            {selectedCategory.visibleCount} available in {selectedCategory.name}
+                        </span>
+                    </div>
+                    <p className="mt-3 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
+                        Pick a lane on the left and get a focused tool board on the right. The list stays mode-aware, so you only see tools available in your current processing mode.
+                    </p>
                 </div>
 
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {categories.map((category, idx) => {
-                        const isExpanded = expandedCategory === category.categoryId;
-                        const modeAwareTools = getToolsByCategory(category.categoryId)
-                            .filter((tool) => isToolAvailableInMode(tool, currentMode));
-                        const categoryTools = isExpanded ? modeAwareTools : [];
-                        const visibleCount = modeAwareTools.length;
+                <div className="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
+                    <div className="rounded-[2rem] border border-gray-200/80 bg-gray-50/80 p-3 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
+                        <div className="rounded-[1.5rem] border border-white/80 bg-white/70 p-4 backdrop-blur dark:border-white/[0.08] dark:bg-gray-950/40">
+                            <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Category Rail</p>
+                            <p className="mt-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+                                Switch categories without opening dropdowns. The board updates instantly with the tools available in your current mode.
+                            </p>
+                        </div>
 
-                        return (
-                            <div key={idx} className="flex flex-col h-full">
-                                <button
-                                    onClick={() => setExpandedCategory(isExpanded ? null : category.categoryId)}
-                                    className={`relative h-full p-6 rounded-3xl border border-gray-200/80 ${category.bg} shadow-sm transition-shadow hover:shadow-md dark:border-white/[0.08] text-left`}
-                                >
-                                    <div className="flex items-start gap-4">
-                                        <div className={`w-12 h-12 ${category.bg} rounded-2xl flex items-center justify-center text-2xl shadow-sm border ${category.borderColor}`}>
-                                            {category.icon}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <h3 className="text-base font-bold text-gray-900 dark:text-white">{category.name}</h3>
-                                                <span className="text-xs font-bold px-2 py-0.5 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-full">{visibleCount}</span>
+                        <div className="mt-3 space-y-2">
+                            {categories.map((category) => {
+                                const isActive = category.categoryId === selectedCategory.categoryId;
+                                const previewNames = category.modeAwareTools.slice(0, 3).map((tool) => tool.name).join(' · ');
+
+                                return (
+                                    <button
+                                        key={category.categoryId}
+                                        onClick={() => setActiveCategory(category.categoryId)}
+                                        className={`group w-full rounded-[1.75rem] border p-4 text-left transition-all ${
+                                            isActive
+                                                ? 'border-transparent bg-white shadow-lg shadow-gray-200/70 dark:bg-gray-900/80 dark:shadow-none'
+                                                : 'border-transparent bg-transparent hover:border-gray-200/80 hover:bg-white/70 dark:hover:border-white/[0.08] dark:hover:bg-white/[0.05]'
+                                        }`}
+                                    >
+                                        <div className="flex items-start gap-3">
+                                            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border ${category.borderColor} ${category.bg} text-2xl shadow-sm`}>
+                                                {category.icon}
                                             </div>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{category.description}</p>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="truncate text-sm font-bold text-gray-900 dark:text-white">{category.name}</h3>
+                                                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                                                        isActive
+                                                            ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-300'
+                                                            : 'bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400'
+                                                    }`}>
+                                                        {category.visibleCount}
+                                                    </span>
+                                                </div>
+                                                <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                                                    {category.description}
+                                                </p>
+                                                <p className="mt-2 text-[11px] text-gray-400 dark:text-gray-500">
+                                                    {previewNames || `No tools available in ${isOnlineMode ? 'online' : 'offline'} mode.`}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="overflow-hidden rounded-[2rem] border border-gray-200/80 bg-white shadow-xl shadow-gray-100/60 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none">
+                        <div className={`relative overflow-hidden border-b border-gray-200/80 bg-gradient-to-br ${selectedCategory.gradient} p-6 text-white dark:border-white/[0.08] sm:p-8`}>
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.28),transparent_40%)]" />
+                            <div className="relative">
+                                <div className="flex flex-wrap items-start justify-between gap-4">
+                                    <div className="max-w-2xl">
+                                        <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-white/20 bg-white/15 text-3xl backdrop-blur">
+                                            {selectedCategory.icon}
+                                        </div>
+                                        <p className="mt-5 text-xs font-bold uppercase tracking-[0.22em] text-white/75">Focused Board</p>
+                                        <h3 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">{selectedCategory.name}</h3>
+                                        <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/80 sm:text-base">
+                                            {selectedCategory.description}
+                                        </p>
+                                    </div>
+
+                                    <div className="grid min-w-[220px] grid-cols-2 gap-3">
+                                        <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
+                                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/60">Available now</p>
+                                            <p className="mt-2 text-2xl font-black">{selectedCategory.visibleCount}</p>
+                                        </div>
+                                        <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur">
+                                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/60">Category total</p>
+                                            <p className="mt-2 text-2xl font-black">{selectedCategory.totalCount}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary-600 dark:text-primary-400 mt-4">
-                                        <span>Explore</span>
-                                        <svg className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </div>
-                                </button>
+                                </div>
 
-                                {/* Expanded tools list */}
-                                {isExpanded && categoryTools.length > 0 && (
-                                    <div className="mt-3 p-5 rounded-3xl border border-gray-200/80 bg-white shadow-xl shadow-gray-100/60 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none max-h-80 overflow-y-auto">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                            {categoryTools.map((tool) => {
-                                                const availabilityBadge = getToolAvailabilityBadge(tool);
-
-                                                return (
-                                                    <Link
-                                                        key={tool.id}
-                                                        to={`/${tool.id}`}
-                                                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 text-sm text-gray-700 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors font-medium"
-                                                    >
-                                                        <span className="text-lg flex-shrink-0">{tool.icon}</span>
-                                                        <div className="min-w-0 flex-1">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="truncate">{tool.name}</span>
-                                                                {availabilityBadge && (
-                                                                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${availabilityBadge.className}`}>
-                                                                        {availabilityBadge.label}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                            {tool.availabilityNote && (
-                                                                <p className="mt-0.5 truncate text-[11px] font-normal text-gray-500 dark:text-gray-400">
-                                                                    {tool.availabilityNote}
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                    </Link>
-                                                );
-                                            })}
-                                        </div>
+                                {selectedCategoryPopularTools.length > 0 && (
+                                    <div className="mt-6 flex flex-wrap gap-2">
+                                        {selectedCategoryPopularTools.map((tool) => (
+                                            <span
+                                                key={tool.id}
+                                                className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/90 backdrop-blur"
+                                            >
+                                                <span>{tool.icon}</span>
+                                                <span>{tool.name}</span>
+                                            </span>
+                                        ))}
                                     </div>
                                 )}
                             </div>
-                        );
-                    })}
+                        </div>
+
+                        <div className="p-5 sm:p-6">
+                            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Tools in view</p>
+                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                        Open any tool directly from this board. Availability badges still reflect runtime requirements.
+                                    </p>
+                                </div>
+                                <div className="inline-flex items-center gap-2 rounded-full border border-gray-200/80 bg-gray-50 px-3 py-1.5 text-xs font-semibold text-gray-600 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300">
+                                    <span className={`h-2 w-2 rounded-full ${isOnlineMode ? 'bg-blue-500' : 'bg-primary-500'}`} />
+                                    Showing {isOnlineMode ? 'online-ready' : 'offline-ready'} tools
+                                </div>
+                            </div>
+
+                            {selectedCategoryTools.length > 0 ? (
+                                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                                    {selectedCategoryTools.map((tool) => {
+                                        const availabilityBadge = getToolAvailabilityBadge(tool);
+
+                                        return (
+                                            <Link
+                                                key={tool.id}
+                                                to={`/${tool.id}`}
+                                                className="group rounded-[1.5rem] border border-gray-200/80 bg-gray-50/80 p-4 transition-all hover:-translate-y-0.5 hover:border-primary-200 hover:bg-white hover:shadow-lg hover:shadow-gray-100/70 dark:border-white/[0.08] dark:bg-white/[0.03] dark:hover:border-primary-500/30 dark:hover:bg-white/[0.05] dark:hover:shadow-none"
+                                            >
+                                                <div className="flex items-start gap-3">
+                                                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-gray-200/80 bg-white text-2xl shadow-sm dark:border-white/[0.08] dark:bg-gray-900/60">
+                                                        {tool.icon}
+                                                    </div>
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <h4 className="text-sm font-bold text-gray-900 transition-colors group-hover:text-primary-600 dark:text-white dark:group-hover:text-primary-400">
+                                                                {tool.name}
+                                                            </h4>
+                                                            {availabilityBadge && (
+                                                                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${availabilityBadge.className}`}>
+                                                                    {availabilityBadge.label}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+                                                            {tool.description}
+                                                        </p>
+                                                        {tool.availabilityNote && (
+                                                            <p className="mt-2 line-clamp-2 text-[11px] text-gray-500 dark:text-gray-400">
+                                                                {tool.availabilityNote}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="rounded-[1.75rem] border border-dashed border-gray-200/80 bg-gray-50/80 p-8 text-center dark:border-white/[0.08] dark:bg-white/[0.03]">
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">No tools available in this mode</p>
+                                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                        Switch to {isOnlineMode ? 'offline' : 'online'} mode to explore additional {selectedCategory.name.toLowerCase()} workflows.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </section>
 
