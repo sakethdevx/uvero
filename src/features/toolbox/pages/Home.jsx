@@ -157,7 +157,7 @@ export default function Home() {
                 <div className="mb-6">
                     <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Tools</p>
                     <h2 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">Browse by category</h2>
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Over 55+ specialized tools crafted for speed and precision.</p>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Over 63+ specialized tools crafted for speed and precision.</p>
                 </div>
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">

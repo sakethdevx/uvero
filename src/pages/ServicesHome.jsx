@@ -12,7 +12,7 @@ const services = [
         id: 'toolbox',
         name: 'Toolbox',
         tagline: 'Convert, compress & transform',
-        description: '55+ powerful tools to convert, compress, resize, and process your files. Images, PDFs, audio, video, documents — all in one place.',
+        description: '63+ powerful tools to convert, compress, resize, and process your files. Images, PDFs, audio, video, documents — all in one place.',
         features: ['Image & PDF Tools', 'Audio & Video Conversion', 'Privacy-First Processing', 'Works Offline'],
         icon: (
             <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -175,7 +175,7 @@ const platformFeatures = [
 
 const heroHighlights = [
     { value: '6', label: 'Core services' },
-    { value: '55+', label: 'Toolbox tools' },
+    { value: '63+', label: 'Toolbox tools' },
     { value: '100%', label: 'Privacy-first' },
 ];
 
