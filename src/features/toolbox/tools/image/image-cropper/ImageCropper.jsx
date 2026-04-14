@@ -124,12 +124,6 @@ const ImageCropper = () => {
         return () => clearTimeout(timer);
     }, [imageUrl]);
 
-    useEffect(() => {
-        if (cropArea && imageDimensions) {
-            drawCropOverlay();
-        }
-    }, [cropArea, imageDimensions, drawCropOverlay]);
-
     const drawCropOverlay = useCallback(() => {
         if (!canvasRef.current || !imageUrl || !cropArea) return;
 
@@ -180,6 +174,12 @@ const ImageCropper = () => {
         };
         img.src = imageUrl;
     }, [imageUrl, cropArea, imageDimensions]);
+
+    useEffect(() => {
+        if (cropArea && imageDimensions) {
+            drawCropOverlay();
+        }
+    }, [cropArea, imageDimensions, drawCropOverlay]);
 
     const handleMouseDown = (e) => {
         if (!cropArea || !canvasRef.current) return;
