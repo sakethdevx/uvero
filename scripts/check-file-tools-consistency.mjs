@@ -31,12 +31,16 @@ function parseToolEntries(source) {
         const block = entry[2]
         const idMatch = block.match(/id:\s*'([^']+)'/)
         const categoryMatch = block.match(/category:\s*'([^']+)'/)
+        const modesMatch = block.match(/modes:\s*\[([^\]]*)\]/)
 
         tools.push({
             key,
             id: idMatch?.[1] || key,
             category: categoryMatch?.[1] || null,
             hasSeo: /seo:\s*[A-Za-z0-9_]+/.test(block),
+            declaredModes: modesMatch
+                ? [...modesMatch[1].matchAll(/'([^']+)'/g)].map(([, mode]) => mode)
+                : [],
         })
     }
 
@@ -50,6 +54,66 @@ function parseExecutorIds(source) {
     }
 
     return [...blockMatch[1].matchAll(/'([^']+)':/g)].map(([, toolId]) => toolId)
+}
+
+async function parseExecutorModeMap(source) {
+    const executorBlockMatch = source.match(/const toolExecutors = \{([\s\S]*?)\n\};/)
+    if (!executorBlockMatch) {
+        throw new Error('Could not find executor registry block.')
+    }
+
+    const importMatches = [...source.matchAll(/import\s+([A-Za-z0-9_]+)\s+from\s+'([^']+)'/g)]
+    const importMap = new Map(
+        importMatches.map(([, localName, importPath]) => [
+            localName,
+            path.resolve(path.dirname(EXECUTORS_PATH), `${importPath}.js`),
+        ])
+    )
+
+    const cache = new Map()
+
+    async function getModesForExecutorFile(filePath) {
+        if (cache.has(filePath)) {
+            return cache.get(filePath)
+        }
+
+        const executorSource = await readFile(filePath, 'utf8')
+        const inheritedModesMatch = executorSource.match(/supportedModes = \[\.\.\.(\w+)\.supportedModes\]/)
+        if (inheritedModesMatch) {
+            const dependencyName = inheritedModesMatch[1]
+            const dependencyImportMatch = executorSource.match(new RegExp(`import\\s+${dependencyName}\\s+from\\s+'([^']+)'`))
+            if (!dependencyImportMatch) {
+                cache.set(filePath, [])
+                return []
+            }
+
+            const dependencyPath = path.resolve(path.dirname(filePath), `${dependencyImportMatch[1]}.js`)
+            const modes = await getModesForExecutorFile(dependencyPath)
+            cache.set(filePath, modes)
+            return modes
+        }
+
+        const directModesMatch = executorSource.match(/const supportedModes = \[([^\]]*)\]/)
+
+        if (directModesMatch) {
+            const modes = [...directModesMatch[1].matchAll(/'([^']+)'/g)].map(([, mode]) => mode)
+            cache.set(filePath, modes)
+            return modes
+        }
+
+        cache.set(filePath, [])
+        return []
+    }
+
+    const pairs = await Promise.all(
+        [...executorBlockMatch[1].matchAll(/'([^']+)':\s*([A-Za-z0-9_]+)/g)].map(async ([, toolId, executorName]) => {
+            const filePath = importMap.get(executorName)
+            const modes = filePath ? await getModesForExecutorFile(filePath) : []
+            return [toolId, modes]
+        })
+    )
+
+    return new Map(pairs)
 }
 
 function parseNavToolIds(source) {
@@ -80,6 +144,7 @@ async function main() {
 
     const tools = parseToolEntries(toolIndexSource)
     const executorIds = new Set(parseExecutorIds(executorsSource))
+    const executorModeMap = await parseExecutorModeMap(executorsSource)
     const navToolIds = new Set(parseNavToolIds(appSource))
     const executorOptionalIds = new Set(parseExecutorOptionalIds(toolIndexSource))
 
@@ -92,6 +157,17 @@ async function main() {
 
     const executorWithoutRegistry = [...executorIds]
         .filter((toolId) => !tools.some((tool) => tool.id === toolId))
+
+    const declaredModesMismatches = tools
+        .filter((tool) => executorIds.has(tool.id))
+        .filter((tool) => {
+            const executor = executorModeMap.get(tool.id) || []
+            return JSON.stringify(tool.declaredModes) !== JSON.stringify(executor)
+        })
+        .map((tool) => {
+            const executor = executorModeMap.get(tool.id) || []
+            return `${tool.id} (declared: ${tool.declaredModes.join('/') || 'none'}, executor: ${executor.join('/') || 'none'})`
+        })
 
     const processingToolsWithoutExecutor = tools
         .filter((tool) => isFileProcessingCategory(tool.category))
@@ -142,6 +218,7 @@ async function main() {
         registryKeyMismatches.length && `Registry key/id mismatches: ${registryKeyMismatches.join(', ')}`,
         navMissingRegistry.length && `Nav routes missing registry tools: ${navMissingRegistry.join(', ')}`,
         executorWithoutRegistry.length && `Executor ids missing registry tools: ${executorWithoutRegistry.join(', ')}`,
+        declaredModesMismatches.length && `Executor-backed tools with stale raw mode declarations: ${declaredModesMismatches.join(', ')}`,
         processingToolsWithoutExecutor.length && `File-processing tools missing executors: ${processingToolsWithoutExecutor.join(', ')}`,
         processingToolsWithoutSeo.length && `Executor-backed processing tools missing SEO metadata: ${processingToolsWithoutSeo.join(', ')}`,
         executorOptionalInvalid.length && `Invalid executor-optional ids: ${executorOptionalInvalid.join(', ')}`,

@@ -5,7 +5,7 @@ import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import mp3ConverterExecutor from './executor';
 
-const MP3Converter = () => {
+const MP3Converter = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [bitrate, setBitrate] = useState('192');
     const [isConverting, setIsConverting] = useState(false);
@@ -42,7 +42,7 @@ const MP3Converter = () => {
                 options: {
                     bitrate: parseInt(bitrate, 10),
                 },
-                mode: 'offline',
+                mode,
                 onProgress: setProgress,
             });
             if (previewUrl) {
@@ -97,7 +97,7 @@ const MP3Converter = () => {
                         MP3 Converter
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert any audio file to MP3 format with customizable bitrate
+                        Convert any audio file to MP3 format with customizable bitrate using {isOnlineMode ? 'online' : 'on-device'} processing
                     </p>
                 </div>
 
@@ -234,7 +234,9 @@ const MP3Converter = () => {
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
                         <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            All processing happens locally in your browser
+                            {isOnlineMode
+                                ? 'Online mode uses server processing for supported conversions and returns MP3 output immediately.'
+                                : 'Offline mode keeps MP3 conversion local in your browser.'}
                         </p>
                     </div>
                 </div>

@@ -50,6 +50,16 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/transform-image') {
+            const mod = await import('../src/features/file-tools/api/transform-image.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/transform-audio') {
+            const mod = await import('../src/features/file-tools/api/transform-audio.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/convert-rar-to-zip') {
             const mod = await import('../src/features/file-tools/api/convert-rar-to-zip.js')
             return mod.default(req, res)

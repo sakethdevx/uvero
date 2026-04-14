@@ -5,7 +5,7 @@ import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import audioCompressorExecutor from './executor';
 
-export default function AudioCompressor() {
+export default function AudioCompressor({ mode = 'offline', isOnlineMode = mode === 'online' }) {
     const [file, setFile] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -36,7 +36,7 @@ export default function AudioCompressor() {
         try {
             const compressed = await audioCompressorExecutor.run({
                 files: [file],
-                mode: 'offline',
+                mode,
                 options: { bitrate },
                 onProgress: (progressValue) => setProgress(progressValue),
             });
@@ -103,15 +103,15 @@ export default function AudioCompressor() {
                         <div className="flex flex-wrap gap-3 justify-center text-sm text-gray-600 dark:text-gray-300">
                             <div className="flex items-center gap-2">
                                 <span className="text-green-500">✓</span>
-                                <span>100% Client-side</span>
+                                <span>{isOnlineMode ? 'Server-backed option' : '100% Client-side'}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className="text-green-500">✓</span>
-                                <span>No Upload Required</span>
+                                <span>{isOnlineMode ? 'Online processing ready' : 'No Upload Required'}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className="text-green-500">✓</span>
-                                <span>Privacy First</span>
+                                <span>{isOnlineMode ? 'Flexible processing' : 'Privacy First'}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className="text-green-500">✓</span>
@@ -281,7 +281,9 @@ export default function AudioCompressor() {
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy First</h3>
                         <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            All processing happens in your browser. Your audio files never leave your device.
+                            {isOnlineMode
+                                ? 'Online mode processes supported files on the server and returns compressed audio immediately.'
+                                : 'Offline mode keeps compression in your browser so audio files never leave your device.'}
                         </p>
                     </div>
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
@@ -327,8 +329,9 @@ export default function AudioCompressor() {
                         <div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Is my audio secure?</h3>
                             <p className="text-gray-600 dark:text-gray-300 text-sm">
-                                Yes! Your audio never leaves your device. All compression happens locally in your browser,
-                                ensuring complete privacy and security.
+                                {isOnlineMode
+                                    ? 'Yes. Online mode uploads the file only for the duration of server-side compression and returns the result immediately.'
+                                    : 'Yes. Offline mode keeps your audio on-device and compresses it locally in the browser.'}
                             </p>
                         </div>
                         <div>

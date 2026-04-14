@@ -2,7 +2,7 @@ import { assertModeSupported } from '../../../core/executorUtils';
 import audioConverterExecutor from '../audio-converter/executor';
 
 const toolId = 'mp3-converter';
-const supportedModes = ['offline'];
+const supportedModes = [...audioConverterExecutor.supportedModes];
 
 async function run(input) {
     const mode = input.mode || 'offline';

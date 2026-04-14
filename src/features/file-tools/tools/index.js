@@ -165,7 +165,7 @@ export const tools = {
         seo: imageToPDFSEO,
         icon: '📄',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'resize-image': {
         id: 'resize-image',
@@ -187,7 +187,7 @@ export const tools = {
         seo: gifMakerSEO,
         icon: '🎞️',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'watermark': {
         id: 'watermark',
@@ -209,7 +209,7 @@ export const tools = {
         seo: imageCropperSEO,
         icon: '✂️',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     }, 'remove-background': {
         id: 'remove-background',
         name: 'Background Remover',
@@ -219,7 +219,7 @@ export const tools = {
         seo: backgroundRemoverSEO,
         icon: '🎨',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     }, 'compress-pdf': {
         id: 'compress-pdf',
         name: 'PDF Compressor',
@@ -229,7 +229,7 @@ export const tools = {
         seo: pdfCompressorSEO,
         icon: '📄',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'convert-pdf': {
         id: 'convert-pdf',
@@ -240,7 +240,7 @@ export const tools = {
         seo: pdfConverterSEO,
         icon: '📄',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'compress-audio': {
         id: 'compress-audio',
@@ -284,7 +284,7 @@ export const tools = {
         seo: pdfMergerSEO,
         icon: '📑',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'split-pdf': {
         id: 'split-pdf',
@@ -295,7 +295,7 @@ export const tools = {
         seo: pdfSplitterSEO,
         icon: '✂️',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'compress-video': {
         id: 'compress-video',
@@ -306,7 +306,7 @@ export const tools = {
         seo: videoCompressorSEO,
         icon: '🎬',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'convert-video': {
         id: 'convert-video',
@@ -317,7 +317,7 @@ export const tools = {
         seo: videoConverterSEO,
         icon: '🔄',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'qr-generator': {
         id: 'qr-generator',
@@ -350,7 +350,7 @@ export const tools = {
         seo: wordToPDFSEO,
         icon: '📝',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'powerpoint-to-pdf': {
         id: 'powerpoint-to-pdf',
@@ -361,7 +361,7 @@ export const tools = {
         seo: powerpointToPDFSEO,
         icon: '📊',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'excel-to-pdf': {
         id: 'excel-to-pdf',
@@ -371,7 +371,7 @@ export const tools = {
         category: 'pdf',
         seo: excelToPDFSEO,
         icon: '📈',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'html-to-pdf': {
         id: 'html-to-pdf',
@@ -381,7 +381,7 @@ export const tools = {
         category: 'pdf',
         seo: htmlToPDFSEO,
         icon: '🌐',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'pdf-to-word': {
         id: 'pdf-to-word',
@@ -392,7 +392,7 @@ export const tools = {
         seo: pdfToWordSEO,
         icon: '📝',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'pdf-to-powerpoint': {
         id: 'pdf-to-powerpoint',
@@ -402,7 +402,7 @@ export const tools = {
         category: 'pdf',
         seo: pdfToPowerpointSEO,
         icon: '📊',
-        modes: ['offline', 'online'],
+        modes: ['offline'],
         popular: true
     },
     'pdf-to-excel': {
@@ -413,7 +413,7 @@ export const tools = {
         category: 'pdf',
         seo: pdfToExcelSEO,
         icon: '📈',
-        modes: ['offline', 'online'],
+        modes: ['offline'],
         popular: true
     },
     'pdf-to-pdfa': {
@@ -424,7 +424,7 @@ export const tools = {
         category: 'pdf',
         seo: pdfToPDFASEO,
         icon: '📦',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'unit-converter': {
         id: 'unit-converter',
@@ -456,7 +456,7 @@ export const tools = {
         category: 'image',
         seo: jpgToPDFSEO,
         icon: '📄',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'pdf-to-jpg': {
         id: 'pdf-to-jpg',
@@ -466,7 +466,7 @@ export const tools = {
         category: 'image',
         seo: pdfToJPGSEO,
         icon: '🖼️',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'heic-to-jpg': {
         id: 'heic-to-jpg',
@@ -506,7 +506,7 @@ export const tools = {
         category: 'video',
         seo: mp4ConverterSEO,
         icon: '🎬',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'video-to-gif': {
         id: 'video-to-gif',
@@ -516,7 +516,7 @@ export const tools = {
         category: 'video',
         seo: videoToGIFSEO,
         icon: '🎞️',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'mov-to-mp4': {
         id: 'mov-to-mp4',
@@ -526,7 +526,7 @@ export const tools = {
         category: 'video',
         seo: movToMP4SEO,
         icon: '🎥',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'lbs-to-kg': {
         id: 'lbs-to-kg',
@@ -596,7 +596,7 @@ export const tools = {
         category: 'document',
         seo: epubToPdfSEO,
         icon: '📚',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'document-converter': {
         id: 'document-converter',
@@ -626,7 +626,7 @@ export const tools = {
         category: 'archive',
         seo: archiveConverterSEO,
         icon: '🗜️',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'rar-to-zip': {
         id: 'rar-to-zip',
@@ -646,7 +646,7 @@ export const tools = {
         category: 'pdf',
         seo: rotatePdfSEO,
         icon: '🔄',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'watermark-pdf': {
         id: 'watermark-pdf',
@@ -656,7 +656,7 @@ export const tools = {
         category: 'pdf',
         seo: watermarkPdfSEO,
         icon: '💧',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'protect-pdf': {
         id: 'protect-pdf',
@@ -666,7 +666,7 @@ export const tools = {
         category: 'pdf',
         seo: protectPdfSEO,
         icon: '🔒',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'unlock-pdf': {
         id: 'unlock-pdf',
@@ -676,7 +676,7 @@ export const tools = {
         category: 'pdf',
         seo: unlockPdfSEO,
         icon: '🔓',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'page-numbers': {
         id: 'page-numbers',
@@ -686,7 +686,7 @@ export const tools = {
         category: 'pdf',
         seo: pageNumbersSEO,
         icon: '#️⃣',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'organize-pdf': {
         id: 'organize-pdf',
@@ -696,7 +696,7 @@ export const tools = {
         category: 'pdf',
         seo: organizePdfSEO,
         icon: '📋',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'repair-pdf': {
         id: 'repair-pdf',
@@ -706,7 +706,7 @@ export const tools = {
         category: 'pdf',
         seo: repairPdfSEO,
         icon: '🔧',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'crop-pdf': {
         id: 'crop-pdf',
@@ -716,7 +716,7 @@ export const tools = {
         category: 'pdf',
         seo: cropPdfSEO,
         icon: '✂️',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'edit-pdf': {
         id: 'edit-pdf',
@@ -726,7 +726,7 @@ export const tools = {
         category: 'pdf',
         seo: editPdfSEO,
         icon: '✏️',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'sign-pdf': {
         id: 'sign-pdf',
@@ -736,7 +736,7 @@ export const tools = {
         category: 'pdf',
         seo: signPdfSEO,
         icon: '✍️',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'redact-pdf': {
         id: 'redact-pdf',
@@ -746,7 +746,7 @@ export const tools = {
         category: 'pdf',
         seo: redactPdfSEO,
         icon: '🔏',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'ocr-pdf': {
         id: 'ocr-pdf',
@@ -756,7 +756,7 @@ export const tools = {
         category: 'pdf',
         seo: ocrPdfSEO,
         icon: '👁️',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'compare-pdf': {
         id: 'compare-pdf',
@@ -766,7 +766,7 @@ export const tools = {
         category: 'pdf',
         seo: comparePdfSEO,
         icon: '🔍',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'scan-to-pdf': {
         id: 'scan-to-pdf',
@@ -776,7 +776,7 @@ export const tools = {
         category: 'pdf',
         seo: scanToPdfSEO,
         icon: '📷',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'translate-pdf': {
         id: 'translate-pdf',
@@ -786,7 +786,7 @@ export const tools = {
         category: 'pdf',
         seo: translatePdfSEO,
         icon: '🌐',
-        modes: ['offline', 'online']
+        modes: ['offline']
     }
 };
 

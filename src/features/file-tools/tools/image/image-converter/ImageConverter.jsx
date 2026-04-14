@@ -20,7 +20,7 @@ const PRESET_SIZES = [
     { label: 'Custom', w: 'custom', h: 'custom' },
 ];
 
-export default function ImageConverter() {
+export default function ImageConverter({ mode = 'offline', isOnlineMode = mode === 'online' }) {
     const [file, setFile] = useState(null);
     const [outputFormat, setOutputFormat] = useState('png');
     const [quality, setQuality] = useState(92);
@@ -119,7 +119,7 @@ export default function ImageConverter() {
                     maintainAspectRatio,
                     quality: qualityValue,
                 },
-                mode: 'offline',
+                mode,
                 onProgress: setProgress,
             });
             setProgress(100);
@@ -186,11 +186,17 @@ export default function ImageConverter() {
                     </h1>
                     <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300 max-w-xl">
                         Convert between JPG, PNG, and WebP. Control output quality and resize in one step.
-                        All processing happens in your browser — completely private.
+                        {isOnlineMode
+                            ? ' Online mode uses the server image runtime for the conversion step.'
+                            : ' Offline mode keeps processing in your browser for maximum privacy.'}
                     </p>
-                    <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 px-3 py-1.5 text-xs font-semibold text-green-700 dark:text-green-400">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                        100% Private — Files never leave your device
+                    <div className={`mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold border ${
+                        isOnlineMode
+                            ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-300'
+                            : 'bg-green-50 border-green-200 text-green-700 dark:bg-green-500/10 dark:border-green-500/20 dark:text-green-400'
+                    }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${isOnlineMode ? 'bg-amber-500' : 'bg-green-500'}`} />
+                        {isOnlineMode ? 'Online Runtime — Files are sent to the image transform service' : 'Offline Mode — Files stay on your device'}
                     </div>
                 </div>
 
@@ -450,7 +456,7 @@ export default function ImageConverter() {
                     {[
                         { q: 'What formats are supported?', a: 'You can convert between JPG/JPEG, PNG, and WebP. Input also accepts GIF and BMP files.' },
                         { q: 'What does the quality slider control?', a: 'For JPG and WebP output the quality slider (10–100%) trades file size against visual sharpness. PNG is always lossless, so the slider is hidden.' },
-                        { q: 'Are my images uploaded to a server?', a: 'No. Conversion runs entirely in your browser using a Web Worker. Your files never leave your device.' },
+                        { q: 'Are my images uploaded to a server?', a: isOnlineMode ? 'Yes in online mode. This page sends the image to the server transform runtime so conversion can finish there.' : 'No in offline mode. Conversion runs entirely in your browser using a Web Worker.' },
                         { q: 'Which format should I choose?', a: 'JPG for photos with small file sizes; PNG for graphics and transparency; WebP for the best size-to-quality ratio on the web.' },
                     ].map((faq, i) => (
                         <div key={i}>

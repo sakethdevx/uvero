@@ -5,7 +5,7 @@ import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import imageResizerExecutor from './executor';
 
-const ImageResizer = () => {
+const ImageResizer = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [resizeMode, setResizeMode] = useState('dimensions'); // 'dimensions' or 'percentage'
     const [width, setWidth] = useState('');
@@ -88,7 +88,7 @@ const ImageResizer = () => {
                     width: targetWidth,
                     height: targetHeight,
                 },
-                mode: 'offline',
+                mode,
                 onProgress: setProgress,
             });
             if (previewUrl) {
@@ -151,6 +151,11 @@ const ImageResizer = () => {
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
                         Resize images by dimensions or percentage
+                    </p>
+                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                        {isOnlineMode
+                            ? 'Online mode uses the server image runtime for resizing.'
+                            : 'Offline mode keeps resizing local in your browser.'}
                     </p>
                 </div>
 
@@ -435,8 +440,9 @@ const ImageResizer = () => {
                                 Are my images uploaded to a server?
                             </h3>
                             <p className="text-gray-600 dark:text-gray-300">
-                                No! All image resizing happens locally in your browser using Canvas API.
-                                Your images never leave your device.
+                                {isOnlineMode
+                                    ? 'Yes in online mode. The selected image is uploaded to the server transform runtime for resizing.'
+                                    : 'No in offline mode. Image resizing happens locally in your browser using the worker-based canvas path.'}
                             </p>
                         </div>
                     </div>

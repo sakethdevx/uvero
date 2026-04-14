@@ -5,7 +5,7 @@ import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import watermarkExecutor from './executor';
 
-const Watermark = () => {
+const Watermark = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [watermarkType, setWatermarkType] = useState('text'); // 'text' or 'image'
     const [watermarkImage, setWatermarkImage] = useState(null);
@@ -74,7 +74,7 @@ const Watermark = () => {
                     color,
                     watermarkImage
                 },
-                mode: 'offline',
+                mode,
                 onProgress: (prog) => setProgress(prog),
             });
             if (previewUrl) {
@@ -131,6 +131,11 @@ const Watermark = () => {
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
                         Protect your images with text or logo watermarks
+                    </p>
+                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                        {isOnlineMode
+                            ? 'Online mode uses the server image runtime to apply the watermark.'
+                            : 'Offline mode keeps watermarking local in your browser.'}
                     </p>
                 </div>
 
@@ -437,8 +442,9 @@ const Watermark = () => {
                         <div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy & Security</h3>
                             <p className="text-sm">
-                                All processing happens in your browser. Your images never leave your device,
-                                ensuring complete privacy and security.
+                                {isOnlineMode
+                                    ? 'Online mode uploads the image to the server transform runtime to apply the watermark before returning the result.'
+                                    : 'Offline mode keeps watermarking in your browser so the image stays on your device.'}
                             </p>
                         </div>
                     </div>

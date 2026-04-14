@@ -1,7 +1,7 @@
 {
     "route": "/compress-audio",
     "title": "Free Online Audio Compressor - MP3 Converter | Uvero",
-    "description": "Compress audio files online for free. Convert WAV, MP3, OGG to compressed MP3. Choose bitrate from 64-320 kbps. Fast, secure, works offline in your browser.",
+    "description": "Compress audio files online for free. Convert WAV, MP3, and OGG to compressed MP3 with customizable bitrate using on-device or server-backed processing.",
     "keywords": [
         "audio compressor",
         "compress audio",

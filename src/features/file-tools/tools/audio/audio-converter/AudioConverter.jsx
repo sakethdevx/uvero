@@ -5,7 +5,7 @@ import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import audioConverterExecutor from './executor';
 
-const AudioConverter = () => {
+const AudioConverter = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [format, setFormat] = useState('mp3');
     const [bitrate, setBitrate] = useState('192');
@@ -49,7 +49,7 @@ const AudioConverter = () => {
                     format,
                     bitrate: parseInt(bitrate, 10),
                 },
-                mode: 'offline',
+                mode,
                 onProgress: setProgress,
             });
             if (previewUrl) {
@@ -104,7 +104,7 @@ const AudioConverter = () => {
                         Audio Converter
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert your audio files between MP3 and WAV formats
+                        Convert your audio files between MP3 and WAV formats with {isOnlineMode ? 'server-backed' : 'on-device'} processing
                     </p>
                 </div>
 
@@ -281,7 +281,9 @@ const AudioConverter = () => {
                         <div className="text-3xl mb-3">🔒</div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
                         <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            All conversions happen in your browser. Files never leave your device
+                            {isOnlineMode
+                                ? 'Online mode uses secure server processing for broader compatibility on supported uploads.'
+                                : 'Offline mode keeps conversion in your browser so files stay on your device.'}
                         </p>
                     </div>
                 </div>
@@ -324,8 +326,9 @@ const AudioConverter = () => {
                                 Are my files uploaded to a server?
                             </h3>
                             <p className="text-gray-600 dark:text-gray-300">
-                                No! All audio conversion happens directly in your browser using Web APIs.
-                                Your files never leave your device, ensuring complete privacy.
+                                {isOnlineMode
+                                    ? 'Only in online mode. Supported uploads are processed server-side and returned immediately after conversion.'
+                                    : 'No. In offline mode, audio conversion happens directly in your browser using Web APIs.'}
                             </p>
                         </div>
                     </div>
