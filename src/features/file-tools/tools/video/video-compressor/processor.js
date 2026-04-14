@@ -38,6 +38,7 @@ const compress = (file, quality = 'medium', resolution = 'original', onProgress 
                 const filename = `${originalName}_compressed.mp4`;
 
                 resolve({
+                    blob: data.blob,
                     url,
                     filename,
                     size: data.blob.size

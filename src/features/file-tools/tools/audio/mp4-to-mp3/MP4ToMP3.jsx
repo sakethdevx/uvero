@@ -3,15 +3,16 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import processor from '../video-to-mp3/processor';
+import mp4ToMp3Executor from './executor';
 
-const MP4ToMP3 = () => {
+const MP4ToMP3 = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [bitrate, setBitrate] = useState('192');
     const [isConverting, setIsConverting] = useState(false);
     const [progress, setProgress] = useState(0);
     const [convertedAudio, setConvertedAudio] = useState(null);
     const [error, setError] = useState('');
+    const [previewUrl, setPreviewUrl] = useState('');
 
     const bitrates = [
         { value: '128', label: '128 kbps' },
@@ -40,23 +41,20 @@ const MP4ToMP3 = () => {
         setProgress(0);
 
         try {
-            const result = await processor.convert(
-                file,
-                parseInt(bitrate),
-                (progressValue) => setProgress(progressValue)
-            );
-
-            // Normalize result: processor returns { file, blob, size, duration }
-            // but we need { url, filename, size } for download
-            const url = URL.createObjectURL(result.blob || result.file);
-            const filename = result.file?.name || file.name.replace(/\.[^/.]+$/, '') + '.mp3';
-
-            setConvertedAudio({
-                url,
-                filename,
-                size: result.size || result.blob?.size || 0,
-                duration: result.duration
+            const result = await mp4ToMp3Executor.run({
+                files: [file],
+                options: {
+                    bitrate: parseInt(bitrate, 10),
+                },
+                mode,
+                onProgress: setProgress,
             });
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+            const nextPreviewUrl = URL.createObjectURL(result.primaryFile);
+            setPreviewUrl(nextPreviewUrl);
+            setConvertedAudio(result);
         } catch (err) {
             setError(err.message || 'Conversion failed');
         } finally {
@@ -67,17 +65,23 @@ const MP4ToMP3 = () => {
     const handleDownload = () => {
         if (!convertedAudio) return;
 
+        const url = URL.createObjectURL(convertedAudio.primaryFile);
         const link = document.createElement('a');
-        link.href = convertedAudio.url;
-        link.download = convertedAudio.filename;
+        link.href = url;
+        link.download = convertedAudio.primaryFile.name;
         link.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
         setFile(null);
         setConvertedAudio(null);
         setError('');
         setProgress(0);
+        setPreviewUrl('');
     };
 
     const formatSize = (bytes) => {
@@ -98,6 +102,9 @@ const MP4ToMP3 = () => {
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
                         Extract audio from MP4 videos and convert to MP3 format
+                    </p>
+                    <p className="mt-3 text-sm font-medium text-blue-700 dark:text-blue-300">
+                        Current mode: {isOnlineMode ? 'Online' : 'Offline'}
                     </p>
                 </div>
 
@@ -160,7 +167,7 @@ const MP4ToMP3 = () => {
                                                 Conversion Complete!
                                             </p>
                                             <p className="text-sm text-green-700 dark:text-green-300">
-                                                {convertedAudio.filename} • {formatSize(convertedAudio.size)}
+                                                {convertedAudio.primaryFile.name} • {formatSize(convertedAudio.meta?.outputSize || convertedAudio.primaryFile.size)}
                                             </p>
                                         </div>
                                     </div>

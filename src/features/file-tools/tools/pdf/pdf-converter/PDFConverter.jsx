@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import pdfConverterExecutor from './executor';
 
 export default function PDFConverter() {
     const [file, setFile] = useState(null);
@@ -14,9 +14,11 @@ export default function PDFConverter() {
     const [outputFormat, setOutputFormat] = useState('png'); // png or jpg
     const [pageRange, setPageRange] = useState('all'); // all, first, custom
     const [customPages, setCustomPages] = useState('');
+    const [previewImages, setPreviewImages] = useState([]);
     const fileInputRef = useRef(null);
 
     const handleFileSelect = (selectedFile) => {
+        previewImages.forEach((image) => URL.revokeObjectURL(image.url));
         if (selectedFile.type !== 'application/pdf') {
             setError('Please select a PDF file');
             return;
@@ -25,6 +27,7 @@ export default function PDFConverter() {
         setResults(null);
         setError(null);
         setProgress(0);
+        setPreviewImages([]);
     };
 
     const handleConvert = async () => {
@@ -35,19 +38,28 @@ export default function PDFConverter() {
         setProgress(0);
 
         try {
-            const images = await processor.convert(
-                file,
-                outputFormat,
-                pageRange,
-                customPages,
-                (progressValue) => setProgress(progressValue)
-            );
-
-            setResults({
-                images,
-                format: outputFormat,
-                count: images.length
+            previewImages.forEach((image) => URL.revokeObjectURL(image.url));
+            const executionResult = await pdfConverterExecutor.run({
+                files: [file],
+                options: {
+                    format: outputFormat,
+                    pageRange,
+                    customPages,
+                },
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
+            const outputFiles = executionResult.primaryFile
+                ? [executionResult.primaryFile]
+                : (executionResult.files || []);
+            const previews = outputFiles.map((outputFile, index) => ({
+                file: outputFile,
+                url: URL.createObjectURL(outputFile),
+                pageNumber: executionResult.meta?.items?.[index]?.pageNumber || index + 1,
+                size: executionResult.meta?.items?.[index]?.outputSize || outputFile.size,
+            }));
+            setPreviewImages(previews);
+            setResults(executionResult);
 
             setProgress(100);
         } catch (err) {
@@ -61,7 +73,7 @@ export default function PDFConverter() {
     const handleDownloadSingle = (image, index) => {
         const link = document.createElement('a');
         link.href = image.url;
-        link.download = `page_${index + 1}.${outputFormat}`;
+        link.download = image.file?.name || `page_${index + 1}.${outputFormat}`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -69,7 +81,7 @@ export default function PDFConverter() {
 
     const handleDownloadAll = () => {
         if (!results) return;
-        results.images.forEach((image, index) => {
+        previewImages.forEach((image, index) => {
             setTimeout(() => {
                 handleDownloadSingle(image, index);
             }, index * 100);
@@ -77,11 +89,13 @@ export default function PDFConverter() {
     };
 
     const handleReset = () => {
+        previewImages.forEach((image) => URL.revokeObjectURL(image.url));
         setFile(null);
         setResults(null);
         setError(null);
         setProgress(0);
         setCustomPages('');
+        setPreviewImages([]);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -295,7 +309,7 @@ export default function PDFConverter() {
                                                 Conversion Successful!
                                             </h3>
                                             <p className="text-gray-700 dark:text-gray-200">
-                                                Generated <span className="font-bold text-green-700 dark:text-green-300">{results.count}</span> {results.format.toUpperCase()} {results.count === 1 ? 'image' : 'images'}
+                                                Generated <span className="font-bold text-green-700 dark:text-green-300">{previewImages.length}</span> {outputFormat.toUpperCase()} {previewImages.length === 1 ? 'image' : 'images'}
                                             </p>
                                         </div>
                                     </div>
@@ -314,16 +328,16 @@ export default function PDFConverter() {
                                         </Button>
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-                                        {results.images.map((image, index) => (
+                                        {previewImages.map((image, index) => (
                                             <div key={index} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                                                 <img
                                                     src={image.url}
-                                                    alt={`Page ${index + 1}`}
+                                                    alt={`Page ${image.pageNumber}`}
                                                     className="w-full h-48 object-contain bg-gray-100 dark:bg-gray-700"
                                                 />
                                                 <div className="p-3 flex items-center justify-between">
                                                     <div className="text-sm">
-                                                        <div className="font-medium text-gray-900 dark:text-white">Page {index + 1}</div>
+                                                        <div className="font-medium text-gray-900 dark:text-white">Page {image.pageNumber}</div>
                                                         <div className="text-xs text-gray-500 dark:text-gray-400">{formatFileSize(image.size)}</div>
                                                     </div>
                                                     <Button

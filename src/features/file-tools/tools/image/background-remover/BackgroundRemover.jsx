@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import backgroundRemoverExecutor from './executor';
 
 const BackgroundRemover = () => {
     const [file, setFile] = useState(null);
@@ -13,13 +13,21 @@ const BackgroundRemover = () => {
     const [progress, setProgress] = useState(0);
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');
+    const [resultPreviewUrl, setResultPreviewUrl] = useState(null);
 
     const handleFileSelect = (selectedFile) => {
+        if (originalPreview) {
+            URL.revokeObjectURL(originalPreview);
+        }
+        if (resultPreviewUrl) {
+            URL.revokeObjectURL(resultPreviewUrl);
+        }
         setFile(selectedFile);
         setOriginalPreview(URL.createObjectURL(selectedFile));
         setResult(null);
         setError('');
         setProgress(0);
+        setResultPreviewUrl(null);
     };
 
     const handleRemoveBackground = async () => {
@@ -30,12 +38,17 @@ const BackgroundRemover = () => {
         setProgress(0);
 
         try {
-            const processedImage = await processor.removeBackground(
-                file,
-                quality,
-                (progressValue) => setProgress(progressValue)
-            );
-
+            const processedImage = await backgroundRemoverExecutor.run({
+                files: [file],
+                options: { quality },
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
+            });
+            if (resultPreviewUrl) {
+                URL.revokeObjectURL(resultPreviewUrl);
+            }
+            const nextPreviewUrl = URL.createObjectURL(processedImage.primaryFile);
+            setResultPreviewUrl(nextPreviewUrl);
             setResult(processedImage);
             setProgress(100);
         } catch (err) {
@@ -47,22 +60,25 @@ const BackgroundRemover = () => {
 
     const handleDownload = () => {
         if (!result) return;
+        const url = URL.createObjectURL(result.primaryFile);
         const a = document.createElement('a');
-        a.href = result.url;
-        a.download = result.filename;
+        a.href = url;
+        a.download = result.primaryFile.name;
         a.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
         if (originalPreview) {
             URL.revokeObjectURL(originalPreview);
         }
-        if (result?.url) {
-            URL.revokeObjectURL(result.url);
+        if (resultPreviewUrl) {
+            URL.revokeObjectURL(resultPreviewUrl);
         }
         setFile(null);
         setOriginalPreview(null);
         setResult(null);
+        setResultPreviewUrl(null);
         setError('');
         setProgress(0);
     };
@@ -212,13 +228,13 @@ const BackgroundRemover = () => {
                                             <h3 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">Background Removed</h3>
                                             <div className="rounded-lg overflow-hidden border-2 border-purple-300 bg-checkered">
                                                 <img
-                                                    src={result.url}
+                                                    src={resultPreviewUrl}
                                                     alt="Result"
                                                     className="w-full h-auto"
                                                 />
                                             </div>
                                             <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
-                                                Size: {formatBytes(result.size)} • PNG with transparency
+                                                Size: {formatBytes(result.meta?.outputSize || result.primaryFile.size)} • PNG with transparency
                                             </p>
                                         </div>
                                     </div>

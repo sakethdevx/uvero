@@ -3,15 +3,16 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from '../audio-converter/processor';
+import mp3ConverterExecutor from './executor';
 
-const MP3Converter = () => {
+const MP3Converter = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [bitrate, setBitrate] = useState('192');
     const [isConverting, setIsConverting] = useState(false);
     const [progress, setProgress] = useState(0);
     const [convertedAudio, setConvertedAudio] = useState(null);
     const [error, setError] = useState('');
+    const [previewUrl, setPreviewUrl] = useState('');
 
     const bitrates = [
         { value: '64', label: '64 kbps' },
@@ -36,13 +37,19 @@ const MP3Converter = () => {
         setProgress(0);
 
         try {
-            const result = await processor.convert(
-                file,
-                'mp3',
-                parseInt(bitrate),
-                (progressValue) => setProgress(progressValue)
-            );
-
+            const result = await mp3ConverterExecutor.run({
+                files: [file],
+                options: {
+                    bitrate: parseInt(bitrate, 10),
+                },
+                mode,
+                onProgress: setProgress,
+            });
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+            const nextPreviewUrl = URL.createObjectURL(result.primaryFile);
+            setPreviewUrl(nextPreviewUrl);
             setConvertedAudio(result);
         } catch (err) {
             setError(err.message || 'Conversion failed');
@@ -54,17 +61,23 @@ const MP3Converter = () => {
     const handleDownload = () => {
         if (!convertedAudio) return;
 
+        const url = URL.createObjectURL(convertedAudio.primaryFile);
         const link = document.createElement('a');
-        link.href = convertedAudio.url;
-        link.download = convertedAudio.filename;
+        link.href = url;
+        link.download = convertedAudio.primaryFile.name;
         link.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
         setFile(null);
         setConvertedAudio(null);
         setError('');
         setProgress(0);
+        setPreviewUrl('');
     };
 
     const formatSize = (bytes) => {
@@ -84,7 +97,7 @@ const MP3Converter = () => {
                         MP3 Converter
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert any audio file to MP3 format with customizable bitrate
+                        Convert any audio file to MP3 format with customizable bitrate using {isOnlineMode ? 'online' : 'on-device'} processing
                     </p>
                 </div>
 
@@ -148,7 +161,7 @@ const MP3Converter = () => {
                                                 Conversion Complete!
                                             </p>
                                             <p className="text-sm text-green-700 dark:text-green-300">
-                                                {convertedAudio.filename} • {formatSize(convertedAudio.size)}
+                                                {convertedAudio.primaryFile.name} • {formatSize(convertedAudio.meta?.outputSize || convertedAudio.primaryFile.size)}
                                             </p>
                                         </div>
                                     </div>
@@ -221,7 +234,9 @@ const MP3Converter = () => {
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
                         <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            All processing happens locally in your browser
+                            {isOnlineMode
+                                ? 'Online mode uses server processing for supported conversions and returns MP3 output immediately.'
+                                : 'Offline mode keeps MP3 conversion local in your browser.'}
                         </p>
                     </div>
                 </div>

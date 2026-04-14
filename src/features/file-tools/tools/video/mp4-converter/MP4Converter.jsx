@@ -3,9 +3,9 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from '../video-converter/processor';
+import mp4ConverterExecutor from './executor';
 
-const MP4Converter = () => {
+const MP4Converter = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [quality, setQuality] = useState('high');
     const [isConverting, setIsConverting] = useState(false);
@@ -34,12 +34,12 @@ const MP4Converter = () => {
         setProgress(0);
 
         try {
-            const result = await processor.convert(
-                file,
-                'mp4',
-                quality,
-                (prog) => setProgress(prog)
-            );
+            const result = await mp4ConverterExecutor.run({
+                files: [file],
+                mode,
+                options: { quality },
+                onProgress: (prog) => setProgress(prog),
+            });
             setConvertedVideo(result);
         } catch (err) {
             setError(err.message || 'Conversion failed');
@@ -49,16 +49,17 @@ const MP4Converter = () => {
     };
 
     const handleDownload = () => {
-        if (!convertedVideo) return;
+        if (!convertedVideo?.primaryFile) return;
         const a = document.createElement('a');
-        a.href = convertedVideo.url;
-        a.download = convertedVideo.filename;
+        a.href = URL.createObjectURL(convertedVideo.primaryFile);
+        a.download = convertedVideo.primaryFile.name;
         a.click();
+        URL.revokeObjectURL(a.href);
     };
 
     const handleReset = () => {
-        if (convertedVideo?.url) {
-            URL.revokeObjectURL(convertedVideo.url);
+        if (convertedVideo?.previewUrl) {
+            URL.revokeObjectURL(convertedVideo.previewUrl);
         }
         setFile(null);
         setConvertedVideo(null);
@@ -84,7 +85,7 @@ const MP4Converter = () => {
                         MP4 Converter
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert any video format to MP4 - the most compatible format
+                        Convert any video format to MP4 with {isOnlineMode ? 'server-backed' : 'on-device'} processing
                     </p>
                 </div>
 
@@ -157,7 +158,7 @@ const MP4Converter = () => {
                                                 Conversion Complete!
                                             </p>
                                             <p className="text-sm text-green-700 dark:text-green-300">
-                                                {convertedVideo.filename} • {formatBytes(convertedVideo.size)}
+                                                {convertedVideo.primaryFile.name} • {formatBytes(convertedVideo.meta?.outputSize || convertedVideo.primaryFile.size)}
                                             </p>
                                         </div>
                                     </div>
@@ -230,7 +231,9 @@ const MP4Converter = () => {
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
                         <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            All processing happens locally in your browser
+                            {isOnlineMode
+                                ? 'Online mode uses secure server processing for supported MP4 conversions.'
+                                : 'Offline mode keeps conversion local in your browser.'}
                         </p>
                     </div>
                 </div>

@@ -92,10 +92,14 @@ import TimeZoneConverter from './utility/timezone-converter/TimeZoneConverter';
 import timezoneConverterSEO from './utility/timezone-converter/seo.json';
 import EPUBToPDF from './document/epub-to-pdf/EPUBToPDF';
 import epubToPdfSEO from './document/epub-to-pdf/seo.json';
+import EPUBToMOBI from './document/epub-to-mobi/EPUBToMOBI';
+import epubToMobiSEO from './document/epub-to-mobi/seo.json';
 import DocumentConverter from './document/document-converter/DocumentConverter';
 import documentConverterSEO from './document/document-converter/seo.json';
 import ArchiveConverter from './archive/archive-converter/ArchiveConverter';
 import archiveConverterSEO from './archive/archive-converter/seo.json';
+import RARToZip from './archive/rar-to-zip/RARToZip';
+import rarToZipSEO from './archive/rar-to-zip/seo.json';
 import RotatePdf from './pdf/rotate-pdf/RotatePdf';
 import rotatePdfSEO from './pdf/rotate-pdf/seo.json';
 import WatermarkPdf from './pdf/watermark-pdf/WatermarkPdf';
@@ -126,6 +130,8 @@ import ScanToPdf from './pdf/scan-to-pdf/ScanToPdf';
 import scanToPdfSEO from './pdf/scan-to-pdf/seo.json';
 import TranslatePdf from './pdf/translate-pdf/TranslatePdf';
 import translatePdfSEO from './pdf/translate-pdf/seo.json';
+import { getSupportedModesForToolId } from '../core/toolExecutors';
+import { getToolMetadata } from '../core/toolMetadata';
 
 export const tools = {
     'compress-image': {
@@ -159,7 +165,7 @@ export const tools = {
         seo: imageToPDFSEO,
         icon: '📄',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'resize-image': {
         id: 'resize-image',
@@ -181,7 +187,7 @@ export const tools = {
         seo: gifMakerSEO,
         icon: '🎞️',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'watermark': {
         id: 'watermark',
@@ -203,7 +209,7 @@ export const tools = {
         seo: imageCropperSEO,
         icon: '✂️',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     }, 'remove-background': {
         id: 'remove-background',
         name: 'Background Remover',
@@ -213,7 +219,7 @@ export const tools = {
         seo: backgroundRemoverSEO,
         icon: '🎨',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     }, 'compress-pdf': {
         id: 'compress-pdf',
         name: 'PDF Compressor',
@@ -223,7 +229,7 @@ export const tools = {
         seo: pdfCompressorSEO,
         icon: '📄',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'convert-pdf': {
         id: 'convert-pdf',
@@ -234,7 +240,7 @@ export const tools = {
         seo: pdfConverterSEO,
         icon: '📄',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'compress-audio': {
         id: 'compress-audio',
@@ -278,7 +284,7 @@ export const tools = {
         seo: pdfMergerSEO,
         icon: '📑',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'split-pdf': {
         id: 'split-pdf',
@@ -289,7 +295,7 @@ export const tools = {
         seo: pdfSplitterSEO,
         icon: '✂️',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'compress-video': {
         id: 'compress-video',
@@ -302,8 +308,8 @@ export const tools = {
         popular: true,
         modes: ['offline', 'online']
     },
-    'video-converter': {
-        id: 'video-converter',
+    'convert-video': {
+        id: 'convert-video',
         name: 'Video Converter',
         description: 'Convert videos between MP4, WebM, AVI, MOV, MKV',
         component: VideoConverter,
@@ -344,7 +350,7 @@ export const tools = {
         seo: wordToPDFSEO,
         icon: '📝',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'powerpoint-to-pdf': {
         id: 'powerpoint-to-pdf',
@@ -355,7 +361,7 @@ export const tools = {
         seo: powerpointToPDFSEO,
         icon: '📊',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'excel-to-pdf': {
         id: 'excel-to-pdf',
@@ -365,7 +371,7 @@ export const tools = {
         category: 'pdf',
         seo: excelToPDFSEO,
         icon: '📈',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'html-to-pdf': {
         id: 'html-to-pdf',
@@ -375,7 +381,7 @@ export const tools = {
         category: 'pdf',
         seo: htmlToPDFSEO,
         icon: '🌐',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'pdf-to-word': {
         id: 'pdf-to-word',
@@ -386,7 +392,7 @@ export const tools = {
         seo: pdfToWordSEO,
         icon: '📝',
         popular: true,
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'pdf-to-powerpoint': {
         id: 'pdf-to-powerpoint',
@@ -396,7 +402,7 @@ export const tools = {
         category: 'pdf',
         seo: pdfToPowerpointSEO,
         icon: '📊',
-        modes: ['offline', 'online'],
+        modes: ['offline'],
         popular: true
     },
     'pdf-to-excel': {
@@ -407,7 +413,7 @@ export const tools = {
         category: 'pdf',
         seo: pdfToExcelSEO,
         icon: '📈',
-        modes: ['offline', 'online'],
+        modes: ['offline'],
         popular: true
     },
     'pdf-to-pdfa': {
@@ -418,7 +424,7 @@ export const tools = {
         category: 'pdf',
         seo: pdfToPDFASEO,
         icon: '📦',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'unit-converter': {
         id: 'unit-converter',
@@ -450,7 +456,7 @@ export const tools = {
         category: 'image',
         seo: jpgToPDFSEO,
         icon: '📄',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'pdf-to-jpg': {
         id: 'pdf-to-jpg',
@@ -460,7 +466,7 @@ export const tools = {
         category: 'image',
         seo: pdfToJPGSEO,
         icon: '🖼️',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'heic-to-jpg': {
         id: 'heic-to-jpg',
@@ -590,17 +596,27 @@ export const tools = {
         category: 'document',
         seo: epubToPdfSEO,
         icon: '📚',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'document-converter': {
         id: 'document-converter',
         name: 'Document Converter',
-        description: 'Convert between various document formats',
+        description: 'Browse document conversion tools and ebook utilities',
         component: DocumentConverter,
         category: 'document',
         seo: documentConverterSEO,
         icon: '📄',
         modes: ['offline', 'online']
+    },
+    'epub-to-mobi': {
+        id: 'epub-to-mobi',
+        name: 'EPUB to MOBI',
+        description: 'Convert EPUB ebooks to MOBI online when a server-side Kindle runtime is configured',
+        component: EPUBToMOBI,
+        category: 'document',
+        seo: epubToMobiSEO,
+        icon: '📚',
+        modes: ['online']
     },
     'archive-converter': {
         id: 'archive-converter',
@@ -610,7 +626,17 @@ export const tools = {
         category: 'archive',
         seo: archiveConverterSEO,
         icon: '🗜️',
-        modes: ['offline', 'online']
+        modes: ['offline']
+    },
+    'rar-to-zip': {
+        id: 'rar-to-zip',
+        name: 'RAR to ZIP Converter',
+        description: 'Convert supported RAR archives to ZIP online with server extraction',
+        component: RARToZip,
+        category: 'archive',
+        seo: rarToZipSEO,
+        icon: '🗜️',
+        modes: ['online']
     },
     'rotate-pdf': {
         id: 'rotate-pdf',
@@ -620,7 +646,7 @@ export const tools = {
         category: 'pdf',
         seo: rotatePdfSEO,
         icon: '🔄',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'watermark-pdf': {
         id: 'watermark-pdf',
@@ -630,7 +656,7 @@ export const tools = {
         category: 'pdf',
         seo: watermarkPdfSEO,
         icon: '💧',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'protect-pdf': {
         id: 'protect-pdf',
@@ -640,7 +666,7 @@ export const tools = {
         category: 'pdf',
         seo: protectPdfSEO,
         icon: '🔒',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'unlock-pdf': {
         id: 'unlock-pdf',
@@ -650,7 +676,7 @@ export const tools = {
         category: 'pdf',
         seo: unlockPdfSEO,
         icon: '🔓',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'page-numbers': {
         id: 'page-numbers',
@@ -660,7 +686,7 @@ export const tools = {
         category: 'pdf',
         seo: pageNumbersSEO,
         icon: '#️⃣',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'organize-pdf': {
         id: 'organize-pdf',
@@ -670,7 +696,7 @@ export const tools = {
         category: 'pdf',
         seo: organizePdfSEO,
         icon: '📋',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'repair-pdf': {
         id: 'repair-pdf',
@@ -680,7 +706,7 @@ export const tools = {
         category: 'pdf',
         seo: repairPdfSEO,
         icon: '🔧',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'crop-pdf': {
         id: 'crop-pdf',
@@ -690,7 +716,7 @@ export const tools = {
         category: 'pdf',
         seo: cropPdfSEO,
         icon: '✂️',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'edit-pdf': {
         id: 'edit-pdf',
@@ -700,7 +726,7 @@ export const tools = {
         category: 'pdf',
         seo: editPdfSEO,
         icon: '✏️',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'sign-pdf': {
         id: 'sign-pdf',
@@ -710,7 +736,7 @@ export const tools = {
         category: 'pdf',
         seo: signPdfSEO,
         icon: '✍️',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'redact-pdf': {
         id: 'redact-pdf',
@@ -720,7 +746,7 @@ export const tools = {
         category: 'pdf',
         seo: redactPdfSEO,
         icon: '🔏',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'ocr-pdf': {
         id: 'ocr-pdf',
@@ -730,7 +756,7 @@ export const tools = {
         category: 'pdf',
         seo: ocrPdfSEO,
         icon: '👁️',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'compare-pdf': {
         id: 'compare-pdf',
@@ -740,7 +766,7 @@ export const tools = {
         category: 'pdf',
         seo: comparePdfSEO,
         icon: '🔍',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'scan-to-pdf': {
         id: 'scan-to-pdf',
@@ -750,7 +776,7 @@ export const tools = {
         category: 'pdf',
         seo: scanToPdfSEO,
         icon: '📷',
-        modes: ['offline', 'online']
+        modes: ['offline']
     },
     'translate-pdf': {
         id: 'translate-pdf',
@@ -760,30 +786,67 @@ export const tools = {
         category: 'pdf',
         seo: translatePdfSEO,
         icon: '🌐',
-        modes: ['offline', 'online']
+        modes: ['offline']
     }
 };
+
+const getEffectiveModes = (tool) => {
+    const executorModes = getSupportedModesForToolId(tool.id);
+    const executorOptionalToolIds = new Set(['document-converter']);
+    const isFileProcessingCategory = ['image', 'pdf', 'audio', 'video', 'document', 'archive'].includes(tool.category);
+
+    if (executorModes) {
+        return executorModes;
+    }
+
+    if (executorOptionalToolIds.has(tool.id)) {
+        return tool.modes;
+    }
+
+    if (isFileProcessingCategory && Array.isArray(tool.modes) && tool.modes.includes('offline')) {
+        return ['offline'];
+    }
+
+    if (Array.isArray(tool.modes) && tool.modes.length > 0) {
+        return tool.modes;
+    }
+
+    return ['offline'];
+};
+
+const enhanceTool = (tool) => ({
+    ...tool,
+    ...getToolMetadata(tool.id),
+    modes: getEffectiveModes(tool),
+});
 
 /**
  * Get all tools
  */
-export const getAllTools = () => Object.values(tools);
+export const getAllTools = () => Object.values(tools).map(enhanceTool);
 
 /**
  * Get tool by ID
  */
-export const getToolById = (id) => tools[id];
+export const getToolById = (id) => {
+    const tool = tools[id];
+    return tool ? enhanceTool(tool) : undefined;
+};
 
 /**
  * Get tools by category
  */
 export const getToolsByCategory = (category) => {
-    return Object.values(tools).filter(tool => tool.category === category);
+    return Object.values(tools)
+        .filter(tool => tool.category === category)
+        .map(enhanceTool);
 };
 
 /**
  * Get popular tools
  */
 export const getPopularTools = () => {
-    return Object.values(tools).filter(tool => tool.popular);
+    return Object.values(tools)
+        .filter(tool => tool.popular)
+        .map(enhanceTool);
 };

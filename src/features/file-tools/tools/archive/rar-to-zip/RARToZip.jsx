@@ -2,35 +2,67 @@ import { useState } from 'react';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import FileInfo from '../../../shared/FileInfo';
-import { useMode } from '../../../context/ModeContext';
+import ProgressBar from '../../../shared/ProgressBar';
+import rarToZipExecutor from './executor';
 
 /**
  * RAR to ZIP Converter
  * Convert RAR archives to ZIP format
- * Note: RAR extraction requires online processing
+ * Wired for online RAR extraction
  */
 export default function RARToZip() {
     const [file, setFile] = useState(null);
     const [error, setError] = useState('');
-    const { isOnlineMode } = useMode();
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [result, setResult] = useState(null);
 
     const handleFileSelect = (selectedFile) => {
         setFile(selectedFile);
         setError('');
+        setResult(null);
+        setProgress(0);
     };
 
     const handleReset = () => {
         setFile(null);
         setError('');
+        setResult(null);
+        setProgress(0);
     };
 
-    const handleConvert = () => {
-        if (!isOnlineMode) {
-            setError('RAR extraction requires online mode. Please switch to online mode to convert RAR files.');
-            return;
+    const handleConvert = async () => {
+        if (!file) return;
+
+        setIsProcessing(true);
+        setError('');
+        setProgress(0);
+
+        try {
+            const conversionResult = await rarToZipExecutor.run({
+                files: [file],
+                mode: 'online',
+                onProgress: (value) => setProgress(value),
+            });
+            setResult(conversionResult);
+        } catch (err) {
+            setError(err.message || 'RAR to ZIP conversion is not available right now.');
+        } finally {
+            setIsProcessing(false);
         }
-        
-        alert('Online conversion would be implemented here with server-side RAR extraction.');
+    };
+
+    const handleDownload = () => {
+        if (!result?.primaryFile) return;
+
+        const url = URL.createObjectURL(result.primaryFile);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = result.primaryFile.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     return (
@@ -44,23 +76,6 @@ export default function RARToZip() {
                         Convert RAR archives to ZIP format
                     </p>
                 </div>
-
-                {!isOnlineMode && (
-                    <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 rounded-lg p-4">
-                        <div className="flex items-start gap-3">
-                            <div className="text-2xl">⚠️</div>
-                            <div>
-                                <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-1">
-                                    Online Mode Required
-                                </h3>
-                                <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                                    RAR extraction requires server-side processing due to proprietary format. 
-                                    Please switch to <strong>Online Mode</strong> to use this converter.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                )}
 
                 {!file && (
                     <>
@@ -84,19 +99,19 @@ export default function RARToZip() {
                             <div className="text-center p-4">
                                 <div className="text-3xl mb-2">🔓</div>
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                    Extract & Repack
+                                    Supported Archives
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    Extracts RAR and repacks as ZIP
+                                    Check the tool notice above for the currently supported RAR subset
                                 </p>
                             </div>
                             <div className="text-center p-4">
-                                <div className="text-3xl mb-2">⚡</div>
+                                <div className="text-3xl mb-2">☁️</div>
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                    Fast Processing
+                                    Online Extraction
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    Quick conversion with online processing
+                                    Archive contents are extracted on the server and repacked as ZIP
                                 </p>
                             </div>
                         </div>
@@ -105,7 +120,11 @@ export default function RARToZip() {
 
                 {file && (
                     <div className="space-y-4">
-                        <FileInfo file={file} onRemove={() => setFile(null)} />
+                        <FileInfo file={file} onRemove={handleReset} />
+
+                        {isProcessing && (
+                            <ProgressBar progress={progress} />
+                        )}
 
                         {error && (
                             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-200 rounded-lg p-4">
@@ -114,21 +133,50 @@ export default function RARToZip() {
                             </div>
                         )}
 
+                        {result && (
+                            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 text-green-800 dark:text-green-200 rounded-lg p-4">
+                                <p className="font-medium">Conversion complete</p>
+                                <p className="text-sm">
+                                    {result.primaryFile.name} • {result.meta?.extractedFiles || 0} extracted files
+                                </p>
+                            </div>
+                        )}
+
                         <div className="flex gap-3">
-                            <Button
-                                onClick={handleConvert}
-                                disabled={!isOnlineMode}
-                                variant="primary"
-                                className="flex-1"
-                            >
-                                {isOnlineMode ? 'Convert to ZIP' : 'Online Mode Required'}
-                            </Button>
-                            <Button
-                                onClick={handleReset}
-                                variant="secondary"
-                            >
-                                Cancel
-                            </Button>
+                            {!result ? (
+                                <>
+                                    <Button
+                                        onClick={handleConvert}
+                                        disabled={isProcessing}
+                                        variant="primary"
+                                        className="flex-1"
+                                    >
+                                        {isProcessing ? 'Converting...' : 'Convert to ZIP'}
+                                    </Button>
+                                    <Button
+                                        onClick={handleReset}
+                                        variant="secondary"
+                                    >
+                                        Cancel
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <Button
+                                        onClick={handleDownload}
+                                        variant="primary"
+                                        className="flex-1"
+                                    >
+                                        Download ZIP
+                                    </Button>
+                                    <Button
+                                        onClick={handleReset}
+                                        variant="secondary"
+                                    >
+                                        Convert Another
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     </div>
                 )}
@@ -144,11 +192,10 @@ export default function RARToZip() {
                             <strong>ZIP</strong> is a universal archive format supported by all operating systems without additional software.
                         </p>
                         <p className="mt-4">
-                            <strong>Why online mode?</strong> RAR uses a proprietary compression algorithm that requires 
-                            server-side processing. Your files are processed securely and deleted immediately after conversion.
+                            <strong>Why online mode?</strong> RAR uses a proprietary compression format that is handled by a server-side extraction service before being repacked as ZIP.
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
-                            Note: For offline RAR extraction, consider using 7-Zip or WinRAR desktop applications.
+                            Note: Unsupported or damaged archives return explicit server validation errors so the failure mode stays predictable.
                         </p>
                     </div>
                 </div>

@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import organizePdfExecutor from './executor';
 
 export default function OrganizePdf() {
     const [file, setFile] = useState(null);
@@ -25,7 +25,7 @@ export default function OrganizePdf() {
         setProgress(0);
 
         try {
-            const info = await processor.getPageInfo(selectedFile);
+            const info = await organizePdfExecutor.getPageInfo(selectedFile);
             setPages(Array.from({ length: info.totalPages }, (_, i) => i));
         } catch (err) {
             console.error('Error reading PDF:', err);
@@ -66,16 +66,15 @@ export default function OrganizePdf() {
         setProgress(0);
 
         try {
-            const blob = await processor.organize(
-                file,
-                pages,
-                (progressValue) => setProgress(progressValue)
-            );
-
-            setResult({
-                url: URL.createObjectURL(blob),
-                fileName: `organized_${file.name}`
+            const executionResult = await organizePdfExecutor.run({
+                files: [file],
+                options: {
+                    pageOrder: pages,
+                },
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
+            setResult(executionResult);
 
             setProgress(100);
         } catch (err) {
@@ -87,14 +86,16 @@ export default function OrganizePdf() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = result.fileName;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {

@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import ocrPdfExecutor from './executor';
 
 const LANGUAGES = [
     { value: 'eng', label: 'English' },
@@ -45,11 +45,12 @@ export default function OcrPdf() {
         setProgress(0);
 
         try {
-            const ocrResult = await processor.processOCR(
-                file,
-                language,
-                (progressValue) => setProgress(progressValue)
-            );
+            const ocrResult = await ocrPdfExecutor.run({
+                files: [file],
+                mode: 'offline',
+                options: { language },
+                onProgress: (progressValue) => setProgress(progressValue),
+            });
 
             setResult(ocrResult);
             setProgress(100);
@@ -62,14 +63,16 @@ export default function OcrPdf() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = result.filename;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
@@ -221,16 +224,16 @@ export default function OcrPdf() {
                                                 PDF Processed Successfully!
                                             </h3>
                                             <p className="text-gray-700 dark:text-gray-200 mb-4">
-                                                Extracted text from <span className="font-bold text-green-700 dark:text-green-300">{result.totalPages} page{result.totalPages !== 1 ? 's' : ''}</span>
+                                                Extracted text from <span className="font-bold text-green-700 dark:text-green-300">{result.meta?.totalPages} page{result.meta?.totalPages !== 1 ? 's' : ''}</span>
                                             </p>
                                             <div className="grid grid-cols-2 gap-4 text-sm">
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">Pages Processed</div>
-                                                    <div className="font-semibold text-gray-900 dark:text-white">{result.totalPages}</div>
+                                                    <div className="font-semibold text-gray-900 dark:text-white">{result.meta?.totalPages}</div>
                                                 </div>
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">File Size</div>
-                                                    <div className="font-semibold text-green-700 dark:text-green-300">{formatFileSize(result.blob.size)}</div>
+                                                    <div className="font-semibold text-green-700 dark:text-green-300">{formatFileSize(result.primaryFile?.size || 0)}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -238,12 +241,12 @@ export default function OcrPdf() {
                                 </div>
 
                                 {/* Extracted Text Preview */}
-                                {result.extractedText && (
+                                {result.meta?.extractedText && (
                                     <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                                         <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Extracted Text Preview</h4>
                                         <pre className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap break-words max-h-48 overflow-y-auto bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-100">
-                                            {result.extractedText.slice(0, 500)}
-                                            {result.extractedText.length > 500 && '...'}
+                                            {result.meta.extractedText.slice(0, 500)}
+                                            {result.meta.extractedText.length > 500 && '...'}
                                         </pre>
                                     </div>
                                 )}

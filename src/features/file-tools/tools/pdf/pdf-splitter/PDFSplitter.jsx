@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import pdfSplitterExecutor from './executor';
 
 const PDFSplitter = () => {
     const [file, setFile] = useState(null);
@@ -30,7 +30,7 @@ const PDFSplitter = () => {
 
         // Get page count
         try {
-            const info = await processor.getPageInfo(selectedFile);
+            const info = await pdfSplitterExecutor.getPageInfo(selectedFile);
             setPageInfo(info);
         } catch {
             setError('Failed to read PDF information');
@@ -55,13 +55,16 @@ const PDFSplitter = () => {
         setProgress(0);
 
         try {
-            const result = await processor.split(
-                file,
-                splitMode,
-                splitMode === 'pages' ? selectedPages : ranges,
-                pageInfo.totalPages,
-                (progressValue) => setProgress(progressValue)
-            );
+            const result = await pdfSplitterExecutor.run({
+                files: [file],
+                options: {
+                    splitMode,
+                    spec: splitMode === 'pages' ? selectedPages : ranges,
+                    totalPages: pageInfo.totalPages,
+                },
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
+            });
 
             setSplitPDFs(result);
         } catch (err) {
@@ -72,15 +75,17 @@ const PDFSplitter = () => {
     };
 
     const handleDownload = (pdf) => {
+        const url = URL.createObjectURL(pdf);
         const link = document.createElement('a');
-        link.href = pdf.url;
-        link.download = pdf.filename;
+        link.href = url;
+        link.download = pdf.name;
         link.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleDownloadAll = () => {
         if (!splitPDFs) return;
-        splitPDFs.files.forEach((pdf, index) => {
+        outputFiles.forEach((pdf, index) => {
             setTimeout(() => handleDownload(pdf), index * 100);
         });
     };
@@ -102,6 +107,11 @@ const PDFSplitter = () => {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
     };
+
+    const outputFiles = splitPDFs
+        ? (splitPDFs.primaryFile ? [splitPDFs.primaryFile] : (splitPDFs.files || []))
+        : [];
+    const outputItems = splitPDFs?.meta?.items || (splitPDFs?.primaryFile ? [splitPDFs.meta] : []);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 dark:from-gray-900 to-indigo-50 dark:to-gray-800 py-12 px-4">
@@ -247,7 +257,7 @@ const PDFSplitter = () => {
                                                     Split Complete!
                                                 </p>
                                                 <p className="text-sm text-green-700 dark:text-green-300">
-                                                    Created {splitPDFs.files.length} PDF file(s)
+                                                    Created {outputFiles.length} PDF file(s)
                                                 </p>
                                             </div>
                                             <div className="text-3xl">✅</div>
@@ -256,7 +266,7 @@ const PDFSplitter = () => {
 
                                     {/* File List */}
                                     <div className="space-y-2 max-h-96 overflow-y-auto">
-                                        {splitPDFs.files.map((pdf, index) => (
+                                        {outputFiles.map((pdf, index) => (
                                             <div
                                                 key={index}
                                                 className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700"
@@ -265,10 +275,10 @@ const PDFSplitter = () => {
                                                     <div className="text-2xl">📄</div>
                                                     <div>
                                                         <p className="font-medium text-gray-900 dark:text-white">
-                                                            {pdf.filename}
+                                                            {pdf.name}
                                                         </p>
                                                         <p className="text-sm text-gray-600 dark:text-gray-300">
-                                                            {pdf.pages} page(s) • {formatSize(pdf.size)}
+                                                            {outputItems[index]?.pages} page(s) • {formatSize(outputItems[index]?.outputSize || pdf.size)}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -281,9 +291,9 @@ const PDFSplitter = () => {
 
                                     {/* Action Buttons */}
                                     <div className="flex gap-3">
-                                        {splitPDFs.files.length > 1 && (
+                                        {outputFiles.length > 1 && (
                                             <Button onClick={handleDownloadAll} fullWidth>
-                                                Download All ({splitPDFs.files.length})
+                                                Download All ({outputFiles.length})
                                             </Button>
                                         )}
                                         <Button onClick={handleReset} variant="secondary" fullWidth>

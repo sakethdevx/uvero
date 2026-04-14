@@ -3,9 +3,9 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import watermarkExecutor from './executor';
 
-const Watermark = () => {
+const Watermark = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [watermarkType, setWatermarkType] = useState('text'); // 'text' or 'image'
     const [watermarkImage, setWatermarkImage] = useState(null);
@@ -18,6 +18,7 @@ const Watermark = () => {
     const [progress, setProgress] = useState(0);
     const [resultImage, setResultImage] = useState(null);
     const [error, setError] = useState('');
+    const [previewUrl, setPreviewUrl] = useState(null);
 
     const positions = [
         { value: 'top-left', label: 'Top Left', icon: '↖️' },
@@ -32,10 +33,14 @@ const Watermark = () => {
     ];
 
     const handleFileSelect = (selectedFile) => {
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
         setFile(selectedFile);
         setResultImage(null);
         setError('');
         setProgress(0);
+        setPreviewUrl(null);
     };
 
     const handleWatermarkImageSelect = (selectedFile) => {
@@ -58,9 +63,9 @@ const Watermark = () => {
         setProgress(0);
 
         try {
-            const result = await processor.addWatermark(
-                file,
-                {
+            const result = await watermarkExecutor.run({
+                files: [file],
+                options: {
                     type: watermarkType,
                     text,
                     fontSize,
@@ -69,8 +74,14 @@ const Watermark = () => {
                     color,
                     watermarkImage
                 },
-                (prog) => setProgress(prog)
-            );
+                mode,
+                onProgress: (prog) => setProgress(prog),
+            });
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+            const nextPreviewUrl = URL.createObjectURL(result.primaryFile);
+            setPreviewUrl(nextPreviewUrl);
             setResultImage(result);
         } catch (err) {
             setError(err.message || 'Failed to add watermark');
@@ -81,19 +92,22 @@ const Watermark = () => {
 
     const handleDownload = () => {
         if (!resultImage) return;
+        const url = URL.createObjectURL(resultImage.primaryFile);
         const a = document.createElement('a');
-        a.href = resultImage.url;
-        a.download = resultImage.filename;
+        a.href = url;
+        a.download = resultImage.primaryFile.name;
         a.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
-        if (resultImage?.url) {
-            URL.revokeObjectURL(resultImage.url);
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
         }
         setFile(null);
         setWatermarkImage(null);
         setResultImage(null);
+        setPreviewUrl(null);
         setError('');
         setProgress(0);
         setIsProcessing(false);
@@ -117,6 +131,11 @@ const Watermark = () => {
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
                         Protect your images with text or logo watermarks
+                    </p>
+                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                        {isOnlineMode
+                            ? 'Online mode uses the server image runtime to apply the watermark.'
+                            : 'Offline mode keeps watermarking local in your browser.'}
                     </p>
                 </div>
 
@@ -364,13 +383,13 @@ const Watermark = () => {
                                             <div className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Preview:</div>
                                             <div className="flex justify-center bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
                                                 <img
-                                                    src={resultImage.url}
+                                                    src={previewUrl}
                                                     alt="Watermarked"
                                                     className="max-w-full max-h-96 rounded-lg"
                                                 />
                                             </div>
                                             <div className="text-center text-sm text-gray-600 dark:text-gray-300 mt-2">
-                                                Size: {formatBytes(resultImage.size)}
+                                                Size: {formatBytes(resultImage.meta?.outputSize || resultImage.primaryFile.size)}
                                             </div>
                                         </div>
 
@@ -423,8 +442,9 @@ const Watermark = () => {
                         <div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy & Security</h3>
                             <p className="text-sm">
-                                All processing happens in your browser. Your images never leave your device,
-                                ensuring complete privacy and security.
+                                {isOnlineMode
+                                    ? 'Online mode uploads the image to the server transform runtime to apply the watermark before returning the result.'
+                                    : 'Offline mode keeps watermarking in your browser so the image stays on your device.'}
                             </p>
                         </div>
                     </div>

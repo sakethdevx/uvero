@@ -50,6 +50,36 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/transform-image') {
+            const mod = await import('../src/features/file-tools/api/transform-image.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/transform-audio') {
+            const mod = await import('../src/features/file-tools/api/transform-audio.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/transform-video') {
+            const mod = await import('../src/features/file-tools/api/transform-video.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/convert-rar-to-zip') {
+            const mod = await import('../src/features/file-tools/api/convert-rar-to-zip.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/convert-epub-to-mobi') {
+            const mod = await import('../src/features/file-tools/api/convert-epub-to-mobi.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/file-tools/runtime-status') {
+            const mod = await import('../src/features/file-tools/api/file-tools-runtime-status.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/delete-event') {
             const mod = await import('../src/features/photodrop/api/delete-event.js')
             return mod.default(req, res)

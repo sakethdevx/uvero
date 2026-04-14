@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react';
-import heic2any from 'heic2any';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
+import heicToJpgExecutor from './executor';
 
-export default function HEICToJPG() {
+export default function HEICToJPG({ mode = 'offline', isOnlineMode = mode === 'online' }) {
     const [files, setFiles] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -61,54 +61,18 @@ export default function HEICToJPG() {
         setProgress(0);
         setResults([]);
 
-        const converted = [];
-
         try {
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                setProgress(Math.round(((i) / files.length) * 100));
-
-                let blob;
-                try {
-                    // Try client-side conversion first (fastest, private)
-                    const jpegBlob = await heic2any({
-                        blob: file,
-                        toType: 'image/jpeg',
-                        quality
-                    });
-
-                    // heic2any may return an array for multi-image HEIC files
-                    blob = Array.isArray(jpegBlob) ? jpegBlob[0] : jpegBlob;
-                } catch (err) {
-                    // If it fails (usually due to newer iPhone formats libheif hasn't compiled in),
-                    // fallback to our server endpoint which uses Sharp
-                    console.log('Client-side HEIC conversion failed, falling back to server...', err);
-
-                    const formData = new FormData();
-                    formData.append('image', file);
-                    formData.append('quality', quality.toString());
-
-                    const response = await fetch('/api/convert-heic', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        throw new Error(errorData.error || errorData.message || 'Server conversion failed');
-                    }
-
-                    blob = await response.blob();
-                }
-
-                const url = URL.createObjectURL(blob);
-                const name = file.name.replace(/\.(heic|heif)$/i, '.jpg');
-
-                converted.push({ url, name, size: blob.size, originalSize: file.size });
-            }
-
+            const executionResult = await heicToJpgExecutor.run({
+                files,
+                options: { quality },
+                mode,
+                onProgress: setProgress,
+            });
+            const convertedFiles = executionResult.primaryFile
+                ? [executionResult.primaryFile]
+                : (executionResult.files || []);
             setProgress(100);
-            setResults(converted);
+            setResults(convertedFiles);
         } catch (err) {
             console.error('HEIC conversion error:', err);
             setError(err.message || 'Conversion failed. Please ensure the files are valid HEIC/HEIF images.');
@@ -117,13 +81,15 @@ export default function HEICToJPG() {
         }
     };
 
-    const handleDownloadSingle = (result) => {
+    const handleDownloadSingle = (resultFile) => {
+        const url = URL.createObjectURL(resultFile);
         const a = document.createElement('a');
-        a.href = result.url;
-        a.download = result.name;
+        a.href = url;
+        a.download = resultFile.name;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
     const handleDownloadAll = () => {
@@ -135,11 +101,6 @@ export default function HEICToJPG() {
     };
 
     const handleReset = () => {
-        results.forEach(result => {
-            if (result.url) {
-                URL.revokeObjectURL(result.url);
-            }
-        });
         setFiles([]);
         setResults([]);
         setError(null);
@@ -166,7 +127,10 @@ export default function HEICToJPG() {
                         HEIC to JPG Converter
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert Apple HEIC/HEIF images to JPG/JPEG format
+                        Convert Apple HEIC/HEIF images to JPG/JPEG format with a clear offline and online path.
+                    </p>
+                    <p className="mt-3 text-sm font-medium text-purple-700 dark:text-purple-300">
+                        Current mode: {isOnlineMode ? 'Online' : 'Offline'}
                     </p>
                 </div>
 
@@ -360,7 +324,9 @@ export default function HEICToJPG() {
                         </div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
                         <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            All conversion happens in your browser - files never leave your device
+                            {isOnlineMode
+                                ? 'Online mode prefers client-side conversion first and only uses server rescue when the browser path cannot decode the file.'
+                                : 'Offline mode keeps conversion fully in your browser so files stay on your device.'}
                         </p>
                     </div>
                 </div>

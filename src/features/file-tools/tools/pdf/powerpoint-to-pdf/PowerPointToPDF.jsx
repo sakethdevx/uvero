@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import Button from '../../../shared/Button';
-import jsPDF from 'jspdf';
+import powerPointToPdfExecutor from './executor';
 
 const PowerPointToPDF = () => {
     const [file, setFile] = useState(null);
@@ -62,93 +62,13 @@ const PowerPointToPDF = () => {
         setProgress(0);
 
         try {
-            // Check if file is PPTX
-            if (!file.name.endsWith('.pptx')) {
-                setError('Currently only PPTX format is supported. PPT format requires server-side conversion.');
-                setConverting(false);
-                return;
-            }
-
-            setProgress(10);
-
-            // Read the file as ArrayBuffer
-            const arrayBuffer = await file.arrayBuffer();
-            setProgress(20);
-
-            // Load the presentation using JSZip to extract content
-            const JSZip = (await import('jszip')).default;
-            const zip = await JSZip.loadAsync(arrayBuffer);
-            setProgress(30);
-
-            // Extract basic presentation info
-            let slideCount = 0;
-            const slideFiles = Object.keys(zip.files).filter(name => 
-                name.startsWith('ppt/slides/slide') && name.endsWith('.xml')
-            );
-            slideCount = slideFiles.length;
-
-            if (slideCount === 0) {
-                throw new Error('No slides found in the presentation');
-            }
-
-            setProgress(40);
-
-            // Create PDF
-            const pdf = new jsPDF({
-                orientation: 'landscape',
-                unit: 'mm',
-                format: 'a4'
+            const result = await powerPointToPdfExecutor.run({
+                files: [file],
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(Math.round(progressValue)),
             });
-
-            const pageWidth = 297; // A4 landscape width in mm
-            const pageHeight = 210; // A4 landscape height in mm
-            const margin = 10;
-
-            // Since we can't easily render PPTX slides without a full rendering engine,
-            // we'll create a placeholder message explaining the limitation
-            const infoText = [
-                'PowerPoint to PDF Conversion',
-                '',
-                `Presentation: ${file.name}`,
-                `Slides: ${slideCount}`,
-                '',
-                'Note: Full slide rendering requires server-side processing.',
-                'This client-side converter extracts basic information.',
-                '',
-                'For full conversion with slide content, images, and formatting,',
-                'please use a dedicated PowerPoint viewer or server-based solution.'
-            ];
-
-            pdf.setFontSize(16);
-            pdf.text('PowerPoint to PDF Converter', margin, margin + 10);
-            
-            pdf.setFontSize(12);
-            let yPos = margin + 25;
-            infoText.forEach(line => {
-                pdf.text(line, margin, yPos);
-                yPos += 7;
-            });
-
-            setProgress(70);
-
-            // Add placeholder pages for each slide (limit to 10 for demo purposes)
-            const MAX_PLACEHOLDER_SLIDES = 10;
-            for (let i = 1; i <= Math.min(slideCount, MAX_PLACEHOLDER_SLIDES); i++) {
-                pdf.addPage();
-                pdf.setFontSize(24);
-                pdf.text(`Slide ${i}`, pageWidth / 2, pageHeight / 2, { align: 'center' });
-                pdf.setFontSize(12);
-                pdf.text('Content extraction from PPTX is limited in browser environment', 
-                    pageWidth / 2, pageHeight / 2 + 10, { align: 'center' });
-            }
-
-            setProgress(90);
-
-            // Create blob and save
-            const pdfBlob = pdf.output('blob');
-            setConvertedPDF(pdfBlob);
+            setConvertedPDF(result);
             setProgress(100);
-
         } catch (err) {
             console.error('Conversion error:', err);
             setError(err.message || 'Failed to convert presentation. Please ensure it\'s a valid PPTX file.');
@@ -158,12 +78,12 @@ const PowerPointToPDF = () => {
     };
 
     const handleDownload = () => {
-        if (!convertedPDF) return;
+        if (!convertedPDF?.primaryFile) return;
 
-        const url = URL.createObjectURL(convertedPDF);
+        const url = URL.createObjectURL(convertedPDF.primaryFile);
         const a = document.createElement('a');
         a.href = url;
-        a.download = file.name.replace(/\.(ppt|pptx)$/i, '.pdf');
+        a.download = convertedPDF.primaryFile.name;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -174,6 +94,7 @@ const PowerPointToPDF = () => {
         setFile(null);
         setConvertedPDF(null);
         setError('');
+        setProgress(0);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }

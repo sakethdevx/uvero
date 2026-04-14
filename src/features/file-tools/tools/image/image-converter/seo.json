@@ -1,6 +1,6 @@
 {
     "title": "Free Online Image Converter - Convert JPG, PNG, WebP | Resize Images",
-    "description": "Convert images between JPG, PNG, and WebP formats for free. Resize images, maintain quality, and process everything in your browser. No uploads, completely private.",
+    "description": "Convert images between JPG, PNG, and WebP formats for free. Resize images, maintain quality, and choose fast on-device or online processing for supported formats.",
     "keywords": [
         "image converter",
         "convert jpg to png",
@@ -11,6 +11,6 @@
         "change image format"
     ],
     "ogTitle": "Free Image Converter - Convert & Resize Images Online",
-    "ogDescription": "Convert images between formats and resize them instantly. All processing happens in your browser - completely private and secure.",
+    "ogDescription": "Convert images between formats and resize them instantly with fast on-device processing and online support for supported workflows.",
     "route": "/convert-image"
 }

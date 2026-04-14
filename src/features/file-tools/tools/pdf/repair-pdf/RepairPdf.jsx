@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import repairPdfExecutor from './executor';
 
 export default function RepairPdf() {
     const [file, setFile] = useState(null);
@@ -32,18 +32,12 @@ export default function RepairPdf() {
         setProgress(0);
 
         try {
-            const repairResult = await processor.repair(
-                file,
-                (progressValue) => setProgress(progressValue)
-            );
-
-            setResult({
-                blob: repairResult.blob,
-                pagesRecovered: repairResult.pagesRecovered,
-                originalSize: repairResult.originalSize,
-                repairedSize: repairResult.repairedSize,
-                url: URL.createObjectURL(repairResult.blob)
+            const executionResult = await repairPdfExecutor.run({
+                files: [file],
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
+            setResult(executionResult);
 
             setProgress(100);
         } catch (err) {
@@ -55,14 +49,16 @@ export default function RepairPdf() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = `repaired_${file.name}`;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
@@ -199,16 +195,16 @@ export default function RepairPdf() {
                                                 PDF Repaired Successfully!
                                             </h3>
                                             <p className="text-gray-700 dark:text-gray-200 mb-4">
-                                                Recovered <span className="font-bold text-green-700 dark:text-green-300">{result.pagesRecovered}</span> pages from your PDF.
+                                                Recovered <span className="font-bold text-green-700 dark:text-green-300">{result.meta?.pagesRecovered}</span> pages from your PDF.
                                             </p>
                                             <div className="grid grid-cols-2 gap-4 text-sm">
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">Original Size</div>
-                                                    <div className="font-semibold text-gray-900 dark:text-white">{formatFileSize(result.originalSize)}</div>
+                                                    <div className="font-semibold text-gray-900 dark:text-white">{formatFileSize(result.meta?.originalSize)}</div>
                                                 </div>
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">Repaired Size</div>
-                                                    <div className="font-semibold text-green-700 dark:text-green-300">{formatFileSize(result.repairedSize)}</div>
+                                                    <div className="font-semibold text-green-700 dark:text-green-300">{formatFileSize(result.meta?.repairedSize || result.primaryFile.size)}</div>
                                                 </div>
                                             </div>
                                         </div>

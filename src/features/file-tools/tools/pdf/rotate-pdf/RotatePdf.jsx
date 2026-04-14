@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import rotatePdfExecutor from './executor';
 
 export default function RotatePdf() {
     const [file, setFile] = useState(null);
@@ -41,17 +41,16 @@ export default function RotatePdf() {
 
         try {
             const pageSpec = pageMode === 'all' ? 'all' : pageInput.trim();
-            const rotatedBlob = await processor.rotate(
-                file,
-                angle,
-                pageSpec,
-                (progressValue) => setProgress(progressValue)
-            );
-
-            setResult({
-                url: URL.createObjectURL(rotatedBlob),
-                size: rotatedBlob.size
+            const executionResult = await rotatePdfExecutor.run({
+                files: [file],
+                options: {
+                    angle,
+                    pageSpec,
+                },
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
+            setResult(executionResult);
 
             setProgress(100);
         } catch (err) {
@@ -63,14 +62,16 @@ export default function RotatePdf() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = `rotated_${file.name}`;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
@@ -286,7 +287,9 @@ export default function RotatePdf() {
                                                 </div>
                                                 <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100">
                                                     <div className="text-gray-600 dark:text-gray-300 mb-1">Rotated Size</div>
-                                                    <div className="font-semibold text-green-700 dark:text-green-300">{formatFileSize(result.size)}</div>
+                                                    <div className="font-semibold text-green-700 dark:text-green-300">
+                                                        {formatFileSize(result.meta?.outputSize || result.primaryFile.size)}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

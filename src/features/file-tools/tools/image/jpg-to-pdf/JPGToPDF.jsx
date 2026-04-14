@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
-import { processor } from '../image-to-pdf/processor';
+import jpgToPdfExecutor from './executor';
 
 export default function JPGToPDF() {
     const [files, setFiles] = useState([]);
@@ -83,22 +83,13 @@ export default function JPGToPDF() {
         setProgress(0);
 
         try {
-            const pdfBlob = await processor.convert(
+            const executionResult = await jpgToPdfExecutor.run({
                 files,
-                pageSize,
-                (progressValue) => setProgress(progressValue)
-            );
-
-            const pdfFile = new File([pdfBlob], 'images.pdf', {
-                type: 'application/pdf'
+                options: { pageSize },
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
-
-            setResult({
-                file: pdfFile,
-                size: pdfBlob.size,
-                url: URL.createObjectURL(pdfBlob),
-                pageCount: files.length
-            });
+            setResult(executionResult);
         } catch (err) {
             setError(err.message || 'Conversion failed');
         } finally {
@@ -109,18 +100,17 @@ export default function JPGToPDF() {
     const handleDownload = () => {
         if (!result) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const a = document.createElement('a');
-        a.href = result.url;
+        a.href = url;
         a.download = 'converted.pdf';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
-        if (result?.url) {
-            URL.revokeObjectURL(result.url);
-        }
         setFiles([]);
         setResult(null);
         setError(null);
@@ -137,6 +127,9 @@ export default function JPGToPDF() {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
     };
+
+    const resultPageCount = result?.meta?.pageCount ?? files.length;
+    const resultSize = result?.meta?.outputSize ?? result?.primaryFile?.size ?? 0;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 dark:from-gray-900 to-indigo-50 dark:to-gray-800 py-12 px-4">
@@ -275,7 +268,7 @@ export default function JPGToPDF() {
                                         <div>
                                             <p className="font-medium text-green-900 dark:text-green-100">Conversion Complete!</p>
                                             <p className="text-sm text-green-700 dark:text-green-300">
-                                                {result.pageCount} {result.pageCount === 1 ? 'page' : 'pages'} • {formatFileSize(result.size)}
+                                                {resultPageCount} {resultPageCount === 1 ? 'page' : 'pages'} • {formatFileSize(resultSize)}
                                             </p>
                                         </div>
                                     </div>

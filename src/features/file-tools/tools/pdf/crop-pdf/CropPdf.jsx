@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import cropPdfExecutor from './executor';
 
 export default function CropPdf() {
     const [file, setFile] = useState(null);
@@ -59,16 +59,13 @@ export default function CropPdf() {
         setProgress(0);
 
         try {
-            const croppedBlob = await processor.crop(
-                file,
-                { ...cropMargins, allPages, pageRange },
-                (progressValue) => setProgress(progressValue)
-            );
-
-            setResult({
-                blob: croppedBlob,
-                url: URL.createObjectURL(croppedBlob)
+            const executionResult = await cropPdfExecutor.run({
+                files: [file],
+                options: { ...cropMargins, allPages, pageRange },
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
+            setResult(executionResult);
 
             setProgress(100);
         } catch (err) {
@@ -80,14 +77,16 @@ export default function CropPdf() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = `cropped_${file.name}`;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {

@@ -3,7 +3,7 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import translatePdfExecutor from './executor';
 
 const LANGUAGES = [
     { code: 'en', label: 'English' },
@@ -52,12 +52,12 @@ export default function TranslatePdf() {
         setProgress(0);
 
         try {
-            const output = await processor.translate(
-                file,
-                sourceLang,
-                targetLang,
-                (progressValue) => setProgress(progressValue)
-            );
+            const output = await translatePdfExecutor.run({
+                files: [file],
+                mode: 'offline',
+                options: { sourceLang, targetLang },
+                onProgress: (progressValue) => setProgress(progressValue),
+            });
 
             setResult(output);
             setProgress(100);
@@ -70,14 +70,16 @@ export default function TranslatePdf() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
-        link.download = result.filename;
+        link.href = url;
+        link.download = result.primaryFile.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
@@ -242,7 +244,7 @@ export default function TranslatePdf() {
                                                 PDF Processed Successfully!
                                             </h3>
                                             <p className="text-gray-700 dark:text-gray-200 mb-4">
-                                                Extracted text from <span className="font-bold text-green-700 dark:text-green-300">{result.totalPages} page{result.totalPages !== 1 ? 's' : ''}</span> ({getLangLabel(sourceLang)} → {getLangLabel(targetLang)})
+                                                Extracted text from <span className="font-bold text-green-700 dark:text-green-300">{result.meta?.totalPages} page{result.meta?.totalPages !== 1 ? 's' : ''}</span> ({getLangLabel(sourceLang)} → {getLangLabel(targetLang)})
                                             </p>
                                             <div className="text-xs text-gray-500 dark:text-gray-400">
                                                 For best translation results, use the extracted text below with an online translation service.
@@ -258,7 +260,7 @@ export default function TranslatePdf() {
                                     </label>
                                     <textarea
                                         readOnly
-                                        value={result.extractedText}
+                                        value={result.meta?.extractedText || ''}
                                         rows={8}
                                         className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm font-mono resize-y focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
                                     />

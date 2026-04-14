@@ -3,9 +3,9 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import videoCompressorExecutor from './executor';
 
-const VideoCompressor = () => {
+const VideoCompressor = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [quality, setQuality] = useState('medium');
     const [resolution, setResolution] = useState('original');
@@ -42,13 +42,12 @@ const VideoCompressor = () => {
         setProgress(0);
 
         try {
-            const result = await processor.compress(
-                file,
-                quality,
-                resolution,
-                (progressValue) => setProgress(progressValue)
-            );
-
+            const result = await videoCompressorExecutor.run({
+                files: [file],
+                mode,
+                options: { quality, resolution },
+                onProgress: (progressValue) => setProgress(progressValue),
+            });
             setCompressedVideo(result);
         } catch (err) {
             setError(err.message || 'Compression failed. Note: Video compression requires FFmpeg.wasm which may take time to load initially.');
@@ -58,15 +57,18 @@ const VideoCompressor = () => {
     };
 
     const handleDownload = () => {
-        if (!compressedVideo) return;
-
+        if (!compressedVideo?.primaryFile) return;
         const link = document.createElement('a');
-        link.href = compressedVideo.url;
-        link.download = compressedVideo.filename;
+        link.href = URL.createObjectURL(compressedVideo.primaryFile);
+        link.download = compressedVideo.primaryFile.name;
         link.click();
+        URL.revokeObjectURL(link.href);
     };
 
     const handleReset = () => {
+        if (compressedVideo?.previewUrl) {
+            URL.revokeObjectURL(compressedVideo.previewUrl);
+        }
         setFile(null);
         setCompressedVideo(null);
         setError('');
@@ -82,7 +84,7 @@ const VideoCompressor = () => {
     };
 
     const savedPercentage = compressedVideo
-        ? Math.round((1 - compressedVideo.size / file.size) * 100)
+        ? compressedVideo.meta?.reductionPercent ?? Math.round((1 - compressedVideo.primaryFile.size / file.size) * 100)
         : 0;
 
     return (
@@ -94,7 +96,7 @@ const VideoCompressor = () => {
                         Video Compressor
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Reduce video file size while maintaining quality
+                        Reduce video file size while maintaining quality with {isOnlineMode ? 'server-backed' : 'on-device'} processing
                     </p>
                 </div>
 
@@ -211,10 +213,10 @@ const VideoCompressor = () => {
                                         </div>
 
                                         {/* Video Preview */}
-                                        <div className="mb-4 rounded-lg overflow-hidden bg-black">
+                                                <div className="mb-4 rounded-lg overflow-hidden bg-black">
                                             <video
                                                 controls
-                                                src={compressedVideo.url}
+                                                src={compressedVideo.previewUrl}
                                                 className="w-full"
                                             />
                                         </div>
@@ -230,7 +232,7 @@ const VideoCompressor = () => {
                                             <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
                                                 <p className="text-gray-600 dark:text-gray-300">Compressed</p>
                                                 <p className="font-semibold text-green-600 dark:text-green-400 text-lg">
-                                                    {formatSize(compressedVideo.size)}
+                                                    {formatSize(compressedVideo.meta?.outputSize || compressedVideo.primaryFile.size)}
                                                 </p>
                                             </div>
                                         </div>
@@ -255,9 +257,9 @@ const VideoCompressor = () => {
                 <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 rounded-xl p-6 mb-8">
                     <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-2">⚠️ Important Note</h3>
                     <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                        Video compression in the browser is experimental and uses FFmpeg.wasm.
-                        First-time use may take longer as it loads necessary libraries (~30MB).
-                        For large videos, consider using desktop software for better performance.
+                        {isOnlineMode
+                            ? 'Online mode uses server-side FFmpeg for supported uploads and can be more reliable for larger files.'
+                            : 'Offline mode uses FFmpeg.wasm in the browser. First-time use may take longer as it loads necessary libraries (~30MB).'}
                     </p>
                 </div>
 
@@ -281,7 +283,9 @@ const VideoCompressor = () => {
                         <div className="text-3xl mb-3">🔒</div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">100% Private</h3>
                         <p className="text-gray-600 dark:text-gray-300 text-sm">
-                            All compression happens in your browser
+                            {isOnlineMode
+                                ? 'Online mode processes supported uploads securely on the server.'
+                                : 'Offline mode keeps compression in your browser.'}
                         </p>
                     </div>
                 </div>
@@ -324,8 +328,9 @@ const VideoCompressor = () => {
                                 Are my videos uploaded to a server?
                             </h3>
                             <p className="text-gray-600 dark:text-gray-300">
-                                No! All video compression happens locally in your browser using FFmpeg.wasm.
-                                Your videos never leave your device.
+                                {isOnlineMode
+                                    ? 'Only in online mode. Supported uploads are processed server-side and returned immediately after compression.'
+                                    : 'No. In offline mode, video compression happens locally in your browser using FFmpeg.wasm.'}
                             </p>
                         </div>
                     </div>

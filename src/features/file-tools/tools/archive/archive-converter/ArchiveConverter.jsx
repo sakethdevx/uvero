@@ -1,14 +1,13 @@
 import { useState } from 'react';
-import JSZip from 'jszip';
 import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { useMode } from '../../../context/ModeContext';
+import archiveConverterExecutor from './executor';
 
 /**
  * Archive Converter
- * Convert between archive formats (ZIP support offline, RAR requires online)
+ * Repackage and optimize ZIP archives locally
  */
 export default function ArchiveConverter() {
     const [file, setFile] = useState(null);
@@ -16,81 +15,42 @@ export default function ArchiveConverter() {
     const [progress, setProgress] = useState(0);
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');
-    const { isOnlineMode } = useMode();
 
     const handleFileSelect = (selectedFile) => {
+        const isZipFile = selectedFile && (
+            selectedFile.name.toLowerCase().endsWith('.zip') ||
+            selectedFile.type === 'application/zip'
+        );
+
+        if (!isZipFile) {
+            setError('Archive Converter currently supports ZIP files only.');
+            setFile(null);
+            setResult(null);
+            setProgress(0);
+            return;
+        }
+
         setFile(selectedFile);
         setResult(null);
         setError('');
         setProgress(0);
     };
 
-    const isRARFile = (file) => {
-        return file && (file.name.toLowerCase().endsWith('.rar') || file.type === 'application/x-rar-compressed');
-    };
-
     const handleConvert = async () => {
         if (!file) return;
-
-        // Check if RAR file and not in online mode
-        if (isRARFile(file) && !isOnlineMode) {
-            setError('RAR files require online mode for extraction. Please switch to online mode or select a ZIP file.');
-            return;
-        }
 
         setIsProcessing(true);
         setError('');
         setProgress(0);
 
         try {
-            if (isRARFile(file)) {
-                // Would handle RAR conversion in online mode
-                setError('RAR conversion requires server-side processing. This feature will be available in online mode.');
-                setIsProcessing(false);
-                return;
-            }
-
-            // Handle ZIP file conversion (repack)
-            setProgress(20);
-            const zip = new JSZip();
-            const contents = await zip.loadAsync(file);
-            
-            setProgress(50);
-            
-            // Create new ZIP with same contents
-            const newZip = new JSZip();
-            const filePromises = [];
-            
-            contents.forEach((relativePath, zipEntry) => {
-                if (!zipEntry.dir) {
-                    filePromises.push(
-                        zipEntry.async('blob').then(blob => {
-                            newZip.file(relativePath, blob);
-                        })
-                    );
-                }
+            const converted = await archiveConverterExecutor.run({
+                files: [file],
+                mode: 'offline',
+                onProgress: (progressValue) => setProgress(progressValue),
             });
-            
-            await Promise.all(filePromises);
-            
-            setProgress(80);
-            
-            const blob = await newZip.generateAsync({
-                type: 'blob',
-                compression: 'DEFLATE',
-                compressionOptions: { level: 6 }
-            });
-            
+            setResult(converted);
             setProgress(100);
-            
-            setResult({
-                blob,
-                file: {
-                    name: file.name.replace(/\.[^.]+$/, '.zip'),
-                    size: blob.size,
-                    type: 'application/zip'
-                }
-            });
         } catch (err) {
             setError(err.message || 'Conversion failed. Please try again.');
             console.error('Conversion error:', err);
@@ -100,12 +60,12 @@ export default function ArchiveConverter() {
     };
 
     const handleDownload = () => {
-        if (!result) return;
+        if (!result?.primaryFile) return;
 
-        const url = URL.createObjectURL(result.blob);
+        const url = URL.createObjectURL(result.primaryFile);
         const a = document.createElement('a');
         a.href = url;
-        a.download = result.file.name;
+        a.download = result.primaryFile.name;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -131,28 +91,25 @@ export default function ArchiveConverter() {
                     </p>
                 </div>
 
-                {!isOnlineMode && (
-                    <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg p-4">
-                        <div className="flex items-start gap-3">
-                            <div className="text-2xl">ℹ️</div>
-                            <div>
-                                <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
-                                    Offline Mode
-                                </h3>
-                                <p className="text-sm text-blue-700 dark:text-blue-300">
-                                    In offline mode, ZIP files can be converted and repackaged. 
-                                    Switch to <strong>Online Mode</strong> to enable RAR file conversion.
-                                </p>
-                            </div>
+                <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                        <div className="text-2xl">ℹ️</div>
+                        <div>
+                            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                                ZIP-Only Processing
+                            </h3>
+                            <p className="text-sm text-blue-700 dark:text-blue-300">
+                                Archive Converter currently repackages <strong>ZIP</strong> files locally in your browser. RAR support is not enabled until a real online archive implementation is added.
+                            </p>
                         </div>
                     </div>
-                )}
+                </div>
 
                 {!file && !result && (
                     <>
                         <Dropzone
                             onFileSelect={handleFileSelect}
-                            accept=".zip,.rar,application/zip,application/x-rar-compressed"
+                            accept=".zip,application/zip"
                             maxSize={100}
                         />
 
@@ -161,10 +118,10 @@ export default function ArchiveConverter() {
                             <div className="text-center p-4">
                                 <div className="text-3xl mb-2">📦</div>
                                 <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                                    Multiple Formats
+                                    ZIP Repackaging
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    Support for ZIP archives (offline) and RAR (online)
+                                    Rebuild ZIP archives with fresh compression locally
                                 </p>
                             </div>
                             <div className="text-center p-4">
@@ -173,7 +130,7 @@ export default function ArchiveConverter() {
                                     Private Processing
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    ZIP files processed locally in your browser
+                                    Your ZIP files stay on your device during conversion
                                 </p>
                             </div>
                             <div className="text-center p-4">
@@ -212,7 +169,7 @@ export default function ArchiveConverter() {
                         <div className="flex gap-3">
                             <Button
                                 onClick={handleConvert}
-                                disabled={isProcessing || (isRARFile(file) && !isOnlineMode)}
+                                disabled={isProcessing}
                                 variant="primary"
                                 className="flex-1"
                             >
@@ -239,9 +196,9 @@ export default function ArchiveConverter() {
                                         Conversion Complete!
                                     </h3>
                                     <p className="text-sm text-green-700 dark:text-green-300 mb-3">
-                                        Your archive has been converted successfully.
+                                        Your ZIP archive has been repackaged successfully.
                                     </p>
-                                    <FileInfo file={result.file} />
+                                    <FileInfo file={result.primaryFile} />
                                 </div>
                             </div>
                         </div>
@@ -272,12 +229,11 @@ export default function ArchiveConverter() {
                             <strong>Supported Formats:</strong>
                         </p>
                         <ul className="list-disc list-inside space-y-1 ml-4">
-                            <li><strong>ZIP</strong> - Universal format, works offline</li>
-                            <li><strong>RAR</strong> - Proprietary format, requires online mode</li>
+                            <li><strong>ZIP</strong> - Universal format, repackaged locally in your browser</li>
                         </ul>
                         <p className="mt-4">
-                            ZIP files can be converted and optimized entirely in your browser without uploading. 
-                            RAR files require online processing due to the proprietary compression format.
+                            ZIP files can be repackaged and optimized entirely in your browser without uploading.
+                            This keeps the current implementation simple and aligned with the offline executor model.
                         </p>
                     </div>
                 </div>

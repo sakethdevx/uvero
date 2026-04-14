@@ -3,9 +3,9 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import imageResizerExecutor from './executor';
 
-const ImageResizer = () => {
+const ImageResizer = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [resizeMode, setResizeMode] = useState('dimensions'); // 'dimensions' or 'percentage'
     const [width, setWidth] = useState('');
@@ -17,6 +17,7 @@ const ImageResizer = () => {
     const [progress, setProgress] = useState(0);
     const [resizedImage, setResizedImage] = useState(null);
     const [error, setError] = useState('');
+    const [previewUrl, setPreviewUrl] = useState('');
 
     const handleFileSelect = async (selectedFile) => {
         setFile(selectedFile);
@@ -81,13 +82,20 @@ const ImageResizer = () => {
         setProgress(0);
 
         try {
-            const result = await processor.resize(
-                file,
-                targetWidth,
-                targetHeight,
-                (progressValue) => setProgress(progressValue)
-            );
-
+            const result = await imageResizerExecutor.run({
+                files: [file],
+                options: {
+                    width: targetWidth,
+                    height: targetHeight,
+                },
+                mode,
+                onProgress: setProgress,
+            });
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+            const nextPreviewUrl = URL.createObjectURL(result.primaryFile);
+            setPreviewUrl(nextPreviewUrl);
             setResizedImage(result);
         } catch (err) {
             setError(err.message || 'Resize failed');
@@ -99,13 +107,18 @@ const ImageResizer = () => {
     const handleDownload = () => {
         if (!resizedImage) return;
 
+        const url = URL.createObjectURL(resizedImage.primaryFile);
         const link = document.createElement('a');
-        link.href = resizedImage.url;
-        link.download = resizedImage.filename;
+        link.href = url;
+        link.download = resizedImage.primaryFile.name;
         link.click();
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
         setFile(null);
         setOriginalDimensions(null);
         setResizedImage(null);
@@ -114,6 +127,7 @@ const ImageResizer = () => {
         setWidth('');
         setHeight('');
         setPercentage('100');
+        setPreviewUrl('');
     };
 
     const formatSize = (bytes) => {
@@ -123,6 +137,9 @@ const ImageResizer = () => {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
     };
+
+    const resizedDimensions = resizedImage?.meta?.dimensions?.converted;
+    const resizedSize = resizedImage?.meta?.outputSize ?? resizedImage?.primaryFile?.size ?? 0;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 dark:to-gray-800 py-12 px-4">
@@ -134,6 +151,11 @@ const ImageResizer = () => {
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
                         Resize images by dimensions or percentage
+                    </p>
+                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                        {isOnlineMode
+                            ? 'Online mode uses the server image runtime for resizing.'
+                            : 'Offline mode keeps resizing local in your browser.'}
                     </p>
                 </div>
 
@@ -306,7 +328,7 @@ const ImageResizer = () => {
                                                     Resize Complete!
                                                 </p>
                                                 <p className="text-sm text-green-700 dark:text-green-300">
-                                                    {resizedImage.width} × {resizedImage.height} px • {formatSize(resizedImage.size)}
+                                                    {resizedDimensions?.width} × {resizedDimensions?.height} px • {formatSize(resizedSize)}
                                                 </p>
                                             </div>
                                             <div className="text-3xl">✅</div>
@@ -315,7 +337,7 @@ const ImageResizer = () => {
                                         {/* Image Preview */}
                                         <div className="mb-3 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center" style={{ maxHeight: '300px' }}>
                                             <img
-                                                src={resizedImage.url}
+                                                src={previewUrl}
                                                 alt="Resized"
                                                 className="max-w-full max-h-full object-contain"
                                             />
@@ -333,9 +355,9 @@ const ImageResizer = () => {
                                             <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
                                                 <p className="text-gray-600 dark:text-gray-300">Resized</p>
                                                 <p className="font-semibold text-gray-900 dark:text-white">
-                                                    {resizedImage.width} × {resizedImage.height}
+                                                    {resizedDimensions?.width} × {resizedDimensions?.height}
                                                 </p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">{formatSize(resizedImage.size)}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">{formatSize(resizedSize)}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -418,8 +440,9 @@ const ImageResizer = () => {
                                 Are my images uploaded to a server?
                             </h3>
                             <p className="text-gray-600 dark:text-gray-300">
-                                No! All image resizing happens locally in your browser using Canvas API.
-                                Your images never leave your device.
+                                {isOnlineMode
+                                    ? 'Yes in online mode. The selected image is uploaded to the server transform runtime for resizing.'
+                                    : 'No in offline mode. Image resizing happens locally in your browser using the worker-based canvas path.'}
                             </p>
                         </div>
                     </div>

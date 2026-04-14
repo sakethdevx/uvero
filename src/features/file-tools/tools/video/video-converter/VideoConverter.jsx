@@ -3,9 +3,9 @@ import Dropzone from '../../../shared/Dropzone';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
-import { processor } from './processor';
+import videoConverterExecutor from './executor';
 
-const VideoConverter = () => {
+const VideoConverter = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
     const [file, setFile] = useState(null);
     const [outputFormat, setOutputFormat] = useState('mp4');
     const [quality, setQuality] = useState('high');
@@ -43,12 +43,12 @@ const VideoConverter = () => {
         setProgress(0);
 
         try {
-            const result = await processor.convert(
-                file,
-                outputFormat,
-                quality,
-                (prog) => setProgress(prog)
-            );
+            const result = await videoConverterExecutor.run({
+                files: [file],
+                mode,
+                options: { outputFormat, quality },
+                onProgress: (prog) => setProgress(prog),
+            });
             setConvertedVideo(result);
         } catch (err) {
             setError(err.message || 'Conversion failed');
@@ -58,16 +58,17 @@ const VideoConverter = () => {
     };
 
     const handleDownload = () => {
-        if (!convertedVideo) return;
+        if (!convertedVideo?.primaryFile) return;
         const a = document.createElement('a');
-        a.href = convertedVideo.url;
-        a.download = convertedVideo.filename;
+        a.href = URL.createObjectURL(convertedVideo.primaryFile);
+        a.download = convertedVideo.primaryFile.name;
         a.click();
+        URL.revokeObjectURL(a.href);
     };
 
     const handleReset = () => {
-        if (convertedVideo?.url) {
-            URL.revokeObjectURL(convertedVideo.url);
+        if (convertedVideo?.previewUrl) {
+            URL.revokeObjectURL(convertedVideo.previewUrl);
         }
         setFile(null);
         setConvertedVideo(null);
@@ -93,7 +94,7 @@ const VideoConverter = () => {
                         Video Converter
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-gray-300">
-                        Convert videos between different formats easily
+                        Convert videos between different formats with {isOnlineMode ? 'server-backed' : 'on-device'} processing
                     </p>
                 </div>
 
@@ -223,10 +224,10 @@ const VideoConverter = () => {
                                             <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
                                                 <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Converted</div>
                                                 <div className="font-semibold text-purple-600 dark:text-purple-400">
-                                                    {formatBytes(convertedVideo.size)}
+                                                    {formatBytes(convertedVideo.meta?.outputSize || convertedVideo.primaryFile.size)}
                                                 </div>
                                                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                    {outputFormat.toUpperCase()}
+                                                    {(convertedVideo.meta?.outputFormat || outputFormat).toUpperCase()}
                                                 </div>
                                             </div>
                                         </div>
@@ -235,7 +236,7 @@ const VideoConverter = () => {
                                         <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
                                             <div className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Preview:</div>
                                             <video
-                                                src={convertedVideo.url}
+                                                src={convertedVideo.previewUrl}
                                                 controls
                                                 className="w-full max-h-96 rounded-lg bg-black"
                                             />
@@ -291,8 +292,9 @@ const VideoConverter = () => {
                         <div>
                             <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Privacy & Security</h3>
                             <p className="text-sm">
-                                All video conversion happens directly in your browser using FFmpeg.wasm.
-                                Your videos never leave your device, ensuring complete privacy.
+                                {isOnlineMode
+                                    ? 'Online mode processes supported uploads server-side and returns the converted video immediately.'
+                                    : 'Offline mode converts videos directly in your browser using FFmpeg.wasm, so files stay on your device.'}
                             </p>
                         </div>
                     </div>

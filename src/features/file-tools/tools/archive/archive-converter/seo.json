@@ -1,14 +1,14 @@
 {
-  "title": "Archive Converter - Convert ZIP and RAR Files",
-  "description": "Convert and optimize archive files. Support for ZIP (offline) and RAR (online) formats. Free and secure archive converter.",
-  "keywords": "archive converter, ZIP converter, RAR converter, compress archives, archive tools",
-  "ogTitle": "Archive Converter - Free ZIP and RAR Converter",
-  "ogDescription": "Convert and optimize ZIP and RAR archive files online.",
+  "title": "Archive Converter - Repackage ZIP Files",
+  "description": "Repackage and optimize ZIP archive files locally in your browser. Free and secure archive converter.",
+  "keywords": "archive converter, ZIP converter, zip repackager, compress archives, archive tools",
+  "ogTitle": "Archive Converter - Free ZIP Repackager",
+  "ogDescription": "Repackage and optimize ZIP archive files locally in your browser.",
   "structuredData": {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "Archive Converter",
-    "description": "Convert between archive formats",
+    "description": "Repackage ZIP archive files locally",
     "applicationCategory": "UtilityApplication",
     "offers": {
       "@type": "Offer",

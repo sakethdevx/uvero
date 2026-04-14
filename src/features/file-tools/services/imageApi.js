@@ -1,23 +1,7 @@
 /**
  * Image Processing API Service
- * Uses free public APIs for online image processing
+ * Uses the local serverless image-processing endpoints for online mode.
  */
-
-const API_CONFIG = {
-    // Free image compression APIs
-    compression: {
-        // TinyPNG alternative - Free public API
-        url: 'https://api.resmush.it/ws.php',
-        method: 'POST'
-    },
-    // Free image conversion
-    conversion: {
-        // CloudConvert free tier (requires signup for API key)
-        url: 'https://api.cloudconvert.com/v2',
-        // Alternative: Use convertio.co free API
-        fallback: 'https://api.convertio.co/convert'
-    }
-};
 
 /**
  * Compress image using server-side API
@@ -62,23 +46,86 @@ export async function compressImageOnline(file, quality) {
     }
 }
 
-/**
- * Convert image format using online API
- * Note: Most free APIs have rate limits
- */
-export async function convertImageOnline() {
-    // For now, fallback to client-side for conversion
-    // Free conversion APIs typically require API keys
-    throw new Error('Online image conversion requires API key. Use offline mode for free conversion.');
+async function transformImageOnline(file, operation, params = {}, extraFiles = {}) {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('operation', operation);
+
+    Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+            formData.append(key, String(value));
+        }
+    });
+
+    Object.entries(extraFiles).forEach(([key, value]) => {
+        if (value instanceof File) {
+            formData.append(key, value);
+        }
+    });
+
+    const response = await fetch('/api/transform-image', {
+        method: 'POST',
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.message || 'Image transform failed.');
+    }
+
+    const blob = await response.blob();
+
+    return {
+        blob,
+        originalSize: parseInt(response.headers.get('X-Original-Size') || file.size, 10),
+        outputSize: parseInt(response.headers.get('X-Output-Size') || blob.size, 10),
+        outputFormat: response.headers.get('X-Output-Format') || blob.type,
+        dimensions: {
+            original: {
+                width: parseInt(response.headers.get('X-Original-Width') || 0, 10),
+                height: parseInt(response.headers.get('X-Original-Height') || 0, 10),
+            },
+            converted: {
+                width: parseInt(response.headers.get('X-Output-Width') || 0, 10),
+                height: parseInt(response.headers.get('X-Output-Height') || 0, 10),
+            },
+        },
+    };
 }
 
-/**
- * Resize image using online API
- */
-export async function resizeImageOnline() {
-    // Most free resize APIs require signup
-    // For true free processing, client-side is better
-    throw new Error('Online image resizing requires API key. Use offline mode for free resizing.');
+export async function convertImageOnline(file, options = {}) {
+    return transformImageOnline(file, 'convert', {
+        outputFormat: options.outputFormat ?? options.format ?? 'png',
+        width: options.width ?? null,
+        height: options.height ?? null,
+        maintainAspectRatio: options.maintainAspectRatio ?? true,
+        quality: options.quality ?? null,
+    });
+}
+
+export async function resizeImageOnline(file, options = {}) {
+    return transformImageOnline(file, 'resize', {
+        width: options.width ?? null,
+        height: options.height ?? null,
+    });
+}
+
+export async function watermarkImageOnline(file, options = {}) {
+    return transformImageOnline(
+        file,
+        'watermark',
+        {
+            type: options.type ?? 'text',
+            text: options.text ?? '',
+            fontSize: options.fontSize ?? 48,
+            opacity: options.opacity ?? 0.5,
+            position: options.position ?? 'bottom-right',
+            color: options.color ?? '#ffffff',
+        },
+        {
+            watermarkImage: options.watermarkImage,
+        }
+    );
 }
 
 /**
@@ -94,13 +141,12 @@ export async function removeBackgroundOnline() {
  * Check if online processing is available for a feature
  */
 export function isOnlineFeatureAvailable(feature) {
-    // Currently, all features work client-side
-    // In the future, you can check for API keys here
     const availableFeatures = {
-        compression: true,  // Uses browser-image-compression
-        conversion: false,  // Would require API key
-        resize: false,      // Would require API key
-        backgroundRemoval: false  // Would require API key
+        compression: true,
+        conversion: true,
+        resize: true,
+        watermark: true,
+        backgroundRemoval: false,
     };
 
     return availableFeatures[feature] || false;

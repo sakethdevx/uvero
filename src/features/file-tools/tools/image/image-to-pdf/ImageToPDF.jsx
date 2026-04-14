@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import Button from '../../../shared/Button';
 import ProgressBar from '../../../shared/ProgressBar';
-import { processor } from './processor';
+import imageToPdfExecutor from './executor';
 
 export default function ImageToPDF() {
     const [files, setFiles] = useState([]);
@@ -83,23 +83,13 @@ export default function ImageToPDF() {
         setProgress(0);
 
         try {
-            const pdfBlob = await processor.convert(
+            const executionResult = await imageToPdfExecutor.run({
                 files,
-                pageSize,
-                (progressValue) => setProgress(progressValue)
-            );
-
-            const pdfFile = new File([pdfBlob], 'images.pdf', {
-                type: 'application/pdf'
+                options: { pageSize },
+                mode: 'offline',
+                onProgress: setProgress,
             });
-
-            setResult({
-                file: pdfFile,
-                size: pdfBlob.size,
-                url: URL.createObjectURL(pdfBlob),
-                pageCount: files.length
-            });
-
+            setResult(executionResult);
             setProgress(100);
         } catch (err) {
             console.error('Conversion error:', err);
@@ -112,12 +102,14 @@ export default function ImageToPDF() {
     const handleDownload = () => {
         if (!result) return;
 
+        const url = URL.createObjectURL(result.primaryFile);
         const link = document.createElement('a');
-        link.href = result.url;
+        link.href = url;
         link.download = 'images.pdf';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     };
 
     const handleReset = () => {
@@ -137,6 +129,9 @@ export default function ImageToPDF() {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
     };
+
+    const resultPageCount = result?.meta?.pageCount ?? files.length;
+    const resultSize = result?.meta?.outputSize ?? result?.primaryFile?.size ?? 0;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 dark:from-gray-900 via-white to-teal-50">
@@ -372,11 +367,11 @@ export default function ImageToPDF() {
                                                 PDF Created Successfully!
                                             </h3>
                                             <p className="text-gray-700 dark:text-gray-200 mb-4">
-                                                Your PDF contains <span className="font-bold text-green-700 dark:text-green-300">{result.pageCount}</span> {result.pageCount === 1 ? 'page' : 'pages'}
+                                                Your PDF contains <span className="font-bold text-green-700 dark:text-green-300">{resultPageCount}</span> {resultPageCount === 1 ? 'page' : 'pages'}
                                             </p>
                                             <div className="bg-white dark:bg-gray-800 bg-opacity-60 rounded-lg p-3 border border-green-100 inline-block">
                                                 <div className="text-xs text-gray-600 dark:text-gray-300 mb-1">File Size</div>
-                                                <div className="font-semibold text-gray-900 dark:text-white">{formatFileSize(result.size)}</div>
+                                                <div className="font-semibold text-gray-900 dark:text-white">{formatFileSize(resultSize)}</div>
                                             </div>
                                         </div>
                                     </div>

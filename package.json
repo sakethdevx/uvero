@@ -6,7 +6,12 @@
   "scripts": {
     "dev": "vite",
     "generate:sitemap": "node scripts/generate-sitemap.mjs",
-    "prebuild": "npm run generate:sitemap",
+    "check:file-tools": "node scripts/check-file-tools-consistency.mjs",
+    "test:file-tools-routes": "node scripts/test-file-tools-routes.mjs",
+    "test:file-tools-runtime-status": "node scripts/test-file-tools-runtime-status.mjs",
+    "test:file-tools-api": "node scripts/test-file-tools-api.mjs",
+    "test:rar-to-zip": "node scripts/test-rar-to-zip-api.mjs",
+    "prebuild": "npm run check:file-tools && npm run test:file-tools-routes && npm run test:file-tools-runtime-status && npm run test:file-tools-api && npm run test:rar-to-zip && npm run generate:sitemap",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -33,6 +38,7 @@
     "mammoth": "^1.11.0",
     "mime": "^3.0.0",
     "moment-timezone": "^0.6.0",
+    "node-unrar-js": "^2.0.2",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^5.4.624",
     "pptxgenjs": "^4.0.1",

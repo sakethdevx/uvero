@@ -12,6 +12,7 @@ export default function ToolPage() {
     const { toolId } = useParams();
     const tool = getToolById(toolId);
     const { isOnlineMode } = useMode();
+    const mode = isOnlineMode ? 'online' : 'offline';
 
     // Scroll to top when tool changes
     useEffect(() => {
@@ -68,7 +69,7 @@ export default function ToolPage() {
         <>
             <ModeWarning toolId={toolId} />
             {isAvailable ? (
-                <ToolComponent />
+                <ToolComponent mode={mode} isOnlineMode={isOnlineMode} />
             ) : (
                 <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 py-12 px-4 transition-colors">
                     <div className="max-w-2xl mx-auto">
