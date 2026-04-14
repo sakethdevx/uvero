@@ -49,6 +49,7 @@ export const classifyExtractionError = (error) => {
         return {
             status: 413,
             error: 'The uploaded RAR archive exceeds the maximum allowed size for this deployment.',
+            code: 'FILE_TOO_LARGE',
         };
     }
 
@@ -56,6 +57,7 @@ export const classifyExtractionError = (error) => {
         return {
             status: 400,
             error: 'Password-protected RAR archives are not supported in this deployment.',
+            code: 'PASSWORD_PROTECTED_ARCHIVE',
         };
     }
 
@@ -63,6 +65,7 @@ export const classifyExtractionError = (error) => {
         return {
             status: 400,
             error: 'The uploaded file is not a valid RAR archive.',
+            code: 'UNSUPPORTED_ARCHIVE',
         };
     }
 
@@ -70,12 +73,14 @@ export const classifyExtractionError = (error) => {
         return {
             status: 400,
             error: 'The RAR archive appears to be damaged or incomplete.',
+            code: 'DAMAGED_ARCHIVE',
         };
     }
 
     return {
         status: 500,
         error: error?.message || 'RAR to ZIP conversion failed.',
+        code: 'RAR_TO_ZIP_FAILED',
     };
 };
 
@@ -90,7 +95,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({ error: 'Method not allowed', code: 'METHOD_NOT_ALLOWED' });
     }
 
     let tempArchivePath = null;
@@ -100,10 +105,15 @@ export default async function handler(req, res) {
         const archiveFile = files.archive?.[0] || files.archive;
 
         if (!archiveFile) {
-            return res.status(400).json({ error: 'No RAR archive provided.' });
+            return res.status(400).json({ error: 'No RAR archive provided.', code: 'INVALID_FILE' });
         }
 
         tempArchivePath = archiveFile.filepath;
+
+        if (!/\.rar$/i.test(archiveFile.originalFilename || archiveFile.newFilename || '')) {
+            return res.status(400).json({ error: 'Please upload a valid RAR archive.', code: 'INVALID_FILE' });
+        }
+
         const archiveBuffer = fs.readFileSync(tempArchivePath);
         const extractor = await unrar.createExtractorFromData({
             data: Uint8Array.from(archiveBuffer).buffer,
@@ -116,12 +126,14 @@ export default async function handler(req, res) {
         if (arcHeader?.flags?.volume) {
             return res.status(400).json({
                 error: 'Multi-volume RAR archives are not supported yet.',
+                code: 'MULTIPART_ARCHIVE_UNSUPPORTED',
             });
         }
 
         if (arcHeader?.flags?.headerEncrypted || fileHeaders.some((header) => header.flags?.encrypted)) {
             return res.status(400).json({
                 error: 'Password-protected RAR archives are not supported in this deployment.',
+                code: 'PASSWORD_PROTECTED_ARCHIVE',
             });
         }
 
@@ -153,6 +165,7 @@ export default async function handler(req, res) {
         if (fileCount === 0) {
             return res.status(400).json({
                 error: 'No extractable files were found in this RAR archive.',
+                code: 'UNSUPPORTED_ARCHIVE',
             });
         }
 
@@ -174,7 +187,10 @@ export default async function handler(req, res) {
     } catch (error) {
         const classified = classifyExtractionError(error);
         console.error('[convert-rar-to-zip] error:', error);
-        return res.status(classified.status).json({ error: classified.error });
+        return res.status(classified.status).json({
+            error: classified.error,
+            code: classified.code,
+        });
     } finally {
         if (tempArchivePath && fs.existsSync(tempArchivePath)) {
             try {

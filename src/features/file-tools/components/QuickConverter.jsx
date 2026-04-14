@@ -112,7 +112,7 @@ function getAvailableOperations(files, mode) {
         .map((operation) => {
             const tool = getToolById(operation.id);
 
-            if (!tool || !tool.modes.includes(mode)) {
+            if (!tool || !tool.quickConverterEligible || !tool.modes.includes(mode)) {
                 return null;
             }
 

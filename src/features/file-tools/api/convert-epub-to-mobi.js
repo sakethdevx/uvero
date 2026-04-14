@@ -42,6 +42,13 @@ const createHttpError = (status, message) => {
     return error;
 };
 
+const createCodedHttpError = (status, code, message, details) => {
+    const error = createHttpError(status, message);
+    error.code = code;
+    error.details = details;
+    return error;
+};
+
 const isEpubUpload = (file) => {
     const lowerName = (file?.originalFilename || file?.newFilename || '').toLowerCase();
     return file?.mimetype === 'application/epub+zip' || lowerName.endsWith('.epub');
@@ -98,7 +105,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({ error: 'Method not allowed', code: 'METHOD_NOT_ALLOWED' });
     }
 
     let tempInputPath = null;
@@ -107,8 +114,9 @@ export default async function handler(req, res) {
     try {
         const binaryPath = process.env.EPUB_TO_MOBI_BINARY_PATH;
         if (!binaryPath) {
-            throw createHttpError(
+            throw createCodedHttpError(
                 503,
+                'RUNTIME_NOT_CONFIGURED',
                 'EPUB to MOBI conversion is available only when this deployment is configured with a server-side converter runtime.'
             );
         }
@@ -117,16 +125,17 @@ export default async function handler(req, res) {
         const ebookFile = files.ebook?.[0] || files.ebook;
 
         if (!ebookFile) {
-            throw createHttpError(400, 'No EPUB file provided.');
+            throw createCodedHttpError(400, 'INVALID_FILE', 'No EPUB file provided.');
         }
 
         if (!isEpubUpload(ebookFile)) {
-            throw createHttpError(400, 'Please upload a valid EPUB file.');
+            throw createCodedHttpError(400, 'INVALID_FILE', 'Please upload a valid EPUB file.');
         }
 
         if (!fs.existsSync(binaryPath)) {
-            throw createHttpError(
+            throw createCodedHttpError(
                 503,
+                'RUNTIME_NOT_FOUND',
                 'The configured EPUB to MOBI converter runtime was not found on this deployment.'
             );
         }
@@ -155,8 +164,9 @@ export default async function handler(req, res) {
         });
 
         if (!fs.existsSync(outputPath)) {
-            throw createHttpError(
+            throw createCodedHttpError(
                 503,
+                'CONVERSION_FAILED',
                 'The EPUB to MOBI converter did not produce an output file. Check the configured runtime on this deployment.'
             );
         }
@@ -177,9 +187,16 @@ export default async function handler(req, res) {
         const message = status === 413
             ? 'The uploaded EPUB exceeds the maximum allowed size for this deployment.'
             : error?.message || 'EPUB to MOBI conversion failed.';
+        const code = status === 413
+            ? 'FILE_TOO_LARGE'
+            : error?.code || 'EPUB_TO_MOBI_FAILED';
 
         console.error('[convert-epub-to-mobi] error:', error);
-        return res.status(status).json({ error: message });
+        return res.status(status).json({
+            error: message,
+            code,
+            details: error?.details,
+        });
     } finally {
         cleanupFile(tempInputPath);
         cleanupDirectory(workdir);

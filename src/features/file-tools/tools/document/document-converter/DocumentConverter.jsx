@@ -61,6 +61,13 @@ export default function DocumentConverter() {
             icon: '📚',
             path: '/epub-to-pdf',
             formats: 'EPUB → PDF'
+        },
+        {
+            name: 'EPUB to MOBI',
+            description: 'Convert EPUB to MOBI when the online runtime is configured',
+            icon: '📚',
+            path: '/epub-to-mobi',
+            formats: 'EPUB → MOBI'
         }
     ];
 
@@ -115,10 +122,10 @@ export default function DocumentConverter() {
                     <div className="text-center p-6 bg-gradient-to-br from-blue-50 dark:from-gray-900 to-blue-100 rounded-xl">
                         <div className="text-4xl mb-3">🔒</div>
                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                            100% Private
+                            Mixed Runtime
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-300">
-                            All conversions happen in your browser
+                            Includes offline browser tools and deployment-backed online flows
                         </p>
                     </div>
                     <div className="text-center p-6 bg-gradient-to-br from-green-50 dark:from-gray-900 to-green-100 rounded-xl">
@@ -152,8 +159,8 @@ export default function DocumentConverter() {
                             popular document formats like PDF, Word, Excel, PowerPoint, and more.
                         </p>
                         <p>
-                            All conversions are performed locally in your browser, ensuring your documents 
-                            remain private and secure. No files are uploaded to any server.
+                            Most document tools run locally in your browser, while a few specialized conversions
+                            can use deployment-backed online runtimes when available.
                         </p>
                         <ul className="list-disc list-inside space-y-1 mt-3 ml-4">
                             <li>Convert Office documents to PDF</li>

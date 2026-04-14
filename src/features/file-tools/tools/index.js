@@ -131,6 +131,7 @@ import scanToPdfSEO from './pdf/scan-to-pdf/seo.json';
 import TranslatePdf from './pdf/translate-pdf/TranslatePdf';
 import translatePdfSEO from './pdf/translate-pdf/seo.json';
 import { getSupportedModesForToolId } from '../core/toolExecutors';
+import { getToolMetadata } from '../core/toolMetadata';
 
 export const tools = {
     'compress-image': {
@@ -815,6 +816,7 @@ const getEffectiveModes = (tool) => {
 
 const enhanceTool = (tool) => ({
     ...tool,
+    ...getToolMetadata(tool.id),
     modes: getEffectiveModes(tool),
 });
 

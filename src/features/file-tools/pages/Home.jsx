@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getPopularTools, getToolsByCategory } from '../tools';
 import { useMode } from '../context/ModeContext';
 import QuickConverter from '../components/QuickConverter';
+import { getToolAvailabilityBadge } from '../core/toolMetadata';
 
 /**
  * Home Page
@@ -59,6 +60,24 @@ export default function Home() {
             bg: 'bg-cyan-50 dark:bg-cyan-950/30',
             categoryId: 'utility',
             borderColor: 'border-cyan-100 dark:border-cyan-500/20'
+        },
+        {
+            name: 'Document & Ebook',
+            icon: '📚',
+            description: 'Convert ebooks and browse linked document workflows',
+            gradient: 'from-amber-500 to-orange-600',
+            bg: 'bg-amber-50 dark:bg-amber-950/30',
+            categoryId: 'document',
+            borderColor: 'border-amber-100 dark:border-amber-500/20'
+        },
+        {
+            name: 'Archive Tools',
+            icon: '🗜️',
+            description: 'Archive conversion flows with server-backed extraction where needed',
+            gradient: 'from-slate-500 to-gray-700',
+            bg: 'bg-slate-50 dark:bg-slate-950/30',
+            categoryId: 'archive',
+            borderColor: 'border-slate-100 dark:border-slate-500/20'
         }
     ];
 
@@ -186,7 +205,21 @@ export default function Home() {
                                                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 text-sm text-gray-700 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors font-medium"
                                                 >
                                                     <span className="text-lg flex-shrink-0">{tool.icon}</span>
-                                                    <span className="truncate">{tool.name}</span>
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="truncate">{tool.name}</span>
+                                                            {getToolAvailabilityBadge(tool) && (
+                                                                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getToolAvailabilityBadge(tool).className}`}>
+                                                                    {getToolAvailabilityBadge(tool).label}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        {tool.availabilityNote && (
+                                                            <p className="mt-0.5 truncate text-[11px] font-normal text-gray-500 dark:text-gray-400">
+                                                                {tool.availabilityNote}
+                                                            </p>
+                                                        )}
+                                                    </div>
                                                 </Link>
                                             ))}
                                         </div>
@@ -209,6 +242,7 @@ export default function Home() {
                         <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {popularTools.slice(0, 9).map((tool) => {
                                 const isAvailable = tool.modes.includes(isOnlineMode ? 'online' : 'offline');
+                                const availabilityBadge = getToolAvailabilityBadge(tool);
                                 return (
                                     <Link
                                         key={tool.id}
@@ -219,8 +253,20 @@ export default function Home() {
                                             {tool.icon}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{tool.name}</h3>
+                                            <div className="flex items-center gap-2">
+                                                <h3 className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{tool.name}</h3>
+                                                {availabilityBadge && (
+                                                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${availabilityBadge.className}`}>
+                                                        {availabilityBadge.label}
+                                                    </span>
+                                                )}
+                                            </div>
                                             <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed mt-0.5">{tool.description}</p>
+                                            {tool.availabilityNote && (
+                                                <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400 line-clamp-2">
+                                                    {tool.availabilityNote}
+                                                </p>
+                                            )}
                                         </div>
                                     </Link>
                                 );

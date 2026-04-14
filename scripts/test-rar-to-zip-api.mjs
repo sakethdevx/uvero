@@ -18,6 +18,7 @@ test('classifyExtractionError rejects password protected archives', () => {
         {
             status: 400,
             error: 'Password-protected RAR archives are not supported in this deployment.',
+            code: 'PASSWORD_PROTECTED_ARCHIVE',
         }
     )
 })
@@ -28,6 +29,7 @@ test('classifyExtractionError rejects invalid archives', () => {
         {
             status: 400,
             error: 'The uploaded file is not a valid RAR archive.',
+            code: 'UNSUPPORTED_ARCHIVE',
         }
     )
 })
@@ -38,6 +40,7 @@ test('classifyExtractionError rejects damaged archives', () => {
         {
             status: 400,
             error: 'The RAR archive appears to be damaged or incomplete.',
+            code: 'DAMAGED_ARCHIVE',
         }
     )
 })
@@ -48,6 +51,7 @@ test('classifyExtractionError handles upload limit errors', () => {
         {
             status: 413,
             error: 'The uploaded RAR archive exceeds the maximum allowed size for this deployment.',
+            code: 'FILE_TOO_LARGE',
         }
     )
 })

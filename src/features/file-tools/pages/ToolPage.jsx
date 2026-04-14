@@ -3,6 +3,7 @@ import { getToolById } from '../tools';
 import { useEffect } from 'react';
 import ModeWarning from '../components/ModeWarning';
 import { useMode } from '../context/ModeContext';
+import { getToolAvailabilityBadge } from '../core/toolMetadata';
 
 /**
  * Generic Tool Page Component
@@ -64,12 +65,25 @@ export default function ToolPage() {
 
     const ToolComponent = tool.component;
     const isAvailable = tool.modes && tool.modes.includes(isOnlineMode ? 'online' : 'offline');
+    const availabilityBadge = getToolAvailabilityBadge(tool);
 
     return (
         <>
             <ModeWarning toolId={toolId} />
             {isAvailable ? (
-                <ToolComponent mode={mode} isOnlineMode={isOnlineMode} />
+                <>
+                    {availabilityBadge && (
+                        <div className="max-w-6xl mx-auto px-4 pt-2">
+                            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-gray-600 shadow-sm dark:border-white/10 dark:bg-gray-900 dark:text-gray-300">
+                                <span className={`inline-flex rounded-full px-2 py-0.5 ${availabilityBadge.className}`}>
+                                    {availabilityBadge.label}
+                                </span>
+                                <span>{tool.availabilityNote}</span>
+                            </div>
+                        </div>
+                    )}
+                    <ToolComponent mode={mode} isOnlineMode={isOnlineMode} />
+                </>
             ) : (
                 <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 py-12 px-4 transition-colors">
                     <div className="max-w-2xl mx-auto">

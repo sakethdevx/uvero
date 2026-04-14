@@ -4,6 +4,7 @@ import Button from '../../../shared/Button';
 import FileInfo from '../../../shared/FileInfo';
 import ProgressBar from '../../../shared/ProgressBar';
 import rarToZipExecutor from './executor';
+import { getToolMetadata } from '../../../core/toolMetadata';
 
 /**
  * RAR to ZIP Converter
@@ -11,6 +12,7 @@ import rarToZipExecutor from './executor';
  * Wired for online RAR extraction
  */
 export default function RARToZip() {
+    const tool = getToolMetadata('rar-to-zip');
     const [file, setFile] = useState(null);
     const [error, setError] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
@@ -85,11 +87,18 @@ export default function RARToZip() {
                                     Online Extraction Enabled
                                 </h3>
                                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                                    This tool now uses the real online executor path. It supports single-volume, non-password-protected RAR archives and converts them to ZIP on the server.
+                                    {tool.availabilityNote}
                                 </p>
-                                <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
-                                    Multipart, password-protected, and damaged archives are rejected with explicit server responses so the failure mode stays predictable.
-                                </p>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    {tool.limits.map((limit) => (
+                                        <span
+                                            key={limit}
+                                            className="inline-flex rounded-full border border-blue-200 bg-white/70 px-2.5 py-1 text-xs font-medium text-blue-700 dark:border-blue-500/20 dark:bg-blue-500/5 dark:text-blue-200"
+                                        >
+                                            {limit}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                 </div>
@@ -119,7 +128,7 @@ export default function RARToZip() {
                                     Supported Archives
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    Single-volume, non-password-protected RAR files only
+                                    {tool.limits.join(' • ')}
                                 </p>
                             </div>
                             <div className="text-center p-4">
@@ -212,7 +221,7 @@ export default function RARToZip() {
                             <strong>Why online mode?</strong> RAR uses a proprietary compression format that is handled by a server-side extraction service before being repacked as ZIP.
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
-                            Note: Password-protected and multi-volume RAR archives are not supported in this first server-backed version.
+                            Note: Unsupported or damaged archives return explicit server validation errors so the failure mode stays predictable.
                         </p>
                     </div>
                 </div>

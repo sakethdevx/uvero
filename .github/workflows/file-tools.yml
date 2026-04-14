@@ -30,6 +30,9 @@ jobs:
       - name: Smoke Test Representative File Tool Routes
         run: npm run test:file-tools-routes
 
+      - name: Test File Tool Runtime Status
+        run: npm run test:file-tools-runtime-status
+
       - name: Test RAR to ZIP API Error Handling
         run: npm run test:rar-to-zip
 

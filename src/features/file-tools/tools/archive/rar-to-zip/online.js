@@ -21,8 +21,9 @@ export async function run({ files, onProgress }) {
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         const message = errorData.error || errorData.message || 'RAR to ZIP conversion failed.';
+        const code = errorData.code;
 
-        if (response.status >= 500) {
+        if (response.status >= 500 || code === 'RUNTIME_NOT_CONFIGURED' || code === 'RUNTIME_NOT_FOUND') {
             throw createServiceUnavailableError('rar-to-zip', message, response.status);
         }
 
