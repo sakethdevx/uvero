@@ -163,8 +163,8 @@ npm run preview
 
 ## Important Files
 
-- **Adding new tools**: Edit `src/tools/index.js`
-- **Shared components**: `src/shared/`
+- **Adding new tools**: Edit `src/features/toolbox/tools/index.js`
+- **Shared components**: `src/features/toolbox/shared/`
 - **Styling**: `tailwind.config.js` for theme customization
 - **SEO**: `index.html` for global meta tags, `seo.json` for tool-specific
 
@@ -172,9 +172,9 @@ npm run preview
 
 ### Adding a New Tool (Example)
 
-1. Create folder: `src/tools/pdf/pdf-compressor/`
+1. Create folder: `src/features/toolbox/tools/pdf/pdf-compressor/`
 2. Add files: `PdfCompressor.jsx`, `processor.js`, `worker.js`, `seo.json`
-3. Register in `src/tools/index.js`
+3. Register in `src/features/toolbox/tools/index.js`
 4. Done! Tool is automatically integrated
 
 ### Web Worker Pattern

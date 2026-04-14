@@ -45,8 +45,8 @@ function hasCanonicalToolboxRoute(source) {
     return /<Route path="\/toolbox" element={<Home \/>} \/>/.test(source)
 }
 
-function hasLegacyToolsRedirect(source) {
-    return /<Route path="\/tools" element={<Navigate to="\/toolbox" replace \/>} \/>/.test(source)
+function hasLegacyToolsRoute(source) {
+    return /<Route path="\/tools"/.test(source)
 }
 
 async function main() {
@@ -68,8 +68,8 @@ async function main() {
         failures.push('App router is missing the canonical /toolbox route.')
     }
 
-    if (!hasLegacyToolsRedirect(appSource)) {
-        failures.push('App router is missing the /tools -> /toolbox compatibility redirect.')
+    if (hasLegacyToolsRoute(appSource)) {
+        failures.push('App router still contains the legacy /tools route.')
     }
 
     for (const toolId of SMOKE_TOOL_IDS) {

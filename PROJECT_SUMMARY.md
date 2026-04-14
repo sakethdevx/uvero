@@ -102,7 +102,7 @@ All components are reusable, well-documented, and styled with Tailwind:
 
 ### 5. ✅ Infrastructure
 
-**Tool Registry System** (`src/tools/index.js`)
+**Tool Registry System** (`src/features/toolbox/tools/index.js`)
 
 - Central tool management
 - Easy tool registration

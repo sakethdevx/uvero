@@ -80,11 +80,6 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
-        if (originalPath === '/api/file-tools/runtime-status') {
-            const mod = await import('../src/features/toolbox/api/toolbox-runtime-status.js')
-            return mod.default(req, res)
-        }
-
         if (originalPath === '/api/delete-event') {
             const mod = await import('../src/features/photodrop/api/delete-event.js')
             return mod.default(req, res)

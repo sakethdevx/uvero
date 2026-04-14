@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { ModeProvider } from './features/toolbox/context/ModeContext';
 import ModeToggle from './features/toolbox/components/ModeToggle';
@@ -49,7 +49,7 @@ function AppContent() {
   const location = useLocation();
 
   // Determine if we're on a toolbox route (for scoping ModeToggle)
-  const isToolboxRoute = location.pathname === '/toolbox' || location.pathname === '/tools' || !!getToolById(location.pathname.slice(1));
+  const isToolboxRoute = location.pathname === '/toolbox' || !!getToolById(location.pathname.slice(1));
 
   // Close mobile menu and scroll to top on route change
   useEffect(() => {
@@ -202,7 +202,7 @@ function AppContent() {
     const path = location.pathname;
     if (path === '/') return null;
     if (path.startsWith('/compiler')) return 'Online Compiler';
-    if (path.startsWith('/toolbox') || path.startsWith('/tools')) return 'Toolbox';
+    if (path.startsWith('/toolbox')) return 'Toolbox';
     if (path.startsWith('/photodrop')) return 'PhotoDrop';
     if (path.startsWith('/clipboard') || path.startsWith('/c/')) return 'Online Clipboard';
     if (path.startsWith('/split-expense')) return 'PaySplit';
@@ -396,7 +396,6 @@ function AppContent() {
           <Route path="/" element={<ServicesHome />} />
           <Route path="/compiler" element={<CompilerHome />} />
           <Route path="/toolbox" element={<Home />} />
-          <Route path="/tools" element={<Navigate to="/toolbox" replace />} />
           <Route path="/photodrop" element={<EventsPage />} />
           <Route path="/photodrop/:id" element={<EventDetail />} />
           <Route path="/clipboard" element={<Clipboard />} />
