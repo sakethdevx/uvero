@@ -26,6 +26,45 @@ export const DOCUMENT_CONVERTER_ENTRIES = [
 
 export const DOCUMENT_CONVERTER_TOOL_IDS = DOCUMENT_CONVERTER_ENTRIES.map((entry) => entry.id);
 
+// Temporary bridge: these tools appear in online mode, but still execute the
+// existing offline/browser workflow until a dedicated online backend is added.
+export const ONLINE_MODE_OFFLINE_EXECUTOR_TOOL_IDS = [
+    'gif-maker',
+    'image-to-pdf',
+    'jpg-to-pdf',
+    'pdf-to-jpg',
+    'remove-background',
+    'compress-pdf',
+    'convert-pdf',
+    'merge-pdf',
+    'split-pdf',
+    'word-to-pdf',
+    'html-to-pdf',
+    'excel-to-pdf',
+    'pdf-to-pdfa',
+    'powerpoint-to-pdf',
+    'pdf-to-word',
+    'pdf-to-excel',
+    'pdf-to-powerpoint',
+    'epub-to-pdf',
+    'archive-converter',
+    'rotate-pdf',
+    'watermark-pdf',
+    'protect-pdf',
+    'unlock-pdf',
+    'page-numbers',
+    'organize-pdf',
+    'repair-pdf',
+    'crop-pdf',
+    'edit-pdf',
+    'sign-pdf',
+    'redact-pdf',
+    'ocr-pdf',
+    'compare-pdf',
+    'scan-to-pdf',
+    'translate-pdf',
+];
+
 export const RUNTIME_VERIFIED_TOOL_IDS = [
     'compress-audio',
     'convert-audio',
@@ -86,6 +125,10 @@ export function getDocumentConverterEntries() {
 
 export function requiresRuntimeVerification(toolId) {
     return RUNTIME_VERIFIED_TOOL_IDS.includes(toolId);
+}
+
+export function usesOfflineExecutorInOnlineMode(toolId) {
+    return ONLINE_MODE_OFFLINE_EXECUTOR_TOOL_IDS.includes(toolId);
 }
 
 export function isToolAvailableInMode(tool, mode) {

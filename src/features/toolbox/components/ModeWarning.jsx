@@ -1,6 +1,6 @@
 import { useMode } from '../context/ModeContext';
 import { getToolById } from '../tools';
-import { getToolAvailabilityBadge } from '../core/toolMetadata';
+import { getToolAvailabilityBadge, usesOfflineExecutorInOnlineMode } from '../core/toolMetadata';
 
 const ModeWarning = ({ toolId, shouldVerifyRuntime = false, runtimeStatus = null }) => {
     const { isOnlineMode } = useMode();
@@ -15,6 +15,7 @@ const ModeWarning = ({ toolId, shouldVerifyRuntime = false, runtimeStatus = null
     const hasToolStatusDetails = Boolean(tool.availabilityNote) || (tool.limits?.length ?? 0) > 0;
     const showRuntimeUnavailable = shouldVerifyRuntime && runtimeStatus && !runtimeStatus.isLoading && !runtimeStatus.isAvailable;
     const showRuntimeReady = shouldVerifyRuntime && runtimeStatus && !runtimeStatus.isLoading && runtimeStatus.isAvailable;
+    const usesOfflineFallbackInOnlineMode = isOnlineMode && usesOfflineExecutorInOnlineMode(toolId);
 
     // Tool is available in current mode
     if (isAvailable) {
@@ -62,7 +63,11 @@ const ModeWarning = ({ toolId, shouldVerifyRuntime = false, runtimeStatus = null
                             {tool.modes.length > 1 && (
                                 <p className="text-sm text-blue-800 dark:text-blue-300">
                                     Currently in <strong>{isOnlineMode ? 'online' : 'offline'}</strong> mode.
-                                    {isOnlineMode ? ' Using server-side processing for enhanced capabilities.' : ' All processing happens in your browser for maximum privacy.'}
+                                    {usesOfflineFallbackInOnlineMode
+                                        ? ' This tool is temporarily using browser-side processing here while the dedicated online backend is still pending.'
+                                        : isOnlineMode
+                                            ? ' Using server-side processing for enhanced capabilities.'
+                                            : ' All processing happens in your browser for maximum privacy.'}
                                 </p>
                             )}
                             {shouldVerifyRuntime && (
