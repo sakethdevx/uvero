@@ -151,7 +151,8 @@ const TOOL_CATEGORIES = [
     icon: '🛠️',
     tools: [
       { name: 'QR Code Generator', path: '/qr-generator' },
-      { name: 'Password Generator', path: '/password-generator' }
+      { name: 'Password Generator', path: '/password-generator' },
+      { name: 'Hash Generator', path: '/hash-generator' }
     ]
   }
 ];
