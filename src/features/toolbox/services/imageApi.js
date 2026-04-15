@@ -70,7 +70,7 @@ async function transformImageOnline(file, operation, params = {}, extraFiles = {
 
     if (!response.ok) {
         if (response.status === 413) {
-            throw new Error('This image is too large for online mode on this deployment. Switch to offline mode for large image cropping.');
+            throw new Error('This image is too large for online mode on this deployment. Switch to offline mode for large files.');
         }
 
         const errorData = await response.json().catch(() => ({}));

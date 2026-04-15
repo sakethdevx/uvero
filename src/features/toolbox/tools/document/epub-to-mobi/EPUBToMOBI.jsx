@@ -11,18 +11,21 @@ import useToolRuntimeStatus from '../../../core/useToolRuntimeStatus';
  * Note: Full MOBI conversion requires server-side processing
  * This provides information and basic file handling
  */
-export default function EPUBToMOBI() {
+export default function EPUBToMOBI({ toolRuntimeStatus }) {
     const [file, setFile] = useState(null);
     const [error, setError] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress, setProgress] = useState(0);
     const [result, setResult] = useState(null);
+    const localRuntimeStatus = useToolRuntimeStatus('epub-to-mobi', {
+        enabled: !toolRuntimeStatus,
+    });
     const {
         isLoading: isCheckingStatus,
         isAvailable: isRuntimeAvailable,
         hasVerificationFailure,
         runtime,
-    } = useToolRuntimeStatus('epub-to-mobi');
+    } = toolRuntimeStatus || localRuntimeStatus;
 
     const handleFileSelect = (selectedFile) => {
         setFile(selectedFile);

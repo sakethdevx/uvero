@@ -4,6 +4,7 @@ import {
     normalizeMultiFileResult,
     normalizeSingleFileResult,
 } from '../../../core/executorUtils';
+import { createServiceUnavailableError } from '../../../core/errors';
 
 export async function convertFile(file, bitrate, onProgress) {
     const formData = new FormData();
@@ -20,7 +21,14 @@ export async function convertFile(file, bitrate, onProgress) {
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Server conversion failed');
+        const message = errorData.error || errorData.message || 'Server conversion failed';
+        const code = errorData.code;
+
+        if (response.status >= 500 || code === 'RUNTIME_NOT_FOUND' || code === 'RUNTIME_NOT_CONFIGURED') {
+            throw createServiceUnavailableError('video-to-mp3', message, response.status || 503);
+        }
+
+        throw new Error(message);
     }
 
     const blob = await response.blob();

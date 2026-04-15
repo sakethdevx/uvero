@@ -2,7 +2,7 @@ import { useMode } from '../context/ModeContext';
 import { getToolById } from '../tools';
 import { getToolAvailabilityBadge } from '../core/toolMetadata';
 
-const ModeWarning = ({ toolId }) => {
+const ModeWarning = ({ toolId, shouldVerifyRuntime = false, runtimeStatus = null }) => {
     const { isOnlineMode } = useMode();
     const tool = getToolById(toolId);
 
@@ -13,11 +13,45 @@ const ModeWarning = ({ toolId }) => {
     const isOnlineOnly = tool.modes.length === 1 && tool.modes[0] === 'online';
     const availabilityBadge = getToolAvailabilityBadge(tool);
     const hasToolStatusDetails = Boolean(tool.availabilityNote) || (tool.limits?.length ?? 0) > 0;
+    const showRuntimeUnavailable = shouldVerifyRuntime && runtimeStatus && !runtimeStatus.isLoading && !runtimeStatus.isAvailable;
+    const showRuntimeReady = shouldVerifyRuntime && runtimeStatus && !runtimeStatus.isLoading && runtimeStatus.isAvailable;
 
     // Tool is available in current mode
     if (isAvailable) {
+        if (showRuntimeUnavailable) {
+            return (
+                <div className="bg-orange-50 dark:bg-orange-500/10 border-l-4 border-orange-500 p-6 rounded-xl mb-6 transition-colors">
+                    <div className="flex items-start">
+                        <svg className="w-6 h-6 text-orange-600 dark:text-orange-400 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                            <h3 className="font-semibold text-orange-900 dark:text-orange-400 mb-2">
+                                Online runtime unavailable on this deployment
+                            </h3>
+                            <p className="text-sm text-orange-800 dark:text-orange-300 leading-relaxed">
+                                {runtimeStatus.note || 'This tool needs a server-side runtime when used in online mode, and that runtime is not ready on this deployment.'}
+                            </p>
+                            {runtimeStatus.limits?.length > 0 && (
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {runtimeStatus.limits.map((limit) => (
+                                        <span
+                                            key={limit}
+                                            className="inline-flex rounded-full border border-orange-200/80 bg-white/70 px-2.5 py-1 text-xs font-medium text-orange-700 dark:border-orange-500/20 dark:bg-orange-500/5 dark:text-orange-200"
+                                        >
+                                            {limit}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
         // Show info about mode-specific features if any
-        if (tool.modes.length > 1 || hasToolStatusDetails) {
+        if (tool.modes.length > 1 || hasToolStatusDetails || shouldVerifyRuntime) {
             return (
                 <div className="bg-blue-50 dark:bg-blue-500/10 border-l-4 border-blue-500 p-4 rounded-xl mb-6 transition-colors">
                     <div className="flex items-start">
@@ -30,6 +64,19 @@ const ModeWarning = ({ toolId }) => {
                                     Currently in <strong>{isOnlineMode ? 'online' : 'offline'}</strong> mode.
                                     {isOnlineMode ? ' Using server-side processing for enhanced capabilities.' : ' All processing happens in your browser for maximum privacy.'}
                                 </p>
+                            )}
+                            {shouldVerifyRuntime && (
+                                <div className={tool.modes.length > 1 ? 'mt-3' : ''}>
+                                    {runtimeStatus?.isLoading ? (
+                                        <p className="text-sm text-blue-800 dark:text-blue-300">
+                                            Checking whether the server runtime for this online workflow is ready on this deployment...
+                                        </p>
+                                    ) : showRuntimeReady && runtimeStatus?.runtime ? (
+                                        <p className="text-sm text-blue-800 dark:text-blue-300">
+                                            Runtime verified: <strong>{runtimeStatus.runtime}</strong>
+                                        </p>
+                                    ) : null}
+                                </div>
                             )}
                             {hasToolStatusDetails && (
                                 <div className={tool.modes.length > 1 ? 'mt-3' : ''}>

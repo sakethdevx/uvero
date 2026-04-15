@@ -5,15 +5,29 @@ import {
     normalizeToolRuntimeStatus,
 } from './toolRuntimeStatus.js';
 
-export function useToolRuntimeStatus(toolId) {
+export function useToolRuntimeStatus(toolId, options = {}) {
+    const { enabled = true } = options;
     const tool = useMemo(() => getToolMetadata(toolId), [toolId]);
     const [runtimeStatus, setRuntimeStatus] = useState(() =>
         normalizeToolRuntimeStatus(toolId, null)
     );
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(enabled);
     const [hasVerificationFailure, setHasVerificationFailure] = useState(false);
 
     useEffect(() => {
+        if (!enabled) {
+            setRuntimeStatus(normalizeToolRuntimeStatus(toolId, {
+                available: true,
+                status: 'ready',
+                runtime: null,
+                note: tool.availabilityNote,
+                limits: tool.limits || [],
+            }));
+            setIsLoading(false);
+            setHasVerificationFailure(false);
+            return undefined;
+        }
+
         let cancelled = false;
 
         const loadRuntimeStatus = async () => {
@@ -53,7 +67,7 @@ export function useToolRuntimeStatus(toolId) {
         return () => {
             cancelled = true;
         };
-    }, [tool, toolId]);
+    }, [enabled, tool, toolId]);
 
     return {
         status: runtimeStatus.status,
