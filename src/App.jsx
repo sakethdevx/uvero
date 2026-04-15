@@ -1,41 +1,165 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
+import { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import { ModeProvider } from './features/toolbox/context/ModeContext';
 import ModeToggle from './features/toolbox/components/ModeToggle';
 import ThemeToggle from './components/ThemeToggle';
 import BrandLogo from './components/BrandLogo';
 import ServicesHome from './pages/ServicesHome';
-import CompilerHome from './features/compiler/pages/CompilerHome';
-import ToolboxHome from './features/toolbox/pages/ToolboxHome';
-import ToolPage from './features/toolbox/pages/ToolPage';
-import Privacy from './pages/Privacy';
-import Contact from './pages/Contact';
-import EventsPage from './features/photodrop/pages/Events';
-import EventDetail from './features/photodrop/pages/EventDetail';
-import InvitePage from './features/photodrop/pages/Invite';
-import Clipboard from './features/clipboard/pages/Clipboard';
-import ClipboardBoard from './features/clipboard/pages/ClipboardBoard';
-import PublicClipboard from './features/clipboard/pages/PublicClipboard';
-import ClipboardCli from './features/clipboard/pages/ClipboardCli';
-import SplitExpenseHome from './features/split-expense/pages/SplitExpenseHome';
-import SplitExpenseGroup from './features/split-expense/pages/SplitExpenseGroup';
-import QRToolsHome from './features/qr-tools/pages/QRToolsHome';
-import QRGenerator from './features/qr-tools/pages/QRGenerator';
-import QRScanner from './features/qr-tools/pages/QRScanner';
-import QRValidator from './features/qr-tools/pages/QRValidator';
-import BulkQRGenerator from './features/qr-tools/pages/BulkQRGenerator';
-import DynamicQRManager from './features/qr-tools/pages/DynamicQRManager';
-import QRRedirectPage from './features/qr-tools/pages/QRRedirectPage';
-import QRAnalytics from './features/qr-tools/pages/QRAnalytics';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import ResetPassword from './pages/ResetPassword';
-import Profile from './pages/Profile';
 import Maintenance from './pages/Maintenance';
 import { useAuth } from './auth/AuthContext';
 import { signOut } from './auth/authService';
-import { getToolById } from './features/toolbox/tools';
 import { getMaintenanceConfig } from './config/maintenance';
+
+const CompilerHome = lazy(() => import('./features/compiler/pages/CompilerHome'));
+const ToolboxHome = lazy(() => import('./features/toolbox/pages/ToolboxHome'));
+const ToolPage = lazy(() => import('./features/toolbox/pages/ToolPage'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Contact = lazy(() => import('./pages/Contact'));
+const EventsPage = lazy(() => import('./features/photodrop/pages/Events'));
+const EventDetail = lazy(() => import('./features/photodrop/pages/EventDetail'));
+const InvitePage = lazy(() => import('./features/photodrop/pages/Invite'));
+const Clipboard = lazy(() => import('./features/clipboard/pages/Clipboard'));
+const ClipboardBoard = lazy(() => import('./features/clipboard/pages/ClipboardBoard'));
+const PublicClipboard = lazy(() => import('./features/clipboard/pages/PublicClipboard'));
+const ClipboardCli = lazy(() => import('./features/clipboard/pages/ClipboardCli'));
+const SplitExpenseHome = lazy(() => import('./features/split-expense/pages/SplitExpenseHome'));
+const SplitExpenseGroup = lazy(() => import('./features/split-expense/pages/SplitExpenseGroup'));
+const QRToolsHome = lazy(() => import('./features/qr-tools/pages/QRToolsHome'));
+const QRGenerator = lazy(() => import('./features/qr-tools/pages/QRGenerator'));
+const QRScanner = lazy(() => import('./features/qr-tools/pages/QRScanner'));
+const QRValidator = lazy(() => import('./features/qr-tools/pages/QRValidator'));
+const BulkQRGenerator = lazy(() => import('./features/qr-tools/pages/BulkQRGenerator'));
+const DynamicQRManager = lazy(() => import('./features/qr-tools/pages/DynamicQRManager'));
+const QRRedirectPage = lazy(() => import('./features/qr-tools/pages/QRRedirectPage'));
+const QRAnalytics = lazy(() => import('./features/qr-tools/pages/QRAnalytics'));
+const Login = lazy(() => import('./pages/Login'));
+const Signup = lazy(() => import('./pages/Signup'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const Profile = lazy(() => import('./pages/Profile'));
+
+const TOOL_CATEGORIES = [
+  {
+    name: 'Image Tools',
+    icon: '🖼️',
+    tools: [
+      { name: 'Image Compressor', path: '/compress-image' },
+      { name: 'Image Converter', path: '/convert-image' },
+      { name: 'Image to PDF', path: '/image-to-pdf' },
+      { name: 'Image Resizer', path: '/resize-image' },
+      { name: 'GIF Maker', path: '/gif-maker' },
+      { name: 'Add Watermark', path: '/watermark' },
+      { name: 'Image Cropper', path: '/crop-image' },
+      { name: 'Background Remover', path: '/remove-background' },
+      { name: 'JPG to PDF', path: '/jpg-to-pdf' },
+      { name: 'PDF to JPG', path: '/pdf-to-jpg' },
+      { name: 'HEIC to JPG', path: '/heic-to-jpg' }
+    ]
+  },
+  {
+    name: 'PDF Tools',
+    icon: '📄',
+    tools: [
+      { name: 'PDF Compressor', path: '/compress-pdf' },
+      { name: 'PDF Merger', path: '/merge-pdf' },
+      { name: 'PDF Splitter', path: '/split-pdf' },
+      { name: 'PDF to Image', path: '/convert-pdf' },
+      { name: 'PDF to Word', path: '/pdf-to-word' },
+      { name: 'PDF to PowerPoint', path: '/pdf-to-powerpoint' },
+      { name: 'PDF to Excel', path: '/pdf-to-excel' },
+      { name: 'Word to PDF', path: '/word-to-pdf' },
+      { name: 'PowerPoint to PDF', path: '/powerpoint-to-pdf' },
+      { name: 'Excel to PDF', path: '/excel-to-pdf' },
+      { name: 'HTML to PDF', path: '/html-to-pdf' },
+      { name: 'PDF to PDF/A', path: '/pdf-to-pdfa' },
+      { name: 'Edit PDF', path: '/edit-pdf' },
+      { name: 'Sign PDF', path: '/sign-pdf' },
+      { name: 'Rotate PDF', path: '/rotate-pdf' },
+      { name: 'Watermark PDF', path: '/watermark-pdf' },
+      { name: 'Protect PDF', path: '/protect-pdf' },
+      { name: 'Unlock PDF', path: '/unlock-pdf' },
+      { name: 'Organize PDF', path: '/organize-pdf' },
+      { name: 'Page Numbers', path: '/page-numbers' },
+      { name: 'Repair PDF', path: '/repair-pdf' },
+      { name: 'Crop PDF', path: '/crop-pdf' },
+      { name: 'Redact PDF', path: '/redact-pdf' },
+      { name: 'OCR PDF', path: '/ocr-pdf' },
+      { name: 'Compare PDF', path: '/compare-pdf' },
+      { name: 'Scan to PDF', path: '/scan-to-pdf' },
+      { name: 'Translate PDF', path: '/translate-pdf' }
+    ]
+  },
+  {
+    name: 'Audio Tools',
+    icon: '🎵',
+    tools: [
+      { name: 'Audio Compressor', path: '/compress-audio' },
+      { name: 'Audio Converter', path: '/convert-audio' },
+      { name: 'Video to MP3', path: '/video-to-mp3' },
+      { name: 'MP3 Converter', path: '/mp3-converter' },
+      { name: 'MP4 to MP3', path: '/mp4-to-mp3' }
+    ]
+  },
+  {
+    name: 'Video Tools',
+    icon: '🎬',
+    tools: [
+      { name: 'Video Compressor', path: '/compress-video' },
+      { name: 'Video Converter', path: '/convert-video' },
+      { name: 'MP4 Converter', path: '/mp4-converter' },
+      { name: 'Video to GIF', path: '/video-to-gif' },
+      { name: 'MOV to MP4', path: '/mov-to-mp4' }
+    ]
+  },
+  {
+    name: 'Document & Ebook',
+    icon: '📚',
+    tools: [
+      { name: 'EPUB to PDF', path: '/epub-to-pdf' },
+      { name: 'EPUB to MOBI', path: '/epub-to-mobi' },
+      { name: 'Document Converter', path: '/document-converter' }
+    ]
+  },
+  {
+    name: 'Archive Tools',
+    icon: '🗜️',
+    tools: [
+      { name: 'RAR to Zip', path: '/rar-to-zip' },
+      { name: 'Archive Converter', path: '/archive-converter' }
+    ]
+  },
+  {
+    name: 'Time Zone',
+    icon: '🌍',
+    tools: [
+      { name: 'PST to EST', path: '/pst-to-est' },
+      { name: 'CST to EST', path: '/cst-to-est' },
+      { name: 'Time Zone Converter', path: '/timezone-converter' }
+    ]
+  },
+  {
+    name: 'Unit Converter',
+    icon: '📏',
+    tools: [
+      { name: 'Lbs to Kg', path: '/lbs-to-kg' },
+      { name: 'Kg to Lbs', path: '/kg-to-lbs' },
+      { name: 'Feet to Meters', path: '/feet-to-meters' },
+      { name: 'Unit Converter', path: '/unit-converter' }
+    ]
+  },
+  {
+    name: 'Utility Tools',
+    icon: '🛠️',
+    tools: [
+      { name: 'QR Code Generator', path: '/qr-generator' },
+      { name: 'Password Generator', path: '/password-generator' },
+      { name: 'Hash Generator', path: '/hash-generator' }
+    ]
+  }
+];
+
+const TOOL_NAME_BY_PATH = Object.fromEntries(
+  TOOL_CATEGORIES.flatMap((category) => category.tools.map((tool) => [tool.path, tool.name]))
+);
 
 /**
  * Main App Component
@@ -48,8 +172,9 @@ function AppContent() {
   const dropdownTimerRef = useRef(null);
   const location = useLocation();
 
-  // Determine if we're on a toolbox route (for scoping ModeToggle)
-  const isToolboxRoute = location.pathname === '/toolbox' || !!getToolById(location.pathname.slice(1));
+  // Determine if we're on a toolbox route (for scoping ModeToggle) without
+  // importing the full toolbox registry into the shared app shell.
+  const isToolboxRoute = location.pathname === '/toolbox' || Boolean(TOOL_NAME_BY_PATH[location.pathname]);
 
   // Close mobile menu and scroll to top on route change
   useEffect(() => {
@@ -78,125 +203,6 @@ function AppContent() {
     dropdownTimerRef.current = setTimeout(() => setIsToolsDropdownOpen(false), 200);
   };
 
-  const toolCategories = [
-    {
-      name: 'Image Tools',
-      icon: '🖼️',
-      tools: [
-        { name: 'Image Compressor', path: '/compress-image' },
-        { name: 'Image Converter', path: '/convert-image' },
-        { name: 'Image to PDF', path: '/image-to-pdf' },
-        { name: 'Image Resizer', path: '/resize-image' },
-        { name: 'GIF Maker', path: '/gif-maker' },
-        { name: 'Add Watermark', path: '/watermark' },
-        { name: 'Image Cropper', path: '/crop-image' },
-        { name: 'Background Remover', path: '/remove-background' },
-        { name: 'JPG to PDF', path: '/jpg-to-pdf' },
-        { name: 'PDF to JPG', path: '/pdf-to-jpg' },
-        { name: 'HEIC to JPG', path: '/heic-to-jpg' }
-      ]
-    },
-    {
-      name: 'PDF Tools',
-      icon: '📄',
-      tools: [
-        { name: 'PDF Compressor', path: '/compress-pdf' },
-        { name: 'PDF Merger', path: '/merge-pdf' },
-        { name: 'PDF Splitter', path: '/split-pdf' },
-        { name: 'PDF to Image', path: '/convert-pdf' },
-        { name: 'PDF to Word', path: '/pdf-to-word' },
-        { name: 'PDF to PowerPoint', path: '/pdf-to-powerpoint' },
-        { name: 'PDF to Excel', path: '/pdf-to-excel' },
-        { name: 'Word to PDF', path: '/word-to-pdf' },
-        { name: 'PowerPoint to PDF', path: '/powerpoint-to-pdf' },
-        { name: 'Excel to PDF', path: '/excel-to-pdf' },
-        { name: 'HTML to PDF', path: '/html-to-pdf' },
-        { name: 'PDF to PDF/A', path: '/pdf-to-pdfa' },
-        { name: 'Edit PDF', path: '/edit-pdf' },
-        { name: 'Sign PDF', path: '/sign-pdf' },
-        { name: 'Rotate PDF', path: '/rotate-pdf' },
-        { name: 'Watermark PDF', path: '/watermark-pdf' },
-        { name: 'Protect PDF', path: '/protect-pdf' },
-        { name: 'Unlock PDF', path: '/unlock-pdf' },
-        { name: 'Organize PDF', path: '/organize-pdf' },
-        { name: 'Page Numbers', path: '/page-numbers' },
-        { name: 'Repair PDF', path: '/repair-pdf' },
-        { name: 'Crop PDF', path: '/crop-pdf' },
-        { name: 'Redact PDF', path: '/redact-pdf' },
-        { name: 'OCR PDF', path: '/ocr-pdf' },
-        { name: 'Compare PDF', path: '/compare-pdf' },
-        { name: 'Scan to PDF', path: '/scan-to-pdf' },
-        { name: 'Translate PDF', path: '/translate-pdf' }
-      ]
-    },
-    {
-      name: 'Audio Tools',
-      icon: '🎵',
-      tools: [
-        { name: 'Audio Compressor', path: '/compress-audio' },
-        { name: 'Audio Converter', path: '/convert-audio' },
-        { name: 'Video to MP3', path: '/video-to-mp3' },
-        { name: 'MP3 Converter', path: '/mp3-converter' },
-        { name: 'MP4 to MP3', path: '/mp4-to-mp3' }
-      ]
-    },
-    {
-      name: 'Video Tools',
-      icon: '🎬',
-      tools: [
-        { name: 'Video Compressor', path: '/compress-video' },
-        { name: 'Video Converter', path: '/convert-video' },
-        { name: 'MP4 Converter', path: '/mp4-converter' },
-        { name: 'Video to GIF', path: '/video-to-gif' },
-        { name: 'MOV to MP4', path: '/mov-to-mp4' }
-      ]
-    },
-    {
-      name: 'Document & Ebook',
-      icon: '📚',
-      tools: [
-        { name: 'EPUB to PDF', path: '/epub-to-pdf' },
-        { name: 'EPUB to MOBI', path: '/epub-to-mobi' },
-        { name: 'Document Converter', path: '/document-converter' }
-      ]
-    },
-    {
-      name: 'Archive Tools',
-      icon: '🗜️',
-      tools: [
-        { name: 'RAR to Zip', path: '/rar-to-zip' },
-        { name: 'Archive Converter', path: '/archive-converter' }
-      ]
-    },
-    {
-      name: 'Time Zone',
-      icon: '🌍',
-      tools: [
-        { name: 'PST to EST', path: '/pst-to-est' },
-        { name: 'CST to EST', path: '/cst-to-est' },
-        { name: 'Time Zone Converter', path: '/timezone-converter' }
-      ]
-    },
-    {
-      name: 'Unit Converter',
-      icon: '📏',
-      tools: [
-        { name: 'Lbs to Kg', path: '/lbs-to-kg' },
-        { name: 'Kg to Lbs', path: '/kg-to-lbs' },
-        { name: 'Feet to Meters', path: '/feet-to-meters' },
-        { name: 'Unit Converter', path: '/unit-converter' }
-      ]
-    },
-    {
-      name: 'Utility Tools',
-      icon: '🛠️',
-      tools: [
-        { name: 'QR Code Generator', path: '/qr-generator' },
-        { name: 'Password Generator', path: '/password-generator' }
-      ]
-    }
-  ];
-
   // Helper to get feature name based on path
   const getFeatureName = () => {
     const path = location.pathname;
@@ -214,8 +220,8 @@ function AppContent() {
     if (path.startsWith('/profile')) return 'Profile';
 
     // Check if it's a specific tool
-    const tool = getToolById(path.slice(1));
-    if (tool) return tool.name;
+    const toolName = TOOL_NAME_BY_PATH[path];
+    if (toolName) return toolName;
 
     return null;
   };
@@ -260,7 +266,7 @@ function AppContent() {
                   {isToolsDropdownOpen && (
                     <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-[720px] max-h-[70vh] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-5 z-50">
                       <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
-                        {toolCategories.map((category, idx) => (
+                        {TOOL_CATEGORIES.map((category, idx) => (
                           <div key={idx}>
                             <div className="flex items-center gap-1.5 mb-2 pb-1.5 border-b border-gray-100 dark:border-gray-800">
                               <span className="text-sm">{category.icon}</span>
@@ -347,7 +353,7 @@ function AppContent() {
                 <AuthStatus isMobile={true} onNav={() => setIsMenuOpen(false)} />
               </div>
 
-              {isToolboxRoute && toolCategories.map((category, idx) => (
+              {isToolboxRoute && TOOL_CATEGORIES.map((category, idx) => (
                 <div key={idx}>
                   <div className="flex items-center gap-2 mb-1.5 font-semibold text-gray-900 dark:text-gray-100">
                     <span>{category.icon}</span>
@@ -392,35 +398,37 @@ function AppContent() {
 
       {/* Main Content */}
       <main className="flex-1">
-        <Routes>
-          <Route path="/" element={<ServicesHome />} />
-          <Route path="/compiler" element={<CompilerHome />} />
-          <Route path="/toolbox" element={<ToolboxHome />} />
-          <Route path="/photodrop" element={<EventsPage />} />
-          <Route path="/photodrop/:id" element={<EventDetail />} />
-          <Route path="/clipboard" element={<Clipboard />} />
-          <Route path="/clipboard/:boardId" element={<ClipboardBoard />} />
-          <Route path="/c/:code" element={<PublicClipboard />} />
-          <Route path="/cli" element={<ClipboardCli />} />
-          <Route path="/split-expense" element={<SplitExpenseHome />} />
-          <Route path="/split-expense/:groupId" element={<SplitExpenseGroup />} />
-          <Route path="/qr-tools" element={<QRToolsHome />} />
-          <Route path="/qr-tools/generator" element={<QRGenerator />} />
-          <Route path="/qr-tools/scanner" element={<QRScanner />} />
-          <Route path="/qr-tools/validator" element={<QRValidator />} />
-          <Route path="/qr-tools/bulk" element={<BulkQRGenerator />} />
-          <Route path="/qr-tools/dynamic" element={<DynamicQRManager />} />
-          <Route path="/qr-tools/analytics" element={<QRAnalytics />} />
-          <Route path="/qr/r/:code" element={<QRRedirectPage />} />
-          <Route path="/invite/:token" element={<InvitePage />} />
-          <Route path="/:toolId" element={<ToolPage />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/profile" element={<Profile />} />
-        </Routes>
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
+            <Route path="/" element={<ServicesHome />} />
+            <Route path="/compiler" element={<CompilerHome />} />
+            <Route path="/toolbox" element={<ToolboxHome />} />
+            <Route path="/photodrop" element={<EventsPage />} />
+            <Route path="/photodrop/:id" element={<EventDetail />} />
+            <Route path="/clipboard" element={<Clipboard />} />
+            <Route path="/clipboard/:boardId" element={<ClipboardBoard />} />
+            <Route path="/c/:code" element={<PublicClipboard />} />
+            <Route path="/cli" element={<ClipboardCli />} />
+            <Route path="/split-expense" element={<SplitExpenseHome />} />
+            <Route path="/split-expense/:groupId" element={<SplitExpenseGroup />} />
+            <Route path="/qr-tools" element={<QRToolsHome />} />
+            <Route path="/qr-tools/generator" element={<QRGenerator />} />
+            <Route path="/qr-tools/scanner" element={<QRScanner />} />
+            <Route path="/qr-tools/validator" element={<QRValidator />} />
+            <Route path="/qr-tools/bulk" element={<BulkQRGenerator />} />
+            <Route path="/qr-tools/dynamic" element={<DynamicQRManager />} />
+            <Route path="/qr-tools/analytics" element={<QRAnalytics />} />
+            <Route path="/qr/r/:code" element={<QRRedirectPage />} />
+            <Route path="/invite/:token" element={<InvitePage />} />
+            <Route path="/:toolId" element={<ToolPage />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/profile" element={<Profile />} />
+          </Routes>
+        </Suspense>
       </main>
 
       {/* Footer */}
@@ -529,6 +537,16 @@ function App() {
 }
 
 export default App;
+
+function RouteFallback() {
+  return (
+    <div className="mx-auto flex min-h-[40vh] max-w-7xl items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
+      <div className="rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm font-medium text-gray-500 shadow-sm dark:border-white/10 dark:bg-gray-900 dark:text-gray-400">
+        Loading page...
+      </div>
+    </div>
+  );
+}
 
 function AuthStatus({ isMobile = false, onNav = () => { } }) {
   const { user } = useAuth()

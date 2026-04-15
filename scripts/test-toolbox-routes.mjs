@@ -33,7 +33,7 @@ function hasRegistryAccessor(source) {
 }
 
 function parseNavIds(source) {
-    const match = source.match(/const toolCategories = \[([\s\S]*?)\n  \];/)
+    const match = source.match(/const (?:toolCategories|TOOL_CATEGORIES) = \[([\s\S]*?)\n\s*\];/)
     if (!match) {
         throw new Error('Could not find tool category block in App.jsx.')
     }

@@ -118,7 +118,7 @@ async function parseExecutorModeMap(source) {
 }
 
 function parseNavToolIds(source) {
-    const match = source.match(/const toolCategories = \[([\s\S]*?)\n  \];/)
+    const match = source.match(/const (?:toolCategories|TOOL_CATEGORIES) = \[([\s\S]*?)\n\s*\];/)
     const toolCategoriesBlock = match?.[1] || ''
 
     return [...toolCategoriesBlock.matchAll(/path:\s*'\/([^']+)'/g)]
