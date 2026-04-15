@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import ModeWarning from '../components/ModeWarning';
 import { useMode } from '../context/ModeContext';
 import ToolPageShell, { buildToolFaqs } from '../components/ToolPageShell';
+import { requiresRuntimeVerification } from '../core/toolMetadata';
+import useToolRuntimeStatus from '../core/useToolRuntimeStatus';
 
 function upsertMeta(selector, createElement) {
     let element = document.querySelector(selector);
@@ -39,6 +41,8 @@ export default function ToolPage() {
     const tool = getToolById(toolId);
     const { isOnlineMode } = useMode();
     const mode = isOnlineMode ? 'online' : 'offline';
+    const shouldVerifyRuntime = Boolean(tool && isOnlineMode && requiresRuntimeVerification(toolId));
+    const runtimeStatus = useToolRuntimeStatus(toolId, { enabled: shouldVerifyRuntime });
 
     // Scroll to top when tool changes
     useEffect(() => {
@@ -134,12 +138,23 @@ export default function ToolPage() {
 
     const ToolComponent = tool.component;
     const isAvailable = tool.modes && tool.modes.includes(isOnlineMode ? 'online' : 'offline');
+    const isRuntimeUnavailable = shouldVerifyRuntime && !runtimeStatus.isLoading && !runtimeStatus.isAvailable;
 
     return (
         <ToolPageShell tool={tool} isOnlineMode={isOnlineMode}>
-            <ModeWarning toolId={toolId} />
+            <ModeWarning
+                toolId={toolId}
+                shouldVerifyRuntime={shouldVerifyRuntime}
+                runtimeStatus={runtimeStatus}
+            />
             {isAvailable ? (
-                <ToolComponent mode={mode} isOnlineMode={isOnlineMode} />
+                !isRuntimeUnavailable ? (
+                    <ToolComponent
+                        mode={mode}
+                        isOnlineMode={isOnlineMode}
+                        toolRuntimeStatus={runtimeStatus}
+                    />
+                ) : null
             ) : (
                 <div className="max-w-3xl mx-auto">
                     <div className="rounded-[2rem] border border-gray-200/80 bg-white p-8 text-center shadow-xl shadow-gray-100/60 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none sm:p-10">
@@ -148,18 +163,26 @@ export default function ToolPage() {
                         <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">{tool.description}</p>
                         <div className="rounded-[1.5rem] border-2 border-orange-200 bg-orange-50 p-8 dark:border-orange-500/20 dark:bg-orange-500/10">
                             <p className="text-orange-800 dark:text-orange-400 font-bold mb-4">
-                                Not available in {isOnlineMode ? 'Online' : 'Offline'} mode
+                                {isRuntimeUnavailable
+                                    ? 'Online runtime unavailable on this deployment'
+                                    : `Not available in ${isOnlineMode ? 'Online' : 'Offline'} mode`}
                             </p>
                             <p className="text-sm text-orange-700 dark:text-orange-300">
-                                Please switch to <strong>{isOnlineMode ? 'offline' : 'online'}</strong> mode using the toggle in the navigation bar.
+                                {isRuntimeUnavailable
+                                    ? (runtimeStatus.note || 'This online workflow is disabled until the required server runtime is available.')
+                                    : (
+                                        <>
+                                            Please switch to <strong>{isOnlineMode ? 'offline' : 'online'}</strong> mode using the toggle in the navigation bar.
+                                        </>
+                                    )}
                             </p>
-                            {tool.availabilityNote && (
+                            {!isRuntimeUnavailable && tool.availabilityNote && (
                                 <p className="mt-4 text-sm text-orange-700 dark:text-orange-300">
                                     {tool.availabilityNote}
                                 </p>
                             )}
                         </div>
-                        </div>
+                    </div>
                 </div>
             )}
         </ToolPageShell>

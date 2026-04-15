@@ -5,6 +5,7 @@ import {
     createRuntimeVerificationFailure,
     normalizeToolRuntimeStatus,
 } from '../src/features/toolbox/core/toolRuntimeStatus.js'
+import { RUNTIME_VERIFIED_TOOL_IDS } from '../src/features/toolbox/core/toolMetadata.js'
 
 test('runtime status reports EPUB converter as deployment required when unset', () => {
     const previous = process.env.EPUB_TO_MOBI_BINARY_PATH
@@ -31,6 +32,17 @@ test('runtime status reports RAR tool as limited but available', () => {
         'No password-protected archives',
         'No split or multipart archives',
     ])
+})
+
+test('runtime status exposes media runtime entries for online audio and video tools', () => {
+    const status = getToolboxRuntimeStatus()
+
+    for (const toolId of RUNTIME_VERIFIED_TOOL_IDS) {
+        assert.ok(status.tools[toolId], `Missing runtime status for ${toolId}`)
+        assert.equal(typeof status.tools[toolId].available, 'boolean')
+        assert.equal(typeof status.tools[toolId].status, 'string')
+        assert.equal(typeof status.tools[toolId].note, 'string')
+    }
 })
 
 test('normalizeToolRuntimeStatus fills in shared note and limits when runtime payload is partial', () => {

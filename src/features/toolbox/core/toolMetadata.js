@@ -26,6 +26,19 @@ export const DOCUMENT_CONVERTER_ENTRIES = [
 
 export const DOCUMENT_CONVERTER_TOOL_IDS = DOCUMENT_CONVERTER_ENTRIES.map((entry) => entry.id);
 
+export const RUNTIME_VERIFIED_TOOL_IDS = [
+    'compress-audio',
+    'convert-audio',
+    'video-to-mp3',
+    'mp4-to-mp3',
+    'compress-video',
+    'convert-video',
+    'mp4-converter',
+    'video-to-gif',
+    'mov-to-mp4',
+    'epub-to-mobi',
+];
+
 export const TOOLS_REQUIRING_SHARED_METADATA = [
     'document-converter',
     'epub-to-mobi',
@@ -69,6 +82,10 @@ export function getToolMetadata(toolId) {
 
 export function getDocumentConverterEntries() {
     return DOCUMENT_CONVERTER_ENTRIES.map((entry) => ({ ...entry }));
+}
+
+export function requiresRuntimeVerification(toolId) {
+    return RUNTIME_VERIFIED_TOOL_IDS.includes(toolId);
 }
 
 export function isToolAvailableInMode(tool, mode) {

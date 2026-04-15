@@ -129,44 +129,71 @@ export default function ToolPageShell({ tool, isOnlineMode, children }) {
     const availabilityBadge = getToolAvailabilityBadge(tool);
     const relatedTools = buildRelatedTools(tool);
     const faqs = buildToolFaqs(tool, isOnlineMode);
+    const runtimeHighlights = [
+        {
+            label: 'Mode',
+            value: isOnlineMode ? 'Online active' : 'Offline active',
+        },
+        {
+            label: 'Profile',
+            value: tool.modes.includes('offline') ? 'Privacy-first' : 'Server-backed',
+        },
+        {
+            label: 'Availability',
+            value: getModeSummary(tool),
+        },
+    ];
+
+    const runtimeHeading = isOnlineMode ? 'Connected workspace' : 'On-device workspace';
+    const experienceSummary = getExperienceSummary(tool, isOnlineMode);
+    const privacySummary = getPrivacySummary(tool);
 
     return (
         <div className="min-h-screen bg-white text-gray-900 transition-colors duration-500 dark:bg-gray-950 dark:text-white">
             <div className="relative overflow-hidden">
                 <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute left-[-8rem] top-10 h-72 w-72 rounded-full bg-primary-500/10 blur-3xl" />
-                    <div className="absolute right-[-6rem] top-8 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl" />
+                    <div className="absolute left-[-8rem] top-8 h-56 w-56 rounded-full bg-primary-500/10 blur-3xl" />
+                    <div className="absolute right-[-6rem] top-6 h-52 w-52 rounded-full bg-blue-500/10 blur-3xl" />
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-500/30 to-transparent" />
                 </div>
 
-                <section className="relative max-w-7xl mx-auto px-4 pt-14 pb-10 sm:px-6 lg:px-8">
-                    <div className={`rounded-[2rem] border border-gray-200/80 bg-gradient-to-br ${theme.surface} p-7 shadow-xl shadow-gray-100/70 dark:border-white/[0.08] dark:shadow-none sm:p-10`}>
-                        <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                            <Link to="/toolbox" className="hover:text-primary-600 dark:hover:text-primary-300">Toolbox</Link>
-                            <span>/</span>
-                            <span>{theme.label}</span>
-                            <span>/</span>
-                            <span className="text-gray-900 dark:text-white">{tool.name}</span>
+                <section className="relative mx-auto max-w-7xl px-4 pb-6 pt-8 sm:px-6 lg:px-8">
+                    <div className={`relative overflow-hidden rounded-[2rem] border border-gray-200/80 bg-gradient-to-br ${theme.surface} p-5 shadow-xl shadow-gray-100/70 dark:border-white/[0.08] dark:shadow-none sm:p-7 lg:p-8`}>
+                        <div className="pointer-events-none absolute inset-0 opacity-70">
+                            <div className={`absolute left-10 top-10 h-32 w-32 rounded-full bg-gradient-to-br ${theme.gradient} opacity-10 blur-3xl`} />
+                            <div className="absolute inset-y-0 right-[24%] w-px bg-gradient-to-b from-transparent via-white/60 to-transparent dark:via-white/[0.08]" />
                         </div>
 
-                        <div className="mt-6 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-                            <div>
-                                <div className={`inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${theme.gradient} text-3xl text-white shadow-lg shadow-black/10`}>
-                                    {tool.icon}
+                        <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)] lg:gap-8">
+                            <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                                    <Link to="/toolbox" className="rounded-full border border-gray-200/80 bg-white/70 px-3 py-1 hover:text-primary-600 dark:border-white/[0.08] dark:bg-white/[0.04] dark:hover:text-primary-300">Toolbox</Link>
+                                    <span>/</span>
+                                    <span>{theme.label}</span>
+                                    <span>/</span>
+                                    <span className="text-gray-900 dark:text-white">{tool.name}</span>
                                 </div>
-                                <p className={`mt-5 text-xs font-bold uppercase tracking-[0.28em] ${theme.tint}`}>{theme.label}</p>
-                                <h1 className="mt-3 max-w-3xl text-4xl font-black tracking-tight sm:text-5xl">
-                                    {tool.name}
-                                </h1>
-                                <p className="mt-4 max-w-3xl text-base leading-relaxed text-gray-600 dark:text-gray-300 sm:text-lg">
-                                    {tool.seo?.description || tool.description}
-                                </p>
 
-                                <div className="mt-6 flex flex-wrap gap-2">
+                                <div className="mt-5 flex items-start gap-4">
+                                    <div className={`inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.4rem] bg-gradient-to-br ${theme.gradient} text-3xl text-white shadow-lg shadow-black/10`}>
+                                        {tool.icon}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className={`text-[11px] font-bold uppercase tracking-[0.28em] ${theme.tint}`}>{theme.label}</p>
+                                        <h1 className="mt-2 max-w-4xl text-3xl font-black tracking-tight sm:text-[2.6rem]">
+                                            {tool.name}
+                                        </h1>
+                                        <p className="mt-3 max-w-3xl text-sm leading-relaxed text-gray-600 dark:text-gray-300 sm:text-base">
+                                            {tool.seo?.description || tool.description}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="mt-5 flex flex-wrap gap-2.5">
                                     <span className="inline-flex items-center rounded-full border border-gray-200/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-white/[0.08] dark:bg-white/[0.05] dark:text-gray-200">
                                         {getModeSummary(tool)}
                                     </span>
-                                    <span className="inline-flex items-center rounded-full border border-gray-200/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-white/[0.08] dark:bg-white/[0.05] dark:text-gray-200">
+                                    <span className="inline-flex items-center rounded-full border border-gray-200/80 bg-white/80 px-3 py-1.5 text-xs font-semibold uppercase text-gray-700 dark:border-white/[0.08] dark:bg-white/[0.05] dark:text-gray-200">
                                         {tool.category}
                                     </span>
                                     {availabilityBadge && (
@@ -176,47 +203,69 @@ export default function ToolPageShell({ tool, isOnlineMode, children }) {
                                     )}
                                 </div>
 
-                                <div className="mt-7 flex flex-wrap gap-3">
-                                    <a href="#workspace" className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700">
+                                <div className="mt-6 flex flex-wrap gap-3">
+                                    <a href="#workspace" className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700">
                                         Open Workspace
                                     </a>
-                                    <a href="#faq" className="inline-flex items-center gap-2 rounded-xl border border-gray-200/80 bg-white/80 px-5 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-200 dark:hover:bg-white/[0.08]">
+                                    <a href="#faq" className="inline-flex items-center gap-2 rounded-xl border border-gray-200/80 bg-white/80 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-200 dark:hover:bg-white/[0.08]">
                                         View FAQ
                                     </a>
                                 </div>
                             </div>
 
-                            <div className="grid gap-3">
-                                <div className="rounded-[1.5rem] border border-white/70 bg-white/75 p-5 shadow-sm backdrop-blur dark:border-white/[0.08] dark:bg-white/[0.04]">
-                                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Current Mode</p>
-                                    <p className="mt-2 text-lg font-bold text-gray-900 dark:text-white">
-                                        {isOnlineMode ? 'Online mode active' : 'Offline mode active'}
-                                    </p>
-                                    <p className="mt-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-                                        {getExperienceSummary(tool, isOnlineMode)}
-                                    </p>
-                                </div>
-                                <div className="rounded-[1.5rem] border border-white/70 bg-white/75 p-5 shadow-sm backdrop-blur dark:border-white/[0.08] dark:bg-white/[0.04]">
-                                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Privacy & Runtime</p>
-                                    <p className="mt-2 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-                                        {getPrivacySummary(tool)}
-                                    </p>
-                                </div>
-                                {tool.limits?.length > 0 && (
-                                    <div className="rounded-[1.5rem] border border-white/70 bg-white/75 p-5 shadow-sm backdrop-blur dark:border-white/[0.08] dark:bg-white/[0.04]">
-                                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Important Notes</p>
-                                        <div className="mt-3 flex flex-wrap gap-2">
-                                            {tool.limits.map((limit) => (
-                                                <span
-                                                    key={limit}
-                                                    className="inline-flex rounded-full border border-gray-200/80 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-700 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-200"
-                                                >
-                                                    {limit}
-                                                </span>
-                                            ))}
+                            <div className="relative">
+                                <div className="rounded-[1.6rem] border border-white/80 bg-white/80 p-5 shadow-lg shadow-gray-100/80 backdrop-blur dark:border-white/[0.08] dark:bg-white/[0.05] dark:shadow-none">
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div>
+                                            <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Session Brief</p>
+                                            <h2 className="mt-2 text-xl font-bold text-gray-900 dark:text-white">
+                                                {runtimeHeading}
+                                            </h2>
+                                        </div>
+                                        <div className={`rounded-full border border-white/70 bg-gradient-to-br ${theme.gradient} px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-sm shadow-black/10`}>
+                                            {isOnlineMode ? 'Online' : 'Offline'}
                                         </div>
                                     </div>
-                                )}
+
+                                    <p className="mt-4 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+                                        {experienceSummary}
+                                    </p>
+
+                                    <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+                                        {runtimeHighlights.map((item) => (
+                                            <div
+                                                key={item.label}
+                                                className="rounded-[1.1rem] border border-gray-200/70 bg-gray-50/80 px-4 py-3 dark:border-white/[0.08] dark:bg-gray-950/30"
+                                            >
+                                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">{item.label}</p>
+                                                <p className="mt-1.5 text-sm font-semibold text-gray-900 dark:text-white">{item.value}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="mt-5 rounded-[1.25rem] border border-gray-200/70 bg-white/75 p-4 dark:border-white/[0.08] dark:bg-gray-950/20">
+                                        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Privacy & Runtime</p>
+                                        <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+                                            {privacySummary}
+                                        </p>
+                                    </div>
+
+                                    {tool.limits?.length > 0 && (
+                                        <div className="mt-4">
+                                            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Important Notes</p>
+                                            <div className="mt-2 flex flex-wrap gap-2">
+                                                {tool.limits.map((limit) => (
+                                                    <span
+                                                        key={limit}
+                                                        className="inline-flex rounded-full border border-gray-200/80 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 dark:border-white/[0.08] dark:bg-white/[0.05] dark:text-gray-200"
+                                                    >
+                                                        {limit}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>

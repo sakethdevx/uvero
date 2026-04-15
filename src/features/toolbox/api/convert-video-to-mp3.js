@@ -7,12 +7,12 @@
 
 import { IncomingForm } from 'formidable';
 import fs from 'fs';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 import os from 'os';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 // Disable Next.js body parsing to handle multipart/form-data
 export const config = {
@@ -43,9 +43,12 @@ const parseForm = async (req) => {
  */
 const getVideoDuration = async (videoPath) => {
     try {
-        const { stdout } = await execAsync(
-            `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${videoPath}"`
-        );
+        const { stdout } = await execFileAsync('ffprobe', [
+            '-v', 'error',
+            '-show_entries', 'format=duration',
+            '-of', 'default=noprint_wrappers=1:nokey=1',
+            videoPath,
+        ]);
         const duration = parseFloat(stdout);
         const mins = Math.floor(duration / 60);
         const secs = Math.floor(duration % 60);
@@ -54,6 +57,56 @@ const getVideoDuration = async (videoPath) => {
         return 'N/A';
     }
 };
+
+function createClientError(message, code, status = 400, details = undefined) {
+    const error = new Error(message);
+    error.status = status;
+    error.code = code;
+    error.details = details;
+    return error;
+}
+
+function createServerError(message, code, status = 503, details = undefined) {
+    const error = new Error(message);
+    error.status = status;
+    error.code = code;
+    error.details = details;
+    return error;
+}
+
+function classifyVideoToMp3Error(error) {
+    const message = error?.message || 'Conversion failed.';
+
+    if (error?.code === 1009 || /maxFileSize|maxTotalFileSize/i.test(message)) {
+        return createClientError(
+            'The uploaded video exceeds the maximum allowed size for this deployment.',
+            'FILE_TOO_LARGE',
+            413
+        );
+    }
+
+    if (error?.code === 'ENOENT') {
+        return createServerError(
+            'Server media runtime is not available on this deployment.',
+            'RUNTIME_NOT_FOUND',
+            503
+        );
+    }
+
+    if (/Invalid data found/i.test(message) || /could not find codec parameters/i.test(message)) {
+        return createClientError('The uploaded video file could not be processed.', 'INVALID_FILE');
+    }
+
+    if (/Unknown encoder/i.test(message) || /Unable to find a suitable output format/i.test(message)) {
+        return createServerError(
+            'This deployment cannot extract MP3 audio with the current server runtime.',
+            'RUNTIME_NOT_CONFIGURED',
+            503
+        );
+    }
+
+    return createServerError('Conversion failed.', 'VIDEO_TO_MP3_FAILED', 500);
+}
 
 /**
  * Main handler
@@ -72,7 +125,7 @@ export default async function handler(req, res) {
 
     // Only accept POST requests
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({ error: 'Method not allowed', code: 'METHOD_NOT_ALLOWED' });
     }
 
     let tempVideoPath = null;
@@ -85,11 +138,14 @@ export default async function handler(req, res) {
         // Get the uploaded file
         const videoFile = files.video?.[0] || files.video;
         if (!videoFile) {
-            return res.status(400).json({ error: 'No video file provided' });
+            throw createClientError('No video file provided.', 'INVALID_FILE');
         }
 
         // Get bitrate parameter (default 192 kbps)
         const bitrate = parseInt(fields.bitrate?.[0] || fields.bitrate || 192);
+        if (!Number.isFinite(bitrate) || bitrate < 64 || bitrate > 320) {
+            throw createClientError('Bitrate must be between 64 and 320 kbps.', 'INVALID_BITRATE');
+        }
 
         tempVideoPath = videoFile.filepath;
 
@@ -105,9 +161,15 @@ export default async function handler(req, res) {
         // -ab: audio bitrate
         // -f: force format
         const sampleRate = bitrate >= 192 ? 48000 : 44100;
-        await execAsync(
-            `ffmpeg -i "${tempVideoPath}" -vn -ar ${sampleRate} -ab ${bitrate}k -f mp3 "${tempAudioPath}"`
-        );
+        await execFileAsync('ffmpeg', [
+            '-y',
+            '-i', tempVideoPath,
+            '-vn',
+            '-ar', String(sampleRate),
+            '-ab', `${bitrate}k`,
+            '-f', 'mp3',
+            tempAudioPath,
+        ]);
 
         // Read the converted audio file
         const audioBuffer = fs.readFileSync(tempAudioPath);
@@ -130,8 +192,9 @@ export default async function handler(req, res) {
         fs.unlinkSync(tempAudioPath);
         tempAudioPath = null;
 
-    } catch (error) {
-        console.error('Conversion error:', error);
+    } catch (rawError) {
+        const error = rawError?.code || rawError?.status ? rawError : classifyVideoToMp3Error(rawError);
+        console.error('Conversion error:', rawError);
 
         // Clean up temporary files on error
         if (tempVideoPath && fs.existsSync(tempVideoPath)) {
@@ -149,9 +212,10 @@ export default async function handler(req, res) {
             }
         }
 
-        return res.status(500).json({
-            error: 'Conversion failed',
-            message: error.message
+        return res.status(error.status || 500).json({
+            error: error.message || 'Conversion failed.',
+            code: error.code || 'VIDEO_TO_MP3_FAILED',
+            details: error.details,
         });
     }
 }
