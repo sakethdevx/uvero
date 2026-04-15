@@ -50,6 +50,7 @@ import mp4ConverterExecutor from '../tools/video/mp4-converter/executor';
 import videoToGifExecutor from '../tools/video/video-to-gif/executor';
 import movToMp4Executor from '../tools/video/mov-to-mp4/executor';
 import epubToMobiExecutor from '../tools/document/epub-to-mobi/executor';
+import { usesOfflineExecutorInOnlineMode } from './toolMetadata';
 
 const toolExecutors = {
     'compress-image': imageCompressorExecutor,
@@ -107,7 +108,30 @@ const toolExecutors = {
 };
 
 export function getToolExecutor(toolId) {
-    return toolExecutors[toolId] || null;
+    const executor = toolExecutors[toolId] || null;
+
+    if (!executor) {
+        return null;
+    }
+
+    if (!usesOfflineExecutorInOnlineMode(toolId) || !executor.supportedModes?.includes('offline')) {
+        return executor;
+    }
+
+    return {
+        ...executor,
+        supportedModes: ['offline', 'online'],
+        async run(input) {
+            if ((input.mode || 'offline') === 'online') {
+                return executor.run({
+                    ...input,
+                    mode: 'offline',
+                });
+            }
+
+            return executor.run(input);
+        },
+    };
 }
 
 export function getSupportedModesForToolId(toolId) {

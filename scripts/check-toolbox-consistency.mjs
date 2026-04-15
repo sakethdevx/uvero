@@ -3,6 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
     DOCUMENT_CONVERTER_ENTRIES,
+    ONLINE_MODE_OFFLINE_EXECUTOR_TOOL_IDS,
     QUICK_CONVERTER_ELIGIBLE_TOOL_IDS,
     TOOLS_REQUIRING_SHARED_METADATA,
     getToolMetadata,
@@ -205,6 +206,19 @@ async function main() {
     const quickConverterMissingExecutor = QUICK_CONVERTER_ELIGIBLE_TOOL_IDS
         .filter((toolId) => !executorIds.has(toolId))
 
+    const onlineFallbackMissingRegistry = ONLINE_MODE_OFFLINE_EXECUTOR_TOOL_IDS
+        .filter((toolId) => !tools.some((tool) => tool.id === toolId))
+
+    const onlineFallbackMissingExecutor = ONLINE_MODE_OFFLINE_EXECUTOR_TOOL_IDS
+        .filter((toolId) => !executorIds.has(toolId))
+
+    const onlineFallbackUnexpectedExecutorModes = ONLINE_MODE_OFFLINE_EXECUTOR_TOOL_IDS
+        .filter((toolId) => executorIds.has(toolId))
+        .filter((toolId) => {
+            const executorModes = executorModeMap.get(toolId) || []
+            return JSON.stringify(executorModes) !== JSON.stringify(['offline'])
+        })
+
     const sharedMetadataMissing = TOOLS_REQUIRING_SHARED_METADATA
         .filter((toolId) => !tools.some((tool) => tool.id === toolId))
         .concat(
@@ -228,6 +242,9 @@ async function main() {
         documentConverterDuplicateIds.length && `Document hub contains duplicate tool ids: ${[...new Set(documentConverterDuplicateIds)].join(', ')}`,
         quickConverterMissingRegistry.length && `Quick Converter tool ids missing registry entries: ${quickConverterMissingRegistry.join(', ')}`,
         quickConverterMissingExecutor.length && `Quick Converter tool ids missing executors: ${quickConverterMissingExecutor.join(', ')}`,
+        onlineFallbackMissingRegistry.length && `Online fallback tool ids missing registry entries: ${onlineFallbackMissingRegistry.join(', ')}`,
+        onlineFallbackMissingExecutor.length && `Online fallback tool ids missing executors: ${onlineFallbackMissingExecutor.join(', ')}`,
+        onlineFallbackUnexpectedExecutorModes.length && `Online fallback tools must remain offline-only at the executor level: ${onlineFallbackUnexpectedExecutorModes.join(', ')}`,
         sharedMetadataMissing.length && `Tools missing required shared metadata: ${[...new Set(sharedMetadataMissing)].join(', ')}`,
     ].filter(Boolean)
 

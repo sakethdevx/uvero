@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { getToolsByCategory } from '../tools';
-import { getToolAvailabilityBadge } from '../core/toolMetadata';
+import { getToolAvailabilityBadge, usesOfflineExecutorInOnlineMode } from '../core/toolMetadata';
 
 const CATEGORY_THEME = {
     image: {
@@ -64,6 +64,10 @@ function getModeSummary(tool) {
 }
 
 function getPrivacySummary(tool) {
+    if (usesOfflineExecutorInOnlineMode(tool.id)) {
+        return 'This tool currently uses browser-side processing in both offline and online modes while the dedicated online backend is still being rolled out.';
+    }
+
     if (tool.modes.includes('offline') && tool.modes.includes('online')) {
         return 'Offline mode keeps supported work on-device. Online mode unlocks server-backed paths when needed.';
     }
@@ -78,6 +82,12 @@ function getPrivacySummary(tool) {
 function getExperienceSummary(tool, isOnlineMode) {
     if (tool.availabilityNote) {
         return tool.availabilityNote;
+    }
+
+    if (usesOfflineExecutorInOnlineMode(tool.id)) {
+        return isOnlineMode
+            ? 'You are in online mode, but this tool is temporarily using the browser-side workflow until its dedicated backend is ready.'
+            : 'You are in offline mode, so processing stays in the browser as expected.';
     }
 
     if (tool.modes.includes('offline') && tool.modes.includes('online')) {
