@@ -7,13 +7,13 @@ import {
     QUICK_CONVERTER_ELIGIBLE_TOOL_IDS,
     TOOLS_REQUIRING_SHARED_METADATA,
     getToolMetadata,
-} from '../src/features/toolbox/core/toolMetadata.js'
+} from '../src/services/toolbox/core/toolMetadata.js'
 
 const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = path.resolve(ROOT_DIR, '..')
 
-const TOOL_INDEX_PATH = path.join(PROJECT_ROOT, 'src', 'features', 'toolbox', 'tools', 'index.js')
-const EXECUTORS_PATH = path.join(PROJECT_ROOT, 'src', 'features', 'toolbox', 'core', 'toolExecutors.js')
+const TOOL_INDEX_PATH = path.join(PROJECT_ROOT, 'src', 'services', 'toolbox', 'tools', 'index.js')
+const EXECUTORS_PATH = path.join(PROJECT_ROOT, 'src', 'services', 'toolbox', 'core', 'toolExecutors.js')
 const APP_PATH = path.join(PROJECT_ROOT, 'src', 'App.jsx')
 const EXECUTOR_EXEMPT_TOOL_IDS = new Set(['document-converter'])
 

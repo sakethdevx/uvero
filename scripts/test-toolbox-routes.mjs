@@ -1,12 +1,12 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { DOCUMENT_CONVERTER_ENTRIES } from '../src/features/toolbox/core/toolMetadata.js'
+import { DOCUMENT_CONVERTER_ENTRIES } from '../src/services/toolbox/core/toolMetadata.js'
 
 const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = path.resolve(ROOT_DIR, '..')
 
-const TOOL_INDEX_PATH = path.join(PROJECT_ROOT, 'src', 'features', 'toolbox', 'tools', 'index.js')
+const TOOL_INDEX_PATH = path.join(PROJECT_ROOT, 'src', 'services', 'toolbox', 'tools', 'index.js')
 const APP_PATH = path.join(PROJECT_ROOT, 'src', 'App.jsx')
 
 const SMOKE_TOOL_IDS = [
