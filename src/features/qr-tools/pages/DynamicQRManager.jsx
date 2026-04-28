@@ -321,31 +321,59 @@ export default function DynamicQRManager() {
     if (authLoading || !user) return null;
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-10 px-4">
-            <div className="max-w-5xl mx-auto">
-                {/* Header */}
-                <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Dynamic QR Codes</h1>
-                        <p className="text-gray-500 dark:text-gray-400">Edit destinations after printing. Track scan counts and trends in real time.</p>
-                    </div>
-                    <div className="flex items-center gap-3 flex-wrap">
-                        <Link
-                            to="/qr-tools/analytics"
-                            className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:border-violet-400 transition-colors shadow-sm"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                            Analytics
-                        </Link>
-                        <button
-                            onClick={openCreate}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-colors shadow-md hover:shadow-violet-500/30"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-                            New Dynamic QR
-                        </button>
+        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
+            {/* Background decorations */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                <div className="absolute left-[-10rem] top-16 h-96 w-96 rounded-full bg-rose-500/8 blur-3xl" />
+                <div className="absolute right-[-8rem] top-8 h-80 w-80 rounded-full bg-pink-500/8 blur-3xl" />
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-rose-500/30 to-transparent" />
+            </div>
+
+            <div className="relative max-w-7xl mx-auto px-4 pt-16 pb-20 sm:px-6 lg:px-8">
+                {/* Back Button */}
+                <Link
+                    to="/qr-tools"
+                    className="inline-flex items-center gap-2 rounded-full border border-gray-200/80 bg-white/80 px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-100 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300 dark:hover:bg-white/[0.08]"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back to QR Tools
+                </Link>
+
+                {/* Header card */}
+                <div className="mt-8 rounded-3xl border border-gray-200/80 bg-gradient-to-br from-rose-50 via-white to-pink-50 p-8 shadow-xl shadow-rose-100/40 dark:border-white/[0.08] dark:from-rose-500/10 dark:via-gray-950 dark:to-pink-500/10 dark:shadow-none sm:p-10">
+                    <div className="flex items-start justify-between flex-wrap gap-4">
+                        <div>
+                            <p className="text-xs font-bold uppercase tracking-[0.3em] text-rose-600 dark:text-rose-300">Dynamic QR Codes</p>
+                            <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+                                Dynamic QR Codes
+                            </h1>
+                            <p className="mt-4 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+                                Edit destinations after printing. Track scan counts and trends in real time.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <Link
+                                to="/qr-tools/analytics"
+                                className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:border-violet-400 transition-colors shadow-sm"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                                Analytics
+                            </Link>
+                            <button
+                                onClick={openCreate}
+                                className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-colors shadow-md hover:shadow-violet-500/30"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                                New Dynamic QR
+                            </button>
+                        </div>
                     </div>
                 </div>
+
+                {/* Content card */}
+                <div className="mt-6 rounded-3xl border border-gray-200/80 bg-white p-5 shadow-xl shadow-gray-100/40 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none sm:p-6">
 
                 {/* Stats */}
                 {codes.length > 0 && (
@@ -397,6 +425,7 @@ export default function DynamicQRManager() {
                         ))}
                     </div>
                 )}
+                </div>
             </div>
 
             {/* Create / Edit Modal */}
