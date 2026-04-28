@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import QRCode from 'qrcode';
 
 /* ── helpers ── */
@@ -436,15 +437,41 @@ export default function QRGenerator() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-10 px-4">
-            <div className="max-w-6xl mx-auto">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">QR Code Generator</h1>
-                    <p className="text-gray-500 dark:text-gray-400">Create QR codes for URLs, WiFi, UPI, vCard, WhatsApp, and more — no login required.</p>
+        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
+            {/* Background decorations */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                <div className="absolute left-[-10rem] top-16 h-96 w-96 rounded-full bg-violet-500/8 blur-3xl" />
+                <div className="absolute right-[-8rem] top-8 h-80 w-80 rounded-full bg-purple-500/8 blur-3xl" />
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+            </div>
+
+            <div className="relative max-w-7xl mx-auto px-4 pt-16 pb-20 sm:px-6 lg:px-8">
+                {/* Back Button */}
+                <Link
+                    to="/qr-tools"
+                    className="inline-flex items-center gap-2 rounded-full border border-gray-200/80 bg-white/80 px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-100 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300 dark:hover:bg-white/[0.08]"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back to QR Tools
+                </Link>
+
+                {/* Header card */}
+                <div className="mt-8 rounded-3xl border border-gray-200/80 bg-gradient-to-br from-violet-50 via-white to-purple-50 p-8 shadow-xl shadow-violet-100/40 dark:border-white/[0.08] dark:from-violet-500/10 dark:via-gray-950 dark:to-purple-500/10 dark:shadow-none sm:p-10">
+                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-violet-600 dark:text-violet-300">QR Generator</p>
+                    <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+                        QR Code Generator
+                    </h1>
+                    <p className="mt-4 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
+                        Create QR codes for URLs, WiFi, UPI, vCard, WhatsApp, and more — no login required.
+                    </p>
                 </div>
 
-                <div className="grid lg:grid-cols-[1fr_380px] gap-8 items-start">
+                {/* Content card */}
+                <div className="mt-6 rounded-3xl border border-gray-200/80 bg-white p-5 shadow-xl shadow-gray-100/40 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none sm:p-6">
+
+                    <div className="grid lg:grid-cols-[1fr_380px] gap-8 items-start">
                     {/* Left: config */}
                     <div className="space-y-6">
                         {/* Templates */}
@@ -671,6 +698,7 @@ export default function QRGenerator() {
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     );
 }
