@@ -117,6 +117,7 @@ const TOOL_CATEGORIES = [
     tools: [
       { name: 'EPUB to PDF', path: '/epub-to-pdf' },
       { name: 'EPUB to MOBI', path: '/epub-to-mobi' },
+      { name: 'Document Converter WASM', path: '/pandoc-wasm-converter' },
       { name: 'Document Converter', path: '/document-converter' }
     ]
   },

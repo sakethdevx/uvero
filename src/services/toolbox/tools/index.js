@@ -98,6 +98,8 @@ import EPUBToMOBI from './document/epub-to-mobi/EPUBToMOBI';
 import epubToMobiSEO from './document/epub-to-mobi/seo.json';
 import DocumentConverter from './document/document-converter/DocumentConverter';
 import documentConverterSEO from './document/document-converter/seo.json';
+import PandocWasmConverter from './document/pandoc-wasm-converter/PandocWasmConverter';
+import pandocWasmConverterSEO from './document/pandoc-wasm-converter/seo.json';
 import ArchiveConverter from './archive/archive-converter/ArchiveConverter';
 import archiveConverterSEO from './archive/archive-converter/seo.json';
 import RARToZip from './archive/rar-to-zip/RARToZip';
@@ -614,12 +616,24 @@ export const tools = {
     'document-converter': {
         id: 'document-converter',
         name: 'Document Converter',
-        description: 'Browse document conversion tools and ebook utilities',
+        description: 'Hub for all document and ebook conversion tools',
         component: DocumentConverter,
         category: 'document',
         seo: documentConverterSEO,
-        icon: '📄',
+        icon: '📚',
+        popular: true,
         modes: ['offline', 'online']
+    },
+    'pandoc-wasm-converter': {
+        id: 'pandoc-wasm-converter',
+        name: 'Document Converter WASM',
+        description: 'Convert between 10+ document formats (DOCX, PDF, EPUB, ODT, HTML, Markdown, RTF, DocBook, CSV, JSON) using Pandoc WASM. Fast, client-side processing.',
+        component: PandocWasmConverter,
+        category: 'document',
+        seo: pandocWasmConverterSEO,
+        icon: '✨',
+        popular: true,
+        modes: ['offline']
     },
     'epub-to-mobi': {
         id: 'epub-to-mobi',

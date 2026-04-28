@@ -1,0 +1,10 @@
+{
+  "id": "pandoc-wasm-converter",
+  "name": "Document Converter WASM",
+  "description": "Convert between 10+ document and ebook formats (DOCX, PDF, EPUB, ODT, HTML, Markdown, RTF, DocBook, CSV, JSON) using Pandoc WASM. Fast, client-side processing with no server uploads.",
+  "keywords": "document,convert,wasm,pandoc,docx,epub,pdf,html,markdown,odt",
+  "category": "document",
+  "icon": "📄",
+  "popular": true,
+  "modes": ["offline"]
+}

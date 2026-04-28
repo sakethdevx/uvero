@@ -51,6 +51,7 @@ import mp4ConverterExecutor from '../tools/video/mp4-converter/executor';
 import videoToGifExecutor from '../tools/video/video-to-gif/executor';
 import movToMp4Executor from '../tools/video/mov-to-mp4/executor';
 import epubToMobiExecutor from '../tools/document/epub-to-mobi/executor';
+import pandocWasmConverterExecutor from '../tools/document/pandoc-wasm-converter/executor';
 import { usesOfflineExecutorInOnlineMode } from './toolMetadata';
 
 const toolExecutors = {
@@ -107,6 +108,7 @@ const toolExecutors = {
     'video-to-gif': videoToGifExecutor,
     'mov-to-mp4': movToMp4Executor,
     'epub-to-mobi': epubToMobiExecutor,
+    'pandoc-wasm-converter': pandocWasmConverterExecutor,
 };
 
 export function getToolExecutor(toolId) {
