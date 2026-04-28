@@ -4,19 +4,61 @@ import { makeZip } from 'client-zip';
 let wasm = null;
 
 self.onmessage = async (e) => {
-    const message = e.data;
+    const { type, wasm: wasmData, input, to, id } = e.data;
+
+    if (type === 'load' && wasmData) {
+        try {
+            wasm = wasmData;
+            self.postMessage({ type: 'loaded', id });
+        } catch (err) {
+            self.postMessage({ type: 'error', error: err.message, id });
+        }
+        return;
+    }
+
+    if (type !== 'convert') {
+        return;
+    }
+
     try {
-        const res = await handleMessage(message);
-        if (!res) return;
+        if (!wasm) {
+            throw new Error('Pandoc WASM not loaded');
+        }
+
+        self.postMessage({ type: 'progress', progress: 10 });
+
+        const file = input.file;
+        const fromExt = '.' + (file.name.split('.').pop()?.toLowerCase() || 'txt');
+        const toExt = to.startsWith('.') ? to : `.${to}`;
+
+        // Validate formats
+        const fromFormat = formatToReader(fromExt);
+        const toFormat = formatToReader(toExt);
+
+        self.postMessage({ type: 'progress', progress: 20 });
+
+        const buf = new Uint8Array(await file.arrayBuffer());
+        const args = `-f ${fromFormat} -t ${toFormat} --extract-media=.`;
+
+        const [result, stderr, isZip] = await runPandoc(args, buf, file.name, toExt);
+
+        self.postMessage({ type: 'progress', progress: 90 });
+
+        if (result.length === 0) {
+            throw new Error(stderr || 'Conversion produced no output');
+        }
+
         self.postMessage({
-            ...res,
-            id: message.id,
+            type: 'finished',
+            output: result,
+            isZip,
+            id
         });
-    } catch (e) {
+    } catch (error) {
         self.postMessage({
             type: 'error',
-            error: e,
-            id: message.id,
+            error: error.message,
+            id
         });
     }
 };
@@ -52,8 +94,9 @@ const formatToReader = (format) => {
     }
 };
 
-async function pandoc(args_str, in_data, in_name, out_ext) {
+async function runPandoc(args_str, in_data, in_name, out_ext) {
     if (!wasm) throw new Error('WASM not loaded');
+
     let stderr = '';
     const baseArgs = ['pandoc.wasm', '+RTS', '-H64m', '-RTS'];
     const extraArgs = args_str.split(' ');
@@ -79,75 +122,79 @@ async function pandoc(args_str, in_data, in_name, out_ext) {
         new wasiShim.PreopenDirectory('/tmp', new Map()),
     ];
 
-    const wasi = new wasiShim.WASI(args, [], fds, { debug: false });
-    const { instance } = await WebAssembly.instantiate(wasm, {
-        wasi_snapshot_preview1: wasi.wasiImport,
-    });
+    try {
+        const wasi = new wasiShim.WASI(args, [], fds, { debug: false });
+        const { instance } = await WebAssembly.instantiate(wasm, {
+            wasi_snapshot_preview1: wasi.wasiImport,
+        });
 
-    wasi.initialize(instance);
-    instance.exports.__wasm_call_ctors();
+        wasi.initialize(instance);
+        instance.exports.__wasm_call_ctors();
 
-    const memory = instance.exports.memory;
-    const memoryView = new Uint8Array(memory.buffer);
+        const memory = instance.exports.memory;
+        const memoryView = new Uint8Array(memory.buffer);
 
-    function malloc(size) {
-        const ptr = instance.exports.malloc(size);
-        if (ptr === 0) throw new Error('malloc failed');
-        return ptr;
-    }
+        function malloc(size) {
+            const ptr = instance.exports.malloc(size);
+            if (ptr === 0) throw new Error('malloc failed');
+            return ptr;
+        }
 
-    function writeString(ptr, str) {
-        const encoder = new TextEncoder();
-        const data = encoder.encode(str);
-        memoryView.set(data, ptr);
-        return data.length;
-    }
+        function writeString(ptr, str) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            memoryView.set(data, ptr);
+            return data.length;
+        }
 
-    // Build argv
-    const argc_ptr = malloc(4);
-    memoryView.setUint32(argc_ptr, args.length, true);
-    const argv = malloc(4 * (args.length + 1));
-    for (let i = 0; i < args.length; ++i) {
-        const argPtr = malloc(args[i].length + 1);
-        writeString(argPtr, args[i]);
-        memoryView.setUint8(argPtr + args[i].length, 0);
-        memoryView.setUint32(argv + 4 * i, argPtr, true);
-    }
-    memoryView.setUint32(argv + 4 * args.length, 0, true);
-    const argv_ptr = malloc(4);
-    memoryView.setUint32(argv_ptr, argv, true);
+        const argc_ptr = malloc(4);
+        memoryView.setUint32(argc_ptr, args.length, true);
+        const argv = malloc(4 * (args.length + 1));
+        for (let i = 0; i < args.length; ++i) {
+            const argPtr = malloc(args[i].length + 1);
+            writeString(argPtr, args[i]);
+            memoryView.setUint8(argPtr + args[i].length, 0);
+            memoryView.setUint32(argv + 4 * i, argPtr, true);
+        }
+        memoryView.setUint32(argv + 4 * args.length, 0, true);
+        const argv_ptr = malloc(4);
+        memoryView.setUint32(argv_ptr, argv, true);
 
-    instance.exports.hs_init_with_rtsopts(argc_ptr, argv_ptr);
+        instance.exports.hs_init_with_rtsopts(argc_ptr, argv_ptr);
 
-    const command = extraArgs.join(' ');
-    const commandPtr = malloc(command.length);
-    writeString(commandPtr, command);
-    instance.exports.wasm_main(commandPtr, command.length);
+        const command = extraArgs.join(' ');
+        const commandPtr = malloc(command.length);
+        writeString(commandPtr, command);
+        instance.exports.wasm_main(commandPtr, command.length);
 
-    stderr = new TextDecoder().decode(stderr_file.data);
+        stderr = new TextDecoder().decode(stderr_file.data);
 
-    const openedPath = root.dir.path_open(0, BigInt(0), 0).fd_obj;
-    const dirRet = openedPath.path_lookup('.', 0);
-    const dir = dirRet.inode_obj;
-    if (dir) {
-        const opened = dir.path_open(0, BigInt(0), 0).fd_obj;
-        if (opened) {
-            const fs = readRecursive(opened);
-            const folders = [...fs.entries()].filter(
-                (f) => f[0] !== 'in' && f[0] !== 'out' && f[0] !== 'tmp'
-            );
-            if (folders.length > 0) {
-                const outFile = new File(
-                    [new Uint8Array(Array.from(out_file.data))],
-                    `${in_name.split('.').slice(0, -1).join('.')}${out_ext}`
+        const openedPath = root.dir.path_open(0, BigInt(0), 0).fd_obj;
+        const dirRet = openedPath.path_lookup('.', 0);
+        const dir = dirRet.inode_obj;
+        if (dir) {
+            const opened = dir.path_open(0, BigInt(0), 0).fd_obj;
+            if (opened) {
+                const fs = readRecursive(opened);
+                const folders = [...fs.entries()].filter(
+                    (f) => f[0] !== 'in' && f[0] !== 'out' && f[0] !== 'tmp'
                 );
-                const zipEntries = new Map(folders);
-                const zipped = await zipFiles(outFile, zipEntries);
-                return [zipped, stderr, true];
+                if (folders.length > 0) {
+                    const outFile = new File(
+                        [new Uint8Array(Array.from(out_file.data))],
+                        `${in_name.split('.').slice(0, -1).join('.')}${out_ext}`
+                    );
+                    const zipEntries = new Map(folders);
+                    const zipped = await zipFiles(outFile, zipEntries);
+                    return [zipped, stderr, true];
+                }
             }
         }
+        return [out_file.data, stderr, false];
+    } catch (err) {
+        stderr = err.message;
+        return [new Uint8Array(), stderr, false];
     }
-    return [out_file.data, stderr, false];
 }
 
 const zipFiles = async (output, entries) => {
@@ -194,47 +241,4 @@ const readRecursiveInternal = (contents) => {
         }
     }
     return entries;
-};
-
-const handleMessage = async (message) => {
-    switch (message.type) {
-        case 'load': {
-            wasm = message.wasm;
-            self.postMessage({ type: 'loaded', id: message.id });
-            break;
-        }
-        case 'convert': {
-            try {
-                const { to: ext, input } = message;
-                const file = input.file;
-                const to = ext;
-                if (to === '.rtf') {
-                    throw new Error('Converting into RTF is currently not supported.');
-                }
-                const fromExt = '.' + (file.name.split('.').pop() || '');
-                const args = `-f ${formatToReader(fromExt)} -t ${formatToReader(to)} --extract-media=.`;
-                const [result, stderr, isZip] = await pandoc(args, new Uint8Array(await file.arrayBuffer()), file.name, to);
-                if (result.length === 0) {
-                    return {
-                        type: 'error',
-                        error: stderr
-                            .replaceAll('\\n', '\n')
-                            .replaceAll('\\"', '"')
-                            .split('"')
-                            .slice(1, -1)
-                            .join('"'),
-                        errorKind: stderr.split(' ')[0],
-                    };
-                }
-                return {
-                    type: 'finished',
-                    output: result,
-                    isZip: isZip,
-                };
-            } catch (e) {
-                console.error(e);
-                return { type: 'error', error: e };
-            }
-        }
-    }
 };

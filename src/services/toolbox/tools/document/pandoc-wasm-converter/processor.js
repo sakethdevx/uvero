@@ -64,7 +64,7 @@ class PandocWasmProcessor {
             const handleMessage = (e) => {
                 const { type, output, error, isZip, id } = e.data;
                 if (type === 'progress') {
-                    if (onProgress) onProgress(output?.progress || 0);
+                    if (onProgress) onProgress(e.data.progress || 0);
                 } else if (type === 'finished') {
                     worker.removeEventListener('message', handleMessage);
                     worker.removeEventListener('error', handleError);
@@ -114,10 +114,11 @@ class PandocWasmProcessor {
         });
     }
 
-    getExtension(filename) {
-        const ext = filename.split('.').pop()?.toLowerCase();
-        return ext ? `.${ext}` : '';
-    }
+     getExtension(filename) {
+         const ext = filename.split('.').pop()?.toLowerCase();
+         // Default to txt for unknown extensions
+         return ext ? `.${ext}` : '.txt';
+     }
 
     terminate() {
         if (this.worker) {
