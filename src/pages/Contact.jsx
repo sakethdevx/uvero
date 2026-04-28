@@ -87,7 +87,7 @@ export default function Contact() {
                 </div>
 
                 {/* Form card */}
-                <div className="mt-6 rounded-3xl border border-gray-200/80 bg-white p-8 shadow-xl shadow-gray-100/40 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none sm:p-10">
+                 <div className="mt-6 rounded-3xl border border-gray-200/80 bg-white p-5 shadow-xl shadow-gray-100/40 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none sm:p-6">
 
                     {status === 'success' ? (
                         <div className="flex flex-col items-center gap-4 py-10 text-center">
@@ -108,7 +108,7 @@ export default function Contact() {
                             </button>
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit} className="space-y-5">
+                        <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid gap-5 sm:grid-cols-2">
                                 {/* Name */}
                                 <div>
@@ -169,7 +169,7 @@ export default function Contact() {
                                     id="message"
                                     name="message"
                                     required
-                                    rows={5}
+                                    rows={3}
                                     value={form.message}
                                     onChange={handleChange}
                                     placeholder="Tell us your thoughts, suggestions, or report a bug…"
@@ -211,23 +211,7 @@ export default function Contact() {
                     )}
                 </div>
 
-                {/* Info cards */}
-                <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                    {[
-                        { icon: '💡', title: 'Suggestions', desc: "Got an idea to improve Uvero? We're all ears." },
-                        { icon: '🐛', title: 'Bug Reports', desc: 'Found something broken? Let us know the details.' },
-                        { icon: '💬', title: 'General Questions', desc: 'Anything else? Feel free to reach out.' },
-                    ].map((card) => (
-                        <div
-                            key={card.title}
-                            className="rounded-2xl border border-gray-200/80 bg-gray-50/80 p-4 dark:border-white/[0.08] dark:bg-white/[0.03]"
-                        >
-                            <span className="text-2xl">{card.icon}</span>
-                            <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">{card.title}</h3>
-                            <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-gray-400">{card.desc}</p>
-                        </div>
-                    ))}
-                </div>
+                {/* Info cards removed for compactness */}
             </div>
         </div>
     );
