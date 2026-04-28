@@ -20,6 +20,8 @@ import ImageCropper from './image/image-cropper/ImageCropper';
 import imageCropperSEO from './image/image-cropper/seo.json';
 import BackgroundRemover from './image/background-remover/BackgroundRemover';
 import backgroundRemoverSEO from './image/background-remover/seo.json';
+import ImageWasmConverter from './image/image-wasm-converter/ImageWasmConverter';
+import imageWasmConverterSEO from './image/image-wasm-converter/seo.json';
 import PDFCompressor from './pdf/pdf-compressor/PDFCompressor';
 import pdfCompressorSEO from './pdf/pdf-compressor/seo.json';
 import PDFConverter from './pdf/pdf-converter/PDFConverter';
@@ -218,6 +220,17 @@ export const tools = {
         category: 'image',
         seo: backgroundRemoverSEO,
         icon: '🎨',
+        popular: true,
+        modes: ['offline']
+    },
+    'image-wasm-converter': {
+        id: 'image-wasm-converter',
+        name: 'Image Converter WASM',
+        description: 'Convert between 50+ image formats (JPG, PNG, WebP, AVIF, HEIC, TIFF, PSD, RAW & more) using ImageMagick WASM. Advanced options for quality and metadata.',
+        component: ImageWasmConverter,
+        category: 'image',
+        seo: imageWasmConverterSEO,
+        icon: '✨',
         popular: true,
         modes: ['offline']
     }, 'compress-pdf': {

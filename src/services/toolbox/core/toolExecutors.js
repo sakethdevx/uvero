@@ -8,6 +8,7 @@ import jpgToPdfExecutor from '../tools/image/jpg-to-pdf/executor';
 import pdfToJpgExecutor from '../tools/image/pdf-to-jpg/executor';
 import watermarkExecutor from '../tools/image/watermark/executor';
 import backgroundRemoverExecutor from '../tools/image/background-remover/executor';
+import imageWasmConverterExecutor from '../tools/image/image-wasm-converter/executor';
 import videoToMp3Executor from '../tools/audio/video-to-mp3/executor';
 import audioCompressorExecutor from '../tools/audio/audio-compressor/executor';
 import audioConverterExecutor from '../tools/audio/audio-converter/executor';
@@ -63,6 +64,7 @@ const toolExecutors = {
     'pdf-to-jpg': pdfToJpgExecutor,
     'watermark': watermarkExecutor,
     'remove-background': backgroundRemoverExecutor,
+    'image-wasm-converter': imageWasmConverterExecutor,
     'compress-audio': audioCompressorExecutor,
     'convert-audio': audioConverterExecutor,
     'video-to-mp3': videoToMp3Executor,

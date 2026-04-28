@@ -50,6 +50,7 @@ const TOOL_CATEGORIES = [
       { name: 'Add Watermark', path: '/watermark' },
       { name: 'Image Cropper', path: '/crop-image' },
       { name: 'Background Remover', path: '/remove-background' },
+      { name: 'Image Converter WASM', path: '/image-wasm-converter' },
       { name: 'JPG to PDF', path: '/jpg-to-pdf' },
       { name: 'PDF to JPG', path: '/pdf-to-jpg' },
       { name: 'HEIC to JPG', path: '/heic-to-jpg' }
