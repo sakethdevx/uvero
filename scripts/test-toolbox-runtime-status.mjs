@@ -1,11 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { getToolboxRuntimeStatus } from '../src/features/toolbox/api/toolbox-runtime-status.js'
+import { getToolboxRuntimeStatus } from '../src/services/toolbox/api/toolbox-runtime-status.js'
 import {
     createRuntimeVerificationFailure,
     normalizeToolRuntimeStatus,
-} from '../src/features/toolbox/core/toolRuntimeStatus.js'
-import { RUNTIME_VERIFIED_TOOL_IDS } from '../src/features/toolbox/core/toolMetadata.js'
+} from '../src/services/toolbox/core/toolRuntimeStatus.js'
+import { RUNTIME_VERIFIED_TOOL_IDS } from '../src/services/toolbox/core/toolMetadata.js'
 
 test('runtime status reports EPUB converter as deployment required when unset', () => {
     const previous = process.env.EPUB_TO_MOBI_BINARY_PATH

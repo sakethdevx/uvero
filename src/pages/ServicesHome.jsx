@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { CLI_INSTALL_COMMAND } from '../features/clipboard/cliCommands';
+import { CLI_INSTALL_COMMAND } from '../services/clipboard/cliCommands';
 import AnnouncementBanner from '../components/AnnouncementBanner';
 import ContactFormSection from '../components/ContactFormSection';
 
