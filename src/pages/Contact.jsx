@@ -62,7 +62,7 @@ export default function Contact() {
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-500/30 to-transparent" />
             </div>
 
-            <div className="relative max-w-2xl mx-auto px-4 pt-16 pb-20 sm:px-6 lg:px-8">
+            <div className="relative max-w-4xl mx-auto px-4 pt-16 pb-20 sm:px-6 lg:px-8">
                 {/* Back Button */}
                 <Link
                     to="/"
