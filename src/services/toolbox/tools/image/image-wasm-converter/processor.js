@@ -67,7 +67,7 @@ class ImageWasmConverterProcessor {
                     const { type, output, error, isZip, id } = e.data;
 
                     if (type === 'progress') {
-                        if (onProgress) onProgress(output.progress || 0);
+                        if (onProgress) onProgress(e.data.progress || 0);
                     } else if (type === 'finished') {
                         worker.removeEventListener('message', handleMessage);
                         worker.removeEventListener('error', handleError);
