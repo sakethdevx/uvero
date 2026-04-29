@@ -3,7 +3,7 @@
  * Manages Web Worker for ImageMagick WASM-based conversion
  */
 
-import magickWasm from '@imagemagick/magick-wasm/magick.wasm?url';
+// WASM is served from public folder
 
 class ImageWasmConverterProcessor {
     constructor() {
@@ -15,7 +15,8 @@ class ImageWasmConverterProcessor {
         if (this.wasmLoaded) return;
 
         try {
-            const response = await fetch(magickWasm);
+            // Fetch WASM from public folder
+            const response = await fetch('/magick.wasm');
             if (!response.ok) {
                 throw new Error(`Failed to load WASM: ${response.status} ${response.statusText}`);
             }
