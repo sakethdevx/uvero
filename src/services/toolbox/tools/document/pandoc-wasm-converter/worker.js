@@ -28,12 +28,32 @@ self.onmessage = async (e) => {
         self.postMessage({ type: 'progress', progress: 10 });
 
         const file = input.file;
+        if (!file) {
+            throw new Error('No file provided');
+        }
+
+        // Determine output format: use top-level `to` or fallback to input.to
+        const toRaw = to || (input && input.to);
+        if (!toRaw) {
+            throw new Error('Output format not specified');
+        }
+        const toExt = toRaw.startsWith('.') ? toRaw : `.${toRaw}`;
+
+        // Determine input format from file extension
         const fromExt = '.' + (file.name.split('.').pop()?.toLowerCase() || 'txt');
-        const toExt = to.startsWith('.') ? to : `.${to}`;
 
         // Validate formats
-        const fromFormat = formatToReader(fromExt);
-        const toFormat = formatToReader(toExt);
+        let fromFormat, toFormat;
+        try {
+            fromFormat = formatToReader(fromExt);
+        } catch (e) {
+            throw new Error(`Unsupported input format: ${fromExt}`);
+        }
+        try {
+            toFormat = formatToReader(toExt);
+        } catch (e) {
+            throw new Error(`Unsupported output format: ${toExt}`);
+        }
 
         self.postMessage({ type: 'progress', progress: 20 });
 
