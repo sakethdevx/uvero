@@ -54,10 +54,25 @@ export default function ImageWasmConverter({ mode = 'offline', isOnlineMode = mo
     }, [result]);
 
     const handleFileSelect = (selectedFile) => {
-        setFile(selectedFile);
-        setResult(null);
-        setError('');
-        setProgress(0);
+        // Validate that the file is a readable image
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                setFile(selectedFile);
+                setResult(null);
+                setError('');
+                setProgress(0);
+            };
+            img.onerror = () => {
+                setError('The selected file is not a valid image or is corrupted.');
+            };
+            img.src = e.target?.result;
+        };
+        reader.onerror = () => {
+            setError('Failed to read the selected file.');
+        };
+        reader.readAsDataURL(selectedFile);
     };
 
     const handleConvert = async () => {
@@ -241,8 +256,11 @@ export default function ImageWasmConverter({ mode = 'offline', isOnlineMode = mo
                     {/* Error */}
                     {error && (
                         <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-800">
-                            <p className="font-semibold">Error</p>
-                            <p className="text-sm">{error}</p>
+                            <p className="font-semibold">Conversion Failed</p>
+                            <p className="text-sm mt-1">{error}</p>
+                            <p className="text-xs mt-2 text-red-500 dark:text-red-500">
+                                Tip: Try a different image format (JPG, PNG, WebP) or check if the file is corrupted.
+                            </p>
                         </div>
                     )}
                 </div>
