@@ -25,3 +25,6 @@ dist-ssr
 *.sw?
 dist
 nohup.out
+
+# Reference projects (do not commit)
+VERT_reference_project_ignore_in_commit/
