@@ -152,7 +152,8 @@ async function runPandoc(args_str, in_data, in_name, out_ext) {
         instance.exports.__wasm_call_ctors();
 
         const memory = instance.exports.memory;
-        const memoryView = new Uint8Array(memory.buffer);
+        const memoryU8 = new Uint8Array(memory.buffer);
+        const memoryView = new DataView(memory.buffer);
 
         function malloc(size) {
             const ptr = instance.exports.malloc(size);
@@ -163,7 +164,7 @@ async function runPandoc(args_str, in_data, in_name, out_ext) {
         function writeString(ptr, str) {
             const encoder = new TextEncoder();
             const data = encoder.encode(str);
-            memoryView.set(data, ptr);
+            memoryU8.set(data, ptr);
             return data.length;
         }
 
@@ -173,7 +174,7 @@ async function runPandoc(args_str, in_data, in_name, out_ext) {
         for (let i = 0; i < args.length; ++i) {
             const argPtr = malloc(args[i].length + 1);
             writeString(argPtr, args[i]);
-            memoryView.setUint8(argPtr + args[i].length, 0);
+            memoryU8[argPtr + args[i].length] = 0; // null terminator
             memoryView.setUint32(argv + 4 * i, argPtr, true);
         }
         memoryView.setUint32(argv + 4 * args.length, 0, true);
