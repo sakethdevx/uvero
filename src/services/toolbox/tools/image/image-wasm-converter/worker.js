@@ -1,150 +1,159 @@
-/**
- * ImageMagick WASM Worker
- * Handles advanced image format conversion using ImageMagick
- */
+import {
+    initializeImageMagick,
+    MagickFormat,
+    MagickImage,
+    MagickReadSettings,
+} from '@imagemagick/magick-wasm';
+import { makeZip } from 'client-zip';
 
-import { initializeImageMagick, MagickFormat, MagickImage, MagickReadSettings } from '@imagemagick/magick-wasm';
+let magickInitialized = false;
 
-let wasmBytes = null;
-let initialized = false;
+self.postMessage({ type: 'ready', id: '0' });
 
-const formatExtensions = {
-    [MagickFormat.Png]: 'png',
-    [MagickFormat.Jpeg]: 'jpg',
-    [MagickFormat.WebP]: 'webp',
-    [MagickFormat.Gif]: 'gif',
-    [MagickFormat.Tiff]: 'tiff',
-    [MagickFormat.Bmp]: 'bmp',
-    [MagickFormat.Ico]: 'ico',
-    [MagickFormat.Heic]: 'heic',
-    [MagickFormat.Heif]: 'heif',
-    [MagickFormat.Jxl]: 'jxl',
-    [MagickFormat.Avif]: 'avif',
-    [MagickFormat.Svg]: 'svg',
-    [MagickFormat.Eps]: 'eps',
-    [MagickFormat.Psd]: 'psd',
-    [MagickFormat.Arw]: 'arw',
-    [MagickFormat.Cr2]: 'cr2',
-    [MagickFormat.Dng]: 'dng',
-    [MagickFormat.Raf]: 'raf',
-    [MagickFormat.Orf]: 'orf',
-    [MagickFormat.Pef]: 'pef',
-    [MagickFormat.Rw2]: 'rw2',
-    [MagickFormat.Nef]: 'nef',
-    [MagickFormat.Srf]: 'srf',
-    [MagickFormat.Crw]: 'crw',
-    [MagickFormat.Cr3]: 'cr3',
-    [MagickFormat.Dcr]: 'dcr',
-    [MagickFormat.Mrw]: 'mrw',
-    [MagickFormat.Mef]: 'mef',
-    [MagickFormat.Erf]: 'erf',
-    [MagickFormat.ThreeFr]: '3fr',
-    [MagickFormat.X3F]: 'x3f',
-    [MagickFormat.RsF]: 'rsf',
-    [MagickFormat.IIQ]: 'iiq',
-};
-
-self.onmessage = async (e) => {
-    const { type, arrayBuffer, to, quality, keepMetadata, id, wasm } = e.data;
-
-    if (type === 'load' && wasm) {
-        try {
-            wasmBytes = new Uint8Array(wasm);
-            await initializeImageMagick(wasmBytes);
-            initialized = true;
-            self.postMessage({ type: 'loaded', id });
-        } catch (error) {
-            self.postMessage({
-                type: 'error',
-                error: error.message,
-                id
-            });
-        }
-        return;
-    }
-
-    if (type !== 'convert') {
-        return;
-    }
-
-    try {
-        if (!initialized) {
-            throw new Error('ImageMagick not initialized. Load WASM first.');
-        }
-
-        self.postMessage({ type: 'progress', progress: 10 });
-
-        const inputBuffer = new Uint8Array(arrayBuffer);
-
-        self.postMessage({ type: 'progress', progress: 30 });
-
-        const settings = new MagickReadSettings();
-        settings.format = to === 'svg' ? MagickFormat.Svg : MagickFormat.Unknown;
-
-        const image = MagickImage.create(inputBuffer, settings);
-
-        self.postMessage({ type: 'progress', progress: 50 });
-
-        if (to === 'svg') {
-            const svg = image.getCanvas();
-            const blob = new Blob([svg], { type: 'image/svg+xml' });
-            const result = await blob.arrayBuffer();
-            image.dispose();
-
-            self.postMessage({
-                type: 'finished',
-                output: result,
-                isZip: false,
-                id
-            });
-            return;
-        }
-
-        const targetFormat = Object.keys(formatExtensions).find(f => formatExtensions[f] === to);
-        if (!targetFormat) {
-            throw new Error(`Unsupported output format: ${to}`);
-        }
-
-        image.format(targetFormat);
-
-        if (quality !== undefined && quality !== null) {
-            const normalizedQuality = Math.min(100, Math.max(1, quality));
-            switch (targetFormat) {
-                case MagickFormat.Jpeg:
-                case MagickFormat.Jpg:
-                    image.compressionQuality(normalizedQuality);
-                    break;
-                case MagickFormat.WebP:
-                    image.compressionQuality(normalizedQuality);
-                    break;
+const handleMessage = async (message) => {
+    switch (message.type) {
+        case 'load': {
+            try {
+                if (!message.wasm || !(message.wasm instanceof ArrayBuffer)) {
+                    throw new Error(`Invalid WASM data: ${typeof message.wasm}`);
+                }
+                const wasmBytes = new Uint8Array(message.wasm);
+                await initializeImageMagick(wasmBytes);
+                magickInitialized = true;
+                self.postMessage({ type: 'loaded', id: message.id });
+            } catch (error) {
+                self.postMessage({
+                    type: 'error',
+                    error: `Error loading magick-wasm: ${error.message}`,
+                    id: message.id
+                });
             }
+            break;
         }
 
-        if (!keepMetadata) {
-            image.strip();
+        case 'convert': {
+            try {
+                if (!magickInitialized) {
+                    self.postMessage({
+                        type: 'error',
+                        error: 'magick-wasm not initialized',
+                        id: message.id
+                    });
+                    return;
+                }
+
+                const { input, to, quality, keepMetadata } = message;
+                const file = input.file;
+                let toExt = to;
+                if (!toExt.startsWith('.')) toExt = `.${toExt}`;
+                toExt = toExt.toLowerCase();
+
+                // Normalize formats
+                if (toExt === '.jfif') toExt = '.jpeg';
+                let fromExt = input.from;
+                if (fromExt === '.jfif') fromExt = '.jpeg';
+                if (fromExt === '.fit') fromExt = '.fits';
+
+                self.postMessage({ type: 'progress', progress: 20, id: message.id });
+
+                const buffer = new Uint8Array(await file.arrayBuffer());
+
+                // Create image
+                const settings = new MagickReadSettings();
+                settings.format = MagickFormat.Unknown;
+
+                self.postMessage({ type: 'progress', progress: 40, id: message.id });
+
+                const image = MagickImage.create(buffer, settings);
+
+                self.postMessage({ type: 'progress', progress: 60, id: message.id });
+
+                // Set output format
+                const targetFormat = this.formatToMagickFormat(toExt);
+                if (targetFormat === null) {
+                    throw new Error(`Unsupported output format: ${toExt}`);
+                }
+                image.format(targetFormat);
+
+                // Apply quality for JPEG/WebP
+                if (quality !== undefined && quality !== null) {
+                    const q = Math.min(100, Math.max(1, quality));
+                    switch (targetFormat) {
+                        case MagickFormat.Jpeg:
+                        case MagickFormat.Jpg:
+                            image.compressionQuality(q);
+                            break;
+                        case MagickFormat.WebP:
+                            image.compressionQuality(q);
+                            break;
+                    }
+                }
+
+                // Strip metadata if not kept
+                if (!keepMetadata) {
+                    image.strip();
+                }
+
+                self.postMessage({ type: 'progress', progress: 80, id: message.id });
+
+                // Get output as blob
+                const outputBlob = image.writeToBlob();
+                image.dispose();
+
+                const result = await outputBlob.arrayBuffer();
+
+                self.postMessage({
+                    type: 'finished',
+                    output: result,
+                    isZip: false,
+                    id: message.id
+                });
+            } catch (error) {
+                self.postMessage({
+                    type: 'error',
+                    error: error.message,
+                    id: message.id
+                });
+            }
+            break;
         }
-
-        self.postMessage({ type: 'progress', progress: 70 });
-
-        const outputBlob = image.writeToBlob();
-        image.dispose();
-
-        self.postMessage({ type: 'progress', progress: 90 });
-
-        const result = await outputBlob.arrayBuffer();
-
-        self.postMessage({
-            type: 'finished',
-            output: result,
-            isZip: false,
-            id
-        });
-
-    } catch (error) {
-        self.postMessage({
-            type: 'error',
-            error: error.message,
-            id
-        });
     }
 };
+
+// Helper to convert extension to MagickFormat
+function formatToMagickFormat(ext) {
+    switch (ext) {
+        case '.png': return MagickFormat.Png;
+        case '.jpg':
+        case '.jpeg': return MagickFormat.Jpeg;
+        case '.webp': return MagickFormat.WebP;
+        case '.gif': return MagickFormat.Gif;
+        case '.tiff':
+        case '.tif': return MagickFormat.Tiff;
+        case '.bmp': return MagickFormat.Bmp;
+        case '.ico': return MagickFormat.Ico;
+        case '.avif': return MagickFormat.Avif;
+        case '.heic':
+        case '.heif': return MagickFormat.Heic;
+        case '.jxl': return MagickFormat.Jxl;
+        case '.svg': return MagickFormat.Svg;
+        case '.eps': return MagickFormat.Eps;
+        case '.psd': return MagickFormat.Psd;
+        case '.cur': return MagickFormat.Cur;
+        case '.pdf': return MagickFormat.Pdf;
+        case '.jp2': return MagickFormat.Jp2;
+        case '.j2k': return MagickFormat.J2k;
+        case '.mj2': return MagickFormat.Mj2;
+        case '.dds': return MagickFormat.Dds;
+        case '.exr': return MagickFormat.Exr;
+        case '.hdr': return MagickFormat.Hdr;
+        case '.pbm': return MagickFormat.Pbm;
+        case '.pgm': return MagickFormat.Pgm;
+        case '.ppm': return MagickFormat.Ppm;
+        case '.pnm': return MagickFormat.Pnm;
+        case '.png': return MagickFormat.Png;
+        default: return null;
+    }
+}
+
+self.onmessage = (e) => handleMessage(e.data);
