@@ -49,12 +49,38 @@ class ImageWasmConverterProcessor {
             const handleMessage = (e) => {
                 const { type, output, error, progress, id } = e.data;
 
-                if (type === 'ready' || type === 'loaded') {
-                    // ignore
+                if (type === 'ready') {
+                    // Worker is ready to receive load
+                } else if (type === 'loaded') {
+                    // WASM loaded, now send convert
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const to = outputFormat.startsWith('.') ? outputFormat : `.${outputFormat}`;
+                        worker.postMessage({
+                            type: 'convert',
+                            input: {
+                                file,
+                                name: file.name,
+                                from: this.getExtension(file.name),
+                                to
+                            },
+                            to,
+                            quality,
+                            keepMetadata,
+                            id: '1'
+                        });
+                    };
+                    reader.onerror = () => {
+                        worker.terminate();
+                        reject(new Error('Failed to read file'));
+                    };
+                    reader.readAsArrayBuffer(file);
                 } else if (type === 'progress') {
                     if (onProgress) onProgress(progress || 0);
                 } else if (type === 'finished') {
                     clearTimeout(timeout);
+                    worker.removeEventListener('message', handleMessage);
+                    worker.removeEventListener('error', handleError);
                     worker.terminate();
 
                     const ext = outputFormat === 'jpg' ? 'jpg' : outputFormat.toLowerCase();
@@ -73,6 +99,8 @@ class ImageWasmConverterProcessor {
                     });
                 } else if (type === 'error') {
                     clearTimeout(timeout);
+                    worker.removeEventListener('message', handleMessage);
+                    worker.removeEventListener('error', handleError);
                     worker.terminate();
                     reject(new Error(error || 'WASM conversion failed'));
                 }
@@ -93,32 +121,6 @@ class ImageWasmConverterProcessor {
                 wasm: this.wasm,
                 id: '1'
             });
-
-            // After a short delay, send conversion request (gives worker time to init)
-            setTimeout(() => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    const to = outputFormat.startsWith('.') ? outputFormat : `.${outputFormat}`;
-                    worker.postMessage({
-                        type: 'convert',
-                        input: {
-                            file,
-                            name: file.name,
-                            from: this.getExtension(file.name),
-                            to
-                        },
-                        to,
-                        quality,
-                        keepMetadata,
-                        id: '1'
-                    });
-                };
-                reader.onerror = () => {
-                    worker.terminate();
-                    reject(new Error('Failed to read file'));
-                };
-                reader.readAsArrayBuffer(file);
-            }, 0);
         });
     }
 
