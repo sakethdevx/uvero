@@ -1,6 +1,7 @@
 /**
  * Image WASM Converter Processor
- * Follows VERT pattern: load WASM once, transfer to per-conversion workers
+ * Uses Canvas for basic formats (JPG, PNG, WebP, BMP, GIF)
+ * Uses WASM for advanced formats (AVIF, HEIC, TIFF, PSD, RAW, etc.)
  */
 
 import magickWasmUrl from '@imagemagick/magick-wasm/magick.wasm?url';
@@ -9,11 +10,12 @@ class ImageWasmConverterProcessor {
     constructor() {
         this.wasm = null;
         this.wasmLoading = null;
+        // Basic formats that Canvas can reliably convert
+        this.basicFormats = new Set(['jpg', 'jpeg', 'png', 'webp', 'bmp', 'gif']);
     }
 
     async ensureWasmLoaded() {
         if (this.wasm) return;
-
         if (!this.wasmLoading) {
             this.wasmLoading = (async () => {
                 const response = await fetch(magickWasmUrl);
@@ -23,7 +25,6 @@ class ImageWasmConverterProcessor {
                 this.wasm = await response.arrayBuffer();
             })();
         }
-
         await this.wasmLoading;
     }
 
@@ -33,6 +34,62 @@ class ImageWasmConverterProcessor {
     }
 
     async convert(file, outputFormat, quality = 92, keepMetadata = true, onProgress) {
+        const outputExt = outputFormat.toLowerCase();
+        const isBasic = this.basicFormats.has(outputExt);
+
+        // Use Canvas for basic formats (no WASM needed)
+        if (isBasic) {
+            return this.canvasConvert(file, outputExt, quality, onProgress);
+        }
+
+        // Use WASM for advanced formats
+        return this.wasmConvert(file, outputExt, quality, keepMetadata, onProgress);
+    }
+
+    canvasConvert(file, outputExt, quality, onProgress) {
+        return new Promise((resolve, reject) => {
+            if (onProgress) onProgress(10);
+
+            const img = new Image();
+            img.onload = () => {
+                if (onProgress) onProgress(30);
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                if (onProgress) onProgress(60);
+
+                const mimeType = outputExt === 'jpg' ? 'image/jpeg' : `image/${outputExt}`;
+                const qualityFactor = quality / 100;
+
+                canvas.toBlob((blob) => {
+                    if (onProgress) onProgress(90);
+                    if (!blob) {
+                        reject(new Error('Canvas conversion failed'));
+                        return;
+                    }
+                    const baseName = file.name.replace(/\.[^/.]+$/, '');
+                    const newFileName = `${baseName}_converted.${outputExt}`;
+                    const convertedFile = new File([blob], newFileName, { type: mimeType });
+                    if (onProgress) onProgress(100);
+                    resolve({
+                        file: convertedFile,
+                        blob,
+                        originalSize: file.size,
+                        convertedSize: blob.size,
+                        format: outputExt.toUpperCase()
+                    });
+                }, mimeType, qualityFactor);
+            };
+
+            img.onerror = () => reject(new Error('Failed to load image for conversion'));
+            img.src = URL.createObjectURL(file);
+            img.onloadend = () => URL.revokeObjectURL(img.src);
+        });
+    }
+
+    async wasmConvert(file, outputExt, quality, keepMetadata, onProgress) {
         await this.ensureWasmLoaded();
 
         return new Promise((resolve, reject) => {
@@ -50,12 +107,17 @@ class ImageWasmConverterProcessor {
                 const { type, output, error, progress, id } = e.data;
 
                 if (type === 'ready') {
-                    // Worker is ready to receive load
+                    // Send WASM buffer to worker
+                    worker.postMessage({
+                        type: 'load',
+                        wasm: this.wasm,
+                        id: '1'
+                    });
                 } else if (type === 'loaded') {
-                    // WASM loaded, now send convert
+                    // WASM ready, now send conversion request
                     const reader = new FileReader();
                     reader.onload = () => {
-                        const to = outputFormat.startsWith('.') ? outputFormat : `.${outputFormat}`;
+                        const to = outputExt.startsWith('.') ? outputExt : `.${outputExt}`;
                         worker.postMessage({
                             type: 'convert',
                             input: {
@@ -83,7 +145,7 @@ class ImageWasmConverterProcessor {
                     worker.removeEventListener('error', handleError);
                     worker.terminate();
 
-                    const ext = outputFormat === 'jpg' ? 'jpg' : outputFormat.toLowerCase();
+                    const ext = outputExt === 'jpg' ? 'jpg' : outputExt;
                     const baseName = file.name.replace(/\.[^/.]+$/, '');
                     const newFileName = `${baseName}_converted.${ext}`;
 
@@ -95,7 +157,7 @@ class ImageWasmConverterProcessor {
                         blob,
                         originalSize: file.size,
                         convertedSize: blob.size,
-                        format: outputFormat.toUpperCase()
+                        format: outputExt.toUpperCase()
                     });
                 } else if (type === 'error') {
                     clearTimeout(timeout);
@@ -114,18 +176,11 @@ class ImageWasmConverterProcessor {
 
             worker.addEventListener('message', handleMessage);
             worker.addEventListener('error', handleError);
-
-            // Send load message with WASM buffer first
-            worker.postMessage({
-                type: 'load',
-                wasm: this.wasm,
-                id: '1'
-            });
         });
     }
 
     terminate() {
-        // Workers are terminated after each conversion
+        // Workers are self-terminating
     }
 }
 
