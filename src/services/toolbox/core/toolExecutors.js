@@ -3,11 +3,7 @@
  * Maps tool IDs to their execution logic.
  * For this simplified toolbox, most tools don't need executors.
  *
- * Format expected by check-toolbox-consistency.mjs:
- *   const toolExecutors = {
- *     'tool-id': executorObject,
- *     ...
- *   };
+ * The check script expects a block like "const toolExecutors = { ... }".
  *
  * Each executorObject should have:
  *   - toolId: string
