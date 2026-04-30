@@ -142,8 +142,8 @@ async function runPandoc(args_str, in_data, in_name, out_ext) {
 
     const fds = [
         new wasiShim.OpenFile(new wasiShim.File(new Uint8Array(), { readonly: true })),
-        new wasiShim.File(new Uint8Array(), { readonly: false }),
-        stderr_file,
+        new wasiShim.OpenFile(new wasiShim.File(new Uint8Array(), { readonly: false })),
+        new wasiShim.OpenFile(stderr_file),
         root,
         new wasiShim.PreopenDirectory('/tmp', new Map()),
     ];
