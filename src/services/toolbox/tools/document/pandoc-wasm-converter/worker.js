@@ -240,8 +240,25 @@ async function runPandoc(args_str, in_data, in_name, out_ext) {
 
 const zipFiles = async (output, entries) => {
     const zipFormatted = pandocToFiles(entries);
-    const zippedBlob = await makeZip([...zipFormatted, output]);
-    return new Uint8Array(await zippedBlob.arrayBuffer());
+    const zipped = makeZip([...zipFormatted, output]);
+    const reader = zipped.getReader();
+    const chunks = [];
+    let done = false;
+    while (!done) {
+        const { done: d, value } = await reader.read();
+        done = d;
+        if (value) {
+            chunks.push(value);
+        }
+    }
+    const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+    const result = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const chunk of chunks) {
+        result.set(chunk, offset);
+        offset += chunk.length;
+    }
+    return result;
 };
 
 const pandocToFiles = (entries, parent = '') => {
