@@ -13,6 +13,7 @@ import { getMaintenanceConfig } from './config/maintenance';
 const CompilerHome = lazy(() => import('./services/compiler/pages/CompilerHome'));
 const ToolboxHome = lazy(() => import('./services/toolbox/pages/ToolboxHome'));
 const ToolPage = lazy(() => import('./services/toolbox/pages/ToolPage'));
+const UnifiedConverter = lazy(() => import('./services/toolbox/pages/UnifiedConverter'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Contact = lazy(() => import('./pages/Contact'));
 const EventsPage = lazy(() => import('./services/photodrop/pages/Events'));
@@ -39,122 +40,42 @@ const Profile = lazy(() => import('./pages/Profile'));
 
 const TOOL_CATEGORIES = [
   {
-    name: 'Image Tools',
+    name: 'File Converter',
+    icon: '🔄',
+    tools: [
+      { name: 'Unified Converter (Images & Docs)', path: '/toolbox' }
+    ]
+  },
+  {
+    name: 'Image Utilities',
     icon: '🖼️',
     tools: [
-      { name: 'Image Compressor', path: '/compress-image' },
-      { name: 'Image Converter', path: '/convert-image' },
-      { name: 'Image to PDF', path: '/image-to-pdf' },
-      { name: 'Image Resizer', path: '/resize-image' },
-      { name: 'GIF Maker', path: '/gif-maker' },
-      { name: 'Add Watermark', path: '/watermark' },
-      { name: 'Image Cropper', path: '/crop-image' },
       { name: 'Background Remover', path: '/remove-background' },
-      { name: 'Image Converter WASM', path: '/image-wasm-converter' },
-      { name: 'JPG to PDF', path: '/jpg-to-pdf' },
-      { name: 'PDF to JPG', path: '/pdf-to-jpg' },
-      { name: 'HEIC to JPG', path: '/heic-to-jpg' }
+      { name: 'Add Watermark', path: '/watermark' },
+      { name: 'Image Resizer', path: '/resize-image' },
+      { name: 'Image Cropper', path: '/crop-image' }
     ]
   },
   {
-    name: 'PDF Tools',
-    icon: '📄',
-    tools: [
-      { name: 'PDF Compressor', path: '/compress-pdf' },
-      { name: 'PDF Merger', path: '/merge-pdf' },
-      { name: 'PDF Splitter', path: '/split-pdf' },
-      { name: 'PDF to Image', path: '/convert-pdf' },
-      { name: 'PDF to Word', path: '/pdf-to-word' },
-      { name: 'PDF to PowerPoint', path: '/pdf-to-powerpoint' },
-      { name: 'PDF to Excel', path: '/pdf-to-excel' },
-      { name: 'Word to PDF', path: '/word-to-pdf' },
-      { name: 'PowerPoint to PDF', path: '/powerpoint-to-pdf' },
-      { name: 'Excel to PDF', path: '/excel-to-pdf' },
-      { name: 'HTML to PDF', path: '/html-to-pdf' },
-      { name: 'PDF to PDF/A', path: '/pdf-to-pdfa' },
-      { name: 'Edit PDF', path: '/edit-pdf' },
-      { name: 'Sign PDF', path: '/sign-pdf' },
-      { name: 'Rotate PDF', path: '/rotate-pdf' },
-      { name: 'Watermark PDF', path: '/watermark-pdf' },
-      { name: 'Protect PDF', path: '/protect-pdf' },
-      { name: 'Unlock PDF', path: '/unlock-pdf' },
-      { name: 'Organize PDF', path: '/organize-pdf' },
-      { name: 'Page Numbers', path: '/page-numbers' },
-      { name: 'Repair PDF', path: '/repair-pdf' },
-      { name: 'Crop PDF', path: '/crop-pdf' },
-      { name: 'Redact PDF', path: '/redact-pdf' },
-      { name: 'OCR PDF', path: '/ocr-pdf' },
-      { name: 'Compare PDF', path: '/compare-pdf' },
-      { name: 'Scan to PDF', path: '/scan-to-pdf' },
-      { name: 'Translate PDF', path: '/translate-pdf' }
-    ]
-  },
-  {
-    name: 'Audio Tools',
-    icon: '🎵',
-    tools: [
-      { name: 'Audio Compressor', path: '/compress-audio' },
-      { name: 'Audio Converter', path: '/convert-audio' },
-      { name: 'Video to MP3', path: '/video-to-mp3' },
-      { name: 'MP3 Converter', path: '/mp3-converter' },
-      { name: 'MP4 to MP3', path: '/mp4-to-mp3' }
-    ]
-  },
-  {
-    name: 'Video Tools',
-    icon: '🎬',
-    tools: [
-      { name: 'Video Compressor', path: '/compress-video' },
-      { name: 'Video Converter', path: '/convert-video' },
-      { name: 'MP4 Converter', path: '/mp4-converter' },
-      { name: 'Video to GIF', path: '/video-to-gif' },
-      { name: 'MOV to MP4', path: '/mov-to-mp4' }
-    ]
-  },
-  {
-    name: 'Document & Ebook',
-    icon: '📚',
-    tools: [
-      { name: 'EPUB to PDF', path: '/epub-to-pdf' },
-      { name: 'EPUB to MOBI', path: '/epub-to-mobi' },
-      { name: 'Document Converter WASM', path: '/pandoc-wasm-converter' },
-      { name: 'Document Converter', path: '/document-converter' }
-    ]
-  },
-  {
-    name: 'Archive Tools',
-    icon: '🗜️',
-    tools: [
-      { name: 'RAR to Zip', path: '/rar-to-zip' },
-      { name: 'Archive Converter', path: '/archive-converter' }
-    ]
-  },
-  {
-    name: 'Time Zone',
-    icon: '🌍',
-    tools: [
-      { name: 'PST to EST', path: '/pst-to-est' },
-      { name: 'CST to EST', path: '/cst-to-est' },
-      { name: 'Time Zone Converter', path: '/timezone-converter' }
-    ]
-  },
-  {
-    name: 'Unit Converter',
-    icon: '📏',
-    tools: [
-      { name: 'Lbs to Kg', path: '/lbs-to-kg' },
-      { name: 'Kg to Lbs', path: '/kg-to-lbs' },
-      { name: 'Feet to Meters', path: '/feet-to-meters' },
-      { name: 'Unit Converter', path: '/unit-converter' }
-    ]
-  },
-  {
-    name: 'Utility Tools',
-    icon: '🛠️',
+    name: 'Security & Codes',
+    icon: '🔐',
     tools: [
       { name: 'QR Code Generator', path: '/qr-generator' },
       { name: 'Password Generator', path: '/password-generator' },
       { name: 'Hash Generator', path: '/hash-generator' }
+    ]
+  },
+  {
+    name: 'Measurements & Time',
+    icon: '📏',
+    tools: [
+      { name: 'Unit Converter', path: '/unit-converter' },
+      { name: 'Time Zone Converter', path: '/timezone-converter' },
+      { name: 'Lbs to Kg', path: '/lbs-to-kg' },
+      { name: 'Kg to Lbs', path: '/kg-to-lbs' },
+      { name: 'Feet to Meters', path: '/feet-to-meters' },
+      { name: 'PST to EST', path: '/pst-to-est' },
+      { name: 'CST to EST', path: '/cst-to-est' }
     ]
   }
 ];
