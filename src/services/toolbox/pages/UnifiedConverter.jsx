@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import Dropzone from './shared/Dropzone.jsx';
-import Button from './shared/Button.jsx';
-import ProgressBar from './shared/ProgressBar.jsx';
-import FileInfo from './shared/FileInfo.jsx';
+import Dropzone from '../shared/Dropzone.jsx';
+import Button from '../shared/Button.jsx';
+import ProgressBar from '../shared/ProgressBar.jsx';
+import FileInfo from '../shared/FileInfo.jsx';
 import unifiedProcessor from '../core/unifiedProcessor.js';
 
 const SUPPORTED_CATEGORIES = {
@@ -169,11 +169,10 @@ export default function UnifiedConverter() {
                                                 type="button"
                                                 onClick={() => setSelectedFormat(fmt.value)}
                                                 disabled={isProcessing}
-                                                className={`p-3 rounded-lg border text-left transition-colors ${
-                                                    selectedFormat === fmt.value
+                                                className={`p-3 rounded-lg border text-left transition-colors ${selectedFormat === fmt.value
                                                         ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 ring-2 ring-primary-500'
                                                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                                                }`}
+                                                    }`}
                                             >
                                                 <div className="font-medium text-gray-900 dark:text-white text-sm">
                                                     {fmt.label}
