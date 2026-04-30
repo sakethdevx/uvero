@@ -109,6 +109,12 @@ const formatToReader = (format) => {
             return 'rtf';
         case '.rst':
             return 'rst';
+        case '.pdf':
+            return 'pdf';
+        case '.txt':
+            return 'markdown'; // plain text as markdown
+        case '.tex':
+            return 'latex';
         default:
             throw new Error(`Unsupported format: ${format}`);
     }
