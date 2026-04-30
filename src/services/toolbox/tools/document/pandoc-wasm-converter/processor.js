@@ -67,16 +67,23 @@ class PandocWasmProcessor {
                 const { type, output, error, isZip, id } = e.data;
                 if (type === 'progress') {
                     if (onProgress) onProgress(e.data.progress || 0);
-                } else if (type === 'finished') {
-                    worker.removeEventListener('message', handleMessage);
-                    worker.removeEventListener('error', handleError);
+                 } else if (type === 'finished') {
+                     worker.removeEventListener('message', handleMessage);
+                     worker.removeEventListener('error', handleError);
 
-                    const baseName = file.name.replace(/\.[^/.]+$/, '');
-                    const extension = to.startsWith('.') ? to.slice(1) : to;
-                    const fileName = `${baseName}.${extension}`;
+                     const baseName = file.name.replace(/\.[^/.]+$/, '');
+                     let fileName;
+                     let mimeType = 'application/octet-stream';
+                     if (isZip) {
+                         fileName = `${baseName}.zip`;
+                         mimeType = 'application/zip';
+                     } else {
+                         const extension = to.startsWith('.') ? to.slice(1) : to;
+                         fileName = `${baseName}.${extension}`;
+                     }
 
-                    const blob = new Blob([output], { type: 'application/octet-stream' });
-                    const convertedFile = new File([blob], fileName, { type: blob.type });
+                     const blob = new Blob([output], { type: mimeType });
+                     const convertedFile = new File([blob], fileName, { type: blob.type });
 
                     resolve({
                         file: convertedFile,
