@@ -126,7 +126,7 @@ export default function UnifiedConverter() {
                     {/* Dropzone */}
                     <Dropzone
                         onFileSelect={handleFileSelect}
-                        accept={category === 'image' ? 'image/*' : '.doc,.docx,.pdf,.epub,.odt,.html,.md,.txt,.rst,.csv,.tsv,.json,.docbook'}
+                        accept="image/*,.doc,.docx,.pdf,.epub,.odt,.html,.md,.txt,.rst,.csv,.tsv,.json,.docbook"
                         disabled={isProcessing}
                         value={file}
                     />
