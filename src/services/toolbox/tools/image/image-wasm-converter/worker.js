@@ -60,7 +60,12 @@ const handleMessage = async (message) => {
 
                 // Create image with explicit input format
                 const settings = new MagickReadSettings();
-                settings.format = formatToMagickFormat(fromExt) || MagickFormat.Unknown;
+                const fromFormat = formatToMagickFormat(fromExt);
+                if (fromFormat !== null) {
+                    settings.format = fromFormat;
+                } else {
+                    settings.format = MagickFormat.Unknown;
+                }
 
                 self.postMessage({ type: 'progress', progress: 40, id: message.id });
 
@@ -69,7 +74,7 @@ const handleMessage = async (message) => {
                 self.postMessage({ type: 'progress', progress: 60, id: message.id });
 
                 // Set output format
-                const targetFormat = this.formatToMagickFormat(toExt);
+                const targetFormat = formatToMagickFormat(toExt);
                 if (targetFormat === null) {
                     throw new Error(`Unsupported output format: ${toExt}`);
                 }
