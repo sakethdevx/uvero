@@ -1,18 +1,21 @@
 /**
  * Tool Executors Registry
- * Maps tool IDs to their execution logic (for offline/online modes).
- * Most simple tools run directly in the component and don't need executors.
+ * Maps tool IDs to their execution logic.
+ * For this simplified toolbox, most tools don't need executors.
+ *
+ * Format expected by check-toolbox-consistency.mjs:
+ *   const toolExecutors = {
+ *     'tool-id': executorObject,
+ *     ...
+ *   };
+ *
+ * Each executorObject should have:
+ *   - toolId: string
+ *   - supportedModes: array of 'offline' | 'online'
+ *   - run: function(input)
  */
 
-export function getToolExecutor(toolId) {
-    // For now, no executors are needed. All remaining tools are client-side only.
-    return null;
-}
+// Currently no tools require executors. All remaining utilities run entirely in the component.
+const toolExecutors = {};
 
-export function getSupportedModesForToolId(toolId) {
-    return null;
-}
-
-export function hasToolExecutor(toolId) {
-    return false;
-}
+export default toolExecutors;
