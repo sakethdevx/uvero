@@ -5,6 +5,7 @@
  */
 
 import magickWasmUrl from '@imagemagick/magick-wasm/magick.wasm?url';
+import workerUrl from './worker.js?worker&url';
 
 class ImageWasmConverterProcessor {
     constructor() {
@@ -94,7 +95,7 @@ class ImageWasmConverterProcessor {
 
         return new Promise((resolve, reject) => {
             const worker = new Worker(
-                new URL('./worker.js', import.meta.url),
+                workerUrl,
                 { type: 'module' }
             );
 
@@ -186,9 +187,9 @@ class ImageWasmConverterProcessor {
 
 const processor = new ImageWasmConverterProcessor();
 
-export const cleanup = () => {};
+export const cleanup = () => { };
 
 export default {
     convert: (...args) => processor.convert(...args),
-    terminate: () => {}
+    terminate: () => { }
 };

@@ -5,6 +5,8 @@
 
 import pandocWasm from '@imagemagick/magick-wasm?url'; // Actually we'll use separate URL
 
+import workerUrl from './worker.js?worker&url';
+
 class PandocWasmProcessor {
     worker = null;
     wasmLoaded = false;
@@ -20,9 +22,9 @@ class PandocWasmProcessor {
             }
             const wasmArrayBuffer = await response.arrayBuffer();
 
-            // Initialize worker
+            // Initialize worker using ?worker&url output
             this.worker = new Worker(
-                new URL('./worker.js', import.meta.url),
+                workerUrl,
                 { type: 'module' }
             );
 
@@ -114,11 +116,11 @@ class PandocWasmProcessor {
         });
     }
 
-     getExtension(filename) {
-         const ext = filename.split('.').pop()?.toLowerCase();
-         // Default to txt for unknown extensions
-         return ext ? `.${ext}` : '.txt';
-     }
+    getExtension(filename) {
+        const ext = filename.split('.').pop()?.toLowerCase();
+        // Default to txt for unknown extensions
+        return ext ? `.${ext}` : '.txt';
+    }
 
     terminate() {
         if (this.worker) {
