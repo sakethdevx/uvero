@@ -58,9 +58,9 @@ const handleMessage = async (message) => {
 
                 const buffer = new Uint8Array(await file.arrayBuffer());
 
-                // Create image
+                // Create image with explicit input format
                 const settings = new MagickReadSettings();
-                settings.format = MagickFormat.Unknown;
+                settings.format = formatToMagickFormat(fromExt) || MagickFormat.Unknown;
 
                 self.postMessage({ type: 'progress', progress: 40, id: message.id });
 
