@@ -58,7 +58,7 @@ self.onmessage = async (e) => {
         self.postMessage({ type: 'progress', progress: 20 });
 
         const buf = new Uint8Array(await file.arrayBuffer());
-        const args = `-f ${fromFormat} -t ${toFormat} --extract-media=.`;
+        const args = `-f ${fromFormat} -t ${toFormat} --extract-media=. -o out in`;
 
         const [result, stderr, isZip] = await runPandoc(args, buf, file.name, toExt);
 
