@@ -128,28 +128,31 @@ async function runPandoc(args_str, in_data, in_name, out_ext) {
     const extraArgs = args_str.split(' ');
     const args = [...baseArgs, ...extraArgs];
 
+    const env = [];
     const in_file = new wasiShim.File(in_data, { readonly: true });
     const out_file = new wasiShim.File(new Uint8Array(), { readonly: false });
-    const stderr_file = new wasiShim.File(new Uint8Array(), { readonly: false });
-    const tmp_file = new wasiShim.File(new Uint8Array(), { readonly: false });
 
     const map = new Map([
         ['in', in_file],
         ['out', out_file],
-        ['tmp', tmp_file],
     ]);
     const root = new wasiShim.PreopenDirectory('/', map);
 
     const fds = [
         new wasiShim.OpenFile(new wasiShim.File(new Uint8Array(), { readonly: true })),
-        new wasiShim.OpenFile(new wasiShim.File(new Uint8Array(), { readonly: false })),
-        new wasiShim.OpenFile(stderr_file),
+        wasiShim.ConsoleStdout.lineBuffered((msg) => {
+            console.log(`[WASI stdout] ${msg}`);
+        }),
+        wasiShim.ConsoleStdout.lineBuffered((msg) => {
+            console.warn(`[WASI stderr] ${msg}`);
+            stderr += msg + '\n';
+        }),
         root,
         new wasiShim.PreopenDirectory('/tmp', new Map()),
     ];
 
     try {
-        const wasi = new wasiShim.WASI(args, [], fds, { debug: false });
+        const wasi = new wasiShim.WASI(args, env, fds, { debug: false });
         const { instance } = await WebAssembly.instantiate(wasm, {
             wasi_snapshot_preview1: wasi.wasiImport,
         });
@@ -157,58 +160,35 @@ async function runPandoc(args_str, in_data, in_name, out_ext) {
         wasi.initialize(instance);
         instance.exports.__wasm_call_ctors();
 
-        const memory = instance.exports.memory;
-        let memoryU8 = new Uint8Array(memory.buffer);
-        let memoryView = new DataView(memory.buffer);
-
-        function refreshMemory() {
-            if (memoryU8.buffer.byteLength === 0) {
-                memoryU8 = new Uint8Array(memory.buffer);
-                memoryView = new DataView(memory.buffer);
-            }
+        function memory_data_view() {
+            return new DataView(instance.exports.memory.buffer);
         }
 
-        function malloc(size) {
-            const ptr = instance.exports.malloc(size);
-            if (ptr === 0) throw new Error('malloc failed');
-            refreshMemory();
-            return ptr;
-        }
-
-        function writeString(ptr, str) {
-            refreshMemory();
-            const encoder = new TextEncoder();
-            const data = encoder.encode(str);
-            memoryU8.set(data, ptr);
-            return data.length;
-        }
-
-        const argc_ptr = malloc(4);
-        refreshMemory();
-        memoryView.setUint32(argc_ptr, args.length, true);
-        const argv = malloc(4 * (args.length + 1));
-        refreshMemory();
+        const argc_ptr = instance.exports.malloc(4);
+        memory_data_view().setUint32(argc_ptr, args.length, true);
+        const argv = instance.exports.malloc(4 * (args.length + 1));
         for (let i = 0; i < args.length; ++i) {
-            const argPtr = malloc(args[i].length + 1);
-            writeString(argPtr, args[i]);
-            refreshMemory();
-            memoryU8[argPtr + args[i].length] = 0; // null terminator
-            memoryView.setUint32(argv + 4 * i, argPtr, true);
+            const argPtr = instance.exports.malloc(args[i].length + 1);
+            new TextEncoder().encodeInto(
+                args[i],
+                new Uint8Array(instance.exports.memory.buffer, argPtr, args[i].length)
+            );
+            memory_data_view().setUint8(argPtr + args[i].length, 0); // null terminator
+            memory_data_view().setUint32(argv + 4 * i, argPtr, true);
         }
-        memoryView.setUint32(argv + 4 * args.length, 0, true);
-        const argv_ptr = malloc(4);
-        refreshMemory();
-        memoryView.setUint32(argv_ptr, argv, true);
+        memory_data_view().setUint32(argv + 4 * args.length, 0, true);
+        const argv_ptr = instance.exports.malloc(4);
+        memory_data_view().setUint32(argv_ptr, argv, true);
 
         instance.exports.hs_init_with_rtsopts(argc_ptr, argv_ptr);
-        refreshMemory();
 
-        const command = extraArgs.join(' ');
-        const commandPtr = malloc(command.length);
-        writeString(commandPtr, command);
-        instance.exports.wasm_main(commandPtr, command.length);
+        const args_ptr = instance.exports.malloc(args_str.length);
+        new TextEncoder().encodeInto(
+            args_str,
+            new Uint8Array(instance.exports.memory.buffer, args_ptr, args_str.length)
+        );
 
-        stderr = new TextDecoder().decode(stderr_file.data);
+        instance.exports.wasm_main(args_ptr, args_str.length);
 
         const openedPath = root.dir.path_open(0, BigInt(0), 0).fd_obj;
         const dirRet = openedPath.path_lookup('.', 0);
