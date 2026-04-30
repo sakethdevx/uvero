@@ -13,7 +13,6 @@ import { getMaintenanceConfig } from './config/maintenance';
 const CompilerHome = lazy(() => import('./services/compiler/pages/CompilerHome'));
 const ToolboxHome = lazy(() => import('./services/toolbox/pages/ToolboxHome'));
 const ToolPage = lazy(() => import('./services/toolbox/pages/ToolPage'));
-const UnifiedConverter = lazy(() => import('./services/toolbox/pages/UnifiedConverter'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Contact = lazy(() => import('./pages/Contact'));
 const EventsPage = lazy(() => import('./services/photodrop/pages/Events'));
