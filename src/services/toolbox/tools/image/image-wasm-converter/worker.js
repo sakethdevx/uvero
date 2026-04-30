@@ -71,12 +71,19 @@ const handleMessage = async (message) => {
 
                 const image = MagickImage.create(buffer, settings);
 
+                if (!image || typeof image.format !== 'function') {
+                    throw new Error('Failed to create image from file. The format may be corrupted or unsupported.');
+                }
+
                 self.postMessage({ type: 'progress', progress: 60, id: message.id });
 
                 // Set output format
                 const targetFormat = formatToMagickFormat(toExt);
                 if (targetFormat === null) {
                     throw new Error(`Unsupported output format: ${toExt}`);
+                }
+                if (typeof targetFormat !== 'number') {
+                    throw new Error(`Invalid format enum for: ${toExt}`);
                 }
                 image.format(targetFormat);
 
