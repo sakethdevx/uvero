@@ -40,8 +40,8 @@ import cstToEstSEO from './utility/cst-to-est/seo.json';
 
 export const tools = {
     // Image Utilities
-    'background-remover': {
-        id: 'background-remover',
+    'remove-background': {
+        id: 'remove-background',
         name: 'Background Remover',
         description: 'Remove backgrounds from images automatically',
         component: BackgroundRemover,
