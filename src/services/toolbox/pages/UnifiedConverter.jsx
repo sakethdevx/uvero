@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import Dropzone from './shared/Dropzone';
-import Button from './shared/Button';
-import ProgressBar from './shared/ProgressBar';
-import FileInfo from './shared/FileInfo';
-import unifiedProcessor from '../core/unifiedProcessor';
+import Dropzone from './shared/Dropzone.jsx';
+import Button from './shared/Button.jsx';
+import ProgressBar from './shared/ProgressBar.jsx';
+import FileInfo from './shared/FileInfo.jsx';
+import unifiedProcessor from '../core/unifiedProcessor.js';
 
 const SUPPORTED_CATEGORIES = {
     image: {
