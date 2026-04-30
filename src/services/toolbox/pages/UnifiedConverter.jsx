@@ -48,8 +48,8 @@ export default function UnifiedConverter() {
     }, [file]);
 
     useEffect(() => {
-        if (result?.primaryFile) {
-            const url = URL.createObjectURL(result.primaryFile);
+        if (result?.file) {
+            const url = URL.createObjectURL(result.file);
             setResultPreviewUrl(url);
         }
     }, [result]);
@@ -91,11 +91,11 @@ export default function UnifiedConverter() {
     };
 
     const handleDownload = () => {
-        if (!result?.primaryFile) return;
-        const url = URL.createObjectURL(result.primaryFile);
+        if (!result?.file) return;
+        const url = URL.createObjectURL(result.file);
         const link = document.createElement('a');
         link.href = url;
-        link.download = result.primaryFile.name;
+        link.download = result.file.name;
         link.click();
         URL.revokeObjectURL(url);
     };
@@ -170,8 +170,8 @@ export default function UnifiedConverter() {
                                                 onClick={() => setSelectedFormat(fmt.value)}
                                                 disabled={isProcessing}
                                                 className={`p-3 rounded-lg border text-left transition-colors ${selectedFormat === fmt.value
-                                                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 ring-2 ring-primary-500'
-                                                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                                                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 ring-2 ring-primary-500'
+                                                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                                                     }`}
                                             >
                                                 <div className="font-medium text-gray-900 dark:text-white text-sm">
@@ -225,15 +225,15 @@ export default function UnifiedConverter() {
                                         <div className="text-center">
                                             <div className="text-4xl mb-2">📄</div>
                                             <p className="font-medium text-gray-900 dark:text-white">
-                                                {result.primaryFile.name}
+                                                {result.file.name}
                                             </p>
                                         </div>
                                     )}
                                 </div>
                                 <div className="space-y-2">
                                     <FileInfo
-                                        file={result.primaryFile}
-                                        originalSize={result.items?.[0]?.originalSize}
+                                        file={result.file}
+                                        originalSize={result.originalSize}
                                     />
                                     <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                                         <p className="text-sm text-gray-600 dark:text-gray-400">
