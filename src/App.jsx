@@ -39,13 +39,6 @@ const Profile = lazy(() => import('./pages/Profile'));
 
 const TOOL_CATEGORIES = [
   {
-    name: 'File Converter',
-    icon: '🔄',
-    tools: [
-      { name: 'Unified Converter (Images & Docs)', path: '/toolbox' }
-    ]
-  },
-  {
     name: 'Image Utilities',
     icon: '🖼️',
     tools: [
