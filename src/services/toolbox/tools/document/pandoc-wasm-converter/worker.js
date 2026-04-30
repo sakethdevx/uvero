@@ -158,16 +158,25 @@ async function runPandoc(args_str, in_data, in_name, out_ext) {
         instance.exports.__wasm_call_ctors();
 
         const memory = instance.exports.memory;
-        const memoryU8 = new Uint8Array(memory.buffer);
-        const memoryView = new DataView(memory.buffer);
+        let memoryU8 = new Uint8Array(memory.buffer);
+        let memoryView = new DataView(memory.buffer);
+
+        function refreshMemory() {
+            if (memoryU8.buffer.byteLength === 0) {
+                memoryU8 = new Uint8Array(memory.buffer);
+                memoryView = new DataView(memory.buffer);
+            }
+        }
 
         function malloc(size) {
             const ptr = instance.exports.malloc(size);
             if (ptr === 0) throw new Error('malloc failed');
+            refreshMemory();
             return ptr;
         }
 
         function writeString(ptr, str) {
+            refreshMemory();
             const encoder = new TextEncoder();
             const data = encoder.encode(str);
             memoryU8.set(data, ptr);
@@ -175,19 +184,24 @@ async function runPandoc(args_str, in_data, in_name, out_ext) {
         }
 
         const argc_ptr = malloc(4);
+        refreshMemory();
         memoryView.setUint32(argc_ptr, args.length, true);
         const argv = malloc(4 * (args.length + 1));
+        refreshMemory();
         for (let i = 0; i < args.length; ++i) {
             const argPtr = malloc(args[i].length + 1);
             writeString(argPtr, args[i]);
+            refreshMemory();
             memoryU8[argPtr + args[i].length] = 0; // null terminator
             memoryView.setUint32(argv + 4 * i, argPtr, true);
         }
         memoryView.setUint32(argv + 4 * args.length, 0, true);
         const argv_ptr = malloc(4);
+        refreshMemory();
         memoryView.setUint32(argv_ptr, argv, true);
 
         instance.exports.hs_init_with_rtsopts(argc_ptr, argv_ptr);
+        refreshMemory();
 
         const command = extraArgs.join(' ');
         const commandPtr = malloc(command.length);
