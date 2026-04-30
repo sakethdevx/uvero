@@ -200,9 +200,12 @@ export const tools = {
     }
 };
 
-export function getToolById(toolId) {
-    return tools[toolId] || null;
-}
+const enhanceTool = (tool) => tool;
+
+export const getToolById = (id) => {
+    const tool = tools[id];
+    return enhanceTool(tool) || null;
+};
 
 export function getToolsByCategory(categoryId) {
     return Object.values(tools).filter((tool) => tool.category === categoryId);
