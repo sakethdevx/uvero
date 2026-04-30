@@ -19,28 +19,27 @@ try {
 
 // Format registry
 const FORMAT_REGISTRY = {
-    image: {
-        // Input extensions (common ones)
-        inputs: [
-            'jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'ico',
-            'avif', 'heic', 'heif', 'jxl', 'tiff', 'tif',
-            'psd', 'svg', 'eps',
-            'arw', 'cr2', 'dng', 'raf', 'orf', 'pef', 'rw2', 'nef', 'srf', 'crw', 'cr3', 'dcr', 'mrw', 'mef', 'erf', '3fr', 'x3f', 'rsf', 'iiq'
-        ],
-        // Output formats we support
-        outputs: [
-            { value: 'jpg', label: 'JPG', desc: 'Photos' },
-            { value: 'png', label: 'PNG', desc: 'Lossless' },
-            { value: 'webp', label: 'WebP', desc: 'Modern web' },
-            { value: 'gif', label: 'GIF', desc: 'Animated' },
-            { value: 'bmp', label: 'BMP', desc: 'Bitmap' },
-            { value: 'ico', label: 'ICO', desc: 'Favicon' },
-            { value: 'avif', label: 'AVIF', desc: 'Next-gen' },
-            { value: 'heic', label: 'HEIC', desc: 'Apple format' },
-            { value: 'tiff', label: 'TIFF', desc: 'High quality' },
-            { value: 'psd', label: 'PSD', desc: 'Photoshop' },
-            { value: 'svg', label: 'SVG', desc: 'Vector (limited)' },
-        ],
+     image: {
+         // Input extensions (common ones)
+         inputs: [
+             'jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'ico',
+             'avif', 'heic', 'heif', 'jxl', 'tiff', 'tif',
+             'psd', 'svg', 'eps',
+             'arw', 'cr2', 'dng', 'raf', 'orf', 'pef', 'rw2', 'nef', 'srf', 'crw', 'cr3', 'dcr', 'mrw', 'mef', 'erf', '3fr', 'x3f', 'rsf', 'iiq'
+         ],
+         // Output formats we support
+         outputs: [
+             { value: 'jpg', label: 'JPG', desc: 'Photos' },
+             { value: 'png', label: 'PNG', desc: 'Lossless' },
+             { value: 'webp', label: 'WebP', desc: 'Modern web' },
+             { value: 'gif', label: 'GIF', desc: 'Animated' },
+             { value: 'bmp', label: 'BMP', desc: 'Bitmap' },
+             { value: 'ico', label: 'ICO', desc: 'Favicon' },
+             { value: 'avif', label: 'AVIF', desc: 'Next-gen' },
+             { value: 'heic', label: 'HEIC', desc: 'Apple format' },
+             { value: 'tiff', label: 'TIFF', desc: 'High quality' },
+             // SVG and PSD output not supported by WASM
+         ],
         // Quality range
         quality: { min: 1, max: 100, default: 92 }
     },
