@@ -16,6 +16,4 @@
  */
 
 // Currently no tools require executors. All remaining utilities run entirely in the component.
-const toolExecutors = {};
-
-export default toolExecutors;
+export const toolExecutors = {};
