@@ -63,19 +63,20 @@ const FORMAT_REGISTRY = {
             'docx', 'doc', 'pdf', 'epub', 'odt', 'html', 'md', 'markdown',
             'txt', 'rst', 'csv', 'tsv', 'json', 'docbook'
         ],
+        // Output formats from VERT reference (no PDF output)
         outputs: [
-            { value: 'pdf', label: 'PDF', desc: 'Portable Document' },
             { value: 'docx', label: 'DOCX', desc: 'Word document' },
-            { value: 'html', label: 'HTML', desc: 'Web page' },
-            { value: 'epub', label: 'EPUB', desc: 'Ebook' },
-            { value: 'odt', label: 'ODT', desc: 'OpenDocument' },
+            { value: 'doc', label: 'DOC', desc: 'Word document' },
             { value: 'md', label: 'Markdown', desc: 'Plain text' },
-            { value: 'txt', label: 'Plain Text', desc: 'Raw text' },
-            { value: 'rst', label: 'reStructuredText', desc: 'Doc tool' },
-            { value: 'docbook', label: 'DocBook', desc: 'Technical docs' },
+            { value: 'html', label: 'HTML', desc: 'Web page' },
+            { value: 'rtf', label: 'RTF', desc: 'Rich Text' },
             { value: 'csv', label: 'CSV', desc: 'Table data' },
             { value: 'tsv', label: 'TSV', desc: 'Tab-separated' },
             { value: 'json', label: 'JSON', desc: 'Structured data' },
+            { value: 'rst', label: 'reStructuredText', desc: 'Doc tool' },
+            { value: 'epub', label: 'EPUB', desc: 'Ebook' },
+            { value: 'odt', label: 'ODT', desc: 'OpenDocument' },
+            { value: 'docbook', label: 'DocBook', desc: 'Technical docs' },
         ],
         quality: null // no quality setting for documents
     }
