@@ -40,6 +40,8 @@ const FORMAT_REGISTRY = {
             { value: 'hdr', label: 'HDR', desc: 'High Dynamic Range' },
             { value: 'mat', label: 'MAT', desc: 'Material' },
             { value: 'eps', label: 'EPS', desc: 'Encapsulated PS' },
+            // Special operations
+            { value: 'remove-background', label: 'Remove Background', desc: 'AI-powered background removal' },
             // Note: Some formats like HEIC/HEIF, RAW, ANI, ICNS are read-only only
         ],
         // Quality range
@@ -120,10 +122,11 @@ class UnifiedProcessor {
         this.pandocProc = null;
         this.audioProc = null;
         this.videoProc = null;
+        this.bgRemoverProc = null;
     }
 
     async ensureProcessors() {
-        if (this.imageProc && this.pandocProc && this.audioProc && this.videoProc) return;
+        if (this.imageProc && this.pandocProc && this.audioProc && this.videoProc && this.bgRemoverProc) return;
 
         try {
             // Import dynamically to avoid SSR issues
@@ -152,6 +155,13 @@ class UnifiedProcessor {
             this.videoProc = videoMod.default || videoMod;
         } catch (e) {
             console.warn('Video processor not available:', e);
+        }
+
+        try {
+            const bgRemoverMod = await import('../tools/image/background-remover/processor');
+            this.bgRemoverProc = bgRemoverMod.processor || bgRemoverMod.default || bgRemoverMod;
+        } catch (e) {
+            console.warn('Background remover processor not available:', e);
         }
     }
 
@@ -196,7 +206,20 @@ class UnifiedProcessor {
 
         const options = FORMAT_REGISTRY[category].quality || {};
 
-        if (category === 'image' && this.imageProc) {
+        // Special case: Background removal for images
+        if (category === 'image' && outputFormat === 'remove-background' && this.bgRemoverProc) {
+            const result = await this.bgRemoverProc.removeBackground(file, 'medium', onProgress);
+            // Reshape result to match expected output shape: { file, originalSize, ... }
+            return {
+                file: result.blob,
+                originalSize: file.size,
+                convertedSize: result.size,
+                width: result.width,
+                height: result.height,
+                format: 'PNG (transparent)',
+                operation: 'remove-background'
+            };
+        } else if (category === 'image' && this.imageProc) {
             return await this.imageProc.convert(file, outputFormat, options.default || 92, true, onProgress);
         } else if (category === 'document' && this.pandocProc) {
             return await this.pandocProc.convert(file, outputFormat, onProgress);

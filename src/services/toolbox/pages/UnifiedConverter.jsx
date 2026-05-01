@@ -199,25 +199,33 @@ export default function UnifiedConverter() {
                                         Output Format
                                     </label>
                                     <div className="grid grid-cols-2 gap-2">
-                                        {outputFormats.map((fmt) => (
-                                            <button
-                                                key={fmt.value}
-                                                type="button"
-                                                onClick={() => setSelectedFormat(fmt.value)}
-                                                disabled={isProcessing}
-                                                className={`p-3 rounded-lg border text-left transition-colors ${selectedFormat === fmt.value
-                                                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 ring-2 ring-primary-500'
-                                                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                                                    }`}
-                                            >
-                                                <div className="font-medium text-gray-900 dark:text-white text-sm">
-                                                    {fmt.label}
-                                                </div>
-                                                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                    {fmt.desc}
-                                                </div>
-                                            </button>
-                                        ))}
+                                        {outputFormats.map((fmt) => {
+                                            const isRemoveBg = fmt.value === 'remove-background';
+                                            const isSelected = selectedFormat === fmt.value;
+                                            return (
+                                                <button
+                                                    key={fmt.value}
+                                                    type="button"
+                                                    onClick={() => setSelectedFormat(fmt.value)}
+                                                    disabled={isProcessing}
+                                                    className={`p-3 rounded-lg border text-left transition-colors ${isSelected
+                                                        ? isRemoveBg
+                                                            ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 ring-2 ring-purple-500'
+                                                            : 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 ring-2 ring-primary-500'
+                                                        : isRemoveBg
+                                                            ? 'border-purple-200 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-700 bg-purple-25 dark:bg-purple-900/10'
+                                                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                                                        }`}
+                                                >
+                                                    <div className="font-medium text-gray-900 dark:text-white text-sm">
+                                                        {fmt.label}
+                                                    </div>
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                        {fmt.desc}
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
 
@@ -237,72 +245,87 @@ export default function UnifiedConverter() {
                         </div>
                     )}
 
-                    {/* Result */}
-                    {result && (
-                        <div className="border-2 border-green-200 dark:border-green-800 rounded-xl p-4">
-                            <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-lg font-semibold text-green-700 dark:text-green-300">
-                                    ✓ Conversion Complete
-                                </h3>
-                                <div className="flex gap-2">
-                                    <Button onClick={handleReset} variant="outline" size="sm">
-                                        New Conversion
-                                    </Button>
-                                    <Button onClick={handleDownload} size="sm">
-                                        Download
-                                    </Button>
-                                </div>
-                            </div>
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 flex items-center justify-center">
-                                    {category === 'image' && resultPreviewUrl ? (
-                                        <img src={resultPreviewUrl} alt="Result" className="max-w-full max-h-full object-contain" />
-                                    ) : category === 'video' && resultPreviewUrl ? (
-                                        <div className="w-full px-4 flex flex-col items-center justify-center">
-                                            {isBrowserSupportedVideo(result.file.name) ? (
-                                                <video src={resultPreviewUrl} controls className="max-w-full max-h-full object-contain" />
-                                            ) : (
-                                                <div className="text-center">
-                                                    <div className="text-6xl mb-4 text-center">{categoryInfo?.icon || '🎥'}</div>
-                                                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400 max-w-[200px] break-words mx-auto">
-                                                        Preview not available for .{result.file.name.split('.').pop()}
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : category === 'audio' && resultPreviewUrl ? (
-                                        <div className="w-full px-4 flex flex-col items-center justify-center">
-                                            <div className="text-6xl mb-4 text-center">{categoryInfo?.icon || '🎵'}</div>
-                                            <audio src={resultPreviewUrl} controls className="w-full mt-2" />
-                                        </div>
-                                    ) : (
-                                        <div className="text-center">
-                                            <div className="text-4xl mb-2">📄</div>
-                                            <p className="font-medium text-gray-900 dark:text-white">
-                                                {result.file.name}
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="space-y-2">
-                                    <FileInfo
-                                        file={result.file}
-                                        originalSize={result.originalSize}
-                                    />
-                                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                                            Format: <span className="font-mono">{selectedFormat}</span>
-                                        </p>
-                                        {category === 'image' && (
-                                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                                                Quality: <span className="font-mono">92%</span>
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                     {/* Result */}
+                     {result && (
+                         <div className="border-2 border-green-200 dark:border-green-800 rounded-xl p-4">
+                             <div className="flex items-center justify-between mb-3">
+                                 <h3 className="text-lg font-semibold text-green-700 dark:text-green-300">
+                                     {selectedFormat === 'remove-background' ? '✓ Background Removed' : '✓ Conversion Complete'}
+                                 </h3>
+                                 <div className="flex gap-2">
+                                     <Button onClick={handleReset} variant="outline" size="sm">
+                                         {selectedFormat === 'remove-background' ? 'Process Another' : 'New Conversion'}
+                                     </Button>
+                                     <Button onClick={handleDownload} size="sm">
+                                         Download
+                                     </Button>
+                                 </div>
+                             </div>
+                             <div className="grid md:grid-cols-2 gap-4">
+                                 <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 flex items-center justify-center">
+                                     {category === 'image' && resultPreviewUrl ? (
+                                         <img src={resultPreviewUrl} alt="Result" className="max-w-full max-h-full object-contain" />
+                                     ) : category === 'video' && resultPreviewUrl ? (
+                                         <div className="w-full px-4 flex flex-col items-center justify-center">
+                                             {isBrowserSupportedVideo(result.file.name) ? (
+                                                 <video src={resultPreviewUrl} controls className="max-w-full max-h-full object-contain" />
+                                             ) : (
+                                                 <div className="text-center">
+                                                     <div className="text-6xl mb-4 text-center">{categoryInfo?.icon || '🎥'}</div>
+                                                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400 max-w-[200px] break-words mx-auto">
+                                                         Preview not available for .{result.file.name.split('.').pop()}
+                                                     </p>
+                                                 </div>
+                                             )}
+                                         </div>
+                                     ) : category === 'audio' && resultPreviewUrl ? (
+                                         <div className="w-full px-4 flex flex-col items-center justify-center">
+                                             <div className="text-6xl mb-4 text-center">{categoryInfo?.icon || '🎵'}</div>
+                                             <audio src={resultPreviewUrl} controls className="w-full mt-2" />
+                                         </div>
+                                     ) : (
+                                         <div className="text-center">
+                                             <div className="text-4xl mb-2">📄</div>
+                                             <p className="font-medium text-gray-900 dark:text-white">
+                                                 {result.file.name}
+                                             </p>
+                                         </div>
+                                     )}
+                                 </div>
+                                 <div className="space-y-2">
+                                     <FileInfo
+                                         file={result.file}
+                                         originalSize={result.originalSize}
+                                     />
+                                     <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                         {selectedFormat === 'remove-background' ? (
+                                             <>
+                                                 <p className="text-sm text-gray-600 dark:text-gray-400">
+                                                     Output: <span className="font-mono">PNG (transparent)</span>
+                                                 </p>
+                                                 {result.width && result.height && (
+                                                     <p className="text-sm text-gray-600 dark:text-gray-400">
+                                                         Dimensions: <span className="font-mono">{result.width} × {result.height}</span>
+                                                     </p>
+                                                 )}
+                                             </>
+                                         ) : (
+                                             <>
+                                                 <p className="text-sm text-gray-600 dark:text-gray-400">
+                                                     Format: <span className="font-mono">{selectedFormat.toUpperCase()}</span>
+                                                 </p>
+                                                 {category === 'image' && (
+                                                     <p className="text-sm text-gray-600 dark:text-gray-400">
+                                                         Quality: <span className="font-mono">92%</span>
+                                                     </p>
+                                                 )}
+                                             </>
+                                         )}
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                     )}
 
                     {/* Error */}
                     {error && (

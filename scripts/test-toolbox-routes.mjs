@@ -11,7 +11,6 @@ const APP_PATH = path.join(PROJECT_ROOT, 'src', 'App.jsx')
 
 // Updated to match the new simplified toolbox
 const SMOKE_TOOL_IDS = [
-    'remove-background',
     'resize-image',
     'crop-image',
     'qr-generator',

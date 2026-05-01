@@ -41,7 +41,6 @@ const TOOL_CATEGORIES = [
     name: 'Image Utilities',
     icon: '🖼️',
     tools: [
-      { name: 'Background Remover', path: '/remove-background' },
       { name: 'Add Watermark', path: '/watermark' },
       { name: 'Image Resizer', path: '/resize-image' },
       { name: 'Image Cropper', path: '/crop-image' }

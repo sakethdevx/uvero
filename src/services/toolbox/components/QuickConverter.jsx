@@ -39,12 +39,7 @@ const QUICK_CONVERTER_OPERATIONS = [
         icon: '©️',
         matches: (file) => file.type.startsWith('image/') && !isHeicFile(file),
     },
-    {
-        id: 'remove-background',
-        label: 'Remove Background',
-        icon: '🎨',
-        matches: (file) => file.type.startsWith('image/') && !isHeicFile(file),
-    },
+
     {
         id: 'image-to-pdf',
         label: 'Image to PDF',
@@ -142,7 +137,6 @@ export default function QuickConverter() {
     const [watermarkOpacity, setWatermarkOpacity] = useState(50);
     const [watermarkPosition, setWatermarkPosition] = useState('center');
     const [watermarkColor, setWatermarkColor] = useState('#000000');
-    const [backgroundRemovalQuality, setBackgroundRemovalQuality] = useState('medium');
     const [pageSize, setPageSize] = useState('fit');
     const [pageRange, setPageRange] = useState('all');
     const [customPages, setCustomPages] = useState('');
@@ -231,10 +225,7 @@ export default function QuickConverter() {
                     position: watermarkPosition,
                     color: watermarkColor,
                 };
-            case 'remove-background':
-                return {
-                    quality: backgroundRemovalQuality,
-                };
+
             case 'image-to-pdf':
                 return {
                     pageSize,
@@ -628,15 +619,6 @@ export default function QuickConverter() {
                                                     </div>
                                                 )}
 
-                                                {selectedOperation === 'remove-background' && (
-                                                    <div className="grid grid-cols-2 gap-2 sm:gap-4">
-                                                        {['low', 'medium'].map((value) => (
-                                                            <button key={value} onClick={() => setBackgroundRemovalQuality(value)} className={`py-3 sm:py-4 rounded-2xl border font-bold uppercase text-sm sm:text-base ${backgroundRemovalQuality === value ? 'bg-primary-500 text-white border-primary-500' : 'bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-white/10'}`}>
-                                                                {value === 'low' ? 'Fast' : 'High Quality'}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                )}
 
                                                 {selectedOperation === 'heic-to-jpg' && (
                                                     <div className="space-y-4 sm:space-y-6">

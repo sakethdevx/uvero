@@ -5,8 +5,7 @@
  */
 
 // Image Utilities
-import BackgroundRemover from './image/background-remover/BackgroundRemover';
-import backgroundRemoverSEO from './image/background-remover/seo.json';
+
 import Watermark from './image/watermark/Watermark';
 import watermarkSEO from './image/watermark/seo.json';
 import ImageResizer from './image/image-resizer/ImageResizer';
@@ -40,16 +39,7 @@ import cstToEstSEO from './utility/cst-to-est/seo.json';
 
 export const tools = {
     // Image Utilities
-    'remove-background': {
-        id: 'remove-background',
-        name: 'Background Remover',
-        description: 'Remove backgrounds from images automatically',
-        component: BackgroundRemover,
-        category: 'image-utilities',
-        seo: backgroundRemoverSEO,
-        icon: '🎨',
-        popular: true,
-    },
+
     'watermark': {
         id: 'watermark',
         name: 'Add Watermark',
