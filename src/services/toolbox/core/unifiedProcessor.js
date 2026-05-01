@@ -168,7 +168,13 @@ class UnifiedProcessor {
     getSupportedOutputs(file) {
         const category = this.detectCategory(file);
         if (!category) return [];
-        return FORMAT_REGISTRY[category].outputs;
+
+        const ext = file.name.split('.').pop()?.toLowerCase();
+
+        // Return only output formats that are different from the input file's extension
+        return FORMAT_REGISTRY[category].outputs.filter(
+            output => output.value !== ext
+        );
     }
 
     async convert(file, outputFormat, onProgress) {
