@@ -38,14 +38,14 @@ const handleMessage = async (message) => {
 
             const { to, input } = message;
             const file = input.file;
-            const outExt = to;
 
             const buf = new Uint8Array(await file.arrayBuffer());
             const fromExt = '.' + (file.name.split('.').pop()?.toLowerCase() || '');
-            const toExt = to.startsWith('.') ? to : '.' + to;
-            const args = `-f ${formatToReader(fromExt)} -t ${formatToReader(toExt)} --extract-media=.`;
+            let ext = to;
+            if (!ext.startsWith('.')) ext = '.' + ext;
+            const args = `-f ${formatToReader(fromExt)} -t ${formatToReader(ext)} --extract-media=.`;
 
-            const [result, stderr, zip] = await pandoc(args, buf, file.name, toExt);
+            const [result, stderr, zip] = await pandoc(args, buf, file.name, ext);
 
             if (result.length === 0) {
                 return {
@@ -104,7 +104,7 @@ const formatToReader = (format) => {
     }
 };
 
-async function pandoc(args_str, in_data, in_name, out_ext) {
+async function pandoc(args_str, in_data, in_name, ext) {
     if (!wasm) throw new Error('WASM not loaded');
     let stderr = '';
     const args = ['pandoc.wasm', '+RTS', '-H64m', '-RTS'];
@@ -177,10 +177,9 @@ async function pandoc(args_str, in_data, in_name, out_ext) {
             const folders = [...fs.entries()].filter((f) => f[0] !== 'in' && f[0] !== 'out');
             if (folders.length > 0) {
                 const baseName = in_name.split('.').slice(0, -1).join('.');
-                const safeToExt = toExt.startsWith('.') ? toExt : '.' + toExt;
                 const file = new File(
                     [new Uint8Array(Array.from(out_file.data))],
-                    `${baseName}${safeToExt}`
+                    `${baseName}${ext}`
                 );
                 const zipped = await zipFiles(file, new Map(folders));
                 return [zipped, stderr, true];
