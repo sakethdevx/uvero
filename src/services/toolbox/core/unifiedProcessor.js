@@ -128,40 +128,49 @@ class UnifiedProcessor {
     async ensureProcessors() {
         if (this.imageProc && this.pandocProc && this.audioProc && this.videoProc && this.bgRemoverProc) return;
 
-        try {
-            // Import dynamically to avoid SSR issues
-            const imageMod = await import('../tools/image/image-wasm-converter/processor');
-            this.imageProc = imageMod.default || imageMod;
-        } catch (e) {
-            console.warn('Image processor not available:', e);
+        if (!this.imageProc) {
+            try {
+                const imageMod = await import('../tools/image/image-wasm-converter/processor');
+                this.imageProc = imageMod.default || imageMod;
+            } catch (e) {
+                console.warn('Image processor not available:', e);
+            }
         }
 
-        try {
-            const pandocMod = await import('../tools/document/pandoc-wasm-converter/processor');
-            this.pandocProc = pandocMod.default || pandocMod;
-        } catch (e) {
-            console.warn('Pandoc processor not available:', e);
+        if (!this.pandocProc) {
+            try {
+                const pandocMod = await import('../tools/document/pandoc-wasm-converter/processor');
+                this.pandocProc = pandocMod.default || pandocMod;
+            } catch (e) {
+                console.warn('Pandoc processor not available:', e);
+            }
         }
 
-        try {
-            const audioMod = await import('../tools/audio/audio-wasm-converter/processor');
-            this.audioProc = audioMod.default || audioMod;
-        } catch (e) {
-            console.warn('Audio processor not available:', e);
+        if (!this.audioProc) {
+            try {
+                const audioMod = await import('../tools/audio/audio-wasm-converter/processor');
+                this.audioProc = audioMod.default || audioMod;
+            } catch (e) {
+                console.warn('Audio processor not available:', e);
+            }
         }
 
-        try {
-            const videoMod = await import('../tools/video/video-wasm-converter/processor');
-            this.videoProc = videoMod.default || videoMod;
-        } catch (e) {
-            console.warn('Video processor not available:', e);
+        if (!this.videoProc) {
+            try {
+                const videoMod = await import('../tools/video/video-wasm-converter/processor');
+                this.videoProc = videoMod.default || videoMod;
+            } catch (e) {
+                console.warn('Video processor not available:', e);
+            }
         }
 
-        try {
-            const bgRemoverMod = await import('../tools/image/background-remover/processor');
-            this.bgRemoverProc = bgRemoverMod.processor || bgRemoverMod.default || bgRemoverMod;
-        } catch (e) {
-            console.warn('Background remover processor not available:', e);
+        if (!this.bgRemoverProc) {
+            try {
+                const bgRemoverMod = await import('../tools/image/background-remover/processor');
+                this.bgRemoverProc = bgRemoverMod.processor || bgRemoverMod.default || bgRemoverMod;
+            } catch (e) {
+                console.warn('Background remover processor not available:', e);
+            }
         }
     }
 
@@ -207,7 +216,19 @@ class UnifiedProcessor {
         const options = FORMAT_REGISTRY[category].quality || {};
 
         // Special case: Background removal for images
-        if (category === 'image' && outputFormat === 'remove-background' && this.bgRemoverProc) {
+        if (category === 'image' && outputFormat === 'remove-background') {
+            if (!this.bgRemoverProc) {
+                // bgRemoverProc failed to load – retry once before giving up
+                try {
+                    const bgRemoverMod = await import('../tools/image/background-remover/processor');
+                    this.bgRemoverProc = bgRemoverMod.processor || bgRemoverMod.default || bgRemoverMod;
+                } catch (e) {
+                    console.error('Background remover retry failed:', e);
+                    throw new Error(
+                        'Background remover could not be loaded. This may be due to a slow or unstable internet connection (the AI model needs to be downloaded). Please check your connection and try again.'
+                    );
+                }
+            }
             const result = await this.bgRemoverProc.removeBackground(file, 'medium', onProgress);
             // Reshape result to match expected output shape: { file, originalSize, ... }
             return {
