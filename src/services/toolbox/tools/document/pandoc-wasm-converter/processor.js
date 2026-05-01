@@ -87,9 +87,18 @@ class PandocWasmProcessor {
                     let errMsg = error || 'Conversion failed';
                     if (errorKind) {
                         switch (errorKind) {
-                            case 'PandocUnknownReaderError':
-                                errMsg = `${fromExt} is not a supported input format for documents.`;
-                                break;
+                case 'PandocUnknownReaderError':
+                    errMsg = `${file.from} is not a supported input format for documents.`;
+                    break;
+                case 'PandocUnknownWriterError':
+                    const displayExt = outputExt.startsWith('.') ? outputExt.slice(1) : outputExt;
+                    errMsg = `${displayExt} is not a supported output format for documents.`;
+                    break;
+                case 'PandocParseError':
+                    if (errMsg.includes('JSON missing pandoc-api-version')) {
+                        errMsg = 'This JSON file is not a pandoc-converted JSON file. It must be converted with pandoc / VERT to be converted again.';
+                    }
+                    break;
                             case 'PandocUnknownWriterError':
                                 errMsg = `${outputExt} is not a supported output format for documents.`;
                                 break;
