@@ -42,9 +42,10 @@ const handleMessage = async (message) => {
 
             const buf = new Uint8Array(await file.arrayBuffer());
             const fromExt = '.' + (file.name.split('.').pop()?.toLowerCase() || '');
-            const args = `-f ${formatToReader(fromExt)} -t ${formatToReader(outExt)} --extract-media=.`;
+            const toExt = to.startsWith('.') ? to : '.' + to;
+            const args = `-f ${formatToReader(fromExt)} -t ${formatToReader(toExt)} --extract-media=.`;
 
-            const [result, stderr, zip] = await pandoc(args, buf, file.name, outExt);
+            const [result, stderr, zip] = await pandoc(args, buf, file.name, toExt);
 
             if (result.length === 0) {
                 return {
@@ -175,9 +176,11 @@ async function pandoc(args_str, in_data, in_name, out_ext) {
             const fs = readRecursive(opened);
             const folders = [...fs.entries()].filter((f) => f[0] !== 'in' && f[0] !== 'out');
             if (folders.length > 0) {
+                const baseName = in_name.split('.').slice(0, -1).join('.');
+                const safeToExt = toExt.startsWith('.') ? toExt : '.' + toExt;
                 const file = new File(
                     [new Uint8Array(Array.from(out_file.data))],
-                    `${in_name.split('.').slice(0, -1).join('.')}${out_ext}`
+                    `${baseName}${safeToExt}`
                 );
                 const zipped = await zipFiles(file, new Map(folders));
                 return [zipped, stderr, true];
