@@ -36,34 +36,7 @@ class ImageWasmConverterProcessor {
 
     async convert(file, outputFormat, quality = 92, keepMetadata = true, onProgress) {
         const outputExt = outputFormat.toLowerCase();
-        const isBasic = this.basicFormats.has(outputExt);
-
-        // Use Canvas for basic formats (no WASM needed)
-        if (isBasic) {
-            return this.canvasConvert(file, outputExt, quality, onProgress);
-        }
-
-        // Check if input is a basic format (canvas-compatible)
-        const inputExt = this.getExtension(file.name).toLowerCase();
-        const inputIsBasic = this.basicFormats.has(inputExt.slice(1)); // strip dot
-
-        if (inputIsBasic) {
-            // Convert input to PNG first using Canvas, then use WASM for advanced output
-            try {
-                if (onProgress) onProgress(10);
-                const pngFile = await this.createPngFromFile(file);
-                if (onProgress) onProgress(30);
-                // Now convert PNG to target format using WASM, scaling progress to 30-100%
-                return this.wasmConvert(pngFile, outputExt, quality, keepMetadata, (p) => {
-                    if (onProgress) onProgress(30 + p * 0.7);
-                });
-            } catch (e) {
-                throw e;
-            }
-        }
-
-        // Direct WASM conversion for non-basic inputs (AVIF, HEIC, RAW, etc.)
-        return this.wasmConvert(file, outputExt, quality, keepMetadata, onProgress);
+        return this.canvasConvert(file, outputExt, quality, onProgress);
     }
 
     canvasConvert(file, outputExt, quality, onProgress) {
