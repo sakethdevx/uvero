@@ -4,13 +4,7 @@ import { getToolsByCategory } from '../tools';
 
 // Category metadata for non-unified-converter tools
 const CATEGORIES = {
-    'image-utilities': {
-        id: 'image-utilities',
-        name: 'Image Utilities',
-        description: 'Tools for editing and manipulating images',
-        icon: '🖼️',
-        gradient: 'from-rose-500 to-pink-600',
-    },
+
     'security': {
         id: 'security',
         name: 'Security & Codes',
@@ -28,7 +22,7 @@ const CATEGORIES = {
 };
 
 export default function OtherToolsHub() {
-    const [activeCategory, setActiveCategory] = useState('image-utilities');
+    const [activeCategory, setActiveCategory] = useState('security');
 
     const categories = Object.values(CATEGORIES);
     const tools = getToolsByCategory(activeCategory);
