@@ -59,9 +59,6 @@ export function usesOfflineExecutorInOnlineMode(toolId) {
     return ONLINE_MODE_OFFLINE_EXECUTOR_TOOL_IDS.includes(toolId);
 }
 
-export function isToolAvailableInMode(tool, mode) {
-    return Boolean(tool?.modes?.includes(mode));
-}
 
 export function getToolAvailabilityBadge(tool) {
     if (tool.availability === 'deployment_required') {

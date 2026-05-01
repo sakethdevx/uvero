@@ -52,11 +52,6 @@ function getTheme(tool) {
 }
 
 function getPrivacySummary(tool) {
-    if (tool.modes.includes('offline')) {
-        return 'This tool is designed to keep processing in your browser for maximum privacy. Your files never leave your device.';
-    }
-
-    return 'This tool processes your files locally in your browser for maximum privacy.';
 }
 
 export function buildToolFaqs(tool) {
