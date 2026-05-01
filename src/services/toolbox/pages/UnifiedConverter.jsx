@@ -6,6 +6,7 @@ import ProgressBar from '../shared/ProgressBar.jsx';
 import FileInfo from '../shared/FileInfo.jsx';
 import unifiedProcessor from '../core/unifiedProcessor.js';
 import InteractiveCropSelector from '../components/InteractiveCropSelector.jsx';
+import WatermarkSettings from '../components/WatermarkSettings.jsx';
 
 const SUPPORTED_CATEGORIES = {
     image: {
@@ -60,6 +61,17 @@ export default function UnifiedConverter() {
     const [resizePercentage, setResizePercentage] = useState('100');
     const [maintainAspectRatio, setMaintainAspectRatio] = useState(true);
     const [originalDimensions, setOriginalDimensions] = useState(null);
+
+    // Watermark state
+    const [watermarkOptions, setWatermarkOptions] = useState({
+        type: 'text',
+        text: '© Uvero',
+        fontSize: 48,
+        color: '#ffffff',
+        opacity: 0.5,
+        position: 'bottom-right',
+        watermarkImage: null
+    });
 
     useEffect(() => {
         return () => {
@@ -161,6 +173,8 @@ export default function UnifiedConverter() {
                     targetHeight = parseInt(resizeHeight);
                 }
                 convertOptions = { width: targetWidth, height: targetHeight };
+            } else if (selectedFormat === 'watermark') {
+                convertOptions = watermarkOptions;
             }
             const res = await unifiedProcessor.convert(file, selectedFormat, (prog) => setProgress(prog), convertOptions);
             setResult(res);
@@ -265,7 +279,7 @@ export default function UnifiedConverter() {
                                     </label>
                                     <div className="grid grid-cols-2 gap-2">
                                         {outputFormats.map((fmt) => {
-                                            const isSpecial = fmt.value === 'remove-background' || fmt.value === 'crop' || fmt.value === 'resize';
+                                            const isSpecial = fmt.value === 'remove-background' || fmt.value === 'crop' || fmt.value === 'resize' || fmt.value === 'watermark';
                                             const isSelected = selectedFormat === fmt.value;
                                             return (
                                                 <button
@@ -404,15 +418,23 @@ export default function UnifiedConverter() {
                                      </div>
                                  )}
 
+                                 {/* Watermark Settings */}
+                                 {selectedFormat === 'watermark' && (
+                                     <WatermarkSettings 
+                                         options={watermarkOptions} 
+                                         onChange={setWatermarkOptions} 
+                                     />
+                                 )}
+
                                 <Button
                                     onClick={handleConvert}
-                                    disabled={!selectedFormat || isProcessing || (selectedFormat === 'crop' && !cropArea) || (selectedFormat === 'resize' && (!resizeWidth || !resizeHeight))}
+                                    disabled={!selectedFormat || isProcessing || (selectedFormat === 'crop' && !cropArea) || (selectedFormat === 'resize' && (!resizeWidth || !resizeHeight)) || (selectedFormat === 'watermark' && (watermarkOptions.type === 'text' ? !watermarkOptions.text : !watermarkOptions.watermarkImage))}
                                     loading={isProcessing}
                                     className="w-full"
                                 >
                                     {isProcessing
-                                        ? (selectedFormat === 'crop' ? 'Cropping...' : selectedFormat === 'resize' ? 'Resizing...' : 'Converting...')
-                                        : (selectedFormat === 'crop' ? 'Crop Image' : selectedFormat === 'resize' ? 'Resize Image' : 'Convert')}
+                                        ? (selectedFormat === 'crop' ? 'Cropping...' : selectedFormat === 'resize' ? 'Resizing...' : selectedFormat === 'watermark' ? 'Watermarking...' : 'Converting...')
+                                        : (selectedFormat === 'crop' ? 'Crop Image' : selectedFormat === 'resize' ? 'Resize Image' : selectedFormat === 'watermark' ? 'Add Watermark' : 'Convert')}
                                 </Button>
 
                                 {isProcessing && (
@@ -427,11 +449,11 @@ export default function UnifiedConverter() {
                          <div className="border-2 border-green-200 dark:border-green-800 rounded-xl p-4">
                              <div className="flex items-center justify-between mb-3">
                                  <h3 className="text-lg font-semibold text-green-700 dark:text-green-300">
-                                     {selectedFormat === 'remove-background' ? '✓ Background Removed' : selectedFormat === 'crop' ? '✓ Image Cropped' : selectedFormat === 'resize' ? '✓ Image Resized' : '✓ Conversion Complete'}
+                                     {selectedFormat === 'remove-background' ? '✓ Background Removed' : selectedFormat === 'crop' ? '✓ Image Cropped' : selectedFormat === 'resize' ? '✓ Image Resized' : selectedFormat === 'watermark' ? '✓ Watermark Added' : '✓ Conversion Complete'}
                                  </h3>
                                  <div className="flex gap-2">
                                      <Button onClick={handleReset} variant="outline" size="sm">
-                                         {selectedFormat === 'remove-background' ? 'Process Another' : selectedFormat === 'crop' ? 'Crop Another' : selectedFormat === 'resize' ? 'Resize Another' : 'New Conversion'}
+                                         {selectedFormat === 'remove-background' ? 'Process Another' : selectedFormat === 'crop' ? 'Crop Another' : selectedFormat === 'resize' ? 'Resize Another' : selectedFormat === 'watermark' ? 'Add to Another' : 'New Conversion'}
                                      </Button>
                                      <Button onClick={handleDownload} size="sm">
                                          Download
@@ -475,7 +497,7 @@ export default function UnifiedConverter() {
                                          originalSize={result.originalSize}
                                      />
                                      <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                         {selectedFormat === 'remove-background' || selectedFormat === 'crop' || selectedFormat === 'resize' ? (
+                                         {selectedFormat === 'remove-background' || selectedFormat === 'crop' || selectedFormat === 'resize' || selectedFormat === 'watermark' ? (
                                              <>
                                                  <p className="text-sm text-gray-600 dark:text-gray-400">
                                                      Output: <span className="font-mono">{result.format || 'PNG'}</span>

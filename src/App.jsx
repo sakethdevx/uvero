@@ -37,13 +37,7 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const Profile = lazy(() => import('./pages/Profile'));
 
 const TOOL_CATEGORIES = [
-  {
-    name: 'Image Utilities',
-    icon: '🖼️',
-    tools: [
-      { name: 'Add Watermark', path: '/watermark' }
-    ]
-  },
+
   {
     name: 'Security & Codes',
     icon: '🔐',

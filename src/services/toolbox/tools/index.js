@@ -6,8 +6,7 @@
 
 // Image Utilities
 
-import Watermark from './image/watermark/Watermark';
-import watermarkSEO from './image/watermark/seo.json';
+
 
 
 
@@ -38,16 +37,7 @@ import cstToEstSEO from './utility/cst-to-est/seo.json';
 export const tools = {
     // Image Utilities
 
-    'watermark': {
-        id: 'watermark',
-        name: 'Add Watermark',
-        description: 'Add text or image watermarks to pictures',
-        component: Watermark,
-        category: 'image-utilities',
-        seo: watermarkSEO,
-        icon: '©️',
-        popular: false,
-    },
+
 
 
     // Security & Codes

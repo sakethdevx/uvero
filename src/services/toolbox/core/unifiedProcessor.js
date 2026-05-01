@@ -43,6 +43,7 @@ const FORMAT_REGISTRY = {
             // Special operations
             { value: 'crop', label: 'Crop Image', desc: 'Crop to any size or ratio' },
             { value: 'resize', label: 'Resize Image', desc: 'Change dimensions' },
+            { value: 'watermark', label: 'Add Watermark', desc: 'Text or Logo' },
             { value: 'remove-background', label: 'Remove Background', desc: 'AI-powered background removal' },
             // Note: Some formats like HEIC/HEIF, RAW, ANI, ICNS are read-only only
         ],
@@ -127,10 +128,11 @@ class UnifiedProcessor {
         this.bgRemoverProc = null;
         this.cropProc = null;
         this.resizeProc = null;
+        this.watermarkProc = null;
     }
 
     async ensureProcessors() {
-        if (this.imageProc && this.pandocProc && this.audioProc && this.videoProc && this.bgRemoverProc && this.cropProc && this.resizeProc) return;
+        if (this.imageProc && this.pandocProc && this.audioProc && this.videoProc && this.bgRemoverProc && this.cropProc && this.resizeProc && this.watermarkProc) return;
 
         if (!this.imageProc) {
             try {
@@ -190,6 +192,14 @@ class UnifiedProcessor {
                 this.resizeProc = resizeMod.processor || resizeMod.default || resizeMod;
             } catch (e) {
                 console.warn('Resize processor not available:', e);
+            }
+        }
+        if (!this.watermarkProc) {
+            try {
+                const watermarkMod = await import('../tools/image/watermark/processor');
+                this.watermarkProc = watermarkMod.processor || watermarkMod.default || watermarkMod;
+            } catch (e) {
+                console.warn('Watermark processor not available:', e);
             }
         }
     }
@@ -288,6 +298,37 @@ class UnifiedProcessor {
                 height: result.height,
                 format: `${file.type.split('/')[1].toUpperCase()} (resized)`,
                 operation: 'resize'
+            };
+        }
+
+        // Special case: Add Watermark
+        if (category === 'image' && outputFormat === 'watermark') {
+            if (!this.watermarkProc) {
+                try {
+                    const watermarkMod = await import('../tools/image/watermark/processor');
+                    this.watermarkProc = watermarkMod.processor || watermarkMod.default || watermarkMod;
+                } catch (e) {
+                    console.error('Watermark processor retry failed:', e);
+                    throw new Error('Watermark tool could not be loaded. Please refresh and try again.');
+                }
+            }
+            if (options.type === 'text' && !options.text) {
+                throw new Error('Watermark text is required.');
+            }
+            if (options.type === 'image' && !options.watermarkImage) {
+                throw new Error('Watermark image is required.');
+            }
+            
+            const result = await this.watermarkProc.addWatermark(file, options, onProgress);
+            const blob = await fetch(result.url).then(r => r.blob());
+            URL.revokeObjectURL(result.url);
+            const watermarkedFile = new File([blob], result.filename, { type: file.type });
+            return {
+                file: watermarkedFile,
+                originalSize: file.size,
+                convertedSize: blob.size,
+                format: `${file.type.split('/')[1].toUpperCase()} (watermarked)`,
+                operation: 'watermark'
             };
         }
 
