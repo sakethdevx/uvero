@@ -1,18 +1,13 @@
-import { assertModeSupported } from '../../../core/executorUtils';
-import { run as runOffline } from './offline';
+import { run as processorRun } from './offline';
 
 const toolId = 'remove-background';
-const supportedModes = ['offline'];
 
 async function run(input) {
-    const mode = input.mode || 'offline';
-    assertModeSupported(backgroundRemoverExecutor, mode, toolId);
-    return runOffline(input);
+    return processorRun(input);
 }
 
 const backgroundRemoverExecutor = {
     toolId,
-    supportedModes,
     run,
 };
 

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
-import { writeFileSync } from 'fs'
+import { writeFileSync, mkdirSync } from 'fs'
 import { resolve } from 'path'
 
 /**
@@ -15,7 +15,10 @@ const versionJsonPlugin = () => ({
   name: 'version-json',
   closeBundle() {
     const version = Date.now().toString()
-    writeFileSync(resolve('dist/version.json'), JSON.stringify({ version }))
+    const outDir = resolve('dist')
+    // Ensure dist directory exists
+    mkdirSync(outDir, { recursive: true })
+    writeFileSync(resolve(outDir, 'version.json'), JSON.stringify({ version }))
   },
 })
 

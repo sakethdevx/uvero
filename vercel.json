@@ -1,12 +1,23 @@
 {
-    "rewrites": [
+  "headers": [
+    {
+      "source": "/(.*)\\.wasm",
+      "headers": [
         {
-            "source": "/api/:path*",
-            "destination": "/api?path=:path*"
-        },
-        {
-            "source": "/(.*)",
-            "destination": "/index.html"
+          "key": "Content-Type",
+          "value": "application/wasm"
         }
-    ]
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api?path=:path*"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }

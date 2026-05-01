@@ -41,7 +41,6 @@ const BackgroundRemover = () => {
             const processedImage = await backgroundRemoverExecutor.run({
                 files: [file],
                 options: { quality },
-                mode: 'offline',
                 onProgress: (progressValue) => setProgress(progressValue),
             });
             if (resultPreviewUrl) {

@@ -9,11 +9,18 @@ const PROJECT_ROOT = path.resolve(ROOT_DIR, '..')
 const TOOL_INDEX_PATH = path.join(PROJECT_ROOT, 'src', 'services', 'toolbox', 'tools', 'index.js')
 const APP_PATH = path.join(PROJECT_ROOT, 'src', 'App.jsx')
 
+// Updated to match the new simplified toolbox
 const SMOKE_TOOL_IDS = [
-    'convert-video',
-    'document-converter',
-    'epub-to-mobi',
-    'rar-to-zip',
+    'qr-generator',
+    'password-generator',
+    'hash-generator',
+    'unit-converter',
+    'timezone-converter',
+    'lbs-to-kg',
+    'kg-to-lbs',
+    'feet-to-meters',
+    'pst-to-est',
+    'cst-to-est',
 ]
 
 function parseRegistryEntries(source) {

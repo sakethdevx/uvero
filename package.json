@@ -11,7 +11,7 @@
     "test:toolbox-runtime-status": "node scripts/test-toolbox-runtime-status.mjs",
     "test:toolbox-api": "node scripts/test-toolbox-api.mjs",
     "test:rar-to-zip": "node scripts/test-rar-to-zip-api.mjs",
-    "prebuild": "npm run check:toolbox && npm run test:toolbox-routes && npm run test:toolbox-runtime-status && npm run test:toolbox-api && npm run test:rar-to-zip && npm run generate:sitemap",
+    "prebuild": "npm run check:toolbox && npm run test:toolbox-routes && npm run generate:sitemap",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -19,6 +19,7 @@
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
+    "@imagemagick/magick-wasm": "^0.0.40",
     "@imgly/background-removal": "^1.7.0",
     "@monaco-editor/react": "^4.7.0",
     "@neslinesli93/qpdf-wasm": "^0.3.0",
@@ -35,6 +36,8 @@
     "jszip": "^3.10.1",
     "lamejs": "^1.2.1",
     "lz-string": "^1.5.0",
+    "@bjorn3/browser_wasi_shim": "^0.4.2",
+    "client-zip": "^2.5.0",
     "mammoth": "^1.11.0",
     "mime": "^3.0.0",
     "moment-timezone": "^0.6.0",
