@@ -1,7 +1,7 @@
 import { useParams, Navigate } from 'react-router-dom';
 import { getToolById } from '../tools';
 import { useEffect } from 'react';
-import ToolPageShell from '../components/ToolPageShell';
+import ToolPageShell, { buildToolFaqs } from '../components/ToolPageShell';
 import { requiresRuntimeVerification } from '../core/toolMetadata';
 import useToolRuntimeStatus from '../core/useToolRuntimeStatus';
 
