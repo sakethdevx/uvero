@@ -1,16 +1,9 @@
 {
-  "id": "image-wasm-converter"
-
-  "name": "Image Converter WASM"
-
-  "description": "Convert between 50+ image formats (JPG, PNG, WebP, AVIF, HEIC, TIFF, PSD, RAW & more) using ImageMagick WASM. Advanced options for quality, metadata, and format-specific settings."
-
-  "keywords": "image,convert,wasm,imagemagick,jpg,png,webp,avif,heic,tiff,psd,raw"
-
-  "category": "image"
-
-  "icon": "🖼️"
-
+  "id": "image-wasm-converter",
+  "name": "Image Converter WASM",
+  "description": "Convert between 50+ image formats (JPG, PNG, WebP, AVIF, HEIC, TIFF, PSD, RAW & more) using ImageMagick WASM. Advanced options for quality, metadata, and format-specific settings.",
+  "keywords": "image,convert,wasm,imagemagick,jpg,png,webp,avif,heic,tiff,psd,raw",
+  "category": "image",
+  "icon": "🖼️",
   "popular": true
-
 }
