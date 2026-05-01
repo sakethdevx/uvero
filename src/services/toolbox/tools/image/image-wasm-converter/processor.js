@@ -3,7 +3,7 @@
  * Uses pure ImageMagick WASM, following VERT reference implementation
  */
 
-import magickWasmUrl from '@imagemagick/magick-wasm/dist/magick.wasm?url';
+import magickWasmUrl from '@imagemagick/magick-wasm/magick.wasm?url';
 import workerUrl from './worker.js?worker&url';
 
 class ImageWasmConverterProcessor {
