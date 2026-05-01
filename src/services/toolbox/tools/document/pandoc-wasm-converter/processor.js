@@ -1,148 +1,135 @@
 /**
  * Pandoc WASM Processor
- * Manages Web Worker for Pandoc-based document conversion
+ * Follows VERT reference implementation
  */
-
-import pandocWasm from '@imagemagick/magick-wasm?url'; // Actually we'll use separate URL
 
 import workerUrl from './worker.js?worker&url';
 
 class PandocWasmProcessor {
-    worker = null;
-    wasmLoaded = false;
-
-    async ensureWasmLoaded() {
-        if (this.wasmLoaded) return;
-
-        try {
-            // Fetch pandoc.wasm from public folder
-            const response = await fetch('/pandoc.wasm');
-            if (!response.ok) {
-                throw new Error(`Failed to load pandoc.wasm: ${response.status}`);
-            }
-            const wasmArrayBuffer = await response.arrayBuffer();
-
-            // Initialize worker using ?worker&url output
-            this.worker = new Worker(
-                workerUrl,
-                { type: 'module' }
-            );
-
-            // Wait for worker to load WASM
-            await new Promise((resolve, reject) => {
-                const onMessage = (e) => {
-                    const { type, error, id } = e.data;
-                    if (type === 'loaded') {
-                        this.worker?.removeEventListener('message', onMessage);
-                        resolve(undefined);
-                    } else if (type === 'error') {
-                        this.worker?.removeEventListener('message', onMessage);
-                        reject(new Error(error || 'Worker failed to load WASM'));
-                    }
-                };
-                const onError = (err) => reject(err);
-                this.worker?.addEventListener('message', onMessage);
-                this.worker?.addEventListener('error', onError);
-                this.worker?.postMessage({
-                    type: 'load',
-                    wasm: wasmArrayBuffer,
-                    id: 'load'
-                });
-            });
-
-            this.wasmLoaded = true;
-        } catch (err) {
-            this.terminate();
-            throw err;
-        }
+    constructor() {
+        this.wasm = null;
+        this.wasmLoading = null;
     }
 
-    async convert(file, to, onProgress) {
+    async ensureWasmLoaded() {
+        if (this.wasm) return;
+        if (!this.wasmLoading) {
+            this.wasmLoading = (async () => {
+                const response = await fetch('/pandoc.wasm');
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch Pandoc WASM: ${response.status} ${response.statusText}`);
+                }
+                this.wasm = await response.arrayBuffer();
+            })();
+        }
+        await this.wasmLoading;
+    }
+
+    getExtension(filename) {
+        const ext = filename.split('.').pop()?.toLowerCase();
+        return ext ? `.${ext}` : '';
+    }
+
+    async convert(file, outputFormat, onProgress) {
         await this.ensureWasmLoaded();
+        const outputExt = outputFormat.toLowerCase();
+        const fromExt = this.getExtension(file.name);
 
         return new Promise((resolve, reject) => {
-            const worker = this.worker;
+            const worker = new Worker(workerUrl, { type: 'module' });
+
+            const timeout = setTimeout(() => {
+                worker.terminate();
+                reject(new Error('Conversion timeout after 30s'));
+            }, 30000);
 
             const handleMessage = (e) => {
-                const { type, output, error, isZip, id } = e.data;
-                if (type === 'progress') {
-                    if (onProgress) onProgress(e.data.progress || 0);
-                 } else if (type === 'finished') {
-                     worker.removeEventListener('message', handleMessage);
-                     worker.removeEventListener('error', handleError);
+                const { type, output, error, isZip, errorKind, id } = e.data;
 
-                     const baseName = file.name.replace(/\.[^/.]+$/, '');
-                     let fileName;
-                     let mimeType = 'application/octet-stream';
-                     if (isZip) {
-                         fileName = `${baseName}.zip`;
-                         mimeType = 'application/zip';
-                     } else {
-                         const extension = to.startsWith('.') ? to.slice(1) : to;
-                         fileName = `${baseName}.${extension}`;
-                     }
+                if (type === 'loaded') {
+                    // Send conversion request after WASM loaded
+                    worker.postMessage({
+                        type: 'convert',
+                        to: outputExt,
+                        input: {
+                            file,
+                            name: file.name,
+                            from: fromExt,
+                            to: outputExt,
+                        },
+                        id: file.name,
+                    });
+                } else if (type === 'finished') {
+                    clearTimeout(timeout);
+                    worker.removeEventListener('message', handleMessage);
+                    worker.removeEventListener('error', handleError);
+                    worker.terminate();
 
-                     const blob = new Blob([output], { type: mimeType });
-                     const convertedFile = new File([blob], fileName, { type: blob.type });
+                    const baseName = file.name.replace(/\.[^/.]+$/, '');
+                    const ext = isZip ? 'zip' : (outputExt === '.jpg' ? 'jpg' : outputExt.slice(1));
+                    const newFileName = `${baseName}.${ext}`;
+                    const blob = new Blob([output], { type: isZip ? 'application/zip' : `image/${ext}` });
+                    const convertedFile = new File([blob], newFileName, { type: blob.type });
 
                     resolve({
                         file: convertedFile,
                         blob,
                         originalSize: file.size,
                         convertedSize: blob.size,
-                        format: to
+                        format: outputExt.toUpperCase(),
                     });
                 } else if (type === 'error') {
+                    clearTimeout(timeout);
                     worker.removeEventListener('message', handleMessage);
                     worker.removeEventListener('error', handleError);
-                    reject(new Error(error || 'Conversion failed'));
+                    worker.terminate();
+
+                    let errMsg = error || 'Conversion failed';
+                    if (errorKind) {
+                        switch (errorKind) {
+                            case 'PandocUnknownReaderError':
+                                errMsg = `${fromExt} is not a supported input format for documents.`;
+                                break;
+                            case 'PandocUnknownWriterError':
+                                errMsg = `${outputExt} is not a supported output format for documents.`;
+                                break;
+                            case 'PandocParseError':
+                                if (errMsg.includes('JSON missing pandoc-api-version')) {
+                                    errMsg = 'This JSON file is not a pandoc-converted JSON file. It must be converted with pandoc / VERT to be converted again.';
+                                }
+                                break;
+                        }
+                    }
+                    reject(new Error(errMsg));
                 }
             };
 
             const handleError = (err) => {
-                worker.removeEventListener('message', handleMessage);
-                worker.removeEventListener('error', handleError);
+                clearTimeout(timeout);
+                worker.terminate();
                 reject(err);
             };
 
             worker.addEventListener('message', handleMessage);
             worker.addEventListener('error', handleError);
 
-            if (onProgress) onProgress(0);
-
+            // Send load message
             worker.postMessage({
-                type: 'convert',
-                input: {
-                    file,
-                    name: file.name,
-                    from: this.getExtension(file.name),
-                    to: to.startsWith('.') ? to : `.${to}`
-                },
-                id: file.name
+                type: 'load',
+                wasm: this.wasm,
+                id: file.name,
             });
         });
     }
 
-    getExtension(filename) {
-        const ext = filename.split('.').pop()?.toLowerCase();
-        // Default to txt for unknown extensions
-        return ext ? `.${ext}` : '.txt';
-    }
-
     terminate() {
-        if (this.worker) {
-            this.worker.terminate();
-            this.worker = null;
-        }
-        this.wasmLoaded = false;
+        // Nothing to clean up
     }
 }
 
 const processor = new PandocWasmProcessor();
 
-export const cleanup = () => processor.terminate();
-
 export default {
     convert: (...args) => processor.convert(...args),
-    terminate: () => processor.terminate()
+    terminate: () => {},
 };

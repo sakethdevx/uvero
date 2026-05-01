@@ -139,7 +139,7 @@ class UnifiedProcessor {
             if (category === 'image' && this.imageProc) {
                 return await this.imageProc.convert(file, outputFormat, options.default || 92, true, onProgress);
             } else if (category === 'document' && this.pandocProc) {
-                return await this.pandocProc.convert(file, outputFormat, null, true, onProgress);
+                return await this.pandocProc.convert(file, outputFormat, onProgress);
             } else {
                 throw new Error(`${category} converter not available. Please check your internet connection and refresh.`);
             }
