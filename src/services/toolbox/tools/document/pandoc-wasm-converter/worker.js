@@ -41,7 +41,8 @@ const handleMessage = async (message) => {
             const outExt = to;
 
             const buf = new Uint8Array(await file.arrayBuffer());
-            const args = `-f ${formatToReader('.' + (file.name.split('.').pop() || ''))} -t ${formatToReader(outExt)} --extract-media=.`;
+            const fromExt = '.' + (file.name.split('.').pop()?.toLowerCase() || '');
+            const args = `-f ${formatToReader(fromExt)} -t ${formatToReader(outExt)} --extract-media=.`;
 
             const [result, stderr, zip] = await pandoc(args, buf, file.name, outExt);
 
@@ -65,7 +66,10 @@ const handleMessage = async (message) => {
 };
 
 const formatToReader = (format) => {
-    switch (format) {
+    let fmt = format;
+    if (!fmt.startsWith('.')) fmt = '.' + fmt;
+    fmt = fmt.toLowerCase();
+    switch (fmt) {
         case '.md':
         case '.markdown':
             return 'markdown';
@@ -86,12 +90,14 @@ const formatToReader = (format) => {
             return 'json';
         case '.odt':
             return 'odt';
+        case '.pdf':
+            return 'latex';
         case '.rtf':
             return 'rtf';
         case '.rst':
             return 'rst';
-        case '.pdf':
-            return 'latex';
+        case '.txt':
+            return 'markdown'; // plain text as markdown
         default:
             throw new Error(`Unsupported format: ${format}`);
     }
