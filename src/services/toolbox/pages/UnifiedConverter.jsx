@@ -18,6 +18,12 @@ const SUPPORTED_CATEGORIES = {
         description: 'Convert documents (DOCX, PDF, EPUB, HTML, Markdown, etc.) using Pandoc',
         icon: '📄',
         badge: 'Pandoc'
+    },
+    audio: {
+        title: 'Audio Converter',
+        description: 'Convert audio files (MP3, WAV, FLAC, AAC, OGG, etc.) entirely in your browser',
+        icon: '🎵',
+        badge: 'FFmpeg'
     }
 };
 
@@ -68,7 +74,7 @@ export default function UnifiedConverter() {
             setOutputFormats(unifiedProcessor.getSupportedOutputs(selectedFile));
         } else {
             setOutputFormats([]);
-            setError('Unsupported file type. Please upload an image or document.');
+            setError('Unsupported file type. Please upload an image, audio file, or document.');
         }
     };
 
@@ -119,14 +125,14 @@ export default function UnifiedConverter() {
                     Unified File Converter
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Convert images and documents using WebAssembly. Fast, private, client-side processing. No uploads.
+                    Convert images, audio, and documents using WebAssembly. Fast, private, client-side processing. No uploads.
                 </p>
 
                 <div className="space-y-6">
                     {/* Dropzone */}
                     <Dropzone
                         onFileSelect={handleFileSelect}
-                        accept="image/*,.doc,.docx,.pdf,.epub,.odt,.html,.md,.txt,.rst,.csv,.tsv,.json,.docbook"
+                        accept="image/*,audio/*,.doc,.docx,.pdf,.epub,.odt,.html,.md,.txt,.rst,.csv,.tsv,.json,.docbook"
                         disabled={isProcessing}
                         value={file}
                     />
@@ -141,6 +147,11 @@ export default function UnifiedConverter() {
                                 <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
                                     {category === 'image' && previewUrl ? (
                                         <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
+                                    ) : category === 'audio' && previewUrl ? (
+                                        <div className="w-full px-4 flex flex-col items-center justify-center">
+                                            <div className="text-6xl mb-4">{categoryInfo.icon}</div>
+                                            <audio src={previewUrl} controls className="w-full mt-2" />
+                                        </div>
                                     ) : (
                                         <div className="text-center">
                                             <div className="text-4xl mb-2">{categoryInfo.icon}</div>
