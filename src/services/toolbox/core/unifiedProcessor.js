@@ -27,18 +27,33 @@ const FORMAT_REGISTRY = {
              'psd', 'svg', 'eps',
              'arw', 'cr2', 'dng', 'raf', 'orf', 'pef', 'rw2', 'nef', 'srf', 'crw', 'cr3', 'dcr', 'mrw', 'mef', 'erf', '3fr', 'x3f', 'rsf', 'iiq'
          ],
-         // Output formats we support
+         // Output formats we support (based on VERT reference)
          outputs: [
              { value: 'jpg', label: 'JPG', desc: 'Photos' },
+             { value: 'jpeg', label: 'JPEG', desc: 'Photos' },
              { value: 'png', label: 'PNG', desc: 'Lossless' },
              { value: 'webp', label: 'WebP', desc: 'Modern web' },
              { value: 'gif', label: 'GIF', desc: 'Animated' },
              { value: 'bmp', label: 'BMP', desc: 'Bitmap' },
-             { value: 'ico', label: 'ICO', desc: 'Favicon' },
+             { value: 'ico', label: 'ICO', desc: 'Icon' },
              { value: 'avif', label: 'AVIF', desc: 'Next-gen' },
-             { value: 'heic', label: 'HEIC', desc: 'Apple format' },
              { value: 'tiff', label: 'TIFF', desc: 'High quality' },
-             // SVG and PSD output not supported (encoding not available)
+             { value: 'tif', label: 'TIFF', desc: 'High quality' },
+             { value: 'psd', label: 'PSD', desc: 'Photoshop' },
+             { value: 'svg', label: 'SVG', desc: 'Vector' },
+             { value: 'jxl', label: 'JXL', desc: 'JXL' },
+             { value: 'heic', label: 'HEIC', desc: 'Apple format' },
+             { value: 'jpe', label: 'JPE', desc: 'JPEG variant' },
+             { value: 'jfif', label: 'JFIF', desc: 'JPEG format' },
+             { value: 'pbm', label: 'PBM', desc: 'Bitmap' },
+             { value: 'pgm', label: 'PGM', desc: 'Bitmap' },
+             { value: 'ppm', label: 'PPM', desc: 'Bitmap' },
+             { value: 'pnm', label: 'PNM', desc: 'Bitmap' },
+             { value: 'cur', label: 'CUR', desc: 'Cursor' },
+             { value: 'hdr', label: 'HDR', desc: 'High Dynamic Range' },
+             { value: 'mat', label: 'MAT', desc: 'Material' },
+             { value: 'eps', label: 'EPS', desc: 'Encapsulated PS' },
+             // Note: Some formats like HEIC/HEIF, RAW, ANI, ICNS are read-only only
          ],
         // Quality range
         quality: { min: 1, max: 100, default: 92 }
