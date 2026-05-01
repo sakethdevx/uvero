@@ -68,7 +68,7 @@ export default function OtherToolsHub() {
                 {tools.map((tool) => (
                     <Link
                         key={tool.id}
-                        to={`/tool/${tool.id}`}
+                        to={`/${tool.id}`}
                         className={`rounded-2xl border border-gray-200/80 bg-white dark:bg-gray-900 p-6 shadow-lg hover:shadow-xl transition-all group hover:scale-[1.02]`}
                     >
                         <div className="text-4xl mb-4">{tool.icon}</div>
