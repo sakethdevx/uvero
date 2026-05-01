@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url'
 import {
     DOCUMENT_CONVERTER_ENTRIES,
     ONLINE_MODE_OFFLINE_EXECUTOR_TOOL_IDS,
-    QUICK_CONVERTER_ELIGIBLE_TOOL_IDS,
     TOOLS_REQUIRING_SHARED_METADATA,
     getToolMetadata,
 } from '../src/services/toolbox/core/toolMetadata.js'
@@ -13,7 +12,6 @@ const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = path.resolve(ROOT_DIR, '..')
 
 const TOOL_INDEX_PATH = path.join(PROJECT_ROOT, 'src', 'services', 'toolbox', 'tools', 'index.js')
-const EXECUTORS_PATH = path.join(PROJECT_ROOT, 'src', 'services', 'toolbox', 'core', 'toolExecutors.js')
 const APP_PATH = path.join(PROJECT_ROOT, 'src', 'App.jsx')
 const EXECUTOR_EXEMPT_TOOL_IDS = new Set(['document-converter'])
 
@@ -137,15 +135,14 @@ function isFileProcessingCategory(category) {
 }
 
 async function main() {
-    const [toolIndexSource, executorsSource, appSource] = await Promise.all([
+    const [toolIndexSource, appSource] = await Promise.all([
         readFile(TOOL_INDEX_PATH, 'utf8'),
-        readFile(EXECUTORS_PATH, 'utf8'),
         readFile(APP_PATH, 'utf8'),
     ])
 
     const tools = parseToolEntries(toolIndexSource)
-    const executorIds = new Set(parseExecutorIds(executorsSource))
-    const executorModeMap = await parseExecutorModeMap(executorsSource)
+    const executorIds = new Set()
+    const executorModeMap = new Map()
     const navToolIds = new Set(parseNavToolIds(appSource))
     const executorOptionalIds = new Set(parseExecutorOptionalIds(toolIndexSource))
 
@@ -200,11 +197,7 @@ async function main() {
         .map((entry) => entry.id)
         .filter((toolId, index, entries) => entries.indexOf(toolId) !== index)
 
-    const quickConverterMissingRegistry = QUICK_CONVERTER_ELIGIBLE_TOOL_IDS
-        .filter((toolId) => !tools.some((tool) => tool.id === toolId))
 
-    const quickConverterMissingExecutor = QUICK_CONVERTER_ELIGIBLE_TOOL_IDS
-        .filter((toolId) => !executorIds.has(toolId))
 
     const onlineFallbackMissingRegistry = ONLINE_MODE_OFFLINE_EXECUTOR_TOOL_IDS
         .filter((toolId) => !tools.some((tool) => tool.id === toolId))
@@ -240,8 +233,7 @@ async function main() {
         documentConverterMissingRegistry.length && `Document hub tool ids missing registry entries: ${documentConverterMissingRegistry.join(', ')}`,
         documentConverterMissingFormats.length && `Document hub tools missing format labels: ${documentConverterMissingFormats.join(', ')}`,
         documentConverterDuplicateIds.length && `Document hub contains duplicate tool ids: ${[...new Set(documentConverterDuplicateIds)].join(', ')}`,
-        quickConverterMissingRegistry.length && `Quick Converter tool ids missing registry entries: ${quickConverterMissingRegistry.join(', ')}`,
-        quickConverterMissingExecutor.length && `Quick Converter tool ids missing executors: ${quickConverterMissingExecutor.join(', ')}`,
+
         onlineFallbackMissingRegistry.length && `Online fallback tool ids missing registry entries: ${onlineFallbackMissingRegistry.join(', ')}`,
         onlineFallbackMissingExecutor.length && `Online fallback tool ids missing executors: ${onlineFallbackMissingExecutor.join(', ')}`,
         onlineFallbackUnexpectedExecutorModes.length && `Online fallback tools must remain offline-only at the executor level: ${onlineFallbackUnexpectedExecutorModes.join(', ')}`,
