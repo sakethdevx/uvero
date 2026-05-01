@@ -8,8 +8,7 @@
 
 import Watermark from './image/watermark/Watermark';
 import watermarkSEO from './image/watermark/seo.json';
-import ImageResizer from './image/image-resizer/ImageResizer';
-import imageResizerSEO from './image/image-resizer/seo.json';
+
 
 
 // QR & Security
@@ -48,16 +47,6 @@ export const tools = {
         seo: watermarkSEO,
         icon: '©️',
         popular: false,
-    },
-    'resize-image': {
-        id: 'resize-image',
-        name: 'Image Resizer',
-        description: 'Resize images to any dimensions',
-        component: ImageResizer,
-        category: 'image-utilities',
-        seo: imageResizerSEO,
-        icon: '📐',
-        popular: true,
     },
 
 

@@ -42,6 +42,7 @@ const FORMAT_REGISTRY = {
             { value: 'eps', label: 'EPS', desc: 'Encapsulated PS' },
             // Special operations
             { value: 'crop', label: 'Crop Image', desc: 'Crop to any size or ratio' },
+            { value: 'resize', label: 'Resize Image', desc: 'Change dimensions' },
             { value: 'remove-background', label: 'Remove Background', desc: 'AI-powered background removal' },
             // Note: Some formats like HEIC/HEIF, RAW, ANI, ICNS are read-only only
         ],
@@ -125,10 +126,11 @@ class UnifiedProcessor {
         this.videoProc = null;
         this.bgRemoverProc = null;
         this.cropProc = null;
+        this.resizeProc = null;
     }
 
     async ensureProcessors() {
-        if (this.imageProc && this.pandocProc && this.audioProc && this.videoProc && this.bgRemoverProc && this.cropProc) return;
+        if (this.imageProc && this.pandocProc && this.audioProc && this.videoProc && this.bgRemoverProc && this.cropProc && this.resizeProc) return;
 
         if (!this.imageProc) {
             try {
@@ -180,6 +182,14 @@ class UnifiedProcessor {
                 this.cropProc = cropMod.processor || cropMod.default || cropMod;
             } catch (e) {
                 console.warn('Crop processor not available:', e);
+            }
+        }
+        if (!this.resizeProc) {
+            try {
+                const resizeMod = await import('../tools/image/image-resizer/processor');
+                this.resizeProc = resizeMod.processor || resizeMod.default || resizeMod;
+            } catch (e) {
+                console.warn('Resize processor not available:', e);
             }
         }
     }
@@ -249,6 +259,35 @@ class UnifiedProcessor {
                 convertedSize: blob.size,
                 format: 'PNG (cropped)',
                 operation: 'crop'
+            };
+        }
+
+        // Special case: Resize image
+        if (category === 'image' && outputFormat === 'resize') {
+            if (!this.resizeProc) {
+                try {
+                    const resizeMod = await import('../tools/image/image-resizer/processor');
+                    this.resizeProc = resizeMod.processor || resizeMod.default || resizeMod;
+                } catch (e) {
+                    console.error('Resize processor retry failed:', e);
+                    throw new Error('Image resizer could not be loaded. Please refresh and try again.');
+                }
+            }
+            if (!options.width || !options.height) {
+                throw new Error('Target dimensions are required for resizing.');
+            }
+            const result = await this.resizeProc.resize(file, options.width, options.height, onProgress);
+            const blob = await fetch(result.url).then(r => r.blob());
+            URL.revokeObjectURL(result.url);
+            const resizedFile = new File([blob], result.filename, { type: file.type });
+            return {
+                file: resizedFile,
+                originalSize: file.size,
+                convertedSize: blob.size,
+                width: result.width,
+                height: result.height,
+                format: `${file.type.split('/')[1].toUpperCase()} (resized)`,
+                operation: 'resize'
             };
         }
 
