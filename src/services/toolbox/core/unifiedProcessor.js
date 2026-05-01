@@ -85,6 +85,23 @@ const FORMAT_REGISTRY = {
             { value: 'alac', label: 'ALAC', desc: 'Apple lossless' }
         ],
         quality: { default: 'auto' } // could be bitrate
+    },
+    video: {
+        inputs: [
+            'mp4', 'mkv', 'mov', 'mts', 'ts', 'm2ts', 'flv', 'f4v', 'm4v',
+            '3gp', '3g2', 'wmv', 'webm', 'ogv', 'avi', 'divx', 'mpg', 'mpeg',
+            'vob', 'mxf', 'gif'
+        ],
+        outputs: [
+            { value: 'mp4', label: 'MP4', desc: 'Universal video' },
+            { value: 'mkv', label: 'MKV', desc: 'Matroska' },
+            { value: 'mov', label: 'MOV', desc: 'Apple QuickTime' },
+            { value: 'webm', label: 'WebM', desc: 'Web video' },
+            { value: 'avi', label: 'AVI', desc: 'Windows video' },
+            { value: 'wmv', label: 'WMV', desc: 'Windows Media' },
+            { value: 'gif', label: 'GIF', desc: 'Animated GIF' }
+        ],
+        quality: { default: 'auto' }
     }
 };
 
@@ -93,10 +110,11 @@ class UnifiedProcessor {
         this.imageProc = null;
         this.pandocProc = null;
         this.audioProc = null;
+        this.videoProc = null;
     }
 
     async ensureProcessors() {
-        if (this.imageProc && this.pandocProc && this.audioProc) return;
+        if (this.imageProc && this.pandocProc && this.audioProc && this.videoProc) return;
 
         try {
             // Import dynamically to avoid SSR issues
@@ -119,6 +137,13 @@ class UnifiedProcessor {
         } catch (e) {
             console.warn('Audio processor not available:', e);
         }
+
+        try {
+            const videoMod = await import('../tools/video/video-wasm-converter/processor');
+            this.videoProc = videoMod.default || videoMod;
+        } catch (e) {
+            console.warn('Video processor not available:', e);
+        }
     }
 
     detectCategory(file) {
@@ -134,6 +159,9 @@ class UnifiedProcessor {
         if (FORMAT_REGISTRY.audio.inputs.includes(ext)) {
             return 'audio';
         }
+        if (FORMAT_REGISTRY.video.inputs.includes(ext)) {
+            return 'video';
+        }
         return null;
     }
 
@@ -148,7 +176,7 @@ class UnifiedProcessor {
 
         const category = this.detectCategory(file);
         if (!category) {
-            throw new Error(`Unsupported file type. Please upload an image, audio file, or document.`);
+            throw new Error(`Unsupported file type. Please upload an image, audio, video file, or document.`);
         }
 
         const options = FORMAT_REGISTRY[category].quality || {};
@@ -159,6 +187,8 @@ class UnifiedProcessor {
             return await this.pandocProc.convert(file, outputFormat, onProgress);
         } else if (category === 'audio' && this.audioProc) {
             return await this.audioProc.convert(file, outputFormat, options.default || 'auto', onProgress);
+        } else if (category === 'video' && this.videoProc) {
+            return await this.videoProc.convert(file, outputFormat, options.default || 'auto', onProgress);
         } else {
             throw new Error(`${category} converter not available. Please check your internet connection and refresh.`);
         }

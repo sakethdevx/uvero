@@ -24,6 +24,12 @@ const SUPPORTED_CATEGORIES = {
         description: 'Convert audio files (MP3, WAV, FLAC, AAC, OGG, etc.) entirely in your browser',
         icon: '🎵',
         badge: 'FFmpeg'
+    },
+    video: {
+        title: 'Video Converter',
+        description: 'Convert video files (MP4, MKV, WebM, GIF, etc.) entirely in your browser',
+        icon: '🎥',
+        badge: 'FFmpeg'
     }
 };
 
@@ -132,7 +138,7 @@ export default function UnifiedConverter() {
                     {/* Dropzone */}
                     <Dropzone
                         onFileSelect={handleFileSelect}
-                        accept="image/*,audio/*,.doc,.docx,.pdf,.epub,.odt,.html,.md,.txt,.rst,.csv,.tsv,.json,.docbook"
+                        accept="image/*,video/*,audio/*,.doc,.docx,.pdf,.epub,.odt,.html,.md,.txt,.rst,.csv,.tsv,.json,.docbook"
                         disabled={isProcessing}
                         value={file}
                     />
@@ -147,6 +153,10 @@ export default function UnifiedConverter() {
                                 <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
                                     {category === 'image' && previewUrl ? (
                                         <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
+                                    ) : category === 'video' && previewUrl ? (
+                                        <div className="w-full px-4 flex flex-col items-center justify-center">
+                                            <video src={previewUrl} controls className="max-w-full max-h-full object-contain" />
+                                        </div>
                                     ) : category === 'audio' && previewUrl ? (
                                         <div className="w-full px-4 flex flex-col items-center justify-center">
                                             <div className="text-6xl mb-4">{categoryInfo.icon}</div>
@@ -232,6 +242,15 @@ export default function UnifiedConverter() {
                                 <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 flex items-center justify-center">
                                     {category === 'image' && resultPreviewUrl ? (
                                         <img src={resultPreviewUrl} alt="Result" className="max-w-full max-h-full object-contain" />
+                                    ) : category === 'video' && resultPreviewUrl ? (
+                                        <div className="w-full px-4 flex flex-col items-center justify-center">
+                                            <video src={resultPreviewUrl} controls className="max-w-full max-h-full object-contain" />
+                                        </div>
+                                    ) : category === 'audio' && resultPreviewUrl ? (
+                                        <div className="w-full px-4 flex flex-col items-center justify-center">
+                                            <div className="text-6xl mb-4 text-center">{categoryInfo?.icon || '🎵'}</div>
+                                            <audio src={resultPreviewUrl} controls className="w-full mt-2" />
+                                        </div>
                                     ) : (
                                         <div className="text-center">
                                             <div className="text-4xl mb-2">📄</div>
