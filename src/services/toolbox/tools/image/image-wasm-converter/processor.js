@@ -4,7 +4,7 @@
  * Uses WASM for advanced formats (AVIF, HEIC, TIFF, PSD, RAW, etc.)
  */
 
-import magickWasmUrl from '@imagemagick/magick-wasm/magick.wasm?url';
+import magickWasmUrl from '@imagemagick/magick-wasm/dist/magick.wasm?url';
 import workerUrl from './worker.js?worker&url';
 
 class ImageWasmConverterProcessor {
@@ -36,7 +36,15 @@ class ImageWasmConverterProcessor {
 
     async convert(file, outputFormat, quality = 92, keepMetadata = true, onProgress) {
         const outputExt = outputFormat.toLowerCase();
-        return this.canvasConvert(file, outputExt, quality, onProgress);
+        const isBasic = this.basicFormats.has(outputExt);
+
+        // Use Canvas for basic formats (no WASM needed)
+        if (isBasic) {
+            return this.canvasConvert(file, outputExt, quality, onProgress);
+        }
+
+        // Use WASM for advanced formats
+        return this.wasmConvert(file, outputExt, quality, keepMetadata, onProgress);
     }
 
     canvasConvert(file, outputExt, quality, onProgress) {
@@ -77,31 +85,6 @@ class ImageWasmConverterProcessor {
             };
 
             img.onerror = () => reject(new Error('Failed to load image for conversion'));
-            img.src = URL.createObjectURL(file);
-            img.onloadend = () => URL.revokeObjectURL(img.src);
-        });
-    }
-
-    createPngFromFile(file) {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                canvas.toBlob((blob) => {
-                    if (!blob) {
-                        reject(new Error('Failed to create PNG from image'));
-                        return;
-                    }
-                    const baseName = file.name.replace(/\.[^/.]+$/, '');
-                    const pngFile = new File([blob], `${baseName}.png`, { type: 'image/png' });
-                    resolve(pngFile);
-                }, 'image/png');
-            };
-            img.onerror = () => reject(new Error('Failed to load image for PNG conversion'));
             img.src = URL.createObjectURL(file);
             img.onloadend = () => URL.revokeObjectURL(img.src);
         });
