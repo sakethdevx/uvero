@@ -42,8 +42,7 @@ const TOOL_CATEGORIES = [
     icon: '🖼️',
     tools: [
       { name: 'Add Watermark', path: '/watermark' },
-      { name: 'Image Resizer', path: '/resize-image' },
-      { name: 'Image Cropper', path: '/crop-image' }
+      { name: 'Image Resizer', path: '/resize-image' }
     ]
   },
   {

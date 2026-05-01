@@ -4,8 +4,7 @@
  * Minimal implementation after consolidation.
  */
 
-// No tools need quick converter eligibility (we use UnifiedConverter instead)
-export const QUICK_CONVERTER_ELIGIBLE_TOOL_IDS = [];
+
 
 // No document converter hub
 export const DOCUMENT_CONVERTER_ENTRIES = [];
@@ -42,7 +41,7 @@ export function getToolMetadata(toolId) {
         availability: 'ready',
         availabilityNote: '',
         limits: [],
-        quickConverterEligible: QUICK_CONVERTER_ELIGIBLE_TOOL_IDS.includes(toolId),
+
         ...(TOOL_METADATA[toolId] || {}),
     };
 }

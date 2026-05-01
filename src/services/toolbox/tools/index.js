@@ -10,8 +10,7 @@ import Watermark from './image/watermark/Watermark';
 import watermarkSEO from './image/watermark/seo.json';
 import ImageResizer from './image/image-resizer/ImageResizer';
 import imageResizerSEO from './image/image-resizer/seo.json';
-import ImageCropper from './image/image-cropper/ImageCropper';
-import imageCropperSEO from './image/image-cropper/seo.json';
+
 
 // QR & Security
 import QRGenerator from './utility/qr-generator/QRGenerator';
@@ -60,16 +59,7 @@ export const tools = {
         icon: '📐',
         popular: true,
     },
-    'crop-image': {
-        id: 'crop-image',
-        name: 'Image Cropper',
-        description: 'Crop images to any size or aspect ratio',
-        component: ImageCropper,
-        category: 'image-utilities',
-        seo: imageCropperSEO,
-        icon: '✂️',
-        popular: false,
-    },
+
 
     // Security & Codes
     'qr-generator': {

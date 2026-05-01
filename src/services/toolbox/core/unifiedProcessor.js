@@ -41,6 +41,7 @@ const FORMAT_REGISTRY = {
             { value: 'mat', label: 'MAT', desc: 'Material' },
             { value: 'eps', label: 'EPS', desc: 'Encapsulated PS' },
             // Special operations
+            { value: 'crop', label: 'Crop Image', desc: 'Crop to any size or ratio' },
             { value: 'remove-background', label: 'Remove Background', desc: 'AI-powered background removal' },
             // Note: Some formats like HEIC/HEIF, RAW, ANI, ICNS are read-only only
         ],
@@ -123,10 +124,11 @@ class UnifiedProcessor {
         this.audioProc = null;
         this.videoProc = null;
         this.bgRemoverProc = null;
+        this.cropProc = null;
     }
 
     async ensureProcessors() {
-        if (this.imageProc && this.pandocProc && this.audioProc && this.videoProc && this.bgRemoverProc) return;
+        if (this.imageProc && this.pandocProc && this.audioProc && this.videoProc && this.bgRemoverProc && this.cropProc) return;
 
         if (!this.imageProc) {
             try {
@@ -172,6 +174,14 @@ class UnifiedProcessor {
                 console.warn('Background remover processor not available:', e);
             }
         }
+        if (!this.cropProc) {
+            try {
+                const cropMod = await import('../tools/image/image-cropper/processor');
+                this.cropProc = cropMod.processor || cropMod.default || cropMod;
+            } catch (e) {
+                console.warn('Crop processor not available:', e);
+            }
+        }
     }
 
     detectCategory(file) {
@@ -205,7 +215,7 @@ class UnifiedProcessor {
         );
     }
 
-    async convert(file, outputFormat, onProgress) {
+    async convert(file, outputFormat, onProgress, options = {}) {
         await this.ensureProcessors();
 
         const category = this.detectCategory(file);
@@ -213,7 +223,34 @@ class UnifiedProcessor {
             throw new Error(`Unsupported file type. Please upload an image, audio, video file, or document.`);
         }
 
-        const options = FORMAT_REGISTRY[category].quality || {};
+        const qualityOpts = FORMAT_REGISTRY[category].quality || {};
+
+        // Special case: Crop image
+        if (category === 'image' && outputFormat === 'crop') {
+            if (!this.cropProc) {
+                try {
+                    const cropMod = await import('../tools/image/image-cropper/processor');
+                    this.cropProc = cropMod.processor || cropMod.default || cropMod;
+                } catch (e) {
+                    console.error('Crop processor retry failed:', e);
+                    throw new Error('Image cropper could not be loaded. Please refresh and try again.');
+                }
+            }
+            if (!options.cropArea) {
+                throw new Error('Crop area is required. Please select a crop region.');
+            }
+            const result = await this.cropProc.cropImage(file, options.cropArea, onProgress);
+            const blob = await fetch(result.url).then(r => r.blob());
+            URL.revokeObjectURL(result.url);
+            const croppedFile = new File([blob], result.filename, { type: 'image/png' });
+            return {
+                file: croppedFile,
+                originalSize: file.size,
+                convertedSize: blob.size,
+                format: 'PNG (cropped)',
+                operation: 'crop'
+            };
+        }
 
         // Special case: Background removal for images
         if (category === 'image' && outputFormat === 'remove-background') {
@@ -241,13 +278,13 @@ class UnifiedProcessor {
                 operation: 'remove-background'
             };
         } else if (category === 'image' && this.imageProc) {
-            return await this.imageProc.convert(file, outputFormat, options.default || 92, true, onProgress);
+            return await this.imageProc.convert(file, outputFormat, qualityOpts.default || 92, true, onProgress);
         } else if (category === 'document' && this.pandocProc) {
             return await this.pandocProc.convert(file, outputFormat, onProgress);
         } else if (category === 'audio' && this.audioProc) {
-            return await this.audioProc.convert(file, outputFormat, options.default || 'auto', onProgress);
+            return await this.audioProc.convert(file, outputFormat, qualityOpts.default || 'auto', onProgress);
         } else if (category === 'video' && this.videoProc) {
-            return await this.videoProc.convert(file, outputFormat, options.default || 'auto', onProgress);
+            return await this.videoProc.convert(file, outputFormat, qualityOpts.default || 'auto', onProgress);
         } else {
             throw new Error(`${category} converter not available. Please check your internet connection and refresh.`);
         }

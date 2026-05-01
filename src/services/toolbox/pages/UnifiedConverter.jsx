@@ -5,6 +5,7 @@ import Button from '../shared/Button.jsx';
 import ProgressBar from '../shared/ProgressBar.jsx';
 import FileInfo from '../shared/FileInfo.jsx';
 import unifiedProcessor from '../core/unifiedProcessor.js';
+import InteractiveCropSelector from '../components/InteractiveCropSelector.jsx';
 
 const SUPPORTED_CATEGORIES = {
     image: {
@@ -50,6 +51,7 @@ export default function UnifiedConverter() {
     const [error, setError] = useState('');
     const [previewUrl, setPreviewUrl] = useState('');
     const [resultPreviewUrl, setResultPreviewUrl] = useState('');
+    const [cropArea, setCropArea] = useState(null);
 
     useEffect(() => {
         return () => {
@@ -78,6 +80,7 @@ export default function UnifiedConverter() {
         setError('');
         setProgress(0);
         setSelectedFormat(null);
+        setCropArea(null);
 
         // Detect category and available outputs
         const cat = unifiedProcessor.detectCategory(selectedFile);
@@ -99,7 +102,8 @@ export default function UnifiedConverter() {
         setResult(null);
 
         try {
-            const res = await unifiedProcessor.convert(file, selectedFormat, (prog) => setProgress(prog));
+            const convertOptions = selectedFormat === 'crop' ? { cropArea } : {};
+            const res = await unifiedProcessor.convert(file, selectedFormat, (prog) => setProgress(prog), convertOptions);
             setResult(res);
         } catch (err) {
             setError(err.message || 'Conversion failed');
@@ -126,6 +130,7 @@ export default function UnifiedConverter() {
         setCategory(null);
         setOutputFormats([]);
         setSelectedFormat(null);
+        setCropArea(null);
     };
 
     const categoryInfo = category ? SUPPORTED_CATEGORIES[category] : null;
@@ -200,19 +205,19 @@ export default function UnifiedConverter() {
                                     </label>
                                     <div className="grid grid-cols-2 gap-2">
                                         {outputFormats.map((fmt) => {
-                                            const isRemoveBg = fmt.value === 'remove-background';
+                                            const isSpecial = fmt.value === 'remove-background' || fmt.value === 'crop';
                                             const isSelected = selectedFormat === fmt.value;
                                             return (
                                                 <button
                                                     key={fmt.value}
                                                     type="button"
-                                                    onClick={() => setSelectedFormat(fmt.value)}
+                                                    onClick={() => { setSelectedFormat(fmt.value); if (fmt.value !== 'crop') setCropArea(null); }}
                                                     disabled={isProcessing}
                                                     className={`p-3 rounded-lg border text-left transition-colors ${isSelected
-                                                        ? isRemoveBg
+                                                        ? isSpecial
                                                             ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 ring-2 ring-purple-500'
                                                             : 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 ring-2 ring-primary-500'
-                                                        : isRemoveBg
+                                                        : isSpecial
                                                             ? 'border-purple-200 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-700 bg-purple-25 dark:bg-purple-900/10'
                                                             : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                                                         }`}
@@ -229,13 +234,28 @@ export default function UnifiedConverter() {
                                     </div>
                                 </div>
 
+                                {/* Crop Selector - shown when crop format is selected */}
+                                {selectedFormat === 'crop' && file && (
+                                    <div className="border-2 border-purple-200 dark:border-purple-800 rounded-xl p-4">
+                                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                            ✂️ Adjust Crop Area
+                                        </h3>
+                                        <InteractiveCropSelector
+                                            file={file}
+                                            onChange={setCropArea}
+                                        />
+                                    </div>
+                                )}
+
                                 <Button
                                     onClick={handleConvert}
-                                    disabled={!selectedFormat || isProcessing}
+                                    disabled={!selectedFormat || isProcessing || (selectedFormat === 'crop' && !cropArea)}
                                     loading={isProcessing}
                                     className="w-full"
                                 >
-                                    {isProcessing ? 'Converting...' : 'Convert'}
+                                    {isProcessing
+                                        ? (selectedFormat === 'crop' ? 'Cropping...' : 'Converting...')
+                                        : (selectedFormat === 'crop' ? 'Crop Image' : 'Convert')}
                                 </Button>
 
                                 {isProcessing && (
@@ -250,11 +270,11 @@ export default function UnifiedConverter() {
                          <div className="border-2 border-green-200 dark:border-green-800 rounded-xl p-4">
                              <div className="flex items-center justify-between mb-3">
                                  <h3 className="text-lg font-semibold text-green-700 dark:text-green-300">
-                                     {selectedFormat === 'remove-background' ? '✓ Background Removed' : '✓ Conversion Complete'}
+                                     {selectedFormat === 'remove-background' ? '✓ Background Removed' : selectedFormat === 'crop' ? '✓ Image Cropped' : '✓ Conversion Complete'}
                                  </h3>
                                  <div className="flex gap-2">
                                      <Button onClick={handleReset} variant="outline" size="sm">
-                                         {selectedFormat === 'remove-background' ? 'Process Another' : 'New Conversion'}
+                                         {selectedFormat === 'remove-background' ? 'Process Another' : selectedFormat === 'crop' ? 'Crop Another' : 'New Conversion'}
                                      </Button>
                                      <Button onClick={handleDownload} size="sm">
                                          Download
@@ -298,10 +318,10 @@ export default function UnifiedConverter() {
                                          originalSize={result.originalSize}
                                      />
                                      <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                         {selectedFormat === 'remove-background' ? (
+                                         {selectedFormat === 'remove-background' || selectedFormat === 'crop' ? (
                                              <>
                                                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                                                     Output: <span className="font-mono">PNG (transparent)</span>
+                                                     Output: <span className="font-mono">{result.format || 'PNG'}</span>
                                                  </p>
                                                  {result.width && result.height && (
                                                      <p className="text-sm text-gray-600 dark:text-gray-400">
