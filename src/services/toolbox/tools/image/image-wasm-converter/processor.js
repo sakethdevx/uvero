@@ -34,7 +34,7 @@ class ImageWasmConverterProcessor {
 	async convert(file, outputFormat, quality = 92, keepMetadata = true, onProgress) {
 		await this.ensureWasmLoaded();
 
-		const outputExt = outputFormat.toLowerCase();
+		let outputExt = outputFormat.toLowerCase();
 		if (!outputExt.startsWith('.')) outputExt = `.${outputExt}`;
 		if (outputExt === '.jfif') outputExt = '.jpeg';
 
