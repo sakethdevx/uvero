@@ -18,7 +18,7 @@ const OUTPUT_FORMATS = [
     { value: 'txt', label: 'Plain Text' },
 ];
 
-export default function PandocWasmConverter({ mode = 'offline', isOnlineMode = mode === 'online' }) {
+export default function PandocWasmConverter() {
     const [file, setFile] = useState(null);
     const [outputFormat, setOutputFormat] = useState('pdf');
     const [isProcessing, setIsProcessing] = useState(false);

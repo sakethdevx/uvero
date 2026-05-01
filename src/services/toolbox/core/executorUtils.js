@@ -1,15 +1,3 @@
-import {
-    createModeNotSupportedError,
-    ModeNotSupportedError,
-    ServiceUnavailableError,
-} from './errors';
-
-export function assertModeSupported(executor, mode, toolId = executor?.toolId || 'unknown-tool') {
-    if (!executor?.supportedModes?.includes(mode)) {
-        throw createModeNotSupportedError(toolId, mode, executor?.supportedModes || []);
-    }
-}
-
 export function normalizeSingleFileResult(primaryFile, meta = {}) {
     return {
         primaryFile,
@@ -44,9 +32,6 @@ export function aggregateProgress(onProgress, index, totalFiles) {
     };
 }
 
-export function isModeNotSupportedError(error) {
-    return error instanceof ModeNotSupportedError || error?.name === 'ModeNotSupportedError';
-}
 
 export function isServiceUnavailableError(error) {
     return error instanceof ServiceUnavailableError || error?.name === 'ServiceUnavailableError';

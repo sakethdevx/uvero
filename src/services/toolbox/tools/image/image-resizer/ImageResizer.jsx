@@ -5,7 +5,7 @@ import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import imageResizerExecutor from './executor';
 
-const ImageResizer = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
+const ImageResizer = () => {
     const [file, setFile] = useState(null);
     const [resizeMode, setResizeMode] = useState('dimensions'); // 'dimensions' or 'percentage'
     const [width, setWidth] = useState('');

@@ -49,7 +49,6 @@ export const tools = {
         seo: backgroundRemoverSEO,
         icon: '🎨',
         popular: true,
-        modes: ['online', 'offline']
     },
     'watermark': {
         id: 'watermark',
@@ -60,7 +59,6 @@ export const tools = {
         seo: watermarkSEO,
         icon: '©️',
         popular: false,
-        modes: ['offline']
     },
     'resize-image': {
         id: 'resize-image',
@@ -71,7 +69,6 @@ export const tools = {
         seo: imageResizerSEO,
         icon: '📐',
         popular: true,
-        modes: ['offline']
     },
     'crop-image': {
         id: 'crop-image',
@@ -82,7 +79,6 @@ export const tools = {
         seo: imageCropperSEO,
         icon: '✂️',
         popular: false,
-        modes: ['offline']
     },
 
     // Security & Codes
@@ -95,7 +91,6 @@ export const tools = {
         seo: qrGeneratorSEO,
         icon: '🔳',
         popular: true,
-        modes: ['offline']
     },
     'password-generator': {
         id: 'password-generator',
@@ -106,7 +101,6 @@ export const tools = {
         seo: passwordGeneratorSEO,
         icon: '🔐',
         popular: true,
-        modes: ['offline']
     },
     'hash-generator': {
         id: 'hash-generator',
@@ -117,7 +111,6 @@ export const tools = {
         seo: hashGeneratorSEO,
         icon: '🔒',
         popular: false,
-        modes: ['offline']
     },
 
     // Measurements & Time
@@ -130,7 +123,6 @@ export const tools = {
         seo: unitConverterSEO,
         icon: '📏',
         popular: true,
-        modes: ['offline']
     },
     'timezone-converter': {
         id: 'timezone-converter',
@@ -141,7 +133,6 @@ export const tools = {
         seo: timezoneConverterSEO,
         icon: '🌍',
         popular: false,
-        modes: ['offline']
     },
     'lbs-to-kg': {
         id: 'lbs-to-kg',
@@ -152,7 +143,6 @@ export const tools = {
         seo: lbsToKgSEO,
         icon: '⚖️',
         popular: false,
-        modes: ['offline']
     },
     'kg-to-lbs': {
         id: 'kg-to-lbs',
@@ -163,7 +153,6 @@ export const tools = {
         seo: kgToLbsSEO,
         icon: '⚖️',
         popular: false,
-        modes: ['offline']
     },
     'feet-to-meters': {
         id: 'feet-to-meters',
@@ -174,7 +163,6 @@ export const tools = {
         seo: feetToMetersSEO,
         icon: '📐',
         popular: false,
-        modes: ['offline']
     },
     'pst-to-est': {
         id: 'pst-to-est',
@@ -185,7 +173,6 @@ export const tools = {
         seo: pstToEstSEO,
         icon: '⏰',
         popular: false,
-        modes: ['offline']
     },
     'cst-to-est': {
         id: 'cst-to-est',
@@ -196,7 +183,6 @@ export const tools = {
         seo: cstToEstSEO,
         icon: '⏰',
         popular: false,
-        modes: ['offline']
     }
 };
 

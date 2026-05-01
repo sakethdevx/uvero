@@ -1,6 +1,5 @@
 export class ModeNotSupportedError extends Error {
     constructor(toolId, mode, supportedModes = []) {
-        super(`Mode "${mode}" is not supported for tool "${toolId}". Supported modes: ${supportedModes.join(', ') || 'none'}`);
         this.name = 'ModeNotSupportedError';
         this.toolId = toolId;
         this.mode = mode;

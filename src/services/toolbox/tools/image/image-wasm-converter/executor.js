@@ -1,19 +1,14 @@
-import { assertModeSupported } from '../../../core/executorUtils';
-import { run as runOffline } from './offline';
+import { run as processorRun } from './offline';
 
-const toolId = 'image-wasm-converter';
-const supportedModes = ['offline'];
+const toolId = 'TOOLID_PLACEHOLDER';
 
 async function run(input) {
-    const mode = input.mode || 'offline';
-    assertModeSupported(imageWasmConverterExecutor, mode, toolId);
-    return runOffline(input);
+    return processorRun(input);
 }
 
-const imageWasmConverterExecutor = {
+const EXECUTOR_PLACEHOLDER = {
     toolId,
-    supportedModes,
     run,
 };
 
-export default imageWasmConverterExecutor;
+export default EXECUTOR_PLACEHOLDER;

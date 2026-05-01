@@ -5,7 +5,7 @@ import ProgressBar from '../../../shared/ProgressBar';
 import FileInfo from '../../../shared/FileInfo';
 import watermarkExecutor from './executor';
 
-const Watermark = ({ mode = 'offline', isOnlineMode = mode === 'online' }) => {
+const Watermark = () => {
     const [file, setFile] = useState(null);
     const [watermarkType, setWatermarkType] = useState('text'); // 'text' or 'image'
     const [watermarkImage, setWatermarkImage] = useState(null);

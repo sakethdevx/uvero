@@ -20,7 +20,7 @@ const OUTPUT_FORMATS = [
     { value: 'psd', label: 'PSD', desc: 'Photoshop' },
 ];
 
-export default function ImageWasmConverter({ mode = 'offline', isOnlineMode = mode === 'online' }) {
+export default function ImageWasmConverter() {
     const [file, setFile] = useState(null);
     const [outputFormat, setOutputFormat] = useState('png');
     const [quality, setQuality] = useState(92);

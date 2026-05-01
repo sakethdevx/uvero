@@ -1,25 +1,14 @@
-import { assertModeSupported } from '../../../core/executorUtils';
-import { run as runOffline } from './offline';
-import { run as runOnline } from './online';
+import { run as processorRun } from './offline';
 
-const toolId = 'watermark';
-const supportedModes = ['offline', 'online'];
+const toolId = 'TOOLID_PLACEHOLDER';
 
 async function run(input) {
-    const mode = input.mode || 'offline';
-    assertModeSupported(watermarkExecutor, mode, toolId);
-
-    if (mode === 'online') {
-        return runOnline(input);
-    }
-
-    return runOffline(input);
+    return processorRun(input);
 }
 
-const watermarkExecutor = {
+const EXECUTOR_PLACEHOLDER = {
     toolId,
-    supportedModes,
     run,
 };
 
-export default watermarkExecutor;
+export default EXECUTOR_PLACEHOLDER;
