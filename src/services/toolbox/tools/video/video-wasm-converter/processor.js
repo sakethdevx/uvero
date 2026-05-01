@@ -5,11 +5,18 @@ class VideoWasmConverterProcessor {
         this.ffmpegInstances = new Map();
     }
 
+    isAudioOutput(outputExt) {
+        const audioExts = ['.mp3', '.wav', '.flac', '.ogg', '.aac', '.m4a', '.opus', '.wma'];
+        return audioExts.includes(outputExt);
+    }
+
     // eslint-disable-next-line no-unused-vars
     async convert(file, outputFormat, quality = null, onProgress = null) {
         // ... quality is kept as optional arg for unified processor API uniformity
         let outputExt = outputFormat.toLowerCase();
         if (!outputExt.startsWith('.')) outputExt = `.${outputExt}`;
+
+        const isAudio = this.isAudioOutput(outputExt);
 
         const ffmpeg = new FFmpeg();
         const id = Math.random().toString(36).substr(2, 9);
@@ -37,7 +44,7 @@ class VideoWasmConverterProcessor {
             await ffmpeg.writeFile('input', new Uint8Array(data));
 
             // Build Conversion command
-            const command = await this.buildConversionCommand(file.name, outputExt);
+            const command = await this.buildConversionCommand(file.name, outputExt, isAudio, quality);
 
             // Execute FFmpeg
             await ffmpeg.exec(command);
@@ -52,7 +59,8 @@ class VideoWasmConverterProcessor {
             const inputBaseName = file.name.split('.').slice(0, -1).join('.');
             const outputFileName = inputBaseName + outputExt;
 
-            const blob = new Blob([outputData.buffer], { type: 'video/' + outputExt.replace('.', '') });
+            const mimeType = isAudio ? 'audio/' + outputExt.replace('.', '') : 'video/' + outputExt.replace('.', '');
+            const blob = new Blob([outputData.buffer], { type: mimeType });
 
             return {
                 file: new File([blob], outputFileName, { type: blob.type })
@@ -128,18 +136,57 @@ class VideoWasmConverterProcessor {
         return args;
     }
 
-    async buildConversionCommand(inputName, outputExt) {
-        const codecArgs = this.getToArgs(outputExt);
-
+    async buildConversionCommand(inputName, outputExt, isAudio, quality) {
         let extraArgs = [];
-        // Optional quality configuration can be added here
+
+        if (isAudio) {
+            // Audio extraction: -vn disables video recording
+            extraArgs.push('-vn');
+
+            // Set audio codec based on output format
+            const audioCodec = this.getAudioCodec(outputExt);
+            if (audioCodec) {
+                extraArgs.push('-c:a', audioCodec);
+                if (audioCodec === 'aac' || audioCodec === 'libfdk_aac') {
+                    extraArgs.push('-strict', 'experimental');
+                }
+            }
+
+            // Quality/bitrate handling
+            if (quality && typeof quality === 'string' && quality !== 'auto') {
+                extraArgs.push('-b:a', quality);
+            } else {
+                // Default bitrate for lossy audio
+                extraArgs.push('-b:a', '128k');
+            }
+        } else {
+            // Video conversion (existing logic)
+            extraArgs = this.getToArgs(outputExt);
+            // Apply quality if provided
+            if (quality && typeof quality === 'string' && quality !== 'auto') {
+                extraArgs.push('-b:v', quality);
+            }
+        }
 
         return [
             '-i', 'input',
-            ...codecArgs,
             ...extraArgs,
             'output' + outputExt
         ];
+    }
+
+    getAudioCodec(ext) {
+        switch (ext) {
+            case '.mp3': return 'libmp3lame';
+            case '.wav': return 'pcm_s16le';
+            case '.flac': return 'flac';
+            case '.ogg': return 'libvorbis';
+            case '.aac': return 'aac';
+            case '.m4a': return 'aac';
+            case '.opus': return 'libopus';
+            case '.wma': return 'wmav2';
+            default: return 'aac';
+        }
     }
 }
 

@@ -99,7 +99,16 @@ const FORMAT_REGISTRY = {
             { value: 'webm', label: 'WebM', desc: 'Web video' },
             { value: 'avi', label: 'AVI', desc: 'Windows video' },
             { value: 'wmv', label: 'WMV', desc: 'Windows Media' },
-            { value: 'gif', label: 'GIF', desc: 'Animated GIF' }
+            { value: 'gif', label: 'GIF', desc: 'Animated GIF' },
+            // Audio extraction formats
+            { value: 'mp3', label: 'MP3', desc: 'Extract audio' },
+            { value: 'wav', label: 'WAV', desc: 'Extract audio' },
+            { value: 'flac', label: 'FLAC', desc: 'Extract audio' },
+            { value: 'ogg', label: 'OGG', desc: 'Extract audio' },
+            { value: 'aac', label: 'AAC', desc: 'Extract audio' },
+            { value: 'm4a', label: 'M4A', desc: 'Extract audio' },
+            { value: 'opus', label: 'OPUS', desc: 'Extract audio' },
+            { value: 'wma', label: 'WMA', desc: 'Extract audio' }
         ],
         quality: { default: 'auto' }
     }
