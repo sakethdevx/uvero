@@ -88,7 +88,6 @@ const ImageResizer = () => {
                     width: targetWidth,
                     height: targetHeight,
                 },
-                mode,
                 onProgress: setProgress,
             });
             if (previewUrl) {

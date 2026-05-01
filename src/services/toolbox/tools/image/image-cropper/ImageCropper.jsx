@@ -362,7 +362,6 @@ const ImageCropper = () => {
             const result = await imageCropperExecutor.run({
                 files: [file],
                 options: { cropArea: naturalCrop },
-                mode,
                 onProgress: (prog) => setProgress(prog),
             });
             if (croppedPreviewUrl) {

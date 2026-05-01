@@ -66,7 +66,6 @@ export default function PandocWasmConverter() {
         try {
             const result = await pandocWasmConverterExecutor.run({
                 files: [file],
-                mode,
                 options: {
                     outputFormat,
                 },

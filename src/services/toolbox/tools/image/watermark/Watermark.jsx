@@ -74,7 +74,6 @@ const Watermark = () => {
                     color,
                     watermarkImage
                 },
-                mode,
                 onProgress: (prog) => setProgress(prog),
             });
             if (previewUrl) {

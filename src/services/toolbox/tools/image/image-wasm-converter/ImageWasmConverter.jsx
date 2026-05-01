@@ -85,7 +85,6 @@ export default function ImageWasmConverter() {
         try {
             const result = await imageWasmConverterExecutor.run({
                 files: [file],
-                mode,
                 options: {
                     outputFormat,
                     quality,
