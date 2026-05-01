@@ -2,8 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import Dropzone from '../shared/Dropzone';
 import ProgressBar from '../shared/ProgressBar';
 import InteractiveCropSelector from './InteractiveCropSelector';
-import { useMode } from '../context/ModeContext';
-import ModeToggle from './ModeToggle';
 import { getToolById } from '../tools';
 import { getToolExecutor } from '../core/toolExecutors';
 
@@ -103,7 +101,7 @@ function getResultIcon(file) {
     return '📦';
 }
 
-function getAvailableOperations(files, mode) {
+function getAvailableOperations(files) {
     if (!files.length) return [];
 
     return QUICK_CONVERTER_OPERATIONS
@@ -112,7 +110,7 @@ function getAvailableOperations(files, mode) {
         .map((operation) => {
             const tool = getToolById(operation.id);
 
-            if (!tool || !tool.quickConverterEligible || !tool.modes.includes(mode)) {
+            if (!tool || !tool.quickConverterEligible) {
                 return null;
             }
 
@@ -125,8 +123,6 @@ function getAvailableOperations(files, mode) {
 }
 
 export default function QuickConverter() {
-    const { isOnlineMode } = useMode();
-    const mode = isOnlineMode ? 'online' : 'offline';
     const [files, setFiles] = useState([]);
     const [selectedOperation, setSelectedOperation] = useState('');
     const [error, setError] = useState('');
@@ -154,8 +150,8 @@ export default function QuickConverter() {
     const [audioBitrate, setAudioBitrate] = useState(192);
 
     const availableOperations = useMemo(
-        () => getAvailableOperations(files, mode),
-        [files, mode]
+        () => getAvailableOperations(files),
+        [files]
     );
 
     useEffect(() => {
@@ -277,7 +273,6 @@ export default function QuickConverter() {
             const executionResult = await executor.run({
                 files,
                 options: getOperationOptions(),
-                mode,
                 onProgress: setProgress,
             });
             const outputFiles = executionResult.primaryFile
@@ -355,14 +350,9 @@ export default function QuickConverter() {
                 </div>
 
                 <div className="rounded-[2rem] border border-gray-200/80 bg-gradient-to-br from-gray-900 to-gray-800 p-6 text-white shadow-sm dark:border-white/[0.08] dark:from-gray-900 dark:to-black sm:p-7">
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/60">Processing Mode</p>
-                    <div className="mt-4">
-                        <ModeToggle />
-                    </div>
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/60">100% Client-Side</p>
                     <p className="mt-4 text-sm leading-relaxed text-white/75">
-                        {isOnlineMode
-                            ? 'Online mode unlocks tool-specific server paths where they exist, while still keeping the quick flow compact.'
-                            : 'Offline mode keeps supported quick actions in the browser so you can work without upload overhead.'}
+                        All processing happens in your browser. Your files never leave your device, ensuring complete privacy.
                     </p>
                     <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/50">Why this surface works</p>
@@ -655,9 +645,6 @@ export default function QuickConverter() {
                                                             <span className="text-primary-600 dark:text-primary-400">{quality}%</span>
                                                         </div>
                                                         <input type="range" min="10" max="100" value={quality} onChange={(event) => setQuality(parseInt(event.target.value, 10))} className="w-full h-3 accent-primary-500 appearance-none bg-gray-200 dark:bg-white/10 rounded-full" />
-                                                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                            Online mode uses the explicit HEIC rescue path when browser decoding is not enough.
-                                                        </p>
                                                     </div>
                                                 )}
 
@@ -724,9 +711,9 @@ export default function QuickConverter() {
 
                                             {availableOperations.length === 0 ? (
                                                 <div className="rounded-3xl border border-amber-200 bg-amber-50 dark:border-amber-500/20 dark:bg-amber-500/5 p-5 sm:p-8">
-                                                    <p className="font-bold text-amber-900 dark:text-amber-300">No quick actions available for this file set in {mode} mode.</p>
+                                                    <p className="font-bold text-amber-900 dark:text-amber-300">No quick actions available for this file set.</p>
                                                     <p className="mt-2 text-sm text-amber-800 dark:text-amber-200">
-                                                        Quick Converter only shows curated executor-backed tools. Try matching file types, switch modes if needed, or open the full tool page for more advanced workflows.
+                                                        Quick Converter only shows curated executor-backed tools. Try matching file types or open the full tool page for more advanced workflows.
                                                     </p>
                                                 </div>
                                             ) : (

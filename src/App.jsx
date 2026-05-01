@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import { ModeProvider } from './services/toolbox/context/ModeContext';
-import ModeToggle from './services/toolbox/components/ModeToggle';
 import ThemeToggle from './components/ThemeToggle';
 import BrandLogo from './components/BrandLogo';
 import ServicesHome from './pages/ServicesHome';
@@ -224,7 +223,6 @@ function AppContent() {
 
               <div className="ml-2 flex items-center gap-2 pl-3 border-l border-gray-200 dark:border-gray-700">
                 <ThemeToggle />
-                {isToolboxRoute && <ModeToggle />}
                 <AuthStatus />
               </div>
             </div>
@@ -252,17 +250,11 @@ function AppContent() {
         {isMenuOpen && (
           <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 max-h-[calc(100vh-56px)] overflow-y-auto">
             <div className="px-4 py-4 space-y-4">
-              {/* Theme & Mode Toggles for Mobile */}
+              {/* Theme Toggle for Mobile */}
               <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Appearance</span>
                 <ThemeToggle />
               </div>
-
-              {isToolboxRoute && (
-                <div className="pb-3 border-b border-gray-100 dark:border-gray-800">
-                  <ModeToggle />
-                </div>
-              )}
 
               <div className="pb-3 border-b border-gray-100 dark:border-gray-800">
                 <AuthStatus isMobile={true} onNav={() => setIsMenuOpen(false)} />

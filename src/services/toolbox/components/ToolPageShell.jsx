@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { getToolsByCategory } from '../tools';
-import { getToolAvailabilityBadge, usesOfflineExecutorInOnlineMode } from '../core/toolMetadata';
+import { getToolAvailabilityBadge } from '../core/toolMetadata';
 
 const CATEGORY_THEME = {
     image: {
@@ -51,77 +51,24 @@ function getTheme(tool) {
     return CATEGORY_THEME[tool.category] || CATEGORY_THEME.utility;
 }
 
-function getModeSummary(tool) {
-    if (tool.modes.length === 2) {
-        return 'Works in offline and online mode';
-    }
-
-    if (tool.modes[0] === 'online') {
-        return 'Online only';
-    }
-
-    return 'Offline only';
-}
-
 function getPrivacySummary(tool) {
-    if (usesOfflineExecutorInOnlineMode(tool.id)) {
-        return 'This tool currently uses browser-side processing in both offline and online modes while the dedicated online backend is still being rolled out.';
-    }
-
-    if (tool.modes.includes('offline') && tool.modes.includes('online')) {
-        return 'Offline mode keeps supported work on-device. Online mode unlocks server-backed paths when needed.';
-    }
-
     if (tool.modes.includes('offline')) {
-        return 'This tool is designed to keep processing in your browser for maximum privacy.';
+        return 'This tool is designed to keep processing in your browser for maximum privacy. Your files never leave your device.';
     }
 
-    return 'This tool uses an online runtime and may require server-backed processing for the workflow to complete.';
+    return 'This tool processes your files locally in your browser for maximum privacy.';
 }
 
-function getExperienceSummary(tool, isOnlineMode) {
-    if (tool.availabilityNote) {
-        return tool.availabilityNote;
-    }
-
-    if (usesOfflineExecutorInOnlineMode(tool.id)) {
-        return isOnlineMode
-            ? 'You are in online mode, but this tool is temporarily using the browser-side workflow until its dedicated backend is ready.'
-            : 'You are in offline mode, so processing stays in the browser as expected.';
-    }
-
-    if (tool.modes.includes('offline') && tool.modes.includes('online')) {
-        return isOnlineMode
-            ? 'You are in online mode, so server-backed capabilities can be used where the tool supports them.'
-            : 'You are in offline mode, so supported processing stays local in the browser.';
-    }
-
-    return isOnlineMode
-        ? 'This page is currently framed for online processing expectations.'
-        : 'This page is currently framed for offline processing expectations.';
-}
-
-function buildRelatedTools(tool) {
-    return getToolsByCategory(tool.category)
-        .filter((candidate) => candidate.id !== tool.id)
-        .slice(0, 4);
-}
-
-export function buildToolFaqs(tool, isOnlineMode) {
-    const modeLabel = isOnlineMode ? 'online' : 'offline';
-    const modeSummary = getModeSummary(tool).toLowerCase();
+export function buildToolFaqs(tool) {
+    const modeSummary = 'Client-side processing only';
     const limitSummary = tool.limits?.length
         ? tool.limits.join(', ')
-        : 'No special limits are highlighted beyond the normal browser or runtime constraints for this workflow.';
+        : 'No special limits are highlighted beyond normal browser constraints.';
 
     return [
         {
             question: `What does ${tool.name} do?`,
             answer: `${tool.name} helps you ${tool.description.charAt(0).toLowerCase()}${tool.description.slice(1)}.`,
-        },
-        {
-            question: `Does ${tool.name} work in offline or online mode?`,
-            answer: `${tool.name} is ${modeSummary}. You are currently viewing it in ${modeLabel} mode.`,
         },
         {
             question: `Is ${tool.name} private to use?`,
@@ -134,28 +81,11 @@ export function buildToolFaqs(tool, isOnlineMode) {
     ];
 }
 
-export default function ToolPageShell({ tool, isOnlineMode, children }) {
+export default function ToolPageShell({ tool, children }) {
     const theme = getTheme(tool);
     const availabilityBadge = getToolAvailabilityBadge(tool);
     const relatedTools = buildRelatedTools(tool);
-    const faqs = buildToolFaqs(tool, isOnlineMode);
-    const runtimeHighlights = [
-        {
-            label: 'Mode',
-            value: isOnlineMode ? 'Online active' : 'Offline active',
-        },
-        {
-            label: 'Profile',
-            value: tool.modes.includes('offline') ? 'Privacy-first' : 'Server-backed',
-        },
-        {
-            label: 'Availability',
-            value: getModeSummary(tool),
-        },
-    ];
-
-    const runtimeHeading = isOnlineMode ? 'Connected workspace' : 'On-device workspace';
-    const experienceSummary = getExperienceSummary(tool, isOnlineMode);
+    const faqs = buildToolFaqs(tool);
     const privacySummary = getPrivacySummary(tool);
 
     return (
@@ -201,7 +131,7 @@ export default function ToolPageShell({ tool, isOnlineMode, children }) {
 
                                 <div className="mt-5 flex flex-wrap gap-2.5">
                                     <span className="inline-flex items-center rounded-full border border-gray-200/80 bg-white/80 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-white/[0.08] dark:bg-white/[0.05] dark:text-gray-200">
-                                        {getModeSummary(tool)}
+                                        Client-side processing
                                     </span>
                                     <span className="inline-flex items-center rounded-full border border-gray-200/80 bg-white/80 px-3 py-1.5 text-xs font-semibold uppercase text-gray-700 dark:border-white/[0.08] dark:bg-white/[0.05] dark:text-gray-200">
                                         {tool.category}
@@ -229,28 +159,31 @@ export default function ToolPageShell({ tool, isOnlineMode, children }) {
                                         <div>
                                             <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Session Brief</p>
                                             <h2 className="mt-2 text-xl font-bold text-gray-900 dark:text-white">
-                                                {runtimeHeading}
+                                                On-device workspace
                                             </h2>
                                         </div>
                                         <div className={`rounded-full border border-white/70 bg-gradient-to-br ${theme.gradient} px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-sm shadow-black/10`}>
-                                            {isOnlineMode ? 'Online' : 'Offline'}
+                                            Local
                                         </div>
                                     </div>
 
                                     <p className="mt-4 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-                                        {experienceSummary}
+                                        All processing happens in your browser. Your files never leave your device, ensuring complete privacy.
                                     </p>
 
                                     <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-                                        {runtimeHighlights.map((item) => (
-                                            <div
-                                                key={item.label}
-                                                className="rounded-[1.1rem] border border-gray-200/70 bg-gray-50/80 px-4 py-3 dark:border-white/[0.08] dark:bg-gray-950/30"
-                                            >
-                                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">{item.label}</p>
-                                                <p className="mt-1.5 text-sm font-semibold text-gray-900 dark:text-white">{item.value}</p>
-                                            </div>
-                                        ))}
+                                        <div className="rounded-[1.1rem] border border-gray-200/70 bg-gray-50/80 px-4 py-3 dark:border-white/[0.08] dark:bg-gray-950/30">
+                                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Processing</p>
+                                            <p className="mt-1.5 text-sm font-semibold text-gray-900 dark:text-white">Client-side</p>
+                                        </div>
+                                        <div className="rounded-[1.1rem] border border-gray-200/70 bg-gray-50/80 px-4 py-3 dark:border-white/[0.08] dark:bg-gray-950/30">
+                                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Profile</p>
+                                            <p className="mt-1.5 text-sm font-semibold text-gray-900 dark:text-white">Privacy-first</p>
+                                        </div>
+                                        <div className="rounded-[1.1rem] border border-gray-200/70 bg-gray-50/80 px-4 py-3 dark:border-white/[0.08] dark:bg-gray-950/30">
+                                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Availability</p>
+                                            <p className="mt-1.5 text-sm font-semibold text-gray-900 dark:text-white">Always ready</p>
+                                        </div>
                                     </div>
 
                                     <div className="mt-5 rounded-[1.25rem] border border-gray-200/70 bg-white/75 p-4 dark:border-white/[0.08] dark:bg-gray-950/20">
@@ -342,4 +275,10 @@ export default function ToolPageShell({ tool, isOnlineMode, children }) {
             )}
         </div>
     );
+}
+
+function buildRelatedTools(tool) {
+    return getToolsByCategory(tool.category)
+        .filter((candidate) => candidate.id !== tool.id)
+        .slice(0, 4);
 }

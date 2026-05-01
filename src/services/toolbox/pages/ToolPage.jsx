@@ -1,9 +1,7 @@
 import { useParams, Navigate } from 'react-router-dom';
 import { getToolById } from '../tools';
 import { useEffect } from 'react';
-import ModeWarning from '../components/ModeWarning';
-import { useMode } from '../context/ModeContext';
-import ToolPageShell, { buildToolFaqs } from '../components/ToolPageShell';
+import ToolPageShell from '../components/ToolPageShell';
 import { requiresRuntimeVerification } from '../core/toolMetadata';
 import useToolRuntimeStatus from '../core/useToolRuntimeStatus';
 
@@ -16,8 +14,8 @@ function upsertMeta(selector, createElement) {
     return element;
 }
 
-function buildFaqStructuredData(tool, isOnlineMode) {
-    const faqs = buildToolFaqs(tool, isOnlineMode);
+function buildFaqStructuredData(tool) {
+    const faqs = buildToolFaqs(tool);
     return {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
@@ -39,9 +37,7 @@ function buildFaqStructuredData(tool, isOnlineMode) {
 export default function ToolPage() {
     const { toolId } = useParams();
     const tool = getToolById(toolId);
-    const { isOnlineMode } = useMode();
-    const mode = isOnlineMode ? 'online' : 'offline';
-    const shouldVerifyRuntime = Boolean(tool && isOnlineMode && requiresRuntimeVerification(toolId));
+    const shouldVerifyRuntime = Boolean(tool && requiresRuntimeVerification(toolId));
     const runtimeStatus = useToolRuntimeStatus(toolId, { enabled: shouldVerifyRuntime });
 
     // Scroll to top when tool changes
@@ -122,14 +118,14 @@ export default function ToolPage() {
                 element.dataset.toolSchema = 'faq';
                 return element;
             });
-            faqSchema.textContent = JSON.stringify(buildFaqStructuredData(tool, isOnlineMode));
+            faqSchema.textContent = JSON.stringify(buildFaqStructuredData(tool));
         }
 
         // Cleanup
         return () => {
             document.title = 'Uvero Toolbox';
         };
-    }, [tool, isOnlineMode]);
+    }, [tool]);
 
     // Tool not found - redirect to home
     if (!tool) {
@@ -137,25 +133,11 @@ export default function ToolPage() {
     }
 
     const ToolComponent = tool.component;
-    const isAvailable = tool.modes && tool.modes.includes(isOnlineMode ? 'online' : 'offline');
     const isRuntimeUnavailable = shouldVerifyRuntime && !runtimeStatus.isLoading && !runtimeStatus.isAvailable;
 
     return (
-        <ToolPageShell tool={tool} isOnlineMode={isOnlineMode}>
-            <ModeWarning
-                toolId={toolId}
-                shouldVerifyRuntime={shouldVerifyRuntime}
-                runtimeStatus={runtimeStatus}
-            />
-            {isAvailable ? (
-                !isRuntimeUnavailable ? (
-                    <ToolComponent
-                        mode={mode}
-                        isOnlineMode={isOnlineMode}
-                        toolRuntimeStatus={runtimeStatus}
-                    />
-                ) : null
-            ) : (
+        <ToolPageShell tool={tool}>
+            {isRuntimeUnavailable ? (
                 <div className="max-w-3xl mx-auto">
                     <div className="rounded-[2rem] border border-gray-200/80 bg-white p-8 text-center shadow-xl shadow-gray-100/60 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none sm:p-10">
                         <div className="text-7xl mb-6">{tool.icon}</div>
@@ -163,20 +145,12 @@ export default function ToolPage() {
                         <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">{tool.description}</p>
                         <div className="rounded-[1.5rem] border-2 border-orange-200 bg-orange-50 p-8 dark:border-orange-500/20 dark:bg-orange-500/10">
                             <p className="text-orange-800 dark:text-orange-400 font-bold mb-4">
-                                {isRuntimeUnavailable
-                                    ? 'Online runtime unavailable on this deployment'
-                                    : `Not available in ${isOnlineMode ? 'Online' : 'Offline'} mode`}
+                                Server runtime unavailable
                             </p>
                             <p className="text-sm text-orange-700 dark:text-orange-300">
-                                {isRuntimeUnavailable
-                                    ? (runtimeStatus.note || 'This online workflow is disabled until the required server runtime is available.')
-                                    : (
-                                        <>
-                                            Please switch to <strong>{isOnlineMode ? 'offline' : 'online'}</strong> mode using the toggle in the navigation bar.
-                                        </>
-                                    )}
+                                {runtimeStatus.note || 'This tool requires a server runtime that is not available.'}
                             </p>
-                            {!isRuntimeUnavailable && tool.availabilityNote && (
+                            {tool.availabilityNote && (
                                 <p className="mt-4 text-sm text-orange-700 dark:text-orange-300">
                                     {tool.availabilityNote}
                                 </p>
@@ -184,6 +158,8 @@ export default function ToolPage() {
                         </div>
                     </div>
                 </div>
+            ) : (
+                <ToolComponent toolRuntimeStatus={runtimeStatus} />
             )}
         </ToolPageShell>
     );
