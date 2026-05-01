@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Dropzone from '../shared/Dropzone.jsx';
 import Button from '../shared/Button.jsx';
@@ -31,6 +31,12 @@ const SUPPORTED_CATEGORIES = {
         icon: '🎥',
         badge: 'FFmpeg'
     }
+};
+
+const isBrowserSupportedVideo = (fileName) => {
+    if (!fileName) return false;
+    const ext = fileName.split('.').pop().toLowerCase();
+    return ['mp4', 'webm', 'ogg', 'mov', 'm4v'].includes(ext);
 };
 
 export default function UnifiedConverter() {
@@ -155,7 +161,16 @@ export default function UnifiedConverter() {
                                         <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
                                     ) : category === 'video' && previewUrl ? (
                                         <div className="w-full px-4 flex flex-col items-center justify-center">
-                                            <video src={previewUrl} controls className="max-w-full max-h-full object-contain" />
+                                            {isBrowserSupportedVideo(file.name) ? (
+                                                <video src={previewUrl} controls className="max-w-full max-h-full object-contain" />
+                                            ) : (
+                                                <div className="text-center">
+                                                    <div className="text-6xl mb-4">{categoryInfo.icon}</div>
+                                                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400 max-w-[200px] break-words mx-auto">
+                                                        Preview not available for .{file.name.split('.').pop()}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
                                     ) : category === 'audio' && previewUrl ? (
                                         <div className="w-full px-4 flex flex-col items-center justify-center">
@@ -244,7 +259,16 @@ export default function UnifiedConverter() {
                                         <img src={resultPreviewUrl} alt="Result" className="max-w-full max-h-full object-contain" />
                                     ) : category === 'video' && resultPreviewUrl ? (
                                         <div className="w-full px-4 flex flex-col items-center justify-center">
-                                            <video src={resultPreviewUrl} controls className="max-w-full max-h-full object-contain" />
+                                            {isBrowserSupportedVideo(result.file.name) ? (
+                                                <video src={resultPreviewUrl} controls className="max-w-full max-h-full object-contain" />
+                                            ) : (
+                                                <div className="text-center">
+                                                    <div className="text-6xl mb-4 text-center">{categoryInfo?.icon || '🎥'}</div>
+                                                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400 max-w-[200px] break-words mx-auto">
+                                                        Preview not available for .{result.file.name.split('.').pop()}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
                                     ) : category === 'audio' && resultPreviewUrl ? (
                                         <div className="w-full px-4 flex flex-col items-center justify-center">
