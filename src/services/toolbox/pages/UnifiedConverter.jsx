@@ -246,7 +246,8 @@ export default function UnifiedConverter() {
                         <div className="flex-1">
                             <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight">
                                 Unified <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">Converter</span>
-                                               <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 max-w-xl font-medium leading-relaxed">
+                            </h2>
+                            <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 max-w-xl font-medium leading-relaxed">
                                 Fast, private, and secure file processing. 
                                 <span className="text-gray-900 dark:text-white"> 100% in your browser.</span>
                             </p>
@@ -282,7 +283,7 @@ export default function UnifiedConverter() {
                                 </button>
                             )}
                         </div>
-                    </div>         </div>
+                    </div>
 
                     <div className="space-y-10">
                     {/* AI Enhanced Dropzone */}
