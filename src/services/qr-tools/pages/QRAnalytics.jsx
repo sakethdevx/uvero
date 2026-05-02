@@ -126,7 +126,7 @@ export default function QRAnalytics() {
 
     useEffect(() => {
         if (authLoading) return;
-        if (!user) { navigate('/login'); return; }
+        if (!user) { navigate('/login', { replace: true }); return; }
         loadAnalytics();
     }, [authLoading, user, navigate, loadAnalytics]);
 

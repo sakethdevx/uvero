@@ -228,7 +228,7 @@ export default function DynamicQRManager() {
 
     useEffect(() => {
         if (authLoading) return;
-        if (!user) { navigate('/login'); return; }
+        if (!user) { navigate('/login', { replace: true }); return; }
         loadCodes();
     }, [authLoading, user, navigate, loadCodes]);
 
