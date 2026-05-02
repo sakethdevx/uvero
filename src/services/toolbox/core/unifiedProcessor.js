@@ -181,27 +181,75 @@ class UnifiedProcessor {
     }
 
     async ensureProcessors() {
-        // Load all processor modules in parallel for better speed
-        const processors = [
-            { id: 'imageProc', path: '../tools/image/image-wasm-converter/processor' },
-            { id: 'pandocProc', path: '../tools/document/pandoc-wasm-converter/processor' },
-            { id: 'audioProc', path: '../tools/audio/audio-wasm-converter/processor' },
-            { id: 'videoProc', path: '../tools/video/video-wasm-converter/processor' },
-            { id: 'bgRemoverProc', path: '../tools/image/background-remover/processor' },
-            { id: 'cropProc', path: '../tools/image/image-cropper/processor' },
-            { id: 'resizeProc', path: '../tools/image/image-resizer/processor' },
-            { id: 'watermarkProc', path: '../tools/image/watermark/processor' }
-        ];
+        if (this.imageProc && this.pandocProc && this.audioProc && this.videoProc && this.bgRemoverProc && this.cropProc && this.resizeProc && this.watermarkProc) return;
 
-        await Promise.allSettled(processors.map(async (p) => {
-            if (this[p.id]) return;
-            try {
-                const mod = await import(p.path);
-                this[p.id] = mod.processor || mod.default || mod;
-            } catch (e) {
-                console.warn(`${p.id} failed to load:`, e);
-            }
-        }));
+        // Use static imports for Vite analysis
+        await Promise.allSettled([
+            (async () => {
+                if (!this.imageProc) {
+                    try {
+                        const mod = await import('../tools/image/image-wasm-converter/processor');
+                        this.imageProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('Image load fail:', e); }
+                }
+            })(),
+            (async () => {
+                if (!this.pandocProc) {
+                    try {
+                        const mod = await import('../tools/document/pandoc-wasm-converter/processor');
+                        this.pandocProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('Pandoc load fail:', e); }
+                }
+            })(),
+            (async () => {
+                if (!this.audioProc) {
+                    try {
+                        const mod = await import('../tools/audio/audio-wasm-converter/processor');
+                        this.audioProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('Audio load fail:', e); }
+                }
+            })(),
+            (async () => {
+                if (!this.videoProc) {
+                    try {
+                        const mod = await import('../tools/video/video-wasm-converter/processor');
+                        this.videoProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('Video load fail:', e); }
+                }
+            })(),
+            (async () => {
+                if (!this.bgRemoverProc) {
+                    try {
+                        const mod = await import('../tools/image/background-remover/processor');
+                        this.bgRemoverProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('BG Remover load fail:', e); }
+                }
+            })(),
+            (async () => {
+                if (!this.cropProc) {
+                    try {
+                        const mod = await import('../tools/image/image-cropper/processor');
+                        this.cropProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('Crop load fail:', e); }
+                }
+            })(),
+            (async () => {
+                if (!this.resizeProc) {
+                    try {
+                        const mod = await import('../tools/image/image-resizer/processor');
+                        this.resizeProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('Resize load fail:', e); }
+                }
+            })(),
+            (async () => {
+                if (!this.watermarkProc) {
+                    try {
+                        const mod = await import('../tools/image/watermark/processor');
+                        this.watermarkProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('Watermark load fail:', e); }
+                }
+            })()
+        ]);
     }
 
     detectCategory(file) {
