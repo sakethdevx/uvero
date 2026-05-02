@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 const ONBOARDING_KEY = 'uvero_onboarded';
 
@@ -18,17 +18,14 @@ const EXAMPLE_PROMPTS = [
  * @param {function} onExampleSelect - Called with prompt string when a chip is clicked
  */
 export default function OnboardingHint({ onExampleSelect }) {
-  const [visible, setVisible] = useState(false);
-  const [exiting, setExiting] = useState(false);
-
-  useEffect(() => {
+  const [visible, setVisible] = useState(() => {
     try {
-      const seen = localStorage.getItem(ONBOARDING_KEY);
-      if (!seen) setVisible(true);
+      return !localStorage.getItem(ONBOARDING_KEY);
     } catch {
-      // localStorage unavailable — don't show
+      return false;
     }
-  }, []);
+  });
+  const [exiting, setExiting] = useState(false);
 
   const dismiss = useCallback(() => {
     setExiting(true);
@@ -55,12 +52,9 @@ export default function OnboardingHint({ onExampleSelect }) {
       aria-label="Getting started guide"
     >
       <div
-        className="relative px-4 py-3.5 rounded-2xl"
+        className="glass-panel relative px-4 py-3.5 rounded-2xl"
         style={{
-          background: 'var(--surface-glass)',
-          backdropFilter: 'blur(14px)',
-          WebkitBackdropFilter: 'blur(14px)',
-          border: '1px solid var(--border-glass)',
+          borderRadius: '1rem',
         }}
       >
         {/* Dismiss */}
@@ -93,11 +87,9 @@ export default function OnboardingHint({ onExampleSelect }) {
             <button
               key={prompt.label}
               onClick={() => handleChipClick(prompt)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 hover:-translate-y-px"
+              className="micro-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 hover:-translate-y-px"
               style={{
-                background: 'var(--surface-2)',
                 color: 'var(--text-primary)',
-                border: '1px solid var(--border-glass)',
                 animationDelay: `${i * 60}ms`,
               }}
             >

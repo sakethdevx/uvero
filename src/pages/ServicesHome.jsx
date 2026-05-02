@@ -79,11 +79,11 @@ export default function ServicesHome() {
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 pb-24 md:pb-8">
+    <div className="premium-home relative isolate flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 pb-24 md:pb-8">
       <AmbientBackground />
 
       {/* ── Main content — vertically centered ── */}
-      <div className="w-full max-w-xl mx-auto flex flex-col items-center gap-5 animate-fade-in-up"
+      <div className="premium-home-content relative z-10 w-full max-w-xl mx-auto flex flex-col items-center gap-5"
         style={{ animationDelay: '0.1s' }}
       >
         {/* Greeting */}
@@ -117,7 +117,7 @@ export default function ServicesHome() {
 
         {/* Post-action micro-confirmation */}
         {showDoneConfirm && !activeIntent && (
-          <div className="flex items-center gap-2 text-sm font-medium animate-state-in"
+          <div className="success-highlight flex items-center gap-2 text-sm font-medium animate-state-in"
             style={{ color: 'var(--text-secondary)' }}
           >
             <svg className="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

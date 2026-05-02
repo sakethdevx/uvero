@@ -217,7 +217,7 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
 
   // Embed
   return (
-    <div className="w-full max-w-xl mx-auto">
+    <div className="command-shell w-full max-w-xl mx-auto">
       {renderBar()}
       {renderDropdown()}
     </div>
@@ -227,13 +227,13 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
     return (
       <>
         <div
-          className={`relative flex items-center gap-3 transition-all duration-[350ms] ease-apple glass-panel px-5 py-3.5 ${
-            isFocused || query ? 'glass-glow' : ''}`}
+          className={`command-bar relative flex items-center gap-3.5 transition-all duration-[350ms] ease-apple glass-panel px-5 py-4 sm:px-6 sm:py-[1.05rem] ${
+            isFocused || query ? 'command-bar-active glass-glow' : ''}`}
         >
           {/* Search icon / AI indicator */}
           <div className="shrink-0">
             {query ? (
-              <div className="w-5 h-5 rounded-full animate-orb-breathe"
+              <div className="command-orb w-5 h-5 rounded-full animate-orb-breathe"
                 style={{
                   background: 'radial-gradient(circle, var(--accent), rgba(99,102,241,0.3))',
                   animationDuration: '1.5s',
@@ -256,8 +256,11 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 200)}
             placeholder={PLACEHOLDER_INTENTS[placeholderIndex]}
-            className="flex-1 bg-transparent text-[15px] font-medium outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-colors"
-            style={{ color: 'var(--text-primary)' }}
+            className="command-input flex-1 bg-transparent text-[15px] font-medium outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-colors sm:text-base"
+            style={{
+              color: 'var(--text-primary)',
+              '--placeholder-opacity': placeholderVisible ? 1 : 0,
+            }}
             autoComplete="off"
             spellCheck={false}
           />
@@ -279,7 +282,8 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
           {query && (
             <button
               onClick={() => { setQuery(''); setResult(null); inputRef.current?.focus(); }}
-              className="shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+              className="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-white/[0.07] active:scale-95 transition-all duration-200"
+              aria-label="Clear command"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -302,11 +306,9 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
                   handleQueryChange(ex);
                   inputRef.current?.focus();
                 }}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all duration-150 hover:-translate-y-px"
+                className="micro-chip inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all duration-200 hover:-translate-y-px"
                 style={{
-                  background: 'var(--surface-2)',
                   color: 'var(--text-secondary)',
-                  border: '1px solid var(--border-glass)',
                 }}
               >
                 {ex}
@@ -322,7 +324,7 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
     if (!allSuggestions.length || !isFocused) return null;
 
     return (
-      <div className="mt-1.5 glass-panel overflow-hidden animate-panel-in">
+      <div className="mt-2 glass-panel overflow-hidden animate-panel-in">
         <div className="py-1">
           {allSuggestions.map((item, i) => (
             <button
