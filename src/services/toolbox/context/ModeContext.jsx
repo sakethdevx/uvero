@@ -6,11 +6,35 @@ const ModeContext = createContext();
 
 export const ModeProvider = ({ children }) => {
     const { user } = useAuth();
+    
+    // theme can be 'light', 'dark', or 'system'
     const [theme, setTheme] = useState(() => {
         const saved = localStorage.getItem('theme');
-        if (saved) return saved;
+        return saved || 'system';
+    });
+
+    // Determine the actual theme to apply to the document
+    const [effectiveTheme, setEffectiveTheme] = useState(() => {
+        if (theme !== 'system') return theme;
         return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     });
+
+    // Update effective theme when theme or system preference changes
+    useEffect(() => {
+        if (theme !== 'system') {
+            setEffectiveTheme(theme);
+            return;
+        }
+
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const handleChange = () => {
+            setEffectiveTheme(mediaQuery.matches ? 'dark' : 'light');
+        };
+
+        handleChange();
+        mediaQuery.addEventListener('change', handleChange);
+        return () => mediaQuery.removeEventListener('change', handleChange);
+    }, [theme]);
 
     // Load settings from DB on mount/login
     useEffect(() => {
@@ -19,8 +43,11 @@ export const ModeProvider = ({ children }) => {
         async function loadSettings() {
             try {
                 const { data } = await getUserSettings(user.id);
+                // If data.theme is null, it stays 'system'
                 if (data?.theme) {
                     setTheme(data.theme);
+                } else if (data) {
+                    setTheme('system');
                 }
             } catch (err) {
                 console.warn('Failed to load user settings:', err);
@@ -29,9 +56,11 @@ export const ModeProvider = ({ children }) => {
         loadSettings();
     }, [user]);
 
+    // Apply theme and sync to DB/LocalStorage
     useEffect(() => {
         localStorage.setItem('theme', theme);
-        if (theme === 'dark') {
+        
+        if (effectiveTheme === 'dark') {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
@@ -39,18 +68,24 @@ export const ModeProvider = ({ children }) => {
 
         // Sync to DB if logged in
         if (user) {
-            updateUserSettings(user.id, { theme }).catch(err => {
+            // Save null for 'system' to match DB design
+            const dbTheme = theme === 'system' ? null : theme;
+            updateUserSettings(user.id, { theme: dbTheme }).catch(err => {
                 console.warn('Failed to sync theme to DB:', err);
             });
         }
-    }, [theme, user]);
+    }, [theme, effectiveTheme, user]);
 
     const toggleTheme = () => {
-        setTheme(prev => prev === 'light' ? 'dark' : 'light');
+        setTheme(prev => {
+            if (prev === 'system') return 'light';
+            if (prev === 'light') return 'dark';
+            return 'system';
+        });
     };
 
     return (
-        <ModeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+        <ModeContext.Provider value={{ theme, effectiveTheme, toggleTheme, setTheme }}>
             {children}
         </ModeContext.Provider>
     );

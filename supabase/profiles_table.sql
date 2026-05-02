@@ -13,7 +13,7 @@ create table if not exists public.profiles (
 -- User settings table for preferences
 create table if not exists public.user_settings (
   user_id uuid references auth.users on delete cascade,
-  theme text default 'light',
+  theme text, -- null means follow system preference
   updated_at timestamptz default now(),
   primary key (user_id)
 );
