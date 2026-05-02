@@ -51,6 +51,7 @@ export default function UnifiedConverter() {
     const [progress, setProgress] = useState(0);
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');
+    const [processingMessage, setProcessingMessage] = useState('');
     const [previewUrl, setPreviewUrl] = useState('');
     const [resultPreviewUrl, setResultPreviewUrl] = useState('');
     const [cropArea, setCropArea] = useState(null);
@@ -166,6 +167,7 @@ export default function UnifiedConverter() {
         setIsProcessing(true);
         setError('');
         setProgress(0);
+        setProcessingMessage('Initializing Neural Engine...');
         setResult(null);
 
         try {
@@ -186,7 +188,10 @@ export default function UnifiedConverter() {
             } else if (selectedFormat === 'watermark') {
                 convertOptions = watermarkOptions;
             }
-            const res = await unifiedProcessor.convert(file, selectedFormat, (prog) => setProgress(prog), convertOptions);
+            const res = await unifiedProcessor.convert(file, selectedFormat, (prog) => {
+                setProgress(prog);
+                if (prog > 0) setProcessingMessage('Processing File...');
+            }, convertOptions);
             setResult(res);
         } catch (err) {
             setError(err.message || 'Conversion failed');
@@ -513,7 +518,20 @@ export default function UnifiedConverter() {
                                 </Button>
 
                                 {isProcessing && (
-                                    <ProgressBar progress={progress} label="Processing..." />
+                                    <div className="space-y-4 pt-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                                                <span className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-widest">
+                                                    {processingMessage}
+                                                </span>
+                                            </div>
+                                            <span className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                                                {Math.round(progress)}%
+                                            </span>
+                                        </div>
+                                        <ProgressBar progress={progress} />
+                                    </div>
                                 )}
                             </div>
                         </div>
