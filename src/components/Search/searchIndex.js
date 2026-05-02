@@ -162,4 +162,13 @@ export const SEARCH_INDEX = [
         category: 'Pages',
         keywords: ['account', 'settings', 'profile', 'login', 'signup'],
     },
+    {
+        id: 'page-home',
+        title: 'Home',
+        description: 'Navigate back to the Uvero main landing page.',
+        icon: '🏠',
+        path: '/',
+        category: 'Pages',
+        keywords: ['home', 'landing', 'main', 'start', 'index'],
+    },
 ];
