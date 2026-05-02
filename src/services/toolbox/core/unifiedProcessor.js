@@ -153,8 +153,18 @@ class UnifiedProcessor {
         this.notify();
 
         try {
-            // Preload the most common ones (Images and documents)
+            // Load the processor modules first
             await this.ensureProcessors();
+
+            // Trigger internal WASM preloads for the most common ones
+            const internalPreloads = [];
+            if (this.imageProc?.preload) internalPreloads.push(this.imageProc.preload());
+            if (this.pandocProc?.preload) internalPreloads.push(this.pandocProc.preload());
+            if (this.audioProc?.preload) internalPreloads.push(this.audioProc.preload());
+            if (this.videoProc?.preload) internalPreloads.push(this.videoProc.preload());
+
+            await Promise.allSettled(internalPreloads);
+            
             this.engineStatus = 'ready';
         } catch (e) {
             console.error('Preload failed:', e);

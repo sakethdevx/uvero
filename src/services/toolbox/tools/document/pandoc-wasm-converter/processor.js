@@ -132,6 +132,10 @@ class PandocWasmProcessor {
         });
     }
 
+    async preload() {
+        await this.ensureWasmLoaded();
+    }
+
     terminate() {
         // Nothing to clean up
     }
@@ -141,5 +145,6 @@ const processor = new PandocWasmProcessor();
 
 export default {
     convert: (...args) => processor.convert(...args),
+    preload: () => processor.preload(),
     terminate: () => {},
 };

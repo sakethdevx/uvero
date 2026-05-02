@@ -156,6 +156,10 @@ class ImageWasmConverterProcessor {
 		});
 	}
 
+	async preload() {
+		await this.ensureWasmLoaded();
+	}
+
 	terminate() {
 		// Nothing to clean up
 	}
@@ -165,5 +169,6 @@ const processor = new ImageWasmConverterProcessor();
 
 export default {
 	convert: (...args) => processor.convert(...args),
+	preload: () => processor.preload(),
 	terminate: () => {},
 };
