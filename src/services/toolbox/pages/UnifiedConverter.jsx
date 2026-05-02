@@ -76,8 +76,19 @@ export default function UnifiedConverter() {
         watermarkImage: null
     });
 
+    const [engineStatus, setEngineStatus] = useState(unifiedProcessor.engineStatus);
+
     useEffect(() => {
+        // Start preloading the engine in the background
+        unifiedProcessor.preload();
+
+        // Subscribe to engine status changes
+        const unsubscribe = unifiedProcessor.subscribe((status) => {
+            setEngineStatus(status);
+        });
+
         return () => {
+            unsubscribe();
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             if (resultPreviewUrl) URL.revokeObjectURL(resultPreviewUrl);
         };
@@ -235,25 +246,43 @@ export default function UnifiedConverter() {
                         <div className="flex-1">
                             <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight">
                                 Unified <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">Converter</span>
-                            </h2>
-                            <p className="mt-3 text-lg text-gray-500 dark:text-gray-400 max-w-xl font-medium leading-relaxed">
+                                               <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 max-w-xl font-medium leading-relaxed">
                                 Fast, private, and secure file processing. 
                                 <span className="text-gray-900 dark:text-white"> 100% in your browser.</span>
                             </p>
                         </div>
                         
-                        {file && (
-                            <button 
-                                onClick={handleReset}
-                                className="group/btn flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-red-50 dark:bg-red-500/10 text-xs font-bold text-red-600 hover:bg-red-100 dark:hover:bg-red-500/20 transition-all uppercase tracking-widest"
-                            >
-                                <svg className="w-4 h-4 transition-transform group-hover/btn:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                                Discard
-                            </button>
-                        )}
-                    </div>
+                        <div className="flex flex-col items-end gap-4">
+                            {/* Neural Engine Status Indicator */}
+                            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-500 ${
+                                engineStatus === 'ready' 
+                                ? 'bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400' 
+                                : engineStatus === 'downloading'
+                                ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:text-indigo-400 animate-pulse'
+                                : 'bg-gray-100 dark:bg-white/[0.05] border-gray-200 dark:border-white/10 text-gray-500'
+                            }`}>
+                                <div className={`w-1.5 h-1.5 rounded-full ${
+                                    engineStatus === 'ready' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 
+                                    engineStatus === 'downloading' ? 'bg-indigo-500 animate-ping' : 'bg-gray-400'
+                                }`} />
+                                <span className="text-[10px] font-black uppercase tracking-widest">
+                                    Engine: {engineStatus === 'ready' ? 'Ready' : engineStatus === 'downloading' ? 'Optimizing' : 'Idle'}
+                                </span>
+                            </div>
+
+                            {file && (
+                                <button 
+                                    onClick={handleReset}
+                                    className="group/btn flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-red-50 dark:bg-red-500/10 text-xs font-bold text-red-600 hover:bg-red-100 dark:hover:bg-red-500/20 transition-all uppercase tracking-widest"
+                                >
+                                    <svg className="w-4 h-4 transition-transform group-hover/btn:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Discard
+                                </button>
+                            )}
+                        </div>
+                    </div>         </div>
 
                     <div className="space-y-10">
                     {/* AI Enhanced Dropzone */}

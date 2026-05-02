@@ -129,6 +129,38 @@ class UnifiedProcessor {
         this.cropProc = null;
         this.resizeProc = null;
         this.watermarkProc = null;
+        
+        // Engine status: 'idle' | 'downloading' | 'ready' | 'error'
+        this.engineStatus = 'idle';
+        this.listeners = [];
+    }
+
+    subscribe(listener) {
+        this.listeners.push(listener);
+        return () => {
+            this.listeners = this.listeners.filter(l => l !== listener);
+        };
+    }
+
+    notify() {
+        this.listeners.forEach(l => l(this.engineStatus));
+    }
+
+    async preload() {
+        if (this.engineStatus !== 'idle') return;
+        
+        this.engineStatus = 'downloading';
+        this.notify();
+
+        try {
+            // Preload the most common ones (Images and documents)
+            await this.ensureProcessors();
+            this.engineStatus = 'ready';
+        } catch (e) {
+            console.error('Preload failed:', e);
+            this.engineStatus = 'error';
+        }
+        this.notify();
     }
 
     async ensureProcessors() {
