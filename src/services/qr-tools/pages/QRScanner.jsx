@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import useSEO from '../../../hooks/useSEO';
 import jsQR from 'jsqr';
+import AILoader from '../../../components/AILoader';
+import { AIBackLink, AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout';
 
 /**
  * QR Scanner — camera live scan + image upload
@@ -380,39 +381,14 @@ export default function QRScanner() {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
-            {/* Background decorations */}
-            <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                <div className="absolute left-[-10rem] top-16 h-96 w-96 rounded-full bg-sky-500/8 blur-3xl" />
-                <div className="absolute right-[-8rem] top-8 h-80 w-80 rounded-full bg-blue-500/8 blur-3xl" />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-sky-500/30 to-transparent" />
-            </div>
-
-            <div className="relative max-w-7xl mx-auto px-4 pt-16 pb-20 sm:px-6 lg:px-8">
-                {/* Back Button */}
-                <Link
-                    to="/qr-tools"
-                    className="inline-flex items-center gap-2 rounded-full border border-gray-200/80 bg-white/80 px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-100 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300 dark:hover:bg-white/[0.08]"
-                >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Back to QR Tools
-                </Link>
-
-                {/* Header card */}
-                <div className="mt-8 rounded-3xl border border-gray-200/80 bg-gradient-to-br from-sky-50 via-white to-blue-50 p-8 shadow-xl shadow-sky-100/40 dark:border-white/[0.08] dark:from-sky-500/10 dark:via-gray-950 dark:to-blue-500/10 dark:shadow-none sm:p-10">
-                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-sky-600 dark:text-sky-300">QR Scanner</p>
-                    <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-                        Scan QR Codes
-                    </h1>
-                    <p className="mt-4 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-                        Use your camera or upload an image to decode any QR code instantly.
-                    </p>
-                </div>
-
-                {/* Content card */}
-                <div className="mt-6 rounded-3xl border border-gray-200/80 bg-white p-5 shadow-xl shadow-gray-100/40 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none sm:p-6">
+        <AIServiceShell>
+            <AIBackLink to="/qr-tools">QR tools</AIBackLink>
+            <CompactServiceHeader
+                eyebrow="QR Scanner"
+                title="Decode a QR code"
+                description="Start the camera or drop an image. Results stay inline."
+            />
+            <AIInlinePanel>
 
                 {/* Mode tabs */}
                 <div className="flex gap-2 mb-6 bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 rounded-2xl p-1.5 shadow-sm">
@@ -504,15 +480,7 @@ export default function QRScanner() {
                             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
                         </div>
 
-                        {uploadScanning && (
-                            <div className="flex items-center gap-2 text-sm text-sky-600 dark:text-sky-400">
-                                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                                </svg>
-                                Scanning image…
-                            </div>
-                        )}
+                {uploadScanning && <AILoader label="Scanning image..." />}
                     </div>
                 )}
 
@@ -532,8 +500,7 @@ export default function QRScanner() {
 
                 {/* Scan history */}
                 <ScanHistoryPanel history={history} onDelete={deleteEntries} onDeleteAll={deleteAll} />
-            </div>
-        </div>
-        </div>
+            </AIInlinePanel>
+        </AIServiceShell>
     );
 }

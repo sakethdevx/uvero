@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../../auth/AuthContext';
 import useSEO from '../../../hooks/useSEO';
+import AILoader from '../../../components/AILoader';
+import { AIBackLink, AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout';
 
 /* ── pure-SVG chart helpers ── */
 
@@ -135,49 +137,20 @@ export default function QRAnalytics() {
     const APP_ORIGIN = typeof window !== 'undefined' ? window.location.origin : '';
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
-            {/* Background decorations */}
-            <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                <div className="absolute left-[-10rem] top-16 h-96 w-96 rounded-full bg-indigo-500/8 blur-3xl" />
-                <div className="absolute right-[-8rem] top-8 h-80 w-80 rounded-full bg-blue-500/8 blur-3xl" />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
-            </div>
-
-            <div className="relative max-w-7xl mx-auto px-4 pt-16 pb-20 sm:px-6 lg:px-8">
-                {/* Back Button */}
-                <Link
-                    to="/qr-tools"
-                    className="inline-flex items-center gap-2 rounded-full border border-gray-200/80 bg-white/80 px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-100 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300 dark:hover:bg-white/[0.08]"
-                >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Back to QR Tools
-                </Link>
-
-                {/* Header card */}
-                <div className="mt-8 rounded-3xl border border-gray-200/80 bg-gradient-to-br from-indigo-50 via-white to-blue-50 p-8 shadow-xl shadow-indigo-100/40 dark:border-white/[0.08] dark:from-indigo-500/10 dark:via-gray-950 dark:to-blue-500/10 dark:shadow-none sm:p-10">
-                    <div className="flex items-start justify-between flex-wrap gap-4">
-                        <div>
-                            <p className="text-xs font-bold uppercase tracking-[0.3em] text-indigo-600 dark:text-indigo-300">QR Analytics</p>
-                            <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-                                QR Analytics Dashboard
-                            </h1>
-                            <p className="mt-4 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-                                Scan trends, country breakdown, and top performing codes — last 30 days.
-                            </p>
-                        </div>
-                        {data && data.total_codes > 0 && (
-                            <button
-                                onClick={() => exportCSV(data)}
-                                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:border-violet-400 transition-colors shadow-sm"
-                            >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                                Export CSV
-                            </button>
-                        )}
-                    </div>
-                </div>
+        <AIServiceShell>
+            <AIBackLink to="/qr-tools">QR tools</AIBackLink>
+            <CompactServiceHeader
+                eyebrow="QR Analytics"
+                title="Scan performance"
+                description="Compact scan trends, country breakdown, and top code activity."
+                actions={data && data.total_codes > 0 && (
+                    <button onClick={() => exportCSV(data)} className="suggestion-chip !opacity-100 !animate-none">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        Export CSV
+                    </button>
+                )}
+            />
+            <AIInlinePanel>
 
                 {error && (
                     <div className="mb-6 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm border border-red-100 dark:border-red-500/20">
@@ -186,14 +159,7 @@ export default function QRAnalytics() {
                 )}
 
                 {loading ? (
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                            {[1, 2, 3, 4].map((i) => (
-                                <div key={i} className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 p-5 h-24 animate-pulse" />
-                            ))}
-                        </div>
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 p-6 h-48 animate-pulse" />
-                    </div>
+                    <AILoader mode="shimmer" />
                 ) : !data || data.total_codes === 0 ? (
                     <div className="text-center py-20">
                         <div className="inline-flex items-center justify-center w-16 h-16 bg-violet-100 dark:bg-violet-900/20 rounded-2xl mb-4">
@@ -301,7 +267,7 @@ export default function QRAnalytics() {
                         </div>
                     </div>
                 )}
-            </div>
-        </div>
+            </AIInlinePanel>
+        </AIServiceShell>
     );
 }

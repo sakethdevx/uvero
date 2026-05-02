@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import CliCommandList from '../components/CliCommandList'
 import { CLIPBOARD_PROMO_COMMANDS, CLI_INSTALL_COMMAND, getQuickShareCliCommands } from '../cliCommands'
+import { AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout'
 
 const PRIVATE_FEATURES = [
     { icon: '🎨', title: 'Syntax Highlighting', desc: '50+ languages supported', classes: 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20' },
@@ -143,51 +144,17 @@ export default function Clipboard() {
     const quickShareCliCommands = publicCode ? getQuickShareCliCommands(publicCode) : []
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white overflow-hidden transition-colors duration-500">
-            {/* ── Background Effects ── */}
-            <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                <div className="absolute left-[-10rem] top-16 h-96 w-96 rounded-full bg-emerald-500/8 blur-3xl" />
-                <div className="absolute right-[-8rem] top-8 h-80 w-80 rounded-full bg-cyan-500/8 blur-3xl" />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
-            </div>
-
-            {/* ── Hero ── */}
-            <section className="relative max-w-7xl mx-auto px-4 pt-16 pb-8 sm:px-6 lg:px-8">
-                <div className="grid gap-6 lg:grid-cols-[1.4fr_0.85fr]">
-                    <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-emerald-50 via-white to-cyan-50 p-8 shadow-xl shadow-emerald-100/40 dark:border-white/[0.08] dark:from-emerald-500/10 dark:via-gray-950 dark:to-cyan-500/10 dark:shadow-none sm:p-10">
-                        <p className="text-xs font-bold uppercase tracking-[0.3em] text-emerald-600 dark:text-emerald-300">Online Clipboard</p>
-                        <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-                            Share text <span className="text-emerald-600 dark:text-emerald-400">instantly.</span>
-                        </h1>
-                        <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300">
-                            Share text with a 4-digit code, or create named private boards with syntax highlighting, password lock, and auto-expiry.
-                        </p>
-                    </div>
-
-                    <div className="rounded-3xl border border-gray-200/80 bg-gray-50/80 p-6 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
-                        <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500 mb-5">Features</p>
-                        <div className="space-y-4">
-                            {[
-                                { icon: '⚡', title: 'Quick Share', desc: '4-digit code, no login required.' },
-                                { icon: '🔒', title: 'Private Boards', desc: 'Named, password-protected, auto-expiring.' },
-                                { icon: '🖥️', title: 'CLI Access', desc: 'Send & fetch from your terminal.' },
-                            ].map((f, i) => (
-                                <div key={i} className="flex items-start gap-3">
-                                    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-base">{f.icon}</div>
-                                    <div>
-                                        <p className="text-sm font-semibold text-gray-900 dark:text-white">{f.title}</p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mt-0.5">{f.desc}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <AIServiceShell maxWidth="max-w-6xl">
+            <CompactServiceHeader
+                eyebrow="Online Clipboard"
+                title="Share or open text"
+                description="Quick codes, named boards, and CLI access share the same compact workspace."
+                actions={<Link to="/cli" className="suggestion-chip !opacity-100 !animate-none">CLI</Link>}
+            />
 
             {/* ── Mode Tabs ── */}
-            <div className="relative flex justify-center px-4 mb-10">
-                <div className="relative inline-flex bg-gray-100 dark:bg-gray-900/70 border border-gray-200 dark:border-white/10 rounded-2xl p-1.5 shadow-inner">
+            <div className="relative mb-4 flex justify-center">
+                <div className="glass-panel relative inline-flex w-full max-w-md p-1.5 shadow-inner">
                     <button
                         onClick={() => setActiveMode('quick')}
                         className={`relative flex items-center gap-2 px-6 sm:px-10 py-3 rounded-xl text-sm sm:text-base font-bold transition-colors duration-200 select-none ${activeMode === 'quick' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
@@ -206,7 +173,7 @@ export default function Clipboard() {
             </div>
 
             {/* ── Panels ── */}
-            <div className="relative max-w-5xl xl:max-w-6xl mx-auto px-4 pb-24">
+            <div className="relative pb-6">
 
                 {/* ════ QUICK SHARE PANEL ════ */}
                 {activeMode === 'quick' && (
@@ -342,12 +309,7 @@ export default function Clipboard() {
                                 disabled={codeDigits.join('').length !== 4 || retrieveLoading}
                                 className="w-full py-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                             >
-                                {retrieveLoading ? (
-                                    <span className="flex items-center justify-center gap-2">
-                                        <div className="w-4 h-4 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
-                                        Retrieving...
-                                    </span>
-                                ) : 'Retrieve →'}
+                                {retrieveLoading ? 'Retrieving...' : 'Retrieve →'}
                             </button>
                             {retrieveError && <p className="text-sm text-red-500 dark:text-red-400">{retrieveError}</p>}
                         </div>
@@ -448,7 +410,8 @@ export default function Clipboard() {
                     </div>
                 )}
 
-                <div className="mt-8 rounded-3xl border border-gray-200/80 bg-gray-50/90 p-5 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04] sm:p-6">
+                <details className="mt-5 rounded-xl border border-gray-200/80 bg-gray-50/90 p-4 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
+                    <summary className="cursor-pointer list-none text-sm font-bold text-gray-900 dark:text-white">CLI Access</summary>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                             <p className="text-xs font-bold uppercase tracking-[0.25em] text-gray-400 dark:text-gray-500">CLI Access</p>
@@ -479,22 +442,7 @@ export default function Clipboard() {
                             <CliCommandList commands={CLIPBOARD_PROMO_COMMANDS} />
                         </div>
                     </div>
-                </div>
-
-                {/* ── Stats bar ── */}
-                <div className="mt-16 flex items-center justify-center gap-8 sm:gap-14 flex-wrap">
-                    {[
-                        { val: '10,000', label: 'Code Pool' },
-                        { val: '0', label: 'Login Required' },
-                        { val: '∞', label: 'Board Limit' },
-                        { val: '< 1s', label: 'Access Time' },
-                    ].map((s, i) => (
-                        <div key={i} className="text-center">
-                            <div className={`text-2xl font-black ${activeMode === 'quick' ? 'text-emerald-600 dark:text-emerald-400' : 'text-violet-600 dark:text-violet-400'}`}>{s.val}</div>
-                            <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">{s.label}</div>
-                        </div>
-                    ))}
-                </div>
+                </details>
             </div>
 
             {/* Animation keyframes */}
@@ -505,6 +453,6 @@ export default function Clipboard() {
                 }
                 .animate-panel-in { animation: panel-in 0.35s ease-out both; }
             `}</style>
-        </div>
+        </AIServiceShell>
     )
 }
