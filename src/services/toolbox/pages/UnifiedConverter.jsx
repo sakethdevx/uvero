@@ -62,6 +62,7 @@ export default function UnifiedConverter() {
     const [resizePercentage, setResizePercentage] = useState('100');
     const [maintainAspectRatio, setMaintainAspectRatio] = useState(true);
     const [originalDimensions, setOriginalDimensions] = useState(null);
+    const [formatSearchQuery, setFormatSearchQuery] = useState('');
 
     // Watermark state
     const [watermarkOptions, setWatermarkOptions] = useState({
@@ -307,39 +308,78 @@ export default function UnifiedConverter() {
                             </div>
 
                             {/* Settings */}
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        Output Format
-                                    </label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {outputFormats.map((fmt) => {
-                                            const isSpecial = fmt.value === 'remove-background' || fmt.value === 'crop' || fmt.value === 'resize' || fmt.value === 'watermark';
-                                            const isSelected = selectedFormat === fmt.value;
-                                            return (
-                                                <button
-                                                    key={fmt.value}
-                                                    type="button"
-                                                    onClick={() => { setSelectedFormat(fmt.value); if (fmt.value !== 'crop') setCropArea(null); }}
-                                                    disabled={isProcessing}
-                                                    className={`p-3 rounded-lg border text-left transition-colors ${isSelected
-                                                        ? isSpecial
-                                                            ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 ring-2 ring-purple-500'
-                                                            : 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 ring-2 ring-primary-500'
-                                                        : isSpecial
-                                                            ? 'border-purple-200 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-700 bg-purple-25 dark:bg-purple-900/10'
-                                                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                                                        }`}
-                                                >
-                                                    <div className="font-medium text-gray-900 dark:text-white text-sm">
-                                                        {fmt.label}
-                                                    </div>
-                                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                        {fmt.desc}
-                                                    </div>
-                                                </button>
-                                            );
-                                        })}
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                                        <label className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.15em]">
+                                            Target Format
+                                        </label>
+                                        <div className="relative flex-1 max-w-xs">
+                                            <input
+                                                type="text"
+                                                placeholder="Search formats..."
+                                                value={formatSearchQuery}
+                                                onChange={(e) => setFormatSearchQuery(e.target.value)}
+                                                className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium"
+                                            />
+                                            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <div className="max-h-[340px] overflow-y-auto pr-2 -mr-2 custom-scrollbar">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {outputFormats
+                                                .filter(fmt => 
+                                                    fmt.label.toLowerCase().includes(formatSearchQuery.toLowerCase()) || 
+                                                    fmt.value.toLowerCase().includes(formatSearchQuery.toLowerCase()) ||
+                                                    fmt.desc?.toLowerCase().includes(formatSearchQuery.toLowerCase())
+                                                )
+                                                .map((fmt) => {
+                                                    const isSpecial = fmt.value === 'remove-background' || fmt.value === 'crop' || fmt.value === 'resize' || fmt.value === 'watermark';
+                                                    const isSelected = selectedFormat === fmt.value;
+                                                    return (
+                                                        <button
+                                                            key={fmt.value}
+                                                            type="button"
+                                                            onClick={() => { setSelectedFormat(fmt.value); if (fmt.value !== 'crop') setCropArea(null); }}
+                                                            disabled={isProcessing}
+                                                            className={`p-4 rounded-2xl border-2 text-left transition-all duration-300 group/fmt relative overflow-hidden ${isSelected
+                                                                ? isSpecial
+                                                                    ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/10'
+                                                                    : 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10'
+                                                                : isSpecial
+                                                                    ? 'border-purple-100 dark:border-purple-900/20 hover:border-purple-300 dark:hover:border-purple-700 bg-white dark:bg-white/[0.02]'
+                                                                    : 'border-gray-100 dark:border-white/5 hover:border-indigo-200 dark:hover:border-indigo-900/50 bg-white dark:bg-white/[0.02]'
+                                                                }`}
+                                                        >
+                                                            {isSelected && (
+                                                                <div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${isSpecial ? 'bg-purple-500' : 'bg-indigo-500'} animate-pulse`} />
+                                                            )}
+                                                            <div className={`font-black text-sm tracking-tight transition-colors ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300 group-hover/fmt:text-indigo-600 dark:group-hover/fmt:text-indigo-400'}`}>
+                                                                {fmt.label}
+                                                            </div>
+                                                            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-1.5 font-medium leading-tight">
+                                                                {fmt.desc}
+                                                            </div>
+                                                        </button>
+                                                    );
+                                                })}
+                                        </div>
+                                        {outputFormats.filter(fmt => 
+                                            fmt.label.toLowerCase().includes(formatSearchQuery.toLowerCase()) || 
+                                            fmt.value.toLowerCase().includes(formatSearchQuery.toLowerCase())
+                                        ).length === 0 && (
+                                            <div className="py-12 text-center border-2 border-dashed border-gray-100 dark:border-white/5 rounded-3xl">
+                                                <div className="mx-auto w-12 h-12 mb-4 bg-gray-50 dark:bg-white/[0.02] rounded-2xl flex items-center justify-center">
+                                                    <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </div>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">No formats found matching "{formatSearchQuery}"</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
