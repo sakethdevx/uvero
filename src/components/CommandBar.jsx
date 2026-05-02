@@ -228,14 +228,15 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
       <>
         <div
           className={`command-bar relative flex items-center gap-3.5 transition-all duration-[350ms] ease-apple glass-panel px-5 py-4 sm:px-6 sm:py-[1.05rem] ${
-            isFocused || query ? 'command-bar-active glass-glow' : ''}`}
+            isFocused || query ? 'command-bar-active glass-glow' : ''} ${
+              query ? 'command-bar-processing' : ''
+            }`}
         >
           {/* Search icon / AI indicator */}
           <div className="shrink-0">
             {query ? (
-              <div className="command-orb w-5 h-5 rounded-full animate-orb-breathe"
+              <div className="command-orb w-5 h-5 rounded-full"
                 style={{
-                  background: 'radial-gradient(circle, var(--accent), rgba(99,102,241,0.3))',
                   animationDuration: '1.5s',
                 }}
               />

@@ -42,8 +42,10 @@ function OrbLoader({ label }) {
         {/* Main orb */}
         <div className="relative w-14 h-14 rounded-full animate-orb-breathe"
           style={{
-            background: 'radial-gradient(circle at 35% 35%, var(--accent), rgba(99,102,241,0.4))',
-            boxShadow: '0 0 40px var(--accent-subtle), inset 0 0 20px rgba(255,255,255,0.1)',
+            background: 'radial-gradient(circle at 34% 32%, rgba(255,255,255,0.42), transparent 22%), var(--accent-gradient)',
+            backgroundSize: '180% 180%',
+            boxShadow: '0 0 42px var(--accent-subtle), 0 0 26px color-mix(in srgb, var(--accent-blue) 18%, transparent), inset 0 0 20px rgba(255,255,255,0.12)',
+            animation: 'orbBreathe 3s ease-in-out infinite, signatureGradientShift 7s ease-in-out infinite',
           }}
         >
           {/* Inner highlight */}
@@ -52,7 +54,7 @@ function OrbLoader({ label }) {
 
         {/* Particle ring */}
         <div className="absolute inset-[-6px] rounded-full border border-dashed animate-spin-slow"
-          style={{ borderColor: 'var(--accent-subtle)' }}
+          style={{ borderColor: 'var(--accent-ring)' }}
         />
       </div>
 
@@ -71,8 +73,10 @@ function StepsLoader({ steps, currentStep }) {
       {/* Small orb */}
       <div className="w-9 h-9 rounded-full animate-orb-breathe"
         style={{
-          background: 'radial-gradient(circle at 35% 35%, var(--accent), rgba(99,102,241,0.4))',
-          boxShadow: '0 0 24px var(--accent-subtle)',
+          background: 'radial-gradient(circle at 34% 32%, rgba(255,255,255,0.38), transparent 24%), var(--accent-gradient)',
+          backgroundSize: '180% 180%',
+          boxShadow: '0 0 24px var(--accent-subtle), 0 0 18px color-mix(in srgb, var(--accent-blue) 16%, transparent)',
+          animation: 'orbBreathe 3s ease-in-out infinite, signatureGradientShift 7s ease-in-out infinite',
         }}
       />
 
@@ -104,7 +108,7 @@ function StepsLoader({ steps, currentStep }) {
               }`}
                 style={{
                   width: '18px', height: '18px',
-                  ...(isActive ? { background: 'var(--accent)', color: 'white' } : !isComplete ? { background: 'var(--surface-2)', color: 'var(--text-secondary)' } : {}),
+                  ...(isActive ? { background: 'var(--accent-gradient)', color: 'white', boxShadow: '0 0 16px var(--accent-subtle)' } : !isComplete ? { background: 'var(--surface-2)', color: 'var(--text-secondary)' } : {}),
                 }}
               >
                 {isComplete ? '✓' : isActive ? '◉' : '○'}
