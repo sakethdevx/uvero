@@ -26,6 +26,7 @@ export default function ServicesHome() {
   const [activeIntent, setActiveIntent] = useState(null);
   const [externalQuery, setExternalQuery] = useState('');
   const [showDoneConfirm, setShowDoneConfirm] = useState(false);
+  const [commandColorState, setCommandColorState] = useState('idle');
   const navigate = useNavigate();
 
   useSEO({
@@ -79,10 +80,11 @@ export default function ServicesHome() {
   };
 
   const isInteracting = Boolean(activeIntent);
+  const ambientState = isInteracting ? 'processing' : commandColorState;
 
   return (
     <div className={`premium-home ${isInteracting ? 'premium-home-interacting' : ''} relative isolate flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 pb-24 md:pb-8`}>
-      <AmbientBackground />
+      <AmbientBackground state={ambientState} />
 
       {/* ── Main content — vertically centered ── */}
       <div className={`premium-home-content relative z-10 w-full ${isInteracting ? 'max-w-3xl gap-4' : 'max-w-xl gap-5'} mx-auto flex flex-col items-center`}
@@ -102,6 +104,7 @@ export default function ServicesHome() {
         <CommandBar
           mode="embed"
           onIntentResolved={handleIntentResolved}
+          onInteractionStateChange={setCommandColorState}
           externalQuery={externalQuery}
           onExternalQueryConsumed={() => setExternalQuery('')}
         />
