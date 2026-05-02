@@ -13,8 +13,8 @@ export default function ToolboxHome() {
 
             <div className="relative max-w-7xl mx-auto px-4 pt-10 pb-16 sm:px-6 lg:px-8">
                 {/* Simplified Header */}
-                <div className="mb-12">
-                    <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+                <div className="mb-12 text-center">
+                    <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
                         Uvero <span className="text-indigo-500">Toolbox</span>
                     </h1>
                 </div>
