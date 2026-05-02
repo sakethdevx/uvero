@@ -133,6 +133,22 @@ class UnifiedProcessor {
         // Engine status: 'idle' | 'downloading' | 'ready' | 'error'
         this.engineStatus = 'idle';
         this.listeners = [];
+        this.abortController = null;
+        this.resumeTimeout = null;
+        this.lastActivity = Date.now();
+
+        // Setup global activity listeners to track inactivity
+        if (typeof window !== 'undefined') {
+            const updateActivity = () => {
+                this.lastActivity = Date.now();
+                // If we are currently preloading in the background and user becomes active,
+                // we don't necessarily stop, but we ensure no NEW preloads start during activity.
+            };
+            window.addEventListener('mousemove', updateActivity, { passive: true });
+            window.addEventListener('keydown', updateActivity, { passive: true });
+            window.addEventListener('click', updateActivity, { passive: true });
+            window.addEventListener('scroll', updateActivity, { passive: true });
+        }
     }
 
     subscribe(listener) {
@@ -143,52 +159,125 @@ class UnifiedProcessor {
     }
 
     notify() {
-        this.listeners.forEach(l => l(this.engineStatus));
+        this.listeners.forEach(l => {
+            try { l(this.engineStatus); } catch (e) { /* ignore */ }
+        });
+    }
+
+    cancelPreload() {
+        if (this.abortController) {
+            this.abortController.abort();
+            this.abortController = null;
+            if (this.engineStatus === 'downloading') {
+                this.engineStatus = 'idle';
+                this.notify();
+            }
+        }
+        this.scheduleResume();
+    }
+
+    scheduleResume() {
+        if (this.resumeTimeout) clearTimeout(this.resumeTimeout);
+        if (this.engineStatus === 'ready' || this.engineStatus === 'error') return;
+
+        this.resumeTimeout = setTimeout(() => {
+            const timeSinceActivity = Date.now() - this.lastActivity;
+            if (timeSinceActivity >= 25000) { // 25s of inactivity
+                console.log('User idle, resuming background preloading...');
+                this.preload();
+            } else {
+                // Not idle enough, check again in 10s
+                this.scheduleResume();
+            }
+        }, 30000); // Check every 30s
     }
 
     async preload() {
         if (this.engineStatus !== 'idle') return;
         
+        this.abortController = new AbortController();
+        const signal = this.abortController.signal;
+
         this.engineStatus = 'downloading';
         this.notify();
 
         try {
             // 1. First, load the processor modules (JS files are small)
             await this.ensureProcessors();
+            if (signal.aborted) return;
 
             // 2. Schedule heavy WASM downloads for idle time
             const schedulePreload = () => {
-                // Use a staggered approach even in idle time
-                setTimeout(async () => {
-                    if (this.imageProc?.preload) await this.imageProc.preload();
-                    
-                    // Delay the really heavy ones further
-                    setTimeout(async () => {
-                        const heavy = [];
-                        if (this.pandocProc?.preload) heavy.push(this.pandocProc.preload());
-                        if (this.audioProc?.preload) heavy.push(this.audioProc.preload());
-                        if (this.videoProc?.preload) heavy.push(this.videoProc.preload());
-                        await Promise.allSettled(heavy);
-                        this.engineStatus = 'ready';
-                        this.notify();
-                    }, 5000);
-                }, 1000);
+                if (signal.aborted) return;
+                
+                // SEQUENTIAL loading to avoid saturating browser connection slots (max 6)
+                const runSequential = async () => {
+                    try {
+                        // Image first (most common)
+                        if (this.imageProc?.preload) {
+                            await this.imageProc.preload(signal);
+                        }
+                        
+                        if (signal.aborted) return;
+
+                        // Wait a bit before starting the next heavy one
+                        await new Promise((r, rej) => {
+                            const t = setTimeout(r, 4000);
+                            signal.addEventListener('abort', () => {
+                                clearTimeout(t);
+                                rej(new Error('Aborted'));
+                            });
+                        });
+
+                        if (this.pandocProc?.preload) await this.pandocProc.preload(signal);
+                        if (signal.aborted) return;
+
+                        await new Promise((r, rej) => {
+                            const t = setTimeout(r, 4000);
+                            signal.addEventListener('abort', () => {
+                                clearTimeout(t);
+                                rej(new Error('Aborted'));
+                            });
+                        });
+                        
+                        if (this.audioProc?.preload) await this.audioProc.preload(signal);
+                        if (signal.aborted) return;
+
+                        await new Promise((r, rej) => {
+                            const t = setTimeout(r, 4000);
+                            signal.addEventListener('abort', () => {
+                                clearTimeout(t);
+                                rej(new Error('Aborted'));
+                            });
+                        });
+                        
+                        if (this.videoProc?.preload) await this.videoProc.preload(signal);
+
+                        if (!signal.aborted) {
+                            this.engineStatus = 'ready';
+                            this.notify();
+                        }
+                    } catch (e) {
+                        if (e.message !== 'Aborted') {
+                            console.warn('Sequential preload interrupted:', e);
+                        }
+                    }
+                };
+
+                runSequential();
             };
 
             if ('requestIdleCallback' in window) {
-                window.requestIdleCallback(schedulePreload, { timeout: 10000 });
+                window.requestIdleCallback(schedulePreload, { timeout: 15000 });
             } else {
-                setTimeout(schedulePreload, 3000);
+                setTimeout(schedulePreload, 5000);
             }
-            
-            // Mark as 'ready' (partially) once modules are loaded, 
-            // but the status will update to 'ready' fully once heavy stuff is done
-            // For now, we'll keep it as 'downloading' until the idle tasks finish
         } catch (e) {
+            if (e.name === 'AbortError') return;
             console.error('Preload failed:', e);
             this.engineStatus = 'error';
+            this.notify();
         }
-        this.notify();
     }
 
     async ensureProcessors() {

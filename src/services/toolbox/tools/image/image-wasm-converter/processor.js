@@ -12,15 +12,25 @@ class ImageWasmConverterProcessor {
 		this.wasmLoading = null;
 	}
 
-	async ensureWasmLoaded() {
+	async ensureWasmLoaded(signal) {
 		if (this.wasm) return;
 		if (!this.wasmLoading) {
 			this.wasmLoading = (async () => {
-				const response = await fetch(magickWasmUrl, { priority: 'low' });
-				if (!response.ok) {
-					throw new Error(`Failed to fetch WASM: ${response.status} ${response.statusText}`);
+				try {
+					const response = await fetch(magickWasmUrl, { 
+						priority: 'low',
+						signal
+					});
+					if (!response.ok) {
+						throw new Error(`Failed to fetch WASM: ${response.status} ${response.statusText}`);
+					}
+					const buffer = await response.arrayBuffer();
+					this.wasm = buffer;
+					return buffer;
+				} catch (err) {
+					this.wasmLoading = null; // Reset so we can retry
+					throw err;
 				}
-				this.wasm = await response.arrayBuffer();
 			})();
 		}
 		await this.wasmLoading;
@@ -156,8 +166,8 @@ class ImageWasmConverterProcessor {
 		});
 	}
 
-	async preload() {
-		await this.ensureWasmLoaded();
+	async preload(signal) {
+		await this.ensureWasmLoaded(signal);
 	}
 
 	terminate() {

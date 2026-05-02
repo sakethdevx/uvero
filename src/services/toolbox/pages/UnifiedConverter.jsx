@@ -89,6 +89,7 @@ export default function UnifiedConverter() {
 
         return () => {
             unsubscribe();
+            unifiedProcessor.cancelPreload();
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             if (resultPreviewUrl) URL.revokeObjectURL(resultPreviewUrl);
         };
