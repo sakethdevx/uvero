@@ -220,8 +220,6 @@ export default function UnifiedConverter() {
 
     return (
         <div className="max-w-4xl mx-auto">
-    return (
-        <div className="max-w-4xl mx-auto">
             <div className="relative group rounded-[2.5rem] border border-gray-200/80 bg-white/80 backdrop-blur-2xl shadow-2xl shadow-indigo-200/20 transition-all duration-700 hover:shadow-indigo-500/20 dark:border-white/[0.08] dark:bg-gray-950/60 dark:shadow-none overflow-hidden">
                 {/* AI Neural Background Effect */}
                 <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
