@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../../auth/AuthContext';
+import useSEO from '../../../hooks/useSEO';
 
 /* ── pure-SVG chart helpers ── */
 
@@ -91,6 +92,12 @@ function exportCSV(data) {
 
 /* ── main page ── */
 export default function QRAnalytics() {
+    useSEO({
+        title: 'QR Analytics Dashboard - Real-time Scan Insights',
+        description: 'Track the performance of your dynamic QR codes. View scan trends, geographical distribution, and top performing codes with real-time analytics.',
+        keywords: ['qr analytics', 'track qr codes', 'qr scan stats', 'qr code performance', 'dynamic qr tracking']
+    });
+
     const { user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
     const [data, setData] = useState(null);
@@ -119,7 +126,7 @@ export default function QRAnalytics() {
 
     useEffect(() => {
         if (authLoading) return;
-        if (!user) { navigate('/login'); return; }
+        if (!user) { navigate('/login', { replace: true }); return; }
         loadAnalytics();
     }, [authLoading, user, navigate, loadAnalytics]);
 

@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import useSEO from '../../../hooks/useSEO';
 
 /**
  * QR Validator
@@ -164,6 +165,12 @@ function Check({ status, label, detail }) {
 }
 
 export default function QRValidator() {
+    useSEO({
+        title: 'QR Code Validator - Quality & Print Safety Check',
+        description: 'Verify your QR code for scan reliability, contrast, and print safety. Upload any QR image to get a quality score and optimization recommendations.',
+        keywords: ['qr validator', 'qr code checker', 'qr quality check', 'qr print safety', 'verify qr code']
+    });
+
     const [analyzing, setAnalyzing] = useState(false);
     const [preview, setPreview] = useState(null);
     const [report, setReport] = useState(null);

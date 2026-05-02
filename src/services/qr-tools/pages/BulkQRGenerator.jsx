@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import useSEO from '../../../hooks/useSEO';
 import QRCode from 'qrcode';
 import JSZip from 'jszip';
 import { jsPDF } from 'jspdf';
@@ -86,6 +87,12 @@ const inputCls = 'w-full px-3 py-2.5 text-sm bg-white dark:bg-gray-800 border bo
 
 /* ── main component ── */
 export default function BulkQRGenerator() {
+    useSEO({
+        title: 'Bulk QR Code Generator - Create Hundreds via CSV',
+        description: 'Generate hundreds or thousands of QR codes at once. Upload a CSV or paste a list, customize design, and export as a ZIP of PNGs or a printable A4 PDF sheet.',
+        keywords: ['bulk qr generator', 'batch qr code', 'csv to qr', 'qr code zip export', 'printable qr codes']
+    });
+
     const [inputMode, setInputMode] = useState('paste'); // 'paste' | 'csv'
     const [pasteText, setPasteText] = useState('');
     const [csvText, setCsvText] = useState('');

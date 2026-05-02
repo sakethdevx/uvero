@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../../auth/AuthContext';
+import useSEO from '../../../hooks/useSEO';
 import QRCode from 'qrcode';
 
 /* ── helpers ── */
@@ -182,6 +183,12 @@ function Modal({ title, onClose, children }) {
 
 /* ── main page ── */
 export default function DynamicQRManager() {
+    useSEO({
+        title: 'Dynamic QR Codes - Editable & Trackable QR',
+        description: 'Manage your dynamic QR codes. Update destination URLs after printing and track real-time scan analytics and performance.',
+        keywords: ['dynamic qr codes', 'editable qr codes', 'qr analytics', 'track qr scans', 'manage qr codes']
+    });
+
     const { user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
 
@@ -221,7 +228,7 @@ export default function DynamicQRManager() {
 
     useEffect(() => {
         if (authLoading) return;
-        if (!user) { navigate('/login'); return; }
+        if (!user) { navigate('/login', { replace: true }); return; }
         loadCodes();
     }, [authLoading, user, navigate, loadCodes]);
 

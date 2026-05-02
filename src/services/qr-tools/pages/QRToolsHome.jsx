@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import useSEO from '../../../hooks/useSEO';
 
 const tools = [
     {
@@ -123,6 +124,12 @@ const useCases = [
 ];
 
 export default function QRToolsHome() {
+    useSEO({
+        title: 'QR Tools - Generate, Scan & Validate QR Codes',
+        description: 'Professional suite of QR tools: Generate custom codes with logos, scan via camera, validate print quality, and manage dynamic QR codes with analytics.',
+        keywords: ['qr tools', 'qr generator', 'qr scanner', 'qr validator', 'bulk qr', 'dynamic qr']
+    });
+
     return (
         <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
             {/* Hero */}
