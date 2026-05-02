@@ -156,42 +156,40 @@ class UnifiedProcessor {
             // 1. First, load the processor modules (JS files are small)
             await this.ensureProcessors();
 
-            // 2. Schedule heavy WASM downloads for later, one-by-one
-            const schedulePreload = async () => {
-                // Don't preload on slow connections or data saver
-                if (navigator.connection?.saveData || 
-                   (['slow-2g', '2g', '3g'].includes(navigator.connection?.effectiveType))) {
-                    console.log('Skipping heavy preloads due to connection constraints');
-                    return;
-                }
+            // 2. Schedule heavy WASM downloads for idle time
+            const schedulePreload = () => {
+                // SEQUENTIAL loading to avoid saturating browser connection slots (max 6)
+                // This ensures Sign-in and Navigation remain snappy
+                const runSequential = async () => {
+                    try {
+                        // Image first (most common)
+                        if (this.imageProc?.preload) await this.imageProc.preload();
+                        
+                        // Wait a bit before starting the next heavy one
+                        await new Promise(r => setTimeout(r, 4000));
+                        if (this.pandocProc?.preload) await this.pandocProc.preload();
+                        
+                        // And so on...
+                        await new Promise(r => setTimeout(r, 4000));
+                        if (this.audioProc?.preload) await this.audioProc.preload();
+                        
+                        await new Promise(r => setTimeout(r, 4000));
+                        if (this.videoProc?.preload) await this.videoProc.preload();
 
-                // Wait 5 seconds before starting anything heavy to let initial page tasks finish
-                await new Promise(r => setTimeout(r, 5000));
+                        this.engineStatus = 'ready';
+                        this.notify();
+                    } catch (e) {
+                        console.warn('Sequential preload interrupted:', e);
+                    }
+                };
 
-                // Load Image engine (10MB)
-                if (this.imageProc?.preload) await this.imageProc.preload();
-                
-                // Wait another 10 seconds before starting the next heavy one
-                // This ensures enough time for auth/navigation to settle
-                await new Promise(r => setTimeout(r, 10000));
-
-                // Load Pandoc (50MB) - Sequential, not parallel
-                if (this.pandocProc?.preload) await this.pandocProc.preload();
-
-                await new Promise(r => setTimeout(r, 10000));
-
-                // Load Audio/Video
-                if (this.audioProc?.preload) await this.audioProc.preload();
-                if (this.videoProc?.preload) await this.videoProc.preload();
-
-                this.engineStatus = 'ready';
-                this.notify();
+                runSequential();
             };
 
             if ('requestIdleCallback' in window) {
-                window.requestIdleCallback(() => schedulePreload(), { timeout: 20000 });
+                window.requestIdleCallback(schedulePreload, { timeout: 15000 });
             } else {
-                schedulePreload();
+                setTimeout(schedulePreload, 5000);
             }
         } catch (e) {
             console.error('Preload failed:', e);
