@@ -134,6 +134,21 @@ class UnifiedProcessor {
         this.engineStatus = 'idle';
         this.listeners = [];
         this.abortController = null;
+        this.resumeTimeout = null;
+        this.lastActivity = Date.now();
+
+        // Setup global activity listeners to track inactivity
+        if (typeof window !== 'undefined') {
+            const updateActivity = () => {
+                this.lastActivity = Date.now();
+                // If we are currently preloading in the background and user becomes active,
+                // we don't necessarily stop, but we ensure no NEW preloads start during activity.
+            };
+            window.addEventListener('mousemove', updateActivity, { passive: true });
+            window.addEventListener('keydown', updateActivity, { passive: true });
+            window.addEventListener('click', updateActivity, { passive: true });
+            window.addEventListener('scroll', updateActivity, { passive: true });
+        }
     }
 
     subscribe(listener) {
@@ -158,6 +173,23 @@ class UnifiedProcessor {
                 this.notify();
             }
         }
+        this.scheduleResume();
+    }
+
+    scheduleResume() {
+        if (this.resumeTimeout) clearTimeout(this.resumeTimeout);
+        if (this.engineStatus === 'ready' || this.engineStatus === 'error') return;
+
+        this.resumeTimeout = setTimeout(() => {
+            const timeSinceActivity = Date.now() - this.lastActivity;
+            if (timeSinceActivity >= 25000) { // 25s of inactivity
+                console.log('User idle, resuming background preloading...');
+                this.preload();
+            } else {
+                // Not idle enough, check again in 10s
+                this.scheduleResume();
+            }
+        }, 30000); // Check every 30s
     }
 
     async preload() {
