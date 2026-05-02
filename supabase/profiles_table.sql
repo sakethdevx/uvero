@@ -5,12 +5,28 @@ create table if not exists public.profiles (
   id uuid references auth.users on delete cascade,
   email text,
   full_name text,
+  username text unique,
   created_at timestamptz default now(),
   primary key (id)
 );
 
+-- User settings table for preferences
+create table if not exists public.user_settings (
+  user_id uuid references auth.users on delete cascade,
+  theme text, -- null means follow system preference
+  updated_at timestamptz default now(),
+  primary key (user_id)
+);
+
 -- Enable Row Level Security
 alter table public.profiles enable row level security;
+alter table public.user_settings enable row level security;
+
+-- Allow users to manage their own settings
+create policy "Manage own settings" on public.user_settings
+  for all
+  using ( auth.uid() = user_id )
+  with check ( auth.uid() = user_id );
 
 -- Allow users to insert their own profile (on sign-up via function or trigger)
 create policy "Insert own profile" on public.profiles
