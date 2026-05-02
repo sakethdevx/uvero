@@ -12,9 +12,15 @@ const generateDynamicConverters = () => {
         
         // 1. Add generic "Convert to [Format]" for all outputs
         config.outputs.forEach(output => {
+            const labelLower = output.label.toLowerCase();
+            const isSpecialTool = labelLower.includes('remover') || 
+                                 labelLower.includes('image') || 
+                                 labelLower.includes('watermark') ||
+                                 labelLower.includes('crop');
+
             dynamicItems.push({
                 id: `convert-to-${output.value}`,
-                title: `${output.label} Converter`,
+                title: isSpecialTool ? output.label : `${output.label} Converter`,
                 description: `Convert files to ${output.label} (${output.desc}) entirely in your browser.`,
                 icon: catIcon,
                 path: `/toolbox?to=${output.value}`,

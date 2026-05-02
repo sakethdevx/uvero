@@ -44,7 +44,7 @@ export const FORMAT_REGISTRY = {
             { value: 'crop', label: 'Crop Image', desc: 'Crop to any size or ratio' },
             { value: 'resize', label: 'Resize Image', desc: 'Change dimensions' },
             { value: 'watermark', label: 'Add Watermark', desc: 'Text or Logo' },
-            { value: 'remove-background', label: 'Remove Background', desc: 'AI-powered background removal' },
+            { value: 'remove-background', label: 'Image Background Remover', desc: 'AI-powered background removal' },
             // Note: Some formats like HEIC/HEIF, RAW, ANI, ICNS are read-only only
         ],
         // Quality range
