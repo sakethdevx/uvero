@@ -179,7 +179,18 @@ export default function UnifiedConverter() {
         setIsProcessing(true);
         setError('');
         setProgress(0);
-        setProcessingMessage('Initializing Neural Engine...');
+        // Set appropriate initial message
+        if (selectedFormat === 'remove-background') {
+            setProcessingMessage('Loading AI Model...');
+        } else if (selectedFormat === 'crop') {
+            setProcessingMessage('Preparing Crop...');
+        } else if (selectedFormat === 'resize') {
+            setProcessingMessage('Preparing Resize...');
+        } else if (selectedFormat === 'watermark') {
+            setProcessingMessage('Preparing Watermark...');
+        } else {
+            setProcessingMessage('Initializing Engine...');
+        }
         setResult(null);
 
         try {
@@ -202,7 +213,7 @@ export default function UnifiedConverter() {
             }
             const res = await unifiedProcessor.convert(file, selectedFormat, (prog) => {
                 setProgress(prog);
-                if (prog > 0) setProcessingMessage('Processing File...');
+                if (prog > 0) setProcessingMessage('Processing...');
             }, convertOptions);
             setResult(res);
         } catch (err) {
@@ -544,8 +555,8 @@ export default function UnifiedConverter() {
                                     className="w-full"
                                 >
                                     {isProcessing
-                                        ? (selectedFormat === 'crop' ? 'Cropping...' : selectedFormat === 'resize' ? 'Resizing...' : selectedFormat === 'watermark' ? 'Watermarking...' : 'Converting...')
-                                        : (selectedFormat === 'crop' ? 'Crop Image' : selectedFormat === 'resize' ? 'Resize Image' : selectedFormat === 'watermark' ? 'Add Watermark' : 'Convert')}
+                                        ? (selectedFormat === 'remove-background' ? 'Removing Background...' : selectedFormat === 'crop' ? 'Cropping...' : selectedFormat === 'resize' ? 'Resizing...' : selectedFormat === 'watermark' ? 'Watermarking...' : 'Converting...')
+                                        : (selectedFormat === 'remove-background' ? 'Remove Background with AI' : selectedFormat === 'crop' ? 'Crop Image' : selectedFormat === 'resize' ? 'Resize Image' : selectedFormat === 'watermark' ? 'Add Watermark' : 'Convert')}
                                 </Button>
 
                                 {isProcessing && (
