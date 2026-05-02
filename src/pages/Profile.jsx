@@ -229,7 +229,34 @@ function ProfileContent() {
 
                 {/* User info card */}
                 <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-primary-50 via-white to-blue-50 p-6 shadow-xl shadow-primary-100/40 dark:border-white/[0.08] dark:from-primary-500/10 dark:via-gray-950 dark:to-blue-500/10 dark:shadow-none">
-                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Signed in as</p>
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="relative">
+                            {user.user_metadata?.avatar_url ? (
+                                <img
+                                    src={user.user_metadata.avatar_url}
+                                    alt="Profile"
+                                    className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-gray-800 shadow-md"
+                                />
+                            ) : (
+                                <div className="w-20 h-20 rounded-2xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 text-3xl font-bold border-2 border-white dark:border-gray-800 shadow-md">
+                                    {(user.user_metadata?.full_name || user.email || '?').charAt(0).toUpperCase()}
+                                </div>
+                            )}
+                            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white dark:border-gray-950 flex items-center justify-center shadow-sm">
+                                <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                            </div>
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-black text-gray-900 dark:text-white">
+                                {user.user_metadata?.full_name || 'Uvero User'}
+                            </h2>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                {user.user_metadata?.username ? `@${user.user_metadata.username}` : 'No username set'}
+                            </p>
+                        </div>
+                    </div>
+
+                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Account Details</p>
                     <div className="mt-3 space-y-1.5">
                         <div className="flex items-center gap-2">
                             <span className="text-xs font-bold uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500 w-16">Email</span>
@@ -272,6 +299,29 @@ function ProfileContent() {
                         )}
                     </form>
                 </div>
+
+                {/* Linked Accounts */}
+                {user.user_metadata?.providers && user.user_metadata.providers.length > 0 && (
+                    <div className="mt-5 rounded-3xl border border-gray-200/80 bg-white p-6 shadow-xl shadow-gray-100/40 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none">
+                        <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Linked Accounts</p>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                            {user.user_metadata.providers.map(provider => (
+                                <div
+                                    key={provider}
+                                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 dark:bg-white/[0.04] border border-gray-200/80 dark:border-white/[0.08] text-sm font-medium text-gray-700 dark:text-gray-300 capitalize"
+                                >
+                                    {provider === 'google' && (
+                                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12.48 10.92v3.28h7.84c-.24 1.84-1.92 5.36-7.84 5.36-5.12 0-9.28-4.24-9.28-9.52s4.16-9.52 9.28-9.52c2.92 0 4.88 1.2 6 2.28l2.56-2.48C19.24 1.84 16.12 0 12.48 0 5.8 0 0 5.8 0 12.48s5.8 12.48 12.48 12.48c6.96 0 11.6-4.88 11.6-11.8 0-.8-.08-1.4-.2-2.12h-11.4z" />
+                                        </svg>
+                                    )}
+                                    {provider}
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 
                 {/* App Preferences */}
                 <div className="mt-5 rounded-3xl border border-gray-200/80 bg-white p-6 shadow-xl shadow-gray-100/40 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none">

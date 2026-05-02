@@ -31,26 +31,28 @@ export function AuthProvider({ children }) {
             const session = data?.session ?? null
             if (session) {
                 let newUser = { ...session.user, access_token: session.access_token }
-                // Try to load profile username and merge into user_metadata so UI can prefer it
+                // Try to load full profile and merge into user_metadata
                 try {
                     const { data: profile } = await supabase
                         .from('profiles')
-                        .select('username')
+                        .select('username, avatar_url, providers, full_name')
                         .eq('id', newUser.id)
                         .maybeSingle()
 
-                    const profileUsername = profile?.username || null
-                    if (profileUsername) {
+                    if (profile) {
                         newUser = {
                             ...newUser,
                             user_metadata: {
                                 ...(newUser.user_metadata || {}),
-                                username: profileUsername
+                                username: profile.username || newUser.user_metadata?.username,
+                                avatar_url: profile.avatar_url || newUser.user_metadata?.avatar_url,
+                                providers: profile.providers || [],
+                                full_name: profile.full_name || newUser.user_metadata?.full_name
                             }
                         }
                     }
                 } catch (err) {
-                    // ignore profile fetch errors
+                    console.warn('Profile fetch failed:', err)
                 }
                 setUser(prev => {
                     if (prev && prev.id === newUser.id && prev.access_token === newUser.access_token) return prev
@@ -72,22 +74,24 @@ export function AuthProvider({ children }) {
                 try {
                     const { data: profile } = await supabase
                         .from('profiles')
-                        .select('username')
+                        .select('username, avatar_url, providers, full_name')
                         .eq('id', newUser.id)
                         .maybeSingle()
 
-                    const profileUsername = profile?.username || null
-                    if (profileUsername) {
+                    if (profile) {
                         mergedUser = {
                             ...newUser,
                             user_metadata: {
                                 ...(newUser.user_metadata || {}),
-                                username: profileUsername
+                                username: profile.username || newUser.user_metadata?.username,
+                                avatar_url: profile.avatar_url || newUser.user_metadata?.avatar_url,
+                                providers: profile.providers || [],
+                                full_name: profile.full_name || newUser.user_metadata?.full_name
                             }
                         }
                     }
                 } catch (err) {
-                    // ignore
+                    console.warn('Profile sync failed:', err)
                 }
             }
 
