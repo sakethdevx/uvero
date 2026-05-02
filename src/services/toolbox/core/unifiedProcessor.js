@@ -153,17 +153,37 @@ class UnifiedProcessor {
         this.notify();
 
         try {
-            // 1. Only load the processor JS modules (small files)
+            // 1. First, load the processor modules (JS files are small)
             await this.ensureProcessors();
 
-            // 2. Only preload the Image processor internally (MagickWASM)
-            // It's the most common tool. We'll skip the 50MB+ Pandoc/FFmpeg preloads
-            // to avoid saturating the user's connection and blocking other site features.
-            if (this.imageProc?.preload) {
-                await this.imageProc.preload();
+            // 2. Schedule heavy WASM downloads for idle time
+            const schedulePreload = () => {
+                // Use a staggered approach even in idle time
+                setTimeout(async () => {
+                    if (this.imageProc?.preload) await this.imageProc.preload();
+                    
+                    // Delay the really heavy ones further
+                    setTimeout(async () => {
+                        const heavy = [];
+                        if (this.pandocProc?.preload) heavy.push(this.pandocProc.preload());
+                        if (this.audioProc?.preload) heavy.push(this.audioProc.preload());
+                        if (this.videoProc?.preload) heavy.push(this.videoProc.preload());
+                        await Promise.allSettled(heavy);
+                        this.engineStatus = 'ready';
+                        this.notify();
+                    }, 5000);
+                }, 1000);
+            };
+
+            if ('requestIdleCallback' in window) {
+                window.requestIdleCallback(schedulePreload, { timeout: 10000 });
+            } else {
+                setTimeout(schedulePreload, 3000);
             }
             
-            this.engineStatus = 'ready';
+            // Mark as 'ready' (partially) once modules are loaded, 
+            // but the status will update to 'ready' fully once heavy stuff is done
+            // For now, we'll keep it as 'downloading' until the idle tasks finish
         } catch (e) {
             console.error('Preload failed:', e);
             this.engineStatus = 'error';

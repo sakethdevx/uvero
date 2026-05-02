@@ -16,7 +16,7 @@ class ImageWasmConverterProcessor {
 		if (this.wasm) return;
 		if (!this.wasmLoading) {
 			this.wasmLoading = (async () => {
-				const response = await fetch(magickWasmUrl);
+				const response = await fetch(magickWasmUrl, { priority: 'low' });
 				if (!response.ok) {
 					throw new Error(`Failed to fetch WASM: ${response.status} ${response.statusText}`);
 				}
