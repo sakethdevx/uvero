@@ -223,23 +223,16 @@ export default function UnifiedConverter() {
             <div className="relative group rounded-[2.5rem] border border-gray-200/80 bg-white/80 backdrop-blur-2xl shadow-2xl shadow-indigo-200/20 transition-all duration-700 hover:shadow-indigo-500/20 dark:border-white/[0.08] dark:bg-gray-950/60 dark:shadow-none overflow-hidden">
                 {/* AI Neural Background Effect */}
                 <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
-                <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
                 
                 <div className="relative p-8 sm:p-12">
-                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-12">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-10">
                         <div className="flex-1">
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 text-[10px] font-black uppercase tracking-[0.15em] text-indigo-600 dark:text-indigo-400 mb-6">
-                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-                                </svg>
-                                Intelligent Processor v2.0
-                            </div>
-                            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight">
-                                Unified <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">Intelligence</span>
+                            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight">
+                                Unified <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">Converter</span>
                             </h2>
-                            <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 max-w-xl font-medium leading-relaxed">
-                                Experience <span className="text-gray-900 dark:text-white">Neural-Native</span> file processing. 
-                                No data ever leaves your device. Secure. Local. Intelligent.
+                            <p className="mt-3 text-lg text-gray-500 dark:text-gray-400 max-w-xl font-medium leading-relaxed">
+                                Fast, private, and secure file processing. 
+                                <span className="text-gray-900 dark:text-white"> 100% in your browser.</span>
                             </p>
                         </div>
                         
