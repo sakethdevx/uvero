@@ -220,15 +220,43 @@ export default function UnifiedConverter() {
 
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="card">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                    Unified File Converter
-                </h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Convert images, audio, and documents using WebAssembly. Fast, private, client-side processing. No uploads.
-                </p>
+            <div className="relative group overflow-hidden rounded-[2.5rem] border border-gray-200/80 bg-white shadow-2xl shadow-gray-200/50 transition-all duration-500 hover:shadow-primary-500/10 dark:border-white/[0.08] dark:bg-gray-900/60 dark:shadow-none">
+                {/* Premium Card Header Decoration */}
+                <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-primary-500 via-blue-500 to-purple-500" />
+                <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary-500/5 rounded-full blur-3xl group-hover:bg-primary-500/10 transition-colors duration-700" />
+                
+                <div className="relative p-8 sm:p-10">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+                        <div>
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gray-100 dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.08] text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
+                                <svg className="w-3 h-3 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                Powerful & Secure
+                            </div>
+                            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
+                                Unified File <span className="text-primary-600 dark:text-primary-400">Converter</span>
+                            </h2>
+                            <p className="mt-3 text-gray-600 dark:text-gray-400 max-w-xl font-medium leading-relaxed">
+                                Convert images, audio, and documents using <span className="text-gray-900 dark:text-white">WebAssembly</span>. 
+                                <span className="hidden sm:inline"> Instant processing, 100% private, zero uploads.</span>
+                            </p>
+                        </div>
+                        
+                        {file && (
+                            <button 
+                                onClick={handleReset}
+                                className="flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Clear File
+                            </button>
+                        )}
+                    </div>
 
-                <div className="space-y-6">
+                    <div className="space-y-8">
                     {/* Dropzone */}
                     <Dropzone
                         onFileSelect={handleFileSelect}

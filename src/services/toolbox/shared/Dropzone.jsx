@@ -97,48 +97,57 @@ export default function Dropzone({ accept, onFileSelect, maxSize = 100 * 1024 * 
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={`
-          relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200
-          ${isDragging
-                        ? 'border-primary-500 bg-primary-50 scale-105'
-                        : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
+                    relative group overflow-hidden border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-500
+                    ${isDragging
+                        ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-500/10 scale-[1.02] ring-4 ring-primary-500/20'
+                        : 'border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/[0.02] hover:border-primary-400 dark:hover:border-primary-500/50 hover:bg-white dark:hover:bg-white/[0.05]'
                     }
-        `}
+                `}
             >
+                {/* Background Glow Effect */}
+                <div className="absolute -inset-24 bg-primary-500/5 rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                
                 <input
                     type="file"
                     accept={accept}
                     multiple={multiple}
                     onChange={handleFileInput}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
-
-                <div className="pointer-events-none">
-                    <svg
-                        className="mx-auto h-16 w-16 text-gray-400 mb-4"
-                        stroke="currentColor"
-                        fill="none"
-                        viewBox="0 0 48 48"
-                    >
-                        <path
-                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-
-                    <p className="text-xl font-semibold text-gray-700 mb-2">
+ 
+                <div className="relative pointer-events-none">
+                    <div className={`
+                        mx-auto h-20 w-20 mb-6 rounded-2xl flex items-center justify-center transition-all duration-500
+                        ${isDragging ? 'bg-primary-500 text-white scale-110 rotate-3' : 'bg-white dark:bg-gray-800 text-primary-500 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-white/10 group-hover:scale-110 group-hover:-rotate-3'}
+                    `}>
+                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                    </div>
+ 
+                    <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">
                         {label || 'Drop your file here'}
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 font-medium">
+                        {description || 'or click to browse your computer'}
                     </p>
-                    <p className="text-sm text-gray-500 mb-4">
-                        {description || 'or click to browse'}
-                    </p>
+                    
+                    <div className="mt-8 flex items-center justify-center gap-4">
+                        <div className="h-px w-8 bg-gray-200 dark:bg-white/10" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Max 100MB</span>
+                        <div className="h-px w-8 bg-gray-200 dark:bg-white/10" />
+                    </div>
                 </div>
             </div>
-
+ 
             {error && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-sm text-red-600 font-medium">⚠️ {error}</p>
+                <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl animate-shake">
+                    <p className="text-sm text-red-600 dark:text-red-400 font-bold flex items-center gap-2 justify-center">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        {error}
+                    </p>
                 </div>
             )}
         </div>
