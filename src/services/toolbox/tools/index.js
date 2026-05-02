@@ -4,14 +4,6 @@
  * Makes it easy to add new tools and maintain routing
  */
 
-// Image Utilities
-import Watermark from './image/watermark/Watermark';
-import watermarkSEO from './image/watermark/seo.json';
-import ImageResizer from './image/image-resizer/ImageResizer';
-import imageResizerSEO from './image/image-resizer/seo.json';
-import ImageCropper from './image/image-cropper/ImageCropper';
-import imageCropperSEO from './image/image-cropper/seo.json';
-
 // QR & Security
 import QRGenerator from './utility/qr-generator/QRGenerator';
 import qrGeneratorSEO from './utility/qr-generator/seo.json';
@@ -38,36 +30,8 @@ import cstToEstSEO from './utility/cst-to-est/seo.json';
 
 export const tools = {
     // Image Utilities
-    'watermark': {
-        id: 'watermark',
-        name: 'Add Watermark',
-        description: 'Add text or image watermarks to pictures',
-        component: Watermark,
-        category: 'image-utilities',
-        seo: watermarkSEO,
-        icon: '©️',
-        popular: false,
-    },
-    'resize-image': {
-        id: 'resize-image',
-        name: 'Image Resizer',
-        description: 'Resize images to any dimensions',
-        component: ImageResizer,
-        category: 'image-utilities',
-        seo: imageResizerSEO,
-        icon: '📐',
-        popular: true,
-    },
-    'crop-image': {
-        id: 'crop-image',
-        name: 'Image Cropper',
-        description: 'Crop images to any size or aspect ratio',
-        component: ImageCropper,
-        category: 'image-utilities',
-        seo: imageCropperSEO,
-        icon: '✂️',
-        popular: false,
-    },
+    // Image Utilities
+
 
     // Security & Codes
     'qr-generator': {
