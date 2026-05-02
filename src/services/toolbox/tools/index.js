@@ -4,13 +4,15 @@
  * Makes it easy to add new tools and maintain routing
  */
 
-// Image Utilities
+ // Image Utilities
+import Watermark from './image/watermark/Watermark';
+import watermarkSEO from './image/watermark/seo.json';
+import ImageResizer from './image/image-resizer/ImageResizer';
+import imageResizerSEO from './image/image-resizer/seo.json';
+import ImageCropper from './image/image-cropper/ImageCropper';
+import imageCropperSEO from './image/image-cropper/seo.json';
 
-
-
-
-
-// QR & Security
+ // QR & Security
 import QRGenerator from './utility/qr-generator/QRGenerator';
 import qrGeneratorSEO from './utility/qr-generator/seo.json';
 import PasswordGenerator from './utility/password-generator/PasswordGenerator';
