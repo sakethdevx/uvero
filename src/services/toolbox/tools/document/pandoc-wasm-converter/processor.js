@@ -16,14 +16,21 @@ class PandocWasmProcessor {
         if (this.wasm) return;
 		if (!this.wasmLoading) {
 			this.wasmLoading = (async () => {
-				const response = await fetch(pandocWasmUrl, { 
-                    priority: 'low',
-                    signal
-                });
-				if (!response.ok) {
-					throw new Error(`Failed to fetch Pandoc WASM: ${response.status} ${response.statusText}`);
+				try {
+					const response = await fetch(pandocWasmUrl, { 
+						priority: 'low',
+						signal
+					});
+					if (!response.ok) {
+						throw new Error(`Failed to fetch Pandoc WASM: ${response.status} ${response.statusText}`);
+					}
+					const buffer = await response.arrayBuffer();
+					this.wasm = buffer;
+					return buffer;
+				} catch (err) {
+					this.wasmLoading = null; // Reset so we can retry
+					throw err;
 				}
-				this.wasm = await response.arrayBuffer();
 			})();
 		}
         await this.wasmLoading;
