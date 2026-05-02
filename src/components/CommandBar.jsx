@@ -19,7 +19,7 @@ const QUICK_EXAMPLES = [
  * @param {boolean}  isOpen         - For modal mode only
  * @param {function} onClose        - For modal mode only
  * @param {function} onIntentResolved - Callback when a Tier 1/2 intent is resolved (opens ActionPanel)
- * @param {function} onInteractionStateChange - Emits 'idle' | 'typing' for ambient color intensity
+ * @param {function} onInteractionStateChange - Emits 'idle' | 'typing' | 'result' for ambient color intensity
  */
 export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onIntentResolved, onInteractionStateChange, externalQuery, onExternalQueryConsumed }) {
   const [query, setQuery] = useState('');
@@ -33,8 +33,12 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
   const debounceRef = useRef(null);
 
   useEffect(() => {
-    onInteractionStateChange?.(query.trim() ? 'typing' : 'idle');
-  }, [query, onInteractionStateChange]);
+    if (!query.trim()) {
+      onInteractionStateChange?.('idle');
+      return;
+    }
+    onInteractionStateChange?.(result ? 'result' : 'typing');
+  }, [query, result, onInteractionStateChange]);
 
   // Cycle placeholders with a smooth fade
   useEffect(() => {

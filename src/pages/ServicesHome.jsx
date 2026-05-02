@@ -80,7 +80,7 @@ export default function ServicesHome() {
   };
 
   const isInteracting = Boolean(activeIntent);
-  const ambientState = isInteracting ? 'processing' : commandColorState;
+  const ambientState = isInteracting ? 'processing' : showDoneConfirm ? 'result' : commandColorState;
 
   return (
     <div className={`premium-home ${isInteracting ? 'premium-home-interacting' : ''} relative isolate flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 pb-24 md:pb-8`}>
