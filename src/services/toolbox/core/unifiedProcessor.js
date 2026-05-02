@@ -153,17 +153,24 @@ class UnifiedProcessor {
         this.notify();
 
         try {
-            // Load the processor modules first
+            // 1. First, just load the processor JS modules (fast)
             await this.ensureProcessors();
 
-            // Trigger internal WASM preloads for the most common ones
-            const internalPreloads = [];
-            if (this.imageProc?.preload) internalPreloads.push(this.imageProc.preload());
-            if (this.pandocProc?.preload) internalPreloads.push(this.pandocProc.preload());
-            if (this.audioProc?.preload) internalPreloads.push(this.audioProc.preload());
-            if (this.videoProc?.preload) internalPreloads.push(this.videoProc.preload());
-
-            await Promise.allSettled(internalPreloads);
+            // 2. Prioritize preloading the Image processor (most common & relatively small)
+            if (this.imageProc?.preload) {
+                await this.imageProc.preload();
+                // After Image is ready, we can signal partial readiness or just keep going
+            }
+            
+            // 3. Stagger the heavier ones to avoid bandwidth saturation
+            // We don't await these to avoid blocking the 'ready' state for images
+            setTimeout(async () => {
+                const heavyPreloads = [];
+                if (this.pandocProc?.preload) heavyPreloads.push(this.pandocProc.preload());
+                if (this.audioProc?.preload) heavyPreloads.push(this.audioProc.preload());
+                if (this.videoProc?.preload) heavyPreloads.push(this.videoProc.preload());
+                await Promise.allSettled(heavyPreloads);
+            }, 2000);
             
             this.engineStatus = 'ready';
         } catch (e) {
@@ -174,76 +181,27 @@ class UnifiedProcessor {
     }
 
     async ensureProcessors() {
-        if (this.imageProc && this.pandocProc && this.audioProc && this.videoProc && this.bgRemoverProc && this.cropProc && this.resizeProc && this.watermarkProc) return;
+        // Load all processor modules in parallel for better speed
+        const processors = [
+            { id: 'imageProc', path: '../tools/image/image-wasm-converter/processor' },
+            { id: 'pandocProc', path: '../tools/document/pandoc-wasm-converter/processor' },
+            { id: 'audioProc', path: '../tools/audio/audio-wasm-converter/processor' },
+            { id: 'videoProc', path: '../tools/video/video-wasm-converter/processor' },
+            { id: 'bgRemoverProc', path: '../tools/image/background-remover/processor' },
+            { id: 'cropProc', path: '../tools/image/image-cropper/processor' },
+            { id: 'resizeProc', path: '../tools/image/image-resizer/processor' },
+            { id: 'watermarkProc', path: '../tools/image/watermark/processor' }
+        ];
 
-        if (!this.imageProc) {
+        await Promise.allSettled(processors.map(async (p) => {
+            if (this[p.id]) return;
             try {
-                const imageMod = await import('../tools/image/image-wasm-converter/processor');
-                this.imageProc = imageMod.default || imageMod;
+                const mod = await import(p.path);
+                this[p.id] = mod.processor || mod.default || mod;
             } catch (e) {
-                console.warn('Image processor not available:', e);
+                console.warn(`${p.id} failed to load:`, e);
             }
-        }
-
-        if (!this.pandocProc) {
-            try {
-                const pandocMod = await import('../tools/document/pandoc-wasm-converter/processor');
-                this.pandocProc = pandocMod.default || pandocMod;
-            } catch (e) {
-                console.warn('Pandoc processor not available:', e);
-            }
-        }
-
-        if (!this.audioProc) {
-            try {
-                const audioMod = await import('../tools/audio/audio-wasm-converter/processor');
-                this.audioProc = audioMod.default || audioMod;
-            } catch (e) {
-                console.warn('Audio processor not available:', e);
-            }
-        }
-
-        if (!this.videoProc) {
-            try {
-                const videoMod = await import('../tools/video/video-wasm-converter/processor');
-                this.videoProc = videoMod.default || videoMod;
-            } catch (e) {
-                console.warn('Video processor not available:', e);
-            }
-        }
-
-        if (!this.bgRemoverProc) {
-            try {
-                const bgRemoverMod = await import('../tools/image/background-remover/processor');
-                this.bgRemoverProc = bgRemoverMod.processor || bgRemoverMod.default || bgRemoverMod;
-            } catch (e) {
-                console.warn('Background remover processor not available:', e);
-            }
-        }
-        if (!this.cropProc) {
-            try {
-                const cropMod = await import('../tools/image/image-cropper/processor');
-                this.cropProc = cropMod.processor || cropMod.default || cropMod;
-            } catch (e) {
-                console.warn('Crop processor not available:', e);
-            }
-        }
-        if (!this.resizeProc) {
-            try {
-                const resizeMod = await import('../tools/image/image-resizer/processor');
-                this.resizeProc = resizeMod.processor || resizeMod.default || resizeMod;
-            } catch (e) {
-                console.warn('Resize processor not available:', e);
-            }
-        }
-        if (!this.watermarkProc) {
-            try {
-                const watermarkMod = await import('../tools/image/watermark/processor');
-                this.watermarkProc = watermarkMod.processor || watermarkMod.default || watermarkMod;
-            } catch (e) {
-                console.warn('Watermark processor not available:', e);
-            }
-        }
+        }));
     }
 
     detectCategory(file) {
