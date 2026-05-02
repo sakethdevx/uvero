@@ -206,6 +206,49 @@
     box-shadow: 0 0 20px var(--accent-subtle);
     transform: translateY(-1px);
   }
+
+  .action-chip:active {
+    transform: translateY(0) scale(0.97);
+  }
+
+  /* ── Suggestion chip (premium hover) ── */
+  .suggestion-chip {
+    @apply inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold;
+    background: var(--surface-2);
+    color: var(--text-primary);
+    border: 1px solid var(--border-glass);
+    transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+    opacity: 0;
+    transform: translateY(6px);
+    animation: chipIn 0.35s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
+
+  .suggestion-chip:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 16px var(--accent-subtle);
+    transform: translateY(-2px);
+    background: var(--surface-1);
+  }
+
+  .suggestion-chip:active {
+    transform: translateY(0) scale(0.97);
+    transition-duration: 0.1s;
+  }
+
+  /* ── State transition wrapper (prevents layout jumps) ── */
+  .state-container {
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    transition: min-height 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  /* ── Result card ── */
+  .result-card {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+    animation: resultReveal 0.5s cubic-bezier(0.32, 0.72, 0, 1) 0.15s forwards;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -293,5 +336,27 @@
   @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
+  }
+
+  /* ── Chip staggered entrance ── */
+  @keyframes chipIn {
+    0% { opacity: 0; transform: translateY(6px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Result reveal (delayed, subtle) ── */
+  @keyframes resultReveal {
+    0% { opacity: 0; transform: translateY(8px) scale(0.98); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* ── Smooth state crossfade ── */
+  @keyframes stateFadeIn {
+    0% { opacity: 0; transform: scale(0.98); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  .animate-state-in {
+    animation: stateFadeIn 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
   }
 }

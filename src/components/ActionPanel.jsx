@@ -17,33 +17,41 @@ const PANEL_MAP = {
 /**
  * ActionPanel — Inline execution container with continuity loop.
  * 
- * The key upgrade: when a panel emits a suggestion, ActionPanel resolves it
- * and either re-renders a new panel or navigates — creating the
- * Command → Execute → Result → Suggest → Continue loop.
+ * Polished: smooth state transitions, min-height stability,
+ * glow during active processing, premium enter/exit.
  */
 export default function ActionPanel({ intent, onDismiss, onIntentChange }) {
   const [isVisible, setIsVisible] = useState(false);
   const [currentIntent, setCurrentIntent] = useState(intent);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (intent) {
       setCurrentIntent(intent);
-      requestAnimationFrame(() => setIsVisible(true));
+      // Staggered entrance — feels intentional
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setIsVisible(true));
+      });
     }
   }, [intent]);
 
-  // Animate updates when intent changes within the panel (suggestion flow)
+  // Smooth panel swap when intent changes (suggestion flow)
   useEffect(() => {
-    if (currentIntent && currentIntent !== intent) {
+    if (currentIntent && currentIntent !== intent && intent) {
+      setIsTransitioning(true);
       setIsVisible(false);
-      requestAnimationFrame(() => setIsVisible(true));
+      setTimeout(() => {
+        setCurrentIntent(intent);
+        setIsTransitioning(false);
+        requestAnimationFrame(() => setIsVisible(true));
+      }, 200);
     }
-  }, [currentIntent]);
+  }, [intent]);
 
   const handleDismiss = useCallback(() => {
     setIsVisible(false);
-    setTimeout(() => onDismiss?.(), 250);
+    setTimeout(() => onDismiss?.(), 300);
   }, [onDismiss]);
 
   const handleOpenFull = useCallback(() => {
@@ -55,28 +63,33 @@ export default function ActionPanel({ intent, onDismiss, onIntentChange }) {
 
   /**
    * Suggestion handler — the core of the continuity loop.
-   * When a panel suggestion is clicked, resolve it as a new intent
-   * and either swap the panel content or navigate.
    */
   const handleSuggestionSelect = useCallback((suggestion) => {
-    if (suggestion.action === 'reset') return; // Panels handle this internally
+    if (suggestion.action === 'reset') return;
     
     if (suggestion.intent) {
       const result = resolveIntent(suggestion.intent);
 
       if (result.capability && result.handler && result.tier <= 2) {
-        // Swap to new inline panel
-        const newIntent = {
-          capability: result.capability,
-          params: result.params || {},
-          label: result.label,
-          description: result.description,
-          tier: result.tier,
-          handler: result.handler,
-          navigateTo: result.navigateTo,
-        };
-        setCurrentIntent(newIntent);
-        onIntentChange?.(newIntent);
+        // Smooth transition: fade out → swap → fade in
+        setIsTransitioning(true);
+        setIsVisible(false);
+        
+        setTimeout(() => {
+          const newIntent = {
+            capability: result.capability,
+            params: result.params || {},
+            label: result.label,
+            description: result.description,
+            tier: result.tier,
+            handler: result.handler,
+            navigateTo: result.navigateTo,
+          };
+          setCurrentIntent(newIntent);
+          onIntentChange?.(newIntent);
+          setIsTransitioning(false);
+          requestAnimationFrame(() => setIsVisible(true));
+        }, 250);
       } else if (result.navigateTo) {
         navigate(result.navigateTo);
         handleDismiss();
@@ -98,15 +111,17 @@ export default function ActionPanel({ intent, onDismiss, onIntentChange }) {
 
   return (
     <div
-      className={`w-full max-w-2xl mx-auto transition-all duration-300 ease-apple ${
+      className={`w-full max-w-2xl mx-auto transition-all duration-[350ms] ease-apple ${
         isVisible
-          ? 'opacity-100 translate-y-0'
-          : 'opacity-0 translate-y-3 pointer-events-none'
+          ? 'opacity-100 translate-y-0 scale-100'
+          : 'opacity-0 translate-y-2 scale-[0.98] pointer-events-none'
       }`}
     >
-      <div className="glass-panel glass-glow overflow-hidden">
+      <div className={`glass-panel overflow-hidden transition-shadow duration-500 ${
+        isVisible && !isTransitioning ? 'glass-glow' : ''
+      }`}>
         {/* ── Intent Feedback Header ── */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b"
+        <div className="flex items-center justify-between px-5 py-3 border-b"
           style={{ borderColor: 'var(--border-glass)' }}
         >
           <div className="flex items-center gap-3 min-w-0">
@@ -115,17 +130,17 @@ export default function ActionPanel({ intent, onDismiss, onIntentChange }) {
               <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                 {currentIntent.label || 'Processing'}
               </p>
-              <p className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>
+              <p className="text-[11px] truncate" style={{ color: 'var(--text-secondary)' }}>
                 {typeof currentIntent.description === 'function'
                   ? currentIntent.description(currentIntent.params || {})
-                  : currentIntent.description || 'Resolving intent...'}
+                  : currentIntent.description || 'Resolving...'}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Tier badge */}
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Tier badge — minimal */}
+            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
               style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}
             >
               {currentIntent.tier === 1 ? 'Inline' : 'Focused'}
@@ -134,18 +149,18 @@ export default function ActionPanel({ intent, onDismiss, onIntentChange }) {
             {/* Dismiss */}
             <button
               onClick={handleDismiss}
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 transition-all duration-200"
               aria-label="Dismiss"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
         </div>
 
-        {/* ── Panel Content ── */}
-        <div className="px-5 py-4">
+        {/* ── Panel Content (state container prevents layout jumps) ── */}
+        <div className="px-5 py-4 state-container">
           {PanelComponent ? (
             <Suspense fallback={<AILoader mode="shimmer" />}>
               <PanelComponent

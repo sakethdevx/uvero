@@ -201,11 +201,8 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
   function renderBar() {
     return (
       <div
-        className={`relative flex items-center gap-3 transition-all duration-300 ${
-          isEmbed
-            ? 'glass-panel px-5 py-4'
-            : 'glass-panel px-5 py-4'
-        } ${isFocused || query ? 'glass-glow' : ''}`}
+        className={`relative flex items-center gap-3 transition-all duration-[350ms] ease-apple glass-panel px-5 py-3.5 ${
+          isFocused || query ? 'glass-glow' : ''}`}
       >
         {/* Search icon / AI indicator */}
         <div className="shrink-0">
@@ -233,7 +230,7 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
           onFocus={() => setIsFocused(true)}
           onBlur={() => setTimeout(() => setIsFocused(false), 200)}
           placeholder={PLACEHOLDER_INTENTS[placeholderIndex]}
-          className="flex-1 bg-transparent text-base font-medium outline-none placeholder:text-gray-400 dark:placeholder:text-gray-600"
+          className="flex-1 bg-transparent text-[15px] font-medium outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-colors"
           style={{ color: 'var(--text-primary)' }}
           autoComplete="off"
           spellCheck={false}
@@ -271,19 +268,19 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
     if (!allSuggestions.length || !isFocused) return null;
 
     return (
-      <div className="mt-2 glass-panel overflow-hidden animate-panel-in">
-        <div className="py-1.5">
+      <div className="mt-1.5 glass-panel overflow-hidden animate-panel-in">
+        <div className="py-1">
           {allSuggestions.map((item, i) => (
             <button
               key={item.id}
               onClick={() => selectItem(item)}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
+              className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all duration-200 ${
                 i === selectedIndex
                   ? 'bg-gray-100/80 dark:bg-white/[0.06]'
                   : 'hover:bg-gray-50 dark:hover:bg-white/[0.03]'
               }`}
             >
-              <span className="text-lg shrink-0">{item.icon}</span>
+              <span className="text-base shrink-0">{item.icon}</span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
@@ -302,11 +299,11 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
                     </span>
                   )}
                 </div>
-                <p className="text-xs truncate mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                <p className="text-[11px] truncate mt-0.5" style={{ color: 'var(--text-secondary)' }}>
                   {item.description}
                 </p>
               </div>
-              <svg className="w-4 h-4 shrink-0" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 shrink-0 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
               </svg>
             </button>

@@ -34,6 +34,8 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
         color: { dark: isDark ? '#e8eaed' : '#1a1a2e', light: isDark ? '#111118' : '#ffffff' },
         margin: 4,
       });
+      // Brief pause before reveal — prevents flash
+      await new Promise(r => setTimeout(r, 200));
       setQrDataUrl(dataUrl);
 
       // Record in session
@@ -149,7 +151,7 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
 
       {/* Result */}
       {qrDataUrl && (
-        <div className="animate-panel-in">
+        <div className="result-card">
           <div className="flex gap-4 items-start">
             <div className="w-28 h-28 shrink-0 rounded-xl overflow-hidden" style={{ background: 'var(--surface-2)' }}>
               <img src={qrDataUrl} alt="QR Code" className="w-full h-full object-contain p-1" />

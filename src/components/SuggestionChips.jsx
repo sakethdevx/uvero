@@ -1,12 +1,19 @@
+import { useCallback } from 'react';
+
 /**
  * SuggestionChips — Rendered after a successful action.
- * Shows 3-4 contextual next actions that users can tap to continue the loop.
+ * Shows 3-4 contextual next actions with staggered entry and premium hover.
  */
 export default function SuggestionChips({ suggestions, onSelect }) {
   if (!suggestions?.length) return null;
 
+  const handleSelect = useCallback((suggestion) => {
+    // Intentional 150ms delay — feels deliberate, not instant
+    setTimeout(() => onSelect(suggestion), 150);
+  }, [onSelect]);
+
   return (
-    <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--border-glass)' }}>
+    <div className="mt-4 pt-3 animate-state-in" style={{ borderTop: '1px solid var(--border-glass)' }}>
       <p className="text-[10px] font-bold uppercase tracking-wider mb-2.5"
         style={{ color: 'var(--text-secondary)' }}
       >
@@ -16,13 +23,9 @@ export default function SuggestionChips({ suggestions, onSelect }) {
         {suggestions.map((s, i) => (
           <button
             key={i}
-            onClick={() => onSelect(s)}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
-            style={{
-              background: 'var(--surface-2)',
-              color: 'var(--text-primary)',
-              border: '1px solid var(--border-glass)',
-            }}
+            onClick={() => handleSelect(s)}
+            className="suggestion-chip"
+            style={{ animationDelay: `${i * 60}ms` }}
           >
             <span>{s.icon}</span>
             <span>{s.label}</span>
@@ -39,7 +42,7 @@ export default function SuggestionChips({ suggestions, onSelect }) {
  */
 export function ErrorRecovery({ title, message, suggestions, onSelect, onRetry }) {
   return (
-    <div className="animate-panel-in">
+    <div className="result-card">
       <div className="flex items-start gap-3 mb-4">
         <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
           <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,7 +52,7 @@ export function ErrorRecovery({ title, message, suggestions, onSelect, onRetry }
         <div>
           <p className="text-sm font-semibold text-gray-900 dark:text-white">{title}</p>
           {message && (
-            <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{message}</p>
+            <p className="text-xs mt-1 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{message}</p>
           )}
         </div>
       </div>
@@ -63,12 +66,8 @@ export function ErrorRecovery({ title, message, suggestions, onSelect, onRetry }
                 if (s.action === 'retry' && onRetry) { onRetry(); return; }
                 onSelect?.(s);
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-[1.02]"
-              style={{
-                background: 'var(--surface-2)',
-                color: 'var(--text-primary)',
-                border: '1px solid var(--border-glass)',
-              }}
+              className="suggestion-chip"
+              style={{ animationDelay: `${(i + 1) * 60}ms` }}
             >
               <span>{s.icon}</span>
               <span>{s.label}</span>

@@ -127,7 +127,7 @@ export default function ClipboardQuickPanel({ params, onDismiss, onSuggestionSel
 
       {mode === 'share' ? (
         code ? (
-          <div className="animate-panel-in text-center space-y-3">
+          <div className="result-card text-center space-y-3">
             <p className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Share this code:</p>
             <div className="flex items-center justify-center gap-3">
               <span className="text-3xl font-black tracking-[0.3em] text-gray-900 dark:text-white">{code}</span>
@@ -165,7 +165,7 @@ export default function ClipboardQuickPanel({ params, onDismiss, onSuggestionSel
         )
       ) : (
         retrievedText ? (
-          <div className="animate-panel-in space-y-3">
+          <div className="result-card space-y-3">
             <div className="p-4 rounded-xl text-sm" style={{ background: 'var(--surface-2)', color: 'var(--text-primary)' }}>
               <pre className="whitespace-pre-wrap break-words font-mono text-xs">{retrievedText}</pre>
             </div>

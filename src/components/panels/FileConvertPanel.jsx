@@ -78,6 +78,8 @@ export default function FileConvertPanel({ params, onDismiss, onSuggestionSelect
     lastConvertRef.current = { file, outputFormat };
 
     try {
+      // Intentional "Analyzing" delay — feels intelligent, not instant
+      await new Promise(r => setTimeout(r, 250));
       setCurrentStep(1);
       const converted = await processor.convert(file, outputFormat, (p) => {
         if (p > 30) setCurrentStep(2);
@@ -85,6 +87,8 @@ export default function FileConvertPanel({ params, onDismiss, onSuggestionSelect
       });
 
       setCurrentStep(4);
+      // Brief pause before showing result — prevents flash
+      await new Promise(r => setTimeout(r, 200));
       setResult(converted);
 
       // Record in session
@@ -192,7 +196,7 @@ export default function FileConvertPanel({ params, onDismiss, onSuggestionSelect
     const suggestions = getSuggestions('file-convert', { category: detectedCategory });
 
     return (
-      <div className="animate-panel-in">
+      <div className="result-card">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
             <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
