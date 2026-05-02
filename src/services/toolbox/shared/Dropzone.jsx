@@ -97,15 +97,24 @@ export default function Dropzone({ accept, onFileSelect, maxSize = 100 * 1024 * 
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={`
-                    relative group overflow-hidden border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-500
+                    relative group overflow-hidden rounded-[2rem] p-12 text-center transition-all duration-700
                     ${isDragging
-                        ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-500/10 scale-[1.02] ring-4 ring-primary-500/20'
-                        : 'border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/[0.02] hover:border-primary-400 dark:hover:border-primary-500/50 hover:bg-white dark:hover:bg-white/[0.05]'
+                        ? 'bg-indigo-50/50 dark:bg-indigo-500/10 scale-[1.01]'
+                        : 'bg-gray-50/30 dark:bg-white/[0.01] hover:bg-white dark:hover:bg-white/[0.03]'
                     }
+                    border-2 border-dashed
+                    ${isDragging ? 'border-indigo-500' : 'border-gray-200 dark:border-white/10 hover:border-indigo-400 dark:hover:border-indigo-500/50'}
                 `}
             >
-                {/* Background Glow Effect */}
-                <div className="absolute -inset-24 bg-primary-500/5 rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                {/* AI Scanning Animation Layer */}
+                {isDragging && (
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-indigo-500/20 to-transparent animate-scan-fast" />
+                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5" />
+                    </div>
+                )}
+
+                <div className="absolute -inset-24 bg-indigo-500/5 rounded-full blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
                 
                 <input
                     type="file"
@@ -117,36 +126,44 @@ export default function Dropzone({ accept, onFileSelect, maxSize = 100 * 1024 * 
  
                 <div className="relative pointer-events-none">
                     <div className={`
-                        mx-auto h-20 w-20 mb-6 rounded-2xl flex items-center justify-center transition-all duration-500
-                        ${isDragging ? 'bg-primary-500 text-white scale-110 rotate-3' : 'bg-white dark:bg-gray-800 text-primary-500 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-white/10 group-hover:scale-110 group-hover:-rotate-3'}
+                        mx-auto h-24 w-24 mb-8 rounded-[2rem] flex items-center justify-center transition-all duration-700
+                        ${isDragging 
+                            ? 'bg-indigo-600 text-white shadow-2xl shadow-indigo-500/40 rotate-12 scale-110' 
+                            : 'bg-white dark:bg-gray-900 text-indigo-500 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-white/10 group-hover:scale-105 group-hover:-rotate-6'}
                     `}>
-                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.25 15L17.5 17.625 14.875 18.375l2.625.75L18.25 21.75l.75-2.625 2.625-.75-2.625-.75L18.25 15zM15.75 2.25l.75 2.625 2.625.75-2.625.75L15.75 9l-.75-2.625-2.625-.75 2.625-.75L15.75 2.25z" />
                         </svg>
                     </div>
  
-                    <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">
-                        {label || 'Drop your file here'}
+                    <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tighter">
+                        {label || 'Initiate Processing'}
                     </h3>
-                    <p className="text-gray-500 dark:text-gray-400 font-medium">
-                        {description || 'or click to browse your computer'}
+                    <p className="text-gray-500 dark:text-gray-400 font-medium max-w-[280px] mx-auto leading-relaxed">
+                        {description || 'Drag your assets here or tap to explore files'}
                     </p>
                     
-                    <div className="mt-8 flex items-center justify-center gap-4">
-                        <div className="h-px w-8 bg-gray-200 dark:bg-white/10" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Max 100MB</span>
-                        <div className="h-px w-8 bg-gray-200 dark:bg-white/10" />
+                    <div className="mt-10 flex items-center justify-center gap-2">
+                        <div className="flex gap-1">
+                            {[1,2,3].map(i => (
+                                <div key={i} className="w-1 h-1 rounded-full bg-indigo-500/40 animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />
+                            ))}
+                        </div>
+                        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-indigo-500/60">Neural Engine Ready</span>
+                        <div className="flex gap-1">
+                            {[1,2,3].map(i => (
+                                <div key={i} className="w-1 h-1 rounded-full bg-indigo-500/40 animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
  
             {error && (
-                <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 rounded-2xl animate-shake">
-                    <p className="text-sm text-red-600 dark:text-red-400 font-bold flex items-center gap-2 justify-center">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                        {error}
+                <div className="mt-8 p-5 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-3xl">
+                    <p className="text-xs text-red-600 dark:text-red-400 font-black uppercase tracking-widest flex items-center gap-3 justify-center">
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                        Processing Fault: {error}
                     </p>
                 </div>
             )}

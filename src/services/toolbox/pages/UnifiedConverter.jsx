@@ -220,50 +220,57 @@ export default function UnifiedConverter() {
 
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="relative group overflow-hidden rounded-[2.5rem] border border-gray-200/80 bg-white shadow-2xl shadow-gray-200/50 transition-all duration-500 hover:shadow-primary-500/10 dark:border-white/[0.08] dark:bg-gray-900/60 dark:shadow-none">
-                {/* Premium Card Header Decoration */}
-                <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-primary-500 via-blue-500 to-purple-500" />
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary-500/5 rounded-full blur-3xl group-hover:bg-primary-500/10 transition-colors duration-700" />
+    return (
+        <div className="max-w-4xl mx-auto">
+            <div className="relative group rounded-[2.5rem] border border-gray-200/80 bg-white/80 backdrop-blur-2xl shadow-2xl shadow-indigo-200/20 transition-all duration-700 hover:shadow-indigo-500/20 dark:border-white/[0.08] dark:bg-gray-950/60 dark:shadow-none overflow-hidden">
+                {/* AI Neural Background Effect */}
+                <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
                 
-                <div className="relative p-8 sm:p-10">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-                        <div>
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gray-100 dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.08] text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
-                                <svg className="w-3 h-3 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <div className="relative p-8 sm:p-12">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-12">
+                        <div className="flex-1">
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 text-[10px] font-black uppercase tracking-[0.15em] text-indigo-600 dark:text-indigo-400 mb-6">
+                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
                                 </svg>
-                                Powerful & Secure
+                                Intelligent Processor v2.0
                             </div>
-                            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
-                                Unified File <span className="text-primary-600 dark:text-primary-400">Converter</span>
+                            <h2 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight">
+                                Unified <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">Intelligence</span>
                             </h2>
-                            <p className="mt-3 text-gray-600 dark:text-gray-400 max-w-xl font-medium leading-relaxed">
-                                Convert images, audio, and documents using <span className="text-gray-900 dark:text-white">WebAssembly</span>. 
-                                <span className="hidden sm:inline"> Instant processing, 100% private, zero uploads.</span>
+                            <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 max-w-xl font-medium leading-relaxed">
+                                Experience <span className="text-gray-900 dark:text-white">Neural-Native</span> file processing. 
+                                No data ever leaves your device. Secure. Local. Intelligent.
                             </p>
                         </div>
                         
                         {file && (
                             <button 
                                 onClick={handleReset}
-                                className="flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest"
+                                className="group/btn flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-red-50 dark:bg-red-500/10 text-xs font-bold text-red-600 hover:bg-red-100 dark:hover:bg-red-500/20 transition-all uppercase tracking-widest"
                             >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                <svg className="w-4 h-4 transition-transform group-hover/btn:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                                Clear File
+                                Discard
                             </button>
                         )}
                     </div>
 
-                    <div className="space-y-8">
-                    {/* Dropzone */}
-                    <Dropzone
-                        onFileSelect={handleFileSelect}
-                        accept="image/*,video/*,audio/*,.doc,.docx,.pdf,.epub,.odt,.html,.md,.txt,.rst,.csv,.tsv,.json,.docbook"
-                        disabled={isProcessing}
-                        value={file}
-                    />
+                    <div className="space-y-10">
+                    {/* AI Enhanced Dropzone */}
+                    <div className="relative">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 rounded-[2rem] blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
+                        <div className="relative">
+                            <Dropzone
+                                onFileSelect={handleFileSelect}
+                                accept="image/*,video/*,audio/*,.doc,.docx,.pdf,.epub,.odt,.html,.md,.txt,.rst,.csv,.tsv,.json,.docbook"
+                                disabled={isProcessing}
+                                value={file}
+                            />
+                        </div>
+                    </div>
 
                     {file && categoryInfo && (
                         <div className="grid md:grid-cols-2 gap-6">
