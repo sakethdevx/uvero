@@ -4,6 +4,7 @@ import useSEO from '../hooks/useSEO';
 import AmbientBackground from '../components/AmbientBackground';
 import CommandBar from '../components/CommandBar';
 import ActionPanel from '../components/ActionPanel';
+import OnboardingHint from '../components/OnboardingHint';
 import { resolveIntent } from '../lib/IntentEngine';
 
 /**
@@ -23,6 +24,8 @@ const ACTION_CHIPS = [
 
 export default function ServicesHome() {
   const [activeIntent, setActiveIntent] = useState(null);
+  const [externalQuery, setExternalQuery] = useState('');
+  const [showDoneConfirm, setShowDoneConfirm] = useState(false);
   const navigate = useNavigate();
 
   useSEO({
@@ -33,14 +36,17 @@ export default function ServicesHome() {
 
   const handleIntentResolved = useCallback((intent) => {
     setActiveIntent(intent);
+    setShowDoneConfirm(false);
   }, []);
 
   const handleDismissAction = useCallback(() => {
     setActiveIntent(null);
+    // Brief "✓ Done" confirmation before chips reappear
+    setShowDoneConfirm(true);
+    setTimeout(() => setShowDoneConfirm(false), 1800);
   }, []);
 
   const handleChipClick = useCallback((chip) => {
-    // For chips with inline capabilities, trigger the intent engine
     if (chip.capability) {
       const result = resolveIntent(chip.label);
       if (result.capability && result.tier <= 2 && result.handler) {
@@ -59,6 +65,11 @@ export default function ServicesHome() {
     navigate(chip.path);
   }, [navigate]);
 
+  // Called by OnboardingHint when a user clicks an example chip
+  const handleOnboardingExample = useCallback((text) => {
+    setExternalQuery(text);
+  }, []);
+
   // Time-based greeting
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -72,7 +83,7 @@ export default function ServicesHome() {
       <AmbientBackground />
 
       {/* ── Main content — vertically centered ── */}
-      <div className="w-full max-w-xl mx-auto flex flex-col items-center gap-6 animate-fade-in-up"
+      <div className="w-full max-w-xl mx-auto flex flex-col items-center gap-5 animate-fade-in-up"
         style={{ animationDelay: '0.1s' }}
       >
         {/* Greeting */}
@@ -85,11 +96,16 @@ export default function ServicesHome() {
           </p>
         </div>
 
-        {/* Command Bar */}
+        {/* Command Bar — externalQuery lets onboarding inject example text */}
         <CommandBar
           mode="embed"
           onIntentResolved={handleIntentResolved}
+          externalQuery={externalQuery}
+          onExternalQueryConsumed={() => setExternalQuery('')}
         />
+
+        {/* Onboarding Hint — inline, non-blocking, first-visit only */}
+        <OnboardingHint onExampleSelect={handleOnboardingExample} />
 
         {/* Action Panel (appears when intent is resolved) */}
         {activeIntent && (
@@ -99,8 +115,20 @@ export default function ServicesHome() {
           />
         )}
 
+        {/* Post-action micro-confirmation */}
+        {showDoneConfirm && !activeIntent && (
+          <div className="flex items-center gap-2 text-sm font-medium animate-state-in"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            <svg className="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Done — what&apos;s next?
+          </div>
+        )}
+
         {/* Action Chips */}
-        {!activeIntent && (
+        {!activeIntent && !showDoneConfirm && (
           <div className="flex flex-wrap justify-center gap-2 animate-fade-in"
             style={{ animationDelay: '0.3s' }}
           >
@@ -118,11 +146,11 @@ export default function ServicesHome() {
         )}
 
         {/* Stats line */}
-        {!activeIntent && (
+        {!activeIntent && !showDoneConfirm && (
           <p className="text-xs font-medium tracking-wide animate-fade-in"
             style={{ color: 'var(--text-secondary)', animationDelay: '0.5s' }}
           >
-            6 Capabilities · 200+ Actions · 100% Private
+            6 capabilities · 200+ actions · 100% private
           </p>
         )}
       </div>

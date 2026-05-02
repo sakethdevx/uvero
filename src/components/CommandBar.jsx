@@ -2,6 +2,13 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { resolveIntent, PLACEHOLDER_INTENTS } from '../lib/IntentEngine';
 
+// Example prompts shown in the "Try:" row when the bar is focused and empty
+const QUICK_EXAMPLES = [
+  'Convert a PDF to images',
+  'Generate a QR code for WiFi',
+  'Compress this image',
+];
+
 /**
  * CommandBar — The central UI element of Uvero.
  * Two modes:
@@ -13,21 +20,28 @@ import { resolveIntent, PLACEHOLDER_INTENTS } from '../lib/IntentEngine';
  * @param {function} onClose        - For modal mode only
  * @param {function} onIntentResolved - Callback when a Tier 1/2 intent is resolved (opens ActionPanel)
  */
-export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onIntentResolved }) {
+export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onIntentResolved, externalQuery, onExternalQueryConsumed }) {
   const [query, setQuery] = useState('');
   const [result, setResult] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [placeholderVisible, setPlaceholderVisible] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef(null);
   const navigate = useNavigate();
   const debounceRef = useRef(null);
 
-  // Cycle placeholders
+  // Cycle placeholders with a smooth fade
   useEffect(() => {
     const interval = setInterval(() => {
-      setPlaceholderIndex(i => (i + 1) % PLACEHOLDER_INTENTS.length);
-    }, 3000);
+      // Fade out
+      setPlaceholderVisible(false);
+      setTimeout(() => {
+        setPlaceholderIndex(i => (i + 1) % PLACEHOLDER_INTENTS.length);
+        // Fade in
+        setPlaceholderVisible(true);
+      }, 400);
+    }, 3200);
     return () => clearInterval(interval);
   }, []);
 
@@ -37,6 +51,17 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [mode, isOpen]);
+
+  // Handle external query injection (from OnboardingHint chips)
+  useEffect(() => {
+    if (externalQuery) {
+      handleQueryChange(externalQuery);
+      inputRef.current?.focus();
+      onExternalQueryConsumed?.();
+    }
+  // handleQueryChange is stable (useCallback) — safe to include
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalQuery]);
 
   // ⌘K global listener (for embed mode only — modal handles its own)
   useEffect(() => {
@@ -200,67 +225,96 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
 
   function renderBar() {
     return (
-      <div
-        className={`relative flex items-center gap-3 transition-all duration-[350ms] ease-apple glass-panel px-5 py-3.5 ${
-          isFocused || query ? 'glass-glow' : ''}`}
-      >
-        {/* Search icon / AI indicator */}
-        <div className="shrink-0">
-          {query ? (
-            <div className="w-5 h-5 rounded-full animate-orb-breathe"
+      <>
+        <div
+          className={`relative flex items-center gap-3 transition-all duration-[350ms] ease-apple glass-panel px-5 py-3.5 ${
+            isFocused || query ? 'glass-glow' : ''}`}
+        >
+          {/* Search icon / AI indicator */}
+          <div className="shrink-0">
+            {query ? (
+              <div className="w-5 h-5 rounded-full animate-orb-breathe"
+                style={{
+                  background: 'radial-gradient(circle, var(--accent), rgba(99,102,241,0.3))',
+                  animationDuration: '1.5s',
+                }}
+              />
+            ) : (
+              <svg className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            )}
+          </div>
+
+          {/* Input */}
+          <input
+            ref={inputRef}
+            type="text"
+            value={query}
+            onChange={(e) => handleQueryChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+            placeholder={PLACEHOLDER_INTENTS[placeholderIndex]}
+            className="flex-1 bg-transparent text-[15px] font-medium outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-colors"
+            style={{ color: 'var(--text-primary)' }}
+            autoComplete="off"
+            spellCheck={false}
+          />
+
+          {/* Keyboard shortcut hint */}
+          {isEmbed && !query && !isFocused && (
+            <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold"
               style={{
-                background: 'radial-gradient(circle, var(--accent), rgba(99,102,241,0.3))',
-                animationDuration: '1.5s',
+                background: 'var(--surface-2)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border)',
               }}
-            />
-          ) : (
-            <svg className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+            >
+              ⌘K
+            </kbd>
+          )}
+
+          {/* Clear button */}
+          {query && (
+            <button
+              onClick={() => { setQuery(''); setResult(null); inputRef.current?.focus(); }}
+              className="shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           )}
         </div>
 
-        {/* Input */}
-        <input
-          ref={inputRef}
-          type="text"
-          value={query}
-          onChange={(e) => handleQueryChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-          placeholder={PLACEHOLDER_INTENTS[placeholderIndex]}
-          className="flex-1 bg-transparent text-[15px] font-medium outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-colors"
-          style={{ color: 'var(--text-primary)' }}
-          autoComplete="off"
-          spellCheck={false}
-        />
-
-        {/* Keyboard shortcut hint */}
-        {isEmbed && !query && !isFocused && (
-          <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold"
-            style={{
-              background: 'var(--surface-2)',
-              color: 'var(--text-secondary)',
-              border: '1px solid var(--border)',
-            }}
-          >
-            ⌘K
-          </kbd>
+        {/* ── "Try:" focused row — shown when focused and empty (embed only) ── */}
+        {isEmbed && isFocused && !query && (
+          <div className="flex items-center gap-1.5 pt-2 flex-wrap animate-state-in">
+            <span className="text-[10px] font-bold uppercase tracking-wider shrink-0" style={{ color: 'var(--text-secondary)' }}>
+              Try:
+            </span>
+            {QUICK_EXAMPLES.map((ex) => (
+              <button
+                key={ex}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleQueryChange(ex);
+                  inputRef.current?.focus();
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all duration-150 hover:-translate-y-px"
+                style={{
+                  background: 'var(--surface-2)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border-glass)',
+                }}
+              >
+                {ex}
+              </button>
+            ))}
+          </div>
         )}
-
-        {/* Clear button */}
-        {query && (
-          <button
-            onClick={() => { setQuery(''); setResult(null); inputRef.current?.focus(); }}
-            className="shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        )}
-      </div>
+      </>
     );
   }
 
@@ -295,7 +349,7 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
                   )}
                   {item.tier === 1 && !item.isBestMatch && (
                     <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full shrink-0 bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400">
-                      Inline
+                      Quick
                     </span>
                   )}
                 </div>

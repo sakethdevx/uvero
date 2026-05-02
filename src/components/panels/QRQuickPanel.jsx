@@ -152,6 +152,14 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
       {/* Result */}
       {qrDataUrl && (
         <div className="result-card">
+          {/* Success confirmation */}
+          <div className="flex items-center gap-2 mb-3">
+            <svg className="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <p className="text-sm font-semibold text-gray-900 dark:text-white">✓ QR generated</p>
+          </div>
+
           <div className="flex gap-4 items-start">
             <div className="w-28 h-28 shrink-0 rounded-xl overflow-hidden" style={{ background: 'var(--surface-2)' }}>
               <img src={qrDataUrl} alt="QR Code" className="w-full h-full object-contain p-1" />
@@ -171,6 +179,10 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
                   {copied ? '✓ Copied' : 'Copy'}
                 </button>
               </div>
+              {/* Selective trust signal — result state only */}
+              <p className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
+                🔒 Generated in your browser
+              </p>
             </div>
           </div>
 

@@ -143,7 +143,7 @@ export default function ActionPanel({ intent, onDismiss, onIntentChange }) {
             <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
               style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}
             >
-              {currentIntent.tier === 1 ? 'Inline' : 'Focused'}
+              {currentIntent.tier === 1 ? 'Quick' : 'Full'}
             </span>
 
             {/* Dismiss */}
@@ -191,7 +191,7 @@ export default function ActionPanel({ intent, onDismiss, onIntentChange }) {
                 className="text-xs font-medium hover:underline transition-colors"
                 style={{ color: 'var(--accent)' }}
               >
-                Need more options? Open full tool →
+                Open in full workspace →
               </button>
             </div>
           )}

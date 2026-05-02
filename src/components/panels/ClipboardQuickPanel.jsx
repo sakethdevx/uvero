@@ -128,7 +128,14 @@ export default function ClipboardQuickPanel({ params, onDismiss, onSuggestionSel
       {mode === 'share' ? (
         code ? (
           <div className="result-card text-center space-y-3">
-            <p className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Share this code:</p>
+            {/* Success confirmation */}
+            <div className="flex items-center justify-center gap-2">
+              <svg className="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">✓ Shared successfully</p>
+            </div>
+            <p className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Share this code with anyone:</p>
             <div className="flex items-center justify-center gap-3">
               <span className="text-3xl font-black tracking-[0.3em] text-gray-900 dark:text-white">{code}</span>
               <button onClick={copyCode} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
@@ -139,7 +146,10 @@ export default function ClipboardQuickPanel({ params, onDismiss, onSuggestionSel
                 )}
               </button>
             </div>
-            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Expires in 24 hours</p>
+            {/* Trust signal — result state only */}
+            <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>
+              🔒 Encrypted · deleted after 24 hours
+            </p>
             <SuggestionChips suggestions={suggestions} onSelect={handleSuggestion} />
           </div>
         ) : (
@@ -159,7 +169,7 @@ export default function ClipboardQuickPanel({ params, onDismiss, onSuggestionSel
               {loading ? <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" /> : (
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" /></svg>
               )}
-              Share
+              Share text
             </button>
           </div>
         )

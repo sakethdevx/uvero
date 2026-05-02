@@ -428,12 +428,14 @@ export function getAllCapabilities() {
 
 // ─── Placeholder suggestions for the command bar ───
 export const PLACEHOLDER_INTENTS = [
-  'Convert an image to WebP...',
-  'Generate a QR code...',
-  'Share a text snippet...',
-  'Compress a photo...',
+  'Convert a PDF to images...',
+  'Generate a QR code for WiFi...',
+  'Compress this image...',
+  'Share a code snippet...',
+  'Resize a photo...',
   'Run Python code...',
+  'Split a bill with friends...',
   'Remove image background...',
-  'Split a bill...',
-  'Convert PDF to Markdown...',
+  'Convert audio to MP3...',
+  'Generate a QR for a link...',
 ];

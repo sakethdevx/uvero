@@ -204,11 +204,17 @@ export default function FileConvertPanel({ params, onDismiss, onSuggestionSelect
             </svg>
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-900 dark:text-white">Conversion complete</p>
-            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-              {formatSize(result.originalSize)} → {formatSize(result.convertedSize)}
-              {reduction > 0 && <span className="text-green-500 ml-1">({reduction}% smaller)</span>}
-            </p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-white">✓ Converted successfully</p>
+            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+              <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                {formatSize(result.originalSize)} → {formatSize(result.convertedSize)}
+              </p>
+              {reduction > 0 && (
+                <span className="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400">
+                  {reduction}% smaller
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -218,6 +224,11 @@ export default function FileConvertPanel({ params, onDismiss, onSuggestionSelect
           </svg>
           Download {outputFormat.toUpperCase()}
         </button>
+
+        {/* Selective trust signal — result state only */}
+        <p className="text-[11px] text-center mt-1.5" style={{ color: 'var(--text-secondary)' }}>
+          🔒 Processed locally · no data uploaded
+        </p>
 
         <SuggestionChips suggestions={suggestions} onSelect={handleSuggestion} />
       </div>
@@ -309,7 +320,7 @@ export default function FileConvertPanel({ params, onDismiss, onSuggestionSelect
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            Convert to {outputFormat.toUpperCase()}
+            Convert file
           </button>
         </div>
       )}
