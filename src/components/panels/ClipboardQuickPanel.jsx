@@ -27,14 +27,14 @@ export default function ClipboardQuickPanel({ params, onDismiss, onSuggestionSel
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${API_BASE}/api/clipboard/quick-share`, {
+      const res = await fetch(`${API_BASE}/api/clipboard`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: text.trim() }),
+        body: JSON.stringify({ content: text.trim(), type: 'public' }),
       });
       if (!res.ok) throw new Error('Failed to share');
-      const data = await res.json();
-      const shareCode = data.code || data.id || '????';
+      const json = await res.json();
+      const shareCode = json.data?.id || '????';
       setCode(shareCode);
 
       // Record in session
@@ -64,10 +64,10 @@ export default function ClipboardQuickPanel({ params, onDismiss, onSuggestionSel
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${API_BASE}/api/clipboard/quick-share/${code.trim()}`);
+      const res = await fetch(`${API_BASE}/api/clipboard?code=${encodeURIComponent(code.trim())}`);
       if (!res.ok) throw new Error('Code not found or expired.');
-      const data = await res.json();
-      setRetrievedText(data.content || '');
+      const json = await res.json();
+      setRetrievedText(json.data?.content || '');
 
       recordAction({
         input: { type: 'text', data: code.trim(), name: `Code: ${code.trim()}` },
