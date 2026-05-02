@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import useSEO from '../../../hooks/useSEO';
 import jsQR from 'jsqr';
 
 /**
@@ -224,6 +225,12 @@ function ScanHistoryPanel({ history, onDelete, onDeleteAll }) {
 }
 
 export default function QRScanner() {
+    useSEO({
+        title: 'Online QR Code Scanner - Camera & Image Scan',
+        description: 'Scan and decode QR codes instantly using your device camera or by uploading an image. Supports URLs, WiFi, UPI, and plain text with scan history.',
+        keywords: ['qr scanner', 'scan qr code', 'online qr reader', 'qr code decoder', 'camera qr scan']
+    });
+
     const [mode, setMode] = useState('camera'); // 'camera' | 'upload'
     const [scanning, setScanning] = useState(false);
     const [result, setResult] = useState('');

@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import useSEO from '../../../hooks/useSEO';
 import QRCode from 'qrcode';
 
 /* ── helpers ── */
@@ -289,6 +290,12 @@ function PayloadFields({ type, fields, onChange }) {
 }
 
 export default function QRGenerator() {
+    useSEO({
+        title: 'Advanced QR Code Generator - Custom Designs & Logos',
+        description: 'Create beautiful, custom QR codes for URLs, WiFi, UPI, and more. Add your own logo, choose from professional templates, and customize frames and colors.',
+        keywords: ['qr code generator', 'custom qr code', 'qr with logo', 'free qr maker', 'upi qr generator', 'wifi qr code']
+    });
+
     const [type, setType] = useState('url');
     const [fields, setFields] = useState({ url: '' });
     const [fgColor, setFgColor] = useState('#000000');
