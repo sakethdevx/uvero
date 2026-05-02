@@ -4,6 +4,7 @@
  */
 
 import workerUrl from './worker.js?worker&url';
+import pandocWasmUrl from './pandoc.wasm?url';
 
 class PandocWasmProcessor {
     constructor() {
@@ -15,7 +16,7 @@ class PandocWasmProcessor {
         if (this.wasm) return;
         if (!this.wasmLoading) {
             this.wasmLoading = (async () => {
-                const response = await fetch('/pandoc.wasm');
+                const response = await fetch(pandocWasmUrl);
                 if (!response.ok) {
                     throw new Error(`Failed to fetch Pandoc WASM: ${response.status} ${response.statusText}`);
                 }
