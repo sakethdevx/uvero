@@ -153,24 +153,15 @@ class UnifiedProcessor {
         this.notify();
 
         try {
-            // 1. First, just load the processor JS modules (fast)
+            // 1. Only load the processor JS modules (small files)
             await this.ensureProcessors();
 
-            // 2. Prioritize preloading the Image processor (most common & relatively small)
+            // 2. Only preload the Image processor internally (MagickWASM)
+            // It's the most common tool. We'll skip the 50MB+ Pandoc/FFmpeg preloads
+            // to avoid saturating the user's connection and blocking other site features.
             if (this.imageProc?.preload) {
                 await this.imageProc.preload();
-                // After Image is ready, we can signal partial readiness or just keep going
             }
-            
-            // 3. Stagger the heavier ones to avoid bandwidth saturation
-            // We don't await these to avoid blocking the 'ready' state for images
-            setTimeout(async () => {
-                const heavyPreloads = [];
-                if (this.pandocProc?.preload) heavyPreloads.push(this.pandocProc.preload());
-                if (this.audioProc?.preload) heavyPreloads.push(this.audioProc.preload());
-                if (this.videoProc?.preload) heavyPreloads.push(this.videoProc.preload());
-                await Promise.allSettled(heavyPreloads);
-            }, 2000);
             
             this.engineStatus = 'ready';
         } catch (e) {
