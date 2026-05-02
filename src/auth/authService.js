@@ -45,3 +45,20 @@ export async function resetPassword(email) {
 export async function signInWithProvider(provider) {
     return await supabase.auth.signInWithOAuth({ provider })
 }
+
+export async function updateUserSettings(userId, settings) {
+    const { data, error } = await supabase
+        .from('profiles')
+        .update({ settings })
+        .eq('id', userId)
+    return { data, error }
+}
+
+export async function getUserSettings(userId) {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('settings')
+        .eq('id', userId)
+        .maybeSingle()
+    return { data, error }
+}

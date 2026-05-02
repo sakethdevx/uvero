@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase/client'
 import { checkUsernameAvailability, updateMyUsername } from '../auth/usernameService'
 import { USERNAME_HELP_TEXT, isUsernameValid, normalizeUsernameInput } from '../auth/usernameRules'
+import ThemeToggle from '../components/ThemeToggle'
 
 // guest session storage key removed
 
@@ -270,6 +271,29 @@ function ProfileContent() {
                             </div>
                         )}
                     </form>
+                </div>
+                
+                {/* App Preferences */}
+                <div className="mt-5 rounded-3xl border border-gray-200/80 bg-white p-6 shadow-xl shadow-gray-100/40 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none">
+                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">App Preferences</p>
+                    <div className="mt-5 space-y-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="text-sm font-bold text-gray-900 dark:text-white">Appearance</h3>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Customize how Uvero looks on your device.</p>
+                            </div>
+                            <ThemeToggle />
+                        </div>
+                        
+                        <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
+                            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span className="text-xs font-medium">Settings are automatically synced to your account</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* PaySplit account protection removed from Profile */}
