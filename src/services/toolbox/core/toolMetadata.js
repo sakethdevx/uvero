@@ -13,24 +13,42 @@ export const DOCUMENT_CONVERTER_TOOL_IDS = [];
 // No tools need online mode offline executor bridge
 export const ONLINE_MODE_OFFLINE_EXECUTOR_TOOL_IDS = [];
 
-// No tools require runtime verification
-export const RUNTIME_VERIFIED_TOOL_IDS = [];
+// Tools requiring server runtime verification
+export const RUNTIME_VERIFIED_TOOL_IDS = [
+    'compress-audio',
+    'convert-audio',
+    'video-to-mp3',
+    'mp4-to-mp3',
+    'compress-video',
+    'convert-video',
+    'mp4-converter',
+    'video-to-gif',
+    'mov-to-mp4',
+    'epub-to-mobi',
+];
 
 // No tools require shared metadata
 export const TOOLS_REQUIRING_SHARED_METADATA = [];
 
 // Tool-specific metadata overrides
 const TOOL_METADATA = {
-    // unified-converter: {
-    //     availability: 'ready',
-    //     availabilityNote: 'Unified file converter for images and documents',
-    //     limits: [],
-    // },
-    // 'background-remover': {
-    //     availability: 'ready',
-    //     limits: [],
-    // },
-    // Add other tools if they need special notes
+    'epub-to-mobi': {
+        availability: 'deployment_required',
+        availabilityNote: 'Requires a configured server-side MOBI conversion runtime on this deployment.',
+        limits: [
+            'Online mode only',
+            'Requires KindleGen or ebook-convert on the server',
+        ],
+    },
+    'rar-to-zip': {
+        availability: 'limited',
+        availabilityNote: 'Server extraction supports only the currently supported RAR subset.',
+        limits: [
+            'Single-volume RAR only',
+            'No password-protected archives',
+            'No split or multipart archives',
+        ],
+    },
 };
 
 /**
