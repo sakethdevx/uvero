@@ -19,8 +19,8 @@ export const ModeProvider = ({ children }) => {
         async function loadSettings() {
             try {
                 const { data } = await getUserSettings(user.id);
-                if (data?.settings?.theme) {
-                    setTheme(data.settings.theme);
+                if (data?.theme) {
+                    setTheme(data.theme);
                 }
             } catch (err) {
                 console.warn('Failed to load user settings:', err);
