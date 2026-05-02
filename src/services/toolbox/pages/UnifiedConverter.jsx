@@ -51,6 +51,7 @@ export default function UnifiedConverter() {
     const [progress, setProgress] = useState(0);
     const [result, setResult] = useState(null);
     const [error, setError] = useState('');
+    const [processingMessage, setProcessingMessage] = useState('');
     const [previewUrl, setPreviewUrl] = useState('');
     const [resultPreviewUrl, setResultPreviewUrl] = useState('');
     const [cropArea, setCropArea] = useState(null);
@@ -62,6 +63,7 @@ export default function UnifiedConverter() {
     const [resizePercentage, setResizePercentage] = useState('100');
     const [maintainAspectRatio, setMaintainAspectRatio] = useState(true);
     const [originalDimensions, setOriginalDimensions] = useState(null);
+    const [formatSearchQuery, setFormatSearchQuery] = useState('');
 
     // Watermark state
     const [watermarkOptions, setWatermarkOptions] = useState({
@@ -74,8 +76,19 @@ export default function UnifiedConverter() {
         watermarkImage: null
     });
 
+    const [engineStatus, setEngineStatus] = useState(unifiedProcessor.engineStatus);
+
     useEffect(() => {
+        // Start preloading the engine in the background
+        unifiedProcessor.preload();
+
+        // Subscribe to engine status changes
+        const unsubscribe = unifiedProcessor.subscribe((status) => {
+            setEngineStatus(status);
+        });
+
         return () => {
+            unsubscribe();
             if (previewUrl) URL.revokeObjectURL(previewUrl);
             if (resultPreviewUrl) URL.revokeObjectURL(resultPreviewUrl);
         };
@@ -165,6 +178,7 @@ export default function UnifiedConverter() {
         setIsProcessing(true);
         setError('');
         setProgress(0);
+        setProcessingMessage('Initializing Neural Engine...');
         setResult(null);
 
         try {
@@ -185,7 +199,10 @@ export default function UnifiedConverter() {
             } else if (selectedFormat === 'watermark') {
                 convertOptions = watermarkOptions;
             }
-            const res = await unifiedProcessor.convert(file, selectedFormat, (prog) => setProgress(prog), convertOptions);
+            const res = await unifiedProcessor.convert(file, selectedFormat, (prog) => {
+                setProgress(prog);
+                if (prog > 0) setProcessingMessage('Processing File...');
+            }, convertOptions);
             setResult(res);
         } catch (err) {
             setError(err.message || 'Conversion failed');
@@ -220,22 +237,67 @@ export default function UnifiedConverter() {
 
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="card">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                    Unified File Converter
-                </h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    Convert images, audio, and documents using WebAssembly. Fast, private, client-side processing. No uploads.
-                </p>
+            <div className="relative group rounded-[2.5rem] border border-gray-200/80 bg-white/80 backdrop-blur-2xl shadow-2xl shadow-indigo-200/20 transition-all duration-700 hover:shadow-indigo-500/20 dark:border-white/[0.08] dark:bg-gray-950/60 dark:shadow-none overflow-hidden">
+                {/* AI Neural Background Effect */}
+                <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+                
+                <div className="relative p-8 sm:p-12">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-10">
+                        <div className="flex-1">
+                            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight">
+                                Unified <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">Converter</span>
+                            </h2>
+                            <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 max-w-xl font-medium leading-relaxed">
+                                Fast, private, and secure file processing. 
+                                <span className="text-gray-900 dark:text-white"> 100% in your browser.</span>
+                            </p>
+                        </div>
+                        
+                        <div className="flex flex-col items-end gap-4">
+                            {/* Neural Engine Status Indicator */}
+                            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-500 ${
+                                engineStatus === 'ready' 
+                                ? 'bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400' 
+                                : engineStatus === 'downloading'
+                                ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:text-indigo-400 animate-pulse'
+                                : 'bg-gray-100 dark:bg-white/[0.05] border-gray-200 dark:border-white/10 text-gray-500'
+                            }`}>
+                                <div className={`w-1.5 h-1.5 rounded-full ${
+                                    engineStatus === 'ready' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 
+                                    engineStatus === 'downloading' ? 'bg-indigo-500 animate-ping' : 'bg-gray-400'
+                                }`} />
+                                <span className="text-[10px] font-black uppercase tracking-widest">
+                                    Engine: {engineStatus === 'ready' ? 'Ready' : engineStatus === 'downloading' ? 'Optimizing' : 'Idle'}
+                                </span>
+                            </div>
 
-                <div className="space-y-6">
-                    {/* Dropzone */}
-                    <Dropzone
-                        onFileSelect={handleFileSelect}
-                        accept="image/*,video/*,audio/*,.doc,.docx,.pdf,.epub,.odt,.html,.md,.txt,.rst,.csv,.tsv,.json,.docbook"
-                        disabled={isProcessing}
-                        value={file}
-                    />
+                            {file && (
+                                <button 
+                                    onClick={handleReset}
+                                    className="group/btn flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-red-50 dark:bg-red-500/10 text-xs font-bold text-red-600 hover:bg-red-100 dark:hover:bg-red-500/20 transition-all uppercase tracking-widest"
+                                >
+                                    <svg className="w-4 h-4 transition-transform group-hover/btn:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Discard
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="space-y-10">
+                    {/* AI Enhanced Dropzone */}
+                    <div className="relative">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 rounded-[2rem] blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
+                        <div className="relative">
+                            <Dropzone
+                                onFileSelect={handleFileSelect}
+                                accept="image/*,video/*,audio/*,.doc,.docx,.pdf,.epub,.odt,.html,.md,.txt,.rst,.csv,.tsv,.json,.docbook"
+                                disabled={isProcessing}
+                                value={file}
+                            />
+                        </div>
+                    </div>
 
                     {file && categoryInfo && (
                         <div className="grid md:grid-cols-2 gap-6">
@@ -281,39 +343,78 @@ export default function UnifiedConverter() {
                             </div>
 
                             {/* Settings */}
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        Output Format
-                                    </label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {outputFormats.map((fmt) => {
-                                            const isSpecial = fmt.value === 'remove-background' || fmt.value === 'crop' || fmt.value === 'resize' || fmt.value === 'watermark';
-                                            const isSelected = selectedFormat === fmt.value;
-                                            return (
-                                                <button
-                                                    key={fmt.value}
-                                                    type="button"
-                                                    onClick={() => { setSelectedFormat(fmt.value); if (fmt.value !== 'crop') setCropArea(null); }}
-                                                    disabled={isProcessing}
-                                                    className={`p-3 rounded-lg border text-left transition-colors ${isSelected
-                                                        ? isSpecial
-                                                            ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 ring-2 ring-purple-500'
-                                                            : 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 ring-2 ring-primary-500'
-                                                        : isSpecial
-                                                            ? 'border-purple-200 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-700 bg-purple-25 dark:bg-purple-900/10'
-                                                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                                                        }`}
-                                                >
-                                                    <div className="font-medium text-gray-900 dark:text-white text-sm">
-                                                        {fmt.label}
-                                                    </div>
-                                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                        {fmt.desc}
-                                                    </div>
-                                                </button>
-                                            );
-                                        })}
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                                        <label className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.15em]">
+                                            Target Format
+                                        </label>
+                                        <div className="relative flex-1 max-w-xs">
+                                            <input
+                                                type="text"
+                                                placeholder="Search formats..."
+                                                value={formatSearchQuery}
+                                                onChange={(e) => setFormatSearchQuery(e.target.value)}
+                                                className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium"
+                                            />
+                                            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <div className="max-h-[340px] overflow-y-auto pr-2 -mr-2 custom-scrollbar">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {outputFormats
+                                                .filter(fmt => 
+                                                    fmt.label.toLowerCase().includes(formatSearchQuery.toLowerCase()) || 
+                                                    fmt.value.toLowerCase().includes(formatSearchQuery.toLowerCase()) ||
+                                                    fmt.desc?.toLowerCase().includes(formatSearchQuery.toLowerCase())
+                                                )
+                                                .map((fmt) => {
+                                                    const isSpecial = fmt.value === 'remove-background' || fmt.value === 'crop' || fmt.value === 'resize' || fmt.value === 'watermark';
+                                                    const isSelected = selectedFormat === fmt.value;
+                                                    return (
+                                                        <button
+                                                            key={fmt.value}
+                                                            type="button"
+                                                            onClick={() => { setSelectedFormat(fmt.value); if (fmt.value !== 'crop') setCropArea(null); }}
+                                                            disabled={isProcessing}
+                                                            className={`p-4 rounded-2xl border-2 text-left transition-all duration-300 group/fmt relative overflow-hidden ${isSelected
+                                                                ? isSpecial
+                                                                    ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/10'
+                                                                    : 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10'
+                                                                : isSpecial
+                                                                    ? 'border-purple-100 dark:border-purple-900/20 hover:border-purple-300 dark:hover:border-purple-700 bg-white dark:bg-white/[0.02]'
+                                                                    : 'border-gray-100 dark:border-white/5 hover:border-indigo-200 dark:hover:border-indigo-900/50 bg-white dark:bg-white/[0.02]'
+                                                                }`}
+                                                        >
+                                                            {isSelected && (
+                                                                <div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${isSpecial ? 'bg-purple-500' : 'bg-indigo-500'} animate-pulse`} />
+                                                            )}
+                                                            <div className={`font-black text-sm tracking-tight transition-colors ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300 group-hover/fmt:text-indigo-600 dark:group-hover/fmt:text-indigo-400'}`}>
+                                                                {fmt.label}
+                                                            </div>
+                                                            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-1.5 font-medium leading-tight">
+                                                                {fmt.desc}
+                                                            </div>
+                                                        </button>
+                                                    );
+                                                })}
+                                        </div>
+                                        {outputFormats.filter(fmt => 
+                                            fmt.label.toLowerCase().includes(formatSearchQuery.toLowerCase()) || 
+                                            fmt.value.toLowerCase().includes(formatSearchQuery.toLowerCase())
+                                        ).length === 0 && (
+                                            <div className="py-12 text-center border-2 border-dashed border-gray-100 dark:border-white/5 rounded-3xl">
+                                                <div className="mx-auto w-12 h-12 mb-4 bg-gray-50 dark:bg-white/[0.02] rounded-2xl flex items-center justify-center">
+                                                    <svg className="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </div>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">No formats found matching "{formatSearchQuery}"</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -447,7 +548,20 @@ export default function UnifiedConverter() {
                                 </Button>
 
                                 {isProcessing && (
-                                    <ProgressBar progress={progress} label="Processing..." />
+                                    <div className="space-y-4 pt-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                                                <span className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-widest">
+                                                    {processingMessage}
+                                                </span>
+                                            </div>
+                                            <span className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                                                {Math.round(progress)}%
+                                            </span>
+                                        </div>
+                                        <ProgressBar progress={progress} />
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -545,5 +659,6 @@ export default function UnifiedConverter() {
                 </div>
             </div>
         </div>
+    </div>
     );
 }

@@ -97,48 +97,74 @@ export default function Dropzone({ accept, onFileSelect, maxSize = 100 * 1024 * 
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={`
-          relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200
-          ${isDragging
-                        ? 'border-primary-500 bg-primary-50 scale-105'
-                        : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
+                    relative group overflow-hidden rounded-[2rem] p-12 text-center transition-all duration-700
+                    ${isDragging
+                        ? 'bg-indigo-50/50 dark:bg-indigo-500/10 scale-[1.01]'
+                        : 'bg-gray-50/30 dark:bg-white/[0.01] hover:bg-white dark:hover:bg-white/[0.03]'
                     }
-        `}
+                    border-2 border-dashed
+                    ${isDragging ? 'border-indigo-500' : 'border-gray-200 dark:border-white/10 hover:border-indigo-400 dark:hover:border-indigo-500/50'}
+                `}
             >
+                {/* AI Scanning Animation Layer */}
+                {isDragging && (
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-indigo-500/20 to-transparent animate-scan-fast" />
+                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5" />
+                    </div>
+                )}
+
+                <div className="absolute -inset-24 bg-indigo-500/5 rounded-full blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
+                
                 <input
                     type="file"
                     accept={accept}
                     multiple={multiple}
                     onChange={handleFileInput}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
-
-                <div className="pointer-events-none">
-                    <svg
-                        className="mx-auto h-16 w-16 text-gray-400 mb-4"
-                        stroke="currentColor"
-                        fill="none"
-                        viewBox="0 0 48 48"
-                    >
-                        <path
-                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-
-                    <p className="text-xl font-semibold text-gray-700 mb-2">
-                        {label || 'Drop your file here'}
+ 
+                <div className="relative pointer-events-none">
+                    <div className={`
+                        mx-auto h-24 w-24 mb-8 rounded-[2rem] flex items-center justify-center transition-all duration-700
+                        ${isDragging 
+                            ? 'bg-indigo-600 text-white shadow-2xl shadow-indigo-500/40 rotate-12 scale-110' 
+                            : 'bg-white dark:bg-gray-900 text-indigo-500 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-white/10 group-hover:scale-105 group-hover:-rotate-6'}
+                    `}>
+                        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.25 15L17.5 17.625 14.875 18.375l2.625.75L18.25 21.75l.75-2.625 2.625-.75-2.625-.75L18.25 15zM15.75 2.25l.75 2.625 2.625.75-2.625.75L15.75 9l-.75-2.625-2.625-.75 2.625-.75L15.75 2.25z" />
+                        </svg>
+                    </div>
+ 
+                    <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-3 tracking-tighter">
+                        {label || 'Initiate Processing'}
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 font-medium max-w-[280px] mx-auto leading-relaxed">
+                        {description || 'Drag your assets here or tap to explore files'}
                     </p>
-                    <p className="text-sm text-gray-500 mb-4">
-                        {description || 'or click to browse'}
-                    </p>
+                    
+                    <div className="mt-10 flex items-center justify-center gap-2">
+                        <div className="flex gap-1">
+                            {[1,2,3].map(i => (
+                                <div key={i} className="w-1 h-1 rounded-full bg-indigo-500/40 animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />
+                            ))}
+                        </div>
+                        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-indigo-500/60">Neural Engine Ready</span>
+                        <div className="flex gap-1">
+                            {[1,2,3].map(i => (
+                                <div key={i} className="w-1 h-1 rounded-full bg-indigo-500/40 animate-pulse" style={{ animationDelay: `${i*0.2}s` }} />
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
-
+ 
             {error && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-sm text-red-600 font-medium">⚠️ {error}</p>
+                <div className="mt-8 p-5 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-3xl">
+                    <p className="text-xs text-red-600 dark:text-red-400 font-black uppercase tracking-widest flex items-center gap-3 justify-center">
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                        Processing Fault: {error}
+                    </p>
                 </div>
             )}
         </div>

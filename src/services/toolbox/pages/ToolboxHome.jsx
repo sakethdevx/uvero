@@ -11,16 +11,13 @@ export default function ToolboxHome() {
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent" />
             </div>
 
-            <div className="relative max-w-7xl mx-auto px-4 pt-16 pb-20 sm:px-6 lg:px-8">
-                {/* Hero Section */}
-                <section className="text-center mb-12">
-                    <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-4">
-                        Uvero <span className="text-primary-600 dark:text-primary-400">Toolbox</span>
+            <div className="relative max-w-7xl mx-auto px-4 pt-10 pb-16 sm:px-6 lg:px-8">
+                {/* Simplified Header */}
+                <div className="mb-12 text-center">
+                    <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+                        Uvero <span className="text-indigo-500">Toolbox</span>
                     </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                        Convert images, documents, and more with WebAssembly. Fast, private, and entirely in your browser.
-                    </p>
-                </section>
+                </div>
 
                 {/* Unified Converter */}
                 <UnifiedConverter />

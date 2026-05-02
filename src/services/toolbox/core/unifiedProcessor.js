@@ -129,79 +129,138 @@ class UnifiedProcessor {
         this.cropProc = null;
         this.resizeProc = null;
         this.watermarkProc = null;
+        
+        // Engine status: 'idle' | 'downloading' | 'ready' | 'error'
+        this.engineStatus = 'idle';
+        this.listeners = [];
+    }
+
+    subscribe(listener) {
+        this.listeners.push(listener);
+        return () => {
+            this.listeners = this.listeners.filter(l => l !== listener);
+        };
+    }
+
+    notify() {
+        this.listeners.forEach(l => l(this.engineStatus));
+    }
+
+    async preload() {
+        if (this.engineStatus !== 'idle') return;
+        
+        this.engineStatus = 'downloading';
+        this.notify();
+
+        try {
+            // 1. First, load the processor modules (JS files are small)
+            await this.ensureProcessors();
+
+            // 2. Schedule heavy WASM downloads for idle time
+            const schedulePreload = () => {
+                // Use a staggered approach even in idle time
+                setTimeout(async () => {
+                    if (this.imageProc?.preload) await this.imageProc.preload();
+                    
+                    // Delay the really heavy ones further
+                    setTimeout(async () => {
+                        const heavy = [];
+                        if (this.pandocProc?.preload) heavy.push(this.pandocProc.preload());
+                        if (this.audioProc?.preload) heavy.push(this.audioProc.preload());
+                        if (this.videoProc?.preload) heavy.push(this.videoProc.preload());
+                        await Promise.allSettled(heavy);
+                        this.engineStatus = 'ready';
+                        this.notify();
+                    }, 5000);
+                }, 1000);
+            };
+
+            if ('requestIdleCallback' in window) {
+                window.requestIdleCallback(schedulePreload, { timeout: 10000 });
+            } else {
+                setTimeout(schedulePreload, 3000);
+            }
+            
+            // Mark as 'ready' (partially) once modules are loaded, 
+            // but the status will update to 'ready' fully once heavy stuff is done
+            // For now, we'll keep it as 'downloading' until the idle tasks finish
+        } catch (e) {
+            console.error('Preload failed:', e);
+            this.engineStatus = 'error';
+        }
+        this.notify();
     }
 
     async ensureProcessors() {
         if (this.imageProc && this.pandocProc && this.audioProc && this.videoProc && this.bgRemoverProc && this.cropProc && this.resizeProc && this.watermarkProc) return;
 
-        if (!this.imageProc) {
-            try {
-                const imageMod = await import('../tools/image/image-wasm-converter/processor');
-                this.imageProc = imageMod.default || imageMod;
-            } catch (e) {
-                console.warn('Image processor not available:', e);
-            }
-        }
-
-        if (!this.pandocProc) {
-            try {
-                const pandocMod = await import('../tools/document/pandoc-wasm-converter/processor');
-                this.pandocProc = pandocMod.default || pandocMod;
-            } catch (e) {
-                console.warn('Pandoc processor not available:', e);
-            }
-        }
-
-        if (!this.audioProc) {
-            try {
-                const audioMod = await import('../tools/audio/audio-wasm-converter/processor');
-                this.audioProc = audioMod.default || audioMod;
-            } catch (e) {
-                console.warn('Audio processor not available:', e);
-            }
-        }
-
-        if (!this.videoProc) {
-            try {
-                const videoMod = await import('../tools/video/video-wasm-converter/processor');
-                this.videoProc = videoMod.default || videoMod;
-            } catch (e) {
-                console.warn('Video processor not available:', e);
-            }
-        }
-
-        if (!this.bgRemoverProc) {
-            try {
-                const bgRemoverMod = await import('../tools/image/background-remover/processor');
-                this.bgRemoverProc = bgRemoverMod.processor || bgRemoverMod.default || bgRemoverMod;
-            } catch (e) {
-                console.warn('Background remover processor not available:', e);
-            }
-        }
-        if (!this.cropProc) {
-            try {
-                const cropMod = await import('../tools/image/image-cropper/processor');
-                this.cropProc = cropMod.processor || cropMod.default || cropMod;
-            } catch (e) {
-                console.warn('Crop processor not available:', e);
-            }
-        }
-        if (!this.resizeProc) {
-            try {
-                const resizeMod = await import('../tools/image/image-resizer/processor');
-                this.resizeProc = resizeMod.processor || resizeMod.default || resizeMod;
-            } catch (e) {
-                console.warn('Resize processor not available:', e);
-            }
-        }
-        if (!this.watermarkProc) {
-            try {
-                const watermarkMod = await import('../tools/image/watermark/processor');
-                this.watermarkProc = watermarkMod.processor || watermarkMod.default || watermarkMod;
-            } catch (e) {
-                console.warn('Watermark processor not available:', e);
-            }
-        }
+        // Use static imports for Vite analysis
+        await Promise.allSettled([
+            (async () => {
+                if (!this.imageProc) {
+                    try {
+                        const mod = await import('../tools/image/image-wasm-converter/processor');
+                        this.imageProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('Image load fail:', e); }
+                }
+            })(),
+            (async () => {
+                if (!this.pandocProc) {
+                    try {
+                        const mod = await import('../tools/document/pandoc-wasm-converter/processor');
+                        this.pandocProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('Pandoc load fail:', e); }
+                }
+            })(),
+            (async () => {
+                if (!this.audioProc) {
+                    try {
+                        const mod = await import('../tools/audio/audio-wasm-converter/processor');
+                        this.audioProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('Audio load fail:', e); }
+                }
+            })(),
+            (async () => {
+                if (!this.videoProc) {
+                    try {
+                        const mod = await import('../tools/video/video-wasm-converter/processor');
+                        this.videoProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('Video load fail:', e); }
+                }
+            })(),
+            (async () => {
+                if (!this.bgRemoverProc) {
+                    try {
+                        const mod = await import('../tools/image/background-remover/processor');
+                        this.bgRemoverProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('BG Remover load fail:', e); }
+                }
+            })(),
+            (async () => {
+                if (!this.cropProc) {
+                    try {
+                        const mod = await import('../tools/image/image-cropper/processor');
+                        this.cropProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('Crop load fail:', e); }
+                }
+            })(),
+            (async () => {
+                if (!this.resizeProc) {
+                    try {
+                        const mod = await import('../tools/image/image-resizer/processor');
+                        this.resizeProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('Resize load fail:', e); }
+                }
+            })(),
+            (async () => {
+                if (!this.watermarkProc) {
+                    try {
+                        const mod = await import('../tools/image/watermark/processor');
+                        this.watermarkProc = mod.processor || mod.default || mod;
+                    } catch (e) { console.warn('Watermark load fail:', e); }
+                }
+            })()
+        ]);
     }
 
     detectCategory(file) {
