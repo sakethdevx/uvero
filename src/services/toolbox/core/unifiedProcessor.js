@@ -156,34 +156,43 @@ class UnifiedProcessor {
             // 1. First, load the processor modules (JS files are small)
             await this.ensureProcessors();
 
-            // 2. Schedule heavy WASM downloads for idle time
-            const schedulePreload = () => {
-                // Use a staggered approach even in idle time
-                setTimeout(async () => {
-                    if (this.imageProc?.preload) await this.imageProc.preload();
-                    
-                    // Delay the really heavy ones further
-                    setTimeout(async () => {
-                        const heavy = [];
-                        if (this.pandocProc?.preload) heavy.push(this.pandocProc.preload());
-                        if (this.audioProc?.preload) heavy.push(this.audioProc.preload());
-                        if (this.videoProc?.preload) heavy.push(this.videoProc.preload());
-                        await Promise.allSettled(heavy);
-                        this.engineStatus = 'ready';
-                        this.notify();
-                    }, 5000);
-                }, 1000);
+            // 2. Schedule heavy WASM downloads for later, one-by-one
+            const schedulePreload = async () => {
+                // Don't preload on slow connections or data saver
+                if (navigator.connection?.saveData || 
+                   (['slow-2g', '2g', '3g'].includes(navigator.connection?.effectiveType))) {
+                    console.log('Skipping heavy preloads due to connection constraints');
+                    return;
+                }
+
+                // Wait 5 seconds before starting anything heavy to let initial page tasks finish
+                await new Promise(r => setTimeout(r, 5000));
+
+                // Load Image engine (10MB)
+                if (this.imageProc?.preload) await this.imageProc.preload();
+                
+                // Wait another 10 seconds before starting the next heavy one
+                // This ensures enough time for auth/navigation to settle
+                await new Promise(r => setTimeout(r, 10000));
+
+                // Load Pandoc (50MB) - Sequential, not parallel
+                if (this.pandocProc?.preload) await this.pandocProc.preload();
+
+                await new Promise(r => setTimeout(r, 10000));
+
+                // Load Audio/Video
+                if (this.audioProc?.preload) await this.audioProc.preload();
+                if (this.videoProc?.preload) await this.videoProc.preload();
+
+                this.engineStatus = 'ready';
+                this.notify();
             };
 
             if ('requestIdleCallback' in window) {
-                window.requestIdleCallback(schedulePreload, { timeout: 10000 });
+                window.requestIdleCallback(() => schedulePreload(), { timeout: 20000 });
             } else {
-                setTimeout(schedulePreload, 3000);
+                schedulePreload();
             }
-            
-            // Mark as 'ready' (partially) once modules are loaded, 
-            // but the status will update to 'ready' fully once heavy stuff is done
-            // For now, we'll keep it as 'downloading' until the idle tasks finish
         } catch (e) {
             console.error('Preload failed:', e);
             this.engineStatus = 'error';
