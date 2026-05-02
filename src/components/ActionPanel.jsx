@@ -111,17 +111,17 @@ export default function ActionPanel({ intent, onDismiss, onIntentChange }) {
 
   return (
     <div
-      className={`w-full max-w-2xl mx-auto transition-all duration-[350ms] ease-apple ${
+      className={`action-panel-shell w-full max-w-3xl mx-auto transition-all duration-[420ms] ease-apple ${
         isVisible
-          ? 'opacity-100 translate-y-0 scale-100'
+          ? 'opacity-100 translate-y-0 scale-100 sm:scale-[1.015]'
           : 'opacity-0 translate-y-2 scale-[0.98] pointer-events-none'
       }`}
     >
-      <div className={`glass-panel overflow-hidden transition-shadow duration-500 ${
-        isVisible && !isTransitioning ? 'glass-glow' : ''
+      <div className={`execution-surface glass-panel overflow-hidden transition-all duration-500 ${
+        isVisible && !isTransitioning ? 'execution-surface-active' : ''
       }`}>
         {/* ── Intent Feedback Header ── */}
-        <div className="flex items-center justify-between px-5 py-3 border-b"
+        <div className="execution-header flex items-center justify-between px-5 py-3.5 sm:px-6 sm:py-4 border-b"
           style={{ borderColor: 'var(--border-glass)' }}
         >
           <div className="flex items-center gap-3 min-w-0">
@@ -160,7 +160,7 @@ export default function ActionPanel({ intent, onDismiss, onIntentChange }) {
         </div>
 
         {/* ── Panel Content (state container prevents layout jumps) ── */}
-        <div className="px-5 py-4 state-container">
+        <div className="execution-body px-5 py-4 sm:px-6 sm:py-5 state-container">
           {PanelComponent ? (
             <Suspense fallback={<AILoader mode="shimmer" />}>
               <PanelComponent

@@ -78,16 +78,18 @@ export default function ServicesHome() {
     return 'Good evening';
   };
 
+  const isInteracting = Boolean(activeIntent);
+
   return (
-    <div className="premium-home relative isolate flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 pb-24 md:pb-8">
+    <div className={`premium-home ${isInteracting ? 'premium-home-interacting' : ''} relative isolate flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 pb-24 md:pb-8`}>
       <AmbientBackground />
 
       {/* ── Main content — vertically centered ── */}
-      <div className="premium-home-content relative z-10 w-full max-w-xl mx-auto flex flex-col items-center gap-5"
+      <div className={`premium-home-content relative z-10 w-full ${isInteracting ? 'max-w-3xl gap-4' : 'max-w-xl gap-5'} mx-auto flex flex-col items-center`}
         style={{ animationDelay: '0.1s' }}
       >
         {/* Greeting */}
-        <div className="text-center space-y-2">
+        <div className="hero-copy text-center space-y-2">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
             {getGreeting()}.
           </h1>
@@ -105,14 +107,18 @@ export default function ServicesHome() {
         />
 
         {/* Onboarding Hint — inline, non-blocking, first-visit only */}
-        <OnboardingHint onExampleSelect={handleOnboardingExample} />
+        <div className="focus-fade-wrap">
+          <OnboardingHint onExampleSelect={handleOnboardingExample} />
+        </div>
 
         {/* Action Panel (appears when intent is resolved) */}
         {activeIntent && (
-          <ActionPanel
-            intent={activeIntent}
-            onDismiss={handleDismissAction}
-          />
+          <div className="action-panel-stage w-full">
+            <ActionPanel
+              intent={activeIntent}
+              onDismiss={handleDismissAction}
+            />
+          </div>
         )}
 
         {/* Post-action micro-confirmation */}
