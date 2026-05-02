@@ -1,16 +1,19 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { lazy, Suspense, useState, useEffect } from 'react';
+import { lazy, Suspense, useState, useEffect, useCallback } from 'react';
 import { ModeProvider } from './services/toolbox/context/ModeContext';
+import { SessionProvider } from './lib/SessionContext';
 import ThemeToggle from './components/ThemeToggle';
 import BrandLogo from './components/BrandLogo';
 import ServicesHome from './pages/ServicesHome';
 import Maintenance from './pages/Maintenance';
 import CommandBar from './components/CommandBar';
 import BottomNav from './components/BottomNav';
+import HistorySheet from './components/HistorySheet';
 import AILoader from './components/AILoader';
 import { useAuth } from './auth/AuthContext';
 import { signOut } from './auth/authService';
 import { getMaintenanceConfig } from './config/maintenance';
+import { resolveIntent } from './lib/IntentEngine';
 
 const CompilerHome = lazy(() => import('./services/compiler/pages/CompilerHome'));
 const ToolboxHome = lazy(() => import('./services/toolbox/pages/ToolboxHome'));
@@ -44,6 +47,8 @@ const Profile = lazy(() => import('./pages/Profile'));
  */
 function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const navigate = useNavigate();
   const location = useLocation();
 
   // Handle Cmd+K / Ctrl+K
@@ -170,6 +175,23 @@ function AppContent() {
         onClose={() => setIsSearchOpen(false)}
       />
 
+      {/* ══════ History Sheet ══════ */}
+      <HistorySheet
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        onRerun={(item) => {
+          // Re-resolve the action's capability and trigger inline
+          if (item.capability) {
+            const result = resolveIntent(item.action);
+            if (result.capability && result.handler && result.tier <= 2) {
+              navigate('/');
+            } else if (result.navigateTo) {
+              navigate(result.navigateTo);
+            }
+          }
+        }}
+      />
+
       {/* ══════ Minimal Footer (hidden on mobile homepage) ══════ */}
       <footer className={`mt-auto ${isHomepage ? 'hidden md:block' : ''}`}>
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
@@ -187,7 +209,10 @@ function AppContent() {
       </footer>
 
       {/* ══════ Bottom Nav (Mobile) ══════ */}
-      <BottomNav onCommandPress={() => setIsSearchOpen(true)} />
+      <BottomNav
+        onCommandPress={() => setIsSearchOpen(true)}
+        onHistoryPress={() => setIsHistoryOpen(true)}
+      />
     </div>
   );
 }
@@ -201,9 +226,11 @@ function App() {
 
   return (
     <Router>
-      <ModeProvider>
-        <AppContent />
-      </ModeProvider>
+      <SessionProvider>
+        <ModeProvider>
+          <AppContent />
+        </ModeProvider>
+      </SessionProvider>
     </Router>
   );
 }

@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
  * Home | History | Command (center, prominent) | Favorites | Profile
  * md:hidden — desktop never sees this.
  */
-export default function BottomNav({ onCommandPress }) {
+export default function BottomNav({ onCommandPress, onHistoryPress }) {
   const location = useLocation();
   const navigate = useNavigate();
   const path = location.pathname;
@@ -21,10 +21,11 @@ export default function BottomNav({ onCommandPress }) {
   const handlePress = (item) => {
     if (item.id === 'command') {
       onCommandPress?.();
+    } else if (item.id === 'history') {
+      onHistoryPress?.();
     } else if (item.path) {
       navigate(item.path);
     }
-    // history & favorites will be implemented as sheets later
   };
 
   return (

@@ -1,36 +1,61 @@
 import { useState, useCallback, useRef } from 'react';
 import AILoader from '../AILoader';
+import SuggestionChips, { ErrorRecovery } from '../SuggestionChips';
+import { getSuggestions, getErrorRecovery } from '../../lib/Suggestions';
+import { useSession } from '../../lib/SessionContext';
 import processor from '../../services/toolbox/core/unifiedProcessor';
 
 /**
  * FileConvertPanel — Tier 1 inline file converter.
- * Calls unifiedProcessor.convert() directly without navigating to /toolbox.
+ * Now with: session memory, result suggestions, smart error recovery.
  */
-export default function FileConvertPanel({ params, onDismiss }) {
-  const [file, setFile] = useState(null);
+export default function FileConvertPanel({ params, onDismiss, onSuggestionSelect }) {
+  const { session, recordAction } = useSession();
+
+  // Use session context if available (e.g. "compress it" after previous upload)
+  const sessionFile = session.lastInput?.type === 'file' ? session.lastInput.data : null;
+  const initialFile = sessionFile || null;
+
+  const [file, setFile] = useState(initialFile);
   const [outputFormat, setOutputFormat] = useState(params.format || '');
-  const [availableFormats, setAvailableFormats] = useState([]);
+  const [availableFormats, setAvailableFormats] = useState(() => {
+    if (initialFile) {
+      const outputs = processor.getSupportedOutputs(initialFile);
+      return outputs.filter(o => !['crop', 'resize', 'watermark', 'remove-background'].includes(o.value));
+    }
+    return [];
+  });
   const [isProcessing, setIsProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [currentStep, setCurrentStep] = useState(0);
+  const [detectedCategory, setDetectedCategory] = useState(params.category || null);
   const fileInputRef = useRef(null);
+  const lastConvertRef = useRef(null);
 
   const handleFileSelect = useCallback((selectedFile) => {
     setFile(selectedFile);
     setResult(null);
     setError('');
 
-    // Detect category and get supported outputs
     const outputs = processor.getSupportedOutputs(selectedFile);
-    // Filter to only conversion formats (not special operations like crop/resize)
     const conversionFormats = outputs.filter(o =>
       !['crop', 'resize', 'watermark', 'remove-background'].includes(o.value)
     );
     setAvailableFormats(conversionFormats);
 
-    // Auto-select format if specified in params
+    // Detect category from the file
+    const ext = selectedFile.name.split('.').pop()?.toLowerCase();
+    const catMap = {
+      image: ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'avif', 'heic', 'tiff', 'svg'],
+      audio: ['mp3', 'wav', 'flac', 'ogg', 'aac', 'm4a'],
+      video: ['mp4', 'mkv', 'mov', 'avi', 'webm'],
+      document: ['pdf', 'docx', 'epub', 'md', 'txt', 'html', 'csv'],
+    };
+    for (const [cat, exts] of Object.entries(catMap)) {
+      if (exts.includes(ext)) { setDetectedCategory(cat); break; }
+    }
+
     if (params.format && conversionFormats.some(f => f.value === params.format)) {
       setOutputFormat(params.format);
     } else if (conversionFormats.length > 0 && !outputFormat) {
@@ -48,26 +73,54 @@ export default function FileConvertPanel({ params, onDismiss }) {
     if (!file || !outputFormat) return;
 
     setIsProcessing(true);
-    setProgress(0);
     setCurrentStep(0);
     setError('');
+    lastConvertRef.current = { file, outputFormat };
 
     try {
       setCurrentStep(1);
       const converted = await processor.convert(file, outputFormat, (p) => {
-        setProgress(p);
         if (p > 30) setCurrentStep(2);
         if (p > 80) setCurrentStep(3);
       });
 
       setCurrentStep(4);
       setResult(converted);
+
+      // Record in session
+      recordAction({
+        input: { type: 'file', data: file, name: file.name },
+        action: {
+          capability: 'file-convert',
+          label: `Convert to ${outputFormat.toUpperCase()}`,
+          description: `${file.name} → ${outputFormat.toUpperCase()}`,
+          icon: '⚡',
+        },
+        result: {
+          type: 'file',
+          data: converted.file,
+          meta: {
+            originalSize: converted.originalSize,
+            convertedSize: converted.convertedSize,
+            format: outputFormat,
+            category: detectedCategory,
+            summary: `${formatSize(converted.originalSize)} → ${formatSize(converted.convertedSize)}`,
+          },
+        },
+      });
     } catch (err) {
-      setError(err.message || 'Conversion failed. Please try again.');
+      setError(err.message || 'Conversion failed.');
     } finally {
       setIsProcessing(false);
     }
-  }, [file, outputFormat]);
+  }, [file, outputFormat, recordAction, detectedCategory]);
+
+  const handleRetry = useCallback(() => {
+    if (lastConvertRef.current) {
+      setError('');
+      handleConvert();
+    }
+  }, [handleConvert]);
 
   const handleDownload = useCallback(() => {
     if (!result?.file) return;
@@ -84,10 +137,18 @@ export default function FileConvertPanel({ params, onDismiss }) {
     setResult(null);
     setOutputFormat(params.format || '');
     setAvailableFormats([]);
-    setProgress(0);
     setError('');
     setCurrentStep(0);
+    setDetectedCategory(null);
   }, [params.format]);
+
+  const handleSuggestion = useCallback((suggestion) => {
+    if (suggestion.action === 'reset') {
+      handleReset();
+    } else if (suggestion.intent) {
+      onSuggestionSelect?.(suggestion);
+    }
+  }, [handleReset, onSuggestionSelect]);
 
   const formatSize = (bytes) => {
     if (!bytes) return '0 B';
@@ -108,11 +169,27 @@ export default function FileConvertPanel({ params, onDismiss }) {
     );
   }
 
+  // ── Error state (smart recovery) ──
+  if (error) {
+    const recovery = getErrorRecovery(error);
+    return (
+      <ErrorRecovery
+        title={recovery.title}
+        message={error}
+        suggestions={recovery.suggestions}
+        onSelect={handleSuggestion}
+        onRetry={handleRetry}
+      />
+    );
+  }
+
   // ── Result state ──
   if (result) {
     const reduction = result.originalSize > 0
       ? Math.round(((result.originalSize - result.convertedSize) / result.originalSize) * 100)
       : 0;
+
+    const suggestions = getSuggestions('file-convert', { category: detectedCategory });
 
     return (
       <div className="animate-panel-in">
@@ -131,19 +208,14 @@ export default function FileConvertPanel({ params, onDismiss }) {
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <button onClick={handleDownload} className="btn-accent flex-1 flex items-center justify-center gap-2 text-sm">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            Download
-          </button>
-          <button onClick={handleReset} className="px-4 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-white/5"
-            style={{ color: 'var(--text-secondary)' }}
-          >
-            Convert Another
-          </button>
-        </div>
+        <button onClick={handleDownload} className="btn-accent w-full flex items-center justify-center gap-2 text-sm mb-1">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Download {outputFormat.toUpperCase()}
+        </button>
+
+        <SuggestionChips suggestions={suggestions} onSelect={handleSuggestion} />
       </div>
     );
   }
@@ -151,7 +223,6 @@ export default function FileConvertPanel({ params, onDismiss }) {
   // ── Input state ──
   return (
     <div className="space-y-4">
-      {/* Compact dropzone */}
       {!file ? (
         <div
           onDragOver={(e) => e.preventDefault()}
@@ -183,15 +254,11 @@ export default function FileConvertPanel({ params, onDismiss }) {
           </div>
         </div>
       ) : (
-        /* File selected — show format picker */
         <div className="space-y-3">
-          {/* File info */}
           <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--surface-2)' }}>
             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
               style={{ background: 'var(--accent-subtle)' }}
-            >
-              📄
-            </div>
+            >📄</div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{file.name}</p>
               <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{formatSize(file.size)}</p>
@@ -203,7 +270,6 @@ export default function FileConvertPanel({ params, onDismiss }) {
             </button>
           </div>
 
-          {/* Format selector (horizontal pills) */}
           {availableFormats.length > 0 && (
             <div>
               <p className="text-xs font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Convert to:</p>
@@ -231,12 +297,6 @@ export default function FileConvertPanel({ params, onDismiss }) {
             </div>
           )}
 
-          {/* Error */}
-          {error && (
-            <p className="text-xs text-red-500 bg-red-50 dark:bg-red-900/10 px-3 py-2 rounded-lg">{error}</p>
-          )}
-
-          {/* Convert button */}
           <button
             onClick={handleConvert}
             disabled={!outputFormat}

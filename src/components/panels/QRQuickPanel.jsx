@@ -1,20 +1,23 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import QRCode from 'qrcode';
+import SuggestionChips from '../SuggestionChips';
+import { getSuggestions } from '../../lib/Suggestions';
+import { useSession } from '../../lib/SessionContext';
 
 /**
  * QRQuickPanel — Tier 1 inline QR generator.
- * Simple: input URL/text → generate → download. No advanced options.
+ * Now with: session memory, result suggestions, session recording.
  */
-export default function QRQuickPanel({ params, onOpenFull }) {
+export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect }) {
+  const { recordAction } = useSession();
   const [input, setInput] = useState(params.url || params.text || '');
   const [qrDataUrl, setQrDataUrl] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
   const inputRef = useRef(null);
 
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+  useEffect(() => { inputRef.current?.focus(); }, []);
 
   const generate = useCallback(async () => {
     if (!input.trim()) {
@@ -28,23 +31,34 @@ export default function QRQuickPanel({ params, onOpenFull }) {
       const dataUrl = await QRCode.toDataURL(input.trim(), {
         width: 512,
         errorCorrectionLevel: 'M',
-        color: {
-          dark: isDark ? '#e8eaed' : '#1a1a2e',
-          light: isDark ? '#111118' : '#ffffff',
-        },
+        color: { dark: isDark ? '#e8eaed' : '#1a1a2e', light: isDark ? '#111118' : '#ffffff' },
         margin: 4,
       });
       setQrDataUrl(dataUrl);
+
+      // Record in session
+      recordAction({
+        input: { type: 'text', data: input.trim(), name: input.trim().slice(0, 40) },
+        action: {
+          capability: 'qr-generate-quick',
+          label: 'Generate QR Code',
+          description: `QR for "${input.trim().slice(0, 30)}"`,
+          icon: '🔳',
+        },
+        result: {
+          type: 'qr',
+          data: dataUrl,
+          meta: { input: input.trim(), summary: `QR for ${input.trim().slice(0, 30)}` },
+        },
+      });
     } catch {
       setError('Failed to generate QR code.');
     } finally {
       setGenerating(false);
     }
-  }, [input]);
+  }, [input, recordAction]);
 
-  const handleKeyDown = useCallback((e) => {
-    if (e.key === 'Enter') generate();
-  }, [generate]);
+  const handleKeyDown = useCallback((e) => { if (e.key === 'Enter') generate(); }, [generate]);
 
   const downloadPNG = useCallback(() => {
     if (!qrDataUrl) return;
@@ -59,13 +73,8 @@ export default function QRQuickPanel({ params, onOpenFull }) {
     try {
       const isDark = document.documentElement.classList.contains('dark');
       const svg = await QRCode.toString(input.trim(), {
-        type: 'svg',
-        width: 512,
-        errorCorrectionLevel: 'M',
-        color: {
-          dark: isDark ? '#e8eaed' : '#1a1a2e',
-          light: isDark ? '#111118' : '#ffffff',
-        },
+        type: 'svg', width: 512, errorCorrectionLevel: 'M',
+        color: { dark: isDark ? '#e8eaed' : '#1a1a2e', light: isDark ? '#111118' : '#ffffff' },
         margin: 4,
       });
       const blob = new Blob([svg], { type: 'image/svg+xml' });
@@ -86,10 +95,25 @@ export default function QRQuickPanel({ params, onOpenFull }) {
       const res = await fetch(qrDataUrl);
       const blob = await res.blob();
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-    } catch {
-      // Silently fail
-    }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { /* silently fail */ }
   }, [qrDataUrl]);
+
+  const handleReset = useCallback(() => {
+    setInput('');
+    setQrDataUrl(null);
+    setError('');
+    inputRef.current?.focus();
+  }, []);
+
+  const handleSuggestion = useCallback((suggestion) => {
+    if (suggestion.action === 'reset') { handleReset(); return; }
+    if (suggestion.action === 'downloadSVG') { downloadSVG(); return; }
+    if (suggestion.intent) { onSuggestionSelect?.(suggestion); }
+  }, [handleReset, downloadSVG, onSuggestionSelect]);
+
+  const suggestions = getSuggestions('qr-generate-quick');
 
   return (
     <div className="space-y-4">
@@ -103,11 +127,7 @@ export default function QRQuickPanel({ params, onOpenFull }) {
           onKeyDown={handleKeyDown}
           placeholder="Enter URL or text..."
           className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-all outline-none"
-          style={{
-            background: 'var(--surface-2)',
-            color: 'var(--text-primary)',
-            border: '1px solid var(--border)',
-          }}
+          style={{ background: 'var(--surface-2)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
         />
         <button
           onClick={generate}
@@ -125,20 +145,15 @@ export default function QRQuickPanel({ params, onOpenFull }) {
         </button>
       </div>
 
-      {error && (
-        <p className="text-xs text-red-500 bg-red-50 dark:bg-red-900/10 px-3 py-2 rounded-lg">{error}</p>
-      )}
+      {error && <p className="text-xs text-red-500 bg-red-50 dark:bg-red-900/10 px-3 py-2 rounded-lg">{error}</p>}
 
-      {/* Preview + download */}
+      {/* Result */}
       {qrDataUrl && (
         <div className="animate-panel-in">
           <div className="flex gap-4 items-start">
-            {/* QR preview */}
             <div className="w-28 h-28 shrink-0 rounded-xl overflow-hidden" style={{ background: 'var(--surface-2)' }}>
               <img src={qrDataUrl} alt="QR Code" className="w-full h-full object-contain p-1" />
             </div>
-
-            {/* Actions */}
             <div className="flex-1 flex flex-col gap-2">
               <button onClick={downloadPNG} className="btn-accent text-sm flex items-center justify-center gap-1.5 w-full">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,26 +163,20 @@ export default function QRQuickPanel({ params, onOpenFull }) {
               </button>
               <div className="flex gap-2">
                 <button onClick={downloadSVG} className="flex-1 px-3 py-2 rounded-xl text-xs font-medium transition-colors hover:bg-gray-100 dark:hover:bg-white/5"
-                  style={{ background: 'var(--surface-2)', color: 'var(--text-secondary)' }}
-                >
-                  SVG
-                </button>
+                  style={{ background: 'var(--surface-2)', color: 'var(--text-secondary)' }}>SVG</button>
                 <button onClick={copyImage} className="flex-1 px-3 py-2 rounded-xl text-xs font-medium transition-colors hover:bg-gray-100 dark:hover:bg-white/5"
-                  style={{ background: 'var(--surface-2)', color: 'var(--text-secondary)' }}
-                >
-                  Copy
+                  style={{ background: 'var(--surface-2)', color: 'var(--text-secondary)' }}>
+                  {copied ? '✓ Copied' : 'Copy'}
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Escape hatch */}
+          <SuggestionChips suggestions={suggestions} onSelect={handleSuggestion} />
+
           {onOpenFull && (
-            <button
-              onClick={onOpenFull}
-              className="mt-3 text-xs font-medium hover:underline w-full text-center"
-              style={{ color: 'var(--accent)' }}
-            >
+            <button onClick={onOpenFull} className="mt-3 text-xs font-medium hover:underline w-full text-center"
+              style={{ color: 'var(--accent)' }}>
               Need logos, frames, or WiFi QR? Open advanced generator →
             </button>
           )}

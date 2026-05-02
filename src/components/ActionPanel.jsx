@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AILoader from './AILoader';
+import { resolveIntent } from '../lib/IntentEngine';
 
 // Lazy-load sub-panels
 const FileConvertPanel = lazy(() => import('./panels/FileConvertPanel'));
@@ -14,20 +15,31 @@ const PANEL_MAP = {
 };
 
 /**
- * ActionPanel — Inline execution container.
- * Appears below the command bar when an intent is resolved.
- * Dynamically loads the right sub-panel based on capability.
+ * ActionPanel — Inline execution container with continuity loop.
+ * 
+ * The key upgrade: when a panel emits a suggestion, ActionPanel resolves it
+ * and either re-renders a new panel or navigates — creating the
+ * Command → Execute → Result → Suggest → Continue loop.
  */
-export default function ActionPanel({ intent, onDismiss }) {
+export default function ActionPanel({ intent, onDismiss, onIntentChange }) {
   const [isVisible, setIsVisible] = useState(false);
+  const [currentIntent, setCurrentIntent] = useState(intent);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (intent) {
-      // Small delay so the animation looks intentional
+      setCurrentIntent(intent);
       requestAnimationFrame(() => setIsVisible(true));
     }
   }, [intent]);
+
+  // Animate updates when intent changes within the panel (suggestion flow)
+  useEffect(() => {
+    if (currentIntent && currentIntent !== intent) {
+      setIsVisible(false);
+      requestAnimationFrame(() => setIsVisible(true));
+    }
+  }, [currentIntent]);
 
   const handleDismiss = useCallback(() => {
     setIsVisible(false);
@@ -35,20 +47,51 @@ export default function ActionPanel({ intent, onDismiss }) {
   }, [onDismiss]);
 
   const handleOpenFull = useCallback(() => {
-    if (intent?.navigateTo) {
-      navigate(intent.navigateTo);
+    if (currentIntent?.navigateTo) {
+      navigate(currentIntent.navigateTo);
       handleDismiss();
     }
-  }, [intent, navigate, handleDismiss]);
+  }, [currentIntent, navigate, handleDismiss]);
 
-  if (!intent) return null;
+  /**
+   * Suggestion handler — the core of the continuity loop.
+   * When a panel suggestion is clicked, resolve it as a new intent
+   * and either swap the panel content or navigate.
+   */
+  const handleSuggestionSelect = useCallback((suggestion) => {
+    if (suggestion.action === 'reset') return; // Panels handle this internally
+    
+    if (suggestion.intent) {
+      const result = resolveIntent(suggestion.intent);
 
-  const PanelComponent = intent.handler ? PANEL_MAP[intent.handler] : null;
-  const isTier3 = intent.tier === 3;
+      if (result.capability && result.handler && result.tier <= 2) {
+        // Swap to new inline panel
+        const newIntent = {
+          capability: result.capability,
+          params: result.params || {},
+          label: result.label,
+          description: result.description,
+          tier: result.tier,
+          handler: result.handler,
+          navigateTo: result.navigateTo,
+        };
+        setCurrentIntent(newIntent);
+        onIntentChange?.(newIntent);
+      } else if (result.navigateTo) {
+        navigate(result.navigateTo);
+        handleDismiss();
+      }
+    }
+  }, [navigate, handleDismiss, onIntentChange]);
+
+  if (!currentIntent) return null;
+
+  const PanelComponent = currentIntent.handler ? PANEL_MAP[currentIntent.handler] : null;
+  const isTier3 = currentIntent.tier === 3;
 
   // Tier 3: navigate immediately
-  if (isTier3 && intent.navigateTo) {
-    navigate(intent.navigateTo);
+  if (isTier3 && currentIntent.navigateTo) {
+    navigate(currentIntent.navigateTo);
     onDismiss?.();
     return null;
   }
@@ -67,13 +110,15 @@ export default function ActionPanel({ intent, onDismiss }) {
           style={{ borderColor: 'var(--border-glass)' }}
         >
           <div className="flex items-center gap-3 min-w-0">
-            <span className="text-lg shrink-0">{intent.capability?.icon || '✦'}</span>
+            <span className="text-lg shrink-0">{currentIntent.capability?.icon || '✦'}</span>
             <div className="min-w-0">
               <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                {intent.label || 'Processing'}
+                {currentIntent.label || 'Processing'}
               </p>
               <p className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>
-                {intent.description || 'Resolving intent...'}
+                {typeof currentIntent.description === 'function'
+                  ? currentIntent.description(currentIntent.params || {})
+                  : currentIntent.description || 'Resolving intent...'}
               </p>
             </div>
           </div>
@@ -81,12 +126,9 @@ export default function ActionPanel({ intent, onDismiss }) {
           <div className="flex items-center gap-2 shrink-0">
             {/* Tier badge */}
             <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
-              style={{
-                background: 'var(--accent-subtle)',
-                color: 'var(--accent)',
-              }}
+              style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}
             >
-              {intent.tier === 1 ? 'Inline' : 'Focused'}
+              {currentIntent.tier === 1 ? 'Inline' : 'Focused'}
             </span>
 
             {/* Dismiss */}
@@ -107,22 +149,19 @@ export default function ActionPanel({ intent, onDismiss }) {
           {PanelComponent ? (
             <Suspense fallback={<AILoader mode="shimmer" />}>
               <PanelComponent
-                params={intent.params || {}}
+                params={currentIntent.params || {}}
                 onDismiss={handleDismiss}
                 onOpenFull={handleOpenFull}
+                onSuggestionSelect={handleSuggestionSelect}
               />
             </Suspense>
           ) : (
-            /* Tier 2 without inline handler — show redirect card */
             <div className="flex flex-col items-center gap-4 py-6">
               <p className="text-sm text-center" style={{ color: 'var(--text-secondary)' }}>
                 This action requires the full workspace.
               </p>
-              <button
-                onClick={handleOpenFull}
-                className="btn-accent flex items-center gap-2"
-              >
-                Open {intent.label}
+              <button onClick={handleOpenFull} className="btn-accent flex items-center gap-2">
+                Open {currentIntent.label}
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -130,11 +169,10 @@ export default function ActionPanel({ intent, onDismiss }) {
             </div>
           )}
 
-          {/* "Open full tool" link for Tier 2 panels that have a handler */}
-          {intent.tier === 2 && intent.navigateTo && PanelComponent && (
+          {/* "Open full tool" link for Tier 2 */}
+          {currentIntent.tier === 2 && currentIntent.navigateTo && PanelComponent && (
             <div className="mt-3 pt-3 text-center" style={{ borderTop: '1px solid var(--border-glass)' }}>
-              <button
-                onClick={handleOpenFull}
+              <button onClick={handleOpenFull}
                 className="text-xs font-medium hover:underline transition-colors"
                 style={{ color: 'var(--accent)' }}
               >
