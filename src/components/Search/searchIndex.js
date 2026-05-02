@@ -1,4 +1,52 @@
 import { tools as toolboxTools } from '../../services/toolbox/tools/index.js';
+import { FORMAT_REGISTRY } from '../../services/toolbox/core/unifiedProcessor.js';
+
+/**
+ * Generate specific conversion tools based on the unified processor registry
+ */
+const generateDynamicConverters = () => {
+    const dynamicItems = [];
+    
+    Object.entries(FORMAT_REGISTRY).forEach(([category, config]) => {
+        const catIcon = category === 'image' ? '🖼️' : category === 'document' ? '📄' : category === 'audio' ? '🎵' : '🎥';
+        
+        // 1. Add generic "Convert to [Format]" for all outputs
+        config.outputs.forEach(output => {
+            dynamicItems.push({
+                id: `convert-to-${output.value}`,
+                title: `${output.label} Converter`,
+                description: `Convert files to ${output.label} (${output.desc}) entirely in your browser.`,
+                icon: catIcon,
+                path: `/toolbox?to=${output.value}`,
+                category: 'Converters',
+                keywords: ['convert', 'to', output.value, output.label, category, output.desc.toLowerCase()]
+            });
+        });
+
+        // 2. Add common "From X to Y" combinations for the top inputs
+        // This makes the search feel very intelligent for common tasks
+        const primaryInputs = config.inputs.slice(0, 6);
+        const primaryOutputs = config.outputs.slice(0, 6);
+
+        primaryInputs.forEach(input => {
+            primaryOutputs.forEach(output => {
+                if (input.toLowerCase() === output.value.toLowerCase()) return;
+                
+                dynamicItems.push({
+                    id: `convert-${input}-to-${output.value}`,
+                    title: `${input.toUpperCase()} to ${output.label} Converter`,
+                    description: `Instantly convert ${input.toUpperCase()} files to ${output.label} format.`,
+                    icon: catIcon,
+                    path: `/toolbox?to=${output.value}`,
+                    category: 'Converters',
+                    keywords: [input, 'to', output.value, 'convert', 'transformer']
+                });
+            });
+        });
+    });
+    
+    return dynamicItems;
+};
 
 export const SEARCH_INDEX = [
     // Main Apps
@@ -65,6 +113,9 @@ export const SEARCH_INDEX = [
         category: 'Apps',
         keywords: ['terminal', 'command', 'cli', 'api'],
     },
+
+    // Dynamic Converters from Unified Processor
+    ...generateDynamicConverters(),
 
     // Utilities (from Toolbox)
     ...Object.values(toolboxTools).map((tool) => ({

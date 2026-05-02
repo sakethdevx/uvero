@@ -5,7 +5,7 @@
  */
 
 // Format registry
-const FORMAT_REGISTRY = {
+export const FORMAT_REGISTRY = {
     image: {
         // Input extensions (common ones)
         inputs: [
@@ -229,7 +229,6 @@ class UnifiedProcessor {
 
         const ext = file.name.split('.').pop()?.toLowerCase();
 
-        // Return only output formats that are different from the input file's extension
         return FORMAT_REGISTRY[category].outputs.filter(
             output => output.value !== ext
         );

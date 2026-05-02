@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Dropzone from '../shared/Dropzone.jsx';
 import Button from '../shared/Button.jsx';
 import ProgressBar from '../shared/ProgressBar.jsx';
@@ -42,6 +42,7 @@ const isBrowserSupportedVideo = (fileName) => {
 };
 
 export default function UnifiedConverter() {
+    const [searchParams] = useSearchParams();
     const [file, setFile] = useState(null);
     const [category, setCategory] = useState(null);
     const [outputFormats, setOutputFormats] = useState([]);
@@ -93,6 +94,14 @@ export default function UnifiedConverter() {
             setResultPreviewUrl(url);
         }
     }, [result]);
+
+    // Handle deep linking from search
+    useEffect(() => {
+        const targetFormat = searchParams.get('to');
+        if (targetFormat && outputFormats.some(f => f.value === targetFormat)) {
+            setSelectedFormat(targetFormat);
+        }
+    }, [outputFormats, searchParams]);
 
     const handleFileSelect = (selectedFile) => {
         setFile(selectedFile);
