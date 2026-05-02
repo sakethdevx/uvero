@@ -5,6 +5,7 @@ import ThemeToggle from './components/ThemeToggle';
 import BrandLogo from './components/BrandLogo';
 import ServicesHome from './pages/ServicesHome';
 import Maintenance from './pages/Maintenance';
+import UniversalSearch from './components/Search/UniversalSearch';
 import { useAuth } from './auth/AuthContext';
 import { signOut } from './auth/authService';
 import { getMaintenanceConfig } from './config/maintenance';
@@ -73,9 +74,22 @@ const TOOL_NAME_BY_PATH = Object.fromEntries(
 function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isToolsDropdownOpen, setIsToolsDropdownOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const dropdownRef = useRef(null);
   const dropdownTimerRef = useRef(null);
   const location = useLocation();
+
+  // Handle Cmd+K / Ctrl+K
+  useEffect(() => {
+    const handleGlobalKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   // Determine if we're on a toolbox route (for scoping ModeToggle) without
   // importing the full toolbox registry into the shared app shell.
@@ -212,6 +226,17 @@ function AppContent() {
                 Contact
               </Link>
 
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className="ml-1 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium transition-colors py-1.5 px-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <span>Search</span>
+                <kbd className="hidden lg:inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-sans font-semibold text-gray-500 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-sm ml-1">⌘K</kbd>
+              </button>
+
               <div className="ml-2 flex items-center gap-2 pl-3 border-l border-gray-200 dark:border-gray-700">
                 <ThemeToggle />
                 <AuthStatus />
@@ -219,7 +244,16 @@ function AppContent() {
             </div>
 
             {/* Mobile Auth & Menu Button */}
-            <div className="flex md:hidden items-center gap-2">
+            <div className="flex md:hidden items-center gap-1.5">
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Search"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
               <MobileNavAuth onNav={() => setIsMenuOpen(false)} />
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -328,6 +362,9 @@ function AppContent() {
           </Routes>
         </Suspense>
       </main>
+
+      {/* Universal Search Modal */}
+      <UniversalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
 
       {/* Footer */}
       <footer className="bg-gray-950 text-gray-400 mt-auto border-t border-gray-800">
