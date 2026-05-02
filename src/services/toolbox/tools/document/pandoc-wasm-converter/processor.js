@@ -12,11 +12,14 @@ class PandocWasmProcessor {
         this.wasmLoading = null;
     }
 
-    async ensureWasmLoaded() {
+    async ensureWasmLoaded(signal) {
         if (this.wasm) return;
 		if (!this.wasmLoading) {
 			this.wasmLoading = (async () => {
-				const response = await fetch(pandocWasmUrl, { priority: 'low' });
+				const response = await fetch(pandocWasmUrl, { 
+                    priority: 'low',
+                    signal
+                });
 				if (!response.ok) {
 					throw new Error(`Failed to fetch Pandoc WASM: ${response.status} ${response.statusText}`);
 				}
@@ -132,8 +135,8 @@ class PandocWasmProcessor {
         });
     }
 
-    async preload() {
-        await this.ensureWasmLoaded();
+    async preload(signal) {
+        await this.ensureWasmLoaded(signal);
     }
 
     terminate() {
@@ -145,6 +148,6 @@ const processor = new PandocWasmProcessor();
 
 export default {
     convert: (...args) => processor.convert(...args),
-    preload: () => processor.preload(),
+    preload: (signal) => processor.preload(signal),
     terminate: () => {},
 };

@@ -133,6 +133,7 @@ class UnifiedProcessor {
         // Engine status: 'idle' | 'downloading' | 'ready' | 'error'
         this.engineStatus = 'idle';
         this.listeners = [];
+        this.abortController = null;
     }
 
     subscribe(listener) {
@@ -143,43 +144,91 @@ class UnifiedProcessor {
     }
 
     notify() {
-        this.listeners.forEach(l => l(this.engineStatus));
+        this.listeners.forEach(l => {
+            try { l(this.engineStatus); } catch (e) { /* ignore */ }
+        });
+    }
+
+    cancelPreload() {
+        if (this.abortController) {
+            this.abortController.abort();
+            this.abortController = null;
+            if (this.engineStatus === 'downloading') {
+                this.engineStatus = 'idle';
+                this.notify();
+            }
+        }
     }
 
     async preload() {
         if (this.engineStatus !== 'idle') return;
         
+        this.abortController = new AbortController();
+        const signal = this.abortController.signal;
+
         this.engineStatus = 'downloading';
         this.notify();
 
         try {
             // 1. First, load the processor modules (JS files are small)
             await this.ensureProcessors();
+            if (signal.aborted) return;
 
             // 2. Schedule heavy WASM downloads for idle time
             const schedulePreload = () => {
+                if (signal.aborted) return;
+                
                 // SEQUENTIAL loading to avoid saturating browser connection slots (max 6)
-                // This ensures Sign-in and Navigation remain snappy
                 const runSequential = async () => {
                     try {
                         // Image first (most common)
-                        if (this.imageProc?.preload) await this.imageProc.preload();
+                        if (this.imageProc?.preload) {
+                            await this.imageProc.preload(signal);
+                        }
                         
-                        // Wait a bit before starting the next heavy one
-                        await new Promise(r => setTimeout(r, 4000));
-                        if (this.pandocProc?.preload) await this.pandocProc.preload();
-                        
-                        // And so on...
-                        await new Promise(r => setTimeout(r, 4000));
-                        if (this.audioProc?.preload) await this.audioProc.preload();
-                        
-                        await new Promise(r => setTimeout(r, 4000));
-                        if (this.videoProc?.preload) await this.videoProc.preload();
+                        if (signal.aborted) return;
 
-                        this.engineStatus = 'ready';
-                        this.notify();
+                        // Wait a bit before starting the next heavy one
+                        await new Promise((r, rej) => {
+                            const t = setTimeout(r, 4000);
+                            signal.addEventListener('abort', () => {
+                                clearTimeout(t);
+                                rej(new Error('Aborted'));
+                            });
+                        });
+
+                        if (this.pandocProc?.preload) await this.pandocProc.preload(signal);
+                        if (signal.aborted) return;
+
+                        await new Promise((r, rej) => {
+                            const t = setTimeout(r, 4000);
+                            signal.addEventListener('abort', () => {
+                                clearTimeout(t);
+                                rej(new Error('Aborted'));
+                            });
+                        });
+                        
+                        if (this.audioProc?.preload) await this.audioProc.preload(signal);
+                        if (signal.aborted) return;
+
+                        await new Promise((r, rej) => {
+                            const t = setTimeout(r, 4000);
+                            signal.addEventListener('abort', () => {
+                                clearTimeout(t);
+                                rej(new Error('Aborted'));
+                            });
+                        });
+                        
+                        if (this.videoProc?.preload) await this.videoProc.preload(signal);
+
+                        if (!signal.aborted) {
+                            this.engineStatus = 'ready';
+                            this.notify();
+                        }
                     } catch (e) {
-                        console.warn('Sequential preload interrupted:', e);
+                        if (e.message !== 'Aborted') {
+                            console.warn('Sequential preload interrupted:', e);
+                        }
                     }
                 };
 
@@ -192,10 +241,11 @@ class UnifiedProcessor {
                 setTimeout(schedulePreload, 5000);
             }
         } catch (e) {
+            if (e.name === 'AbortError') return;
             console.error('Preload failed:', e);
             this.engineStatus = 'error';
+            this.notify();
         }
-        this.notify();
     }
 
     async ensureProcessors() {
