@@ -4,7 +4,7 @@ import CliCommandList from '../components/CliCommandList'
 import { CLIPBOARD_PROMO_COMMANDS, CLI_INSTALL_COMMAND, getQuickShareCliCommands } from '../cliCommands'
 
 const PRIVATE_FEATURES = [
-    { icon: '🎨', title: 'Syntax Highlighting', desc: '20+ languages supported', classes: 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20' },
+    { icon: '🎨', title: 'Syntax Highlighting', desc: '50+ languages supported', classes: 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20' },
     { icon: '📝', title: 'Markdown Preview', desc: 'Live rendering with split view', classes: 'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20' },
     { icon: '🔑', title: 'Password Lock', desc: 'Protect with a password', classes: 'bg-red-50 dark:bg-red-500/10 border-red-100 dark:border-red-500/20' },
     { icon: '🔥', title: 'Burn After Read', desc: 'Self-destruct after opening', classes: 'bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20' },

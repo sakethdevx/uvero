@@ -12,7 +12,7 @@ const services = [
         id: 'toolbox',
         name: 'Toolbox',
         tagline: 'Convert, compress & transform',
-        description: '63+ powerful tools to convert, compress, resize, and process your files. Images, PDFs, audio, video, documents — all in one place.',
+        description: '200+ powerful tools to convert, compress, resize, and process your files. Images, PDFs, audio, video, documents — all in one place.',
         features: ['Image & PDF Tools', 'Audio & Video Conversion', 'Privacy-First Processing', 'Works Offline'],
         icon: (
             <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -50,8 +50,8 @@ const services = [
         id: 'compiler',
         name: 'Online Compiler',
         tagline: 'Write, compile & run code instantly',
-        description: 'A premium online IDE powered by Monaco Editor. Execute code in 20+ programming languages with real-time output, execution metrics, and zero setup required.',
-        features: ['20+ Languages', 'Monaco Editor', 'Execution Metrics', 'Cloud Sandboxed'],
+        description: 'A premium online IDE powered by Monaco Editor. Execute code in 50+ programming languages with real-time output, execution metrics, and zero setup required.',
+        features: ['50+ Languages', 'Monaco Editor', 'Execution Metrics', 'Cloud Sandboxed'],
         icon: (
             <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
@@ -175,7 +175,7 @@ const platformFeatures = [
 
 const heroHighlights = [
     { value: '6', label: 'Core services' },
-    { value: '63+', label: 'Toolbox tools' },
+    { value: '200+', label: 'Toolbox tools' },
     { value: '100%', label: 'Privacy-first' },
 ];
 
