@@ -476,7 +476,7 @@
   }
 
   .ambient-layer-orange {
-    width: min(62rem, 112vw);
+    width: min(62rem, 90vw);
     height: min(42rem, 86vh);
     left: 50%;
     top: -22%;
@@ -486,7 +486,7 @@
   }
 
   .ambient-layer-magenta {
-    width: min(48rem, 96vw);
+    width: min(48rem, 80vw);
     height: min(38rem, 78vh);
     right: -18%;
     top: 14%;
@@ -496,7 +496,7 @@
   }
 
   .ambient-layer-blue {
-    width: min(52rem, 104vw);
+    width: min(52rem, 90vw);
     height: min(40rem, 82vh);
     right: -16%;
     bottom: -28%;
@@ -523,7 +523,7 @@
       radial-gradient(circle at 58% 58%, color-mix(in srgb, var(--ambient-orange) 58%, transparent), transparent 36%),
       radial-gradient(circle at 34% 62%, color-mix(in srgb, var(--ambient-violet) 58%, transparent), transparent 34%);
     filter: blur(58px);
-    mix-blend-mode: overlay;
+    mix-blend-mode: screen;
     opacity: var(--ambient-field-opacity);
     mask-image: radial-gradient(circle at var(--ambient-focus-x) var(--ambient-focus-y), black 0%, rgba(0, 0, 0, 0.72) 34%, transparent 78%);
     -webkit-mask-image: radial-gradient(circle at var(--ambient-focus-x) var(--ambient-focus-y), black 0%, rgba(0, 0, 0, 0.72) 34%, transparent 78%);
