@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
  * Home | History | Command (center, prominent) | Favorites | Profile
  * md:hidden — desktop never sees this.
  */
-export default function BottomNav({ onCommandPress, onHistoryPress }) {
+export default function BottomNav({ onCommandPress, onHistoryPress, onFavoritesPress }) {
   const location = useLocation();
   const navigate = useNavigate();
   const path = location.pathname;
@@ -23,10 +23,13 @@ export default function BottomNav({ onCommandPress, onHistoryPress }) {
       onCommandPress?.();
     } else if (item.id === 'history') {
       onHistoryPress?.();
+    } else if (item.id === 'favorites') {
+      onFavoritesPress?.();
     } else if (item.path) {
       navigate(item.path);
     }
   };
+
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden glass-panel rounded-none"

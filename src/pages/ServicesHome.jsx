@@ -1,7 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useSEO from '../hooks/useSEO';
-import AmbientBackground from '../components/AmbientBackground';
 import CommandBar from '../components/CommandBar';
 import ActionPanel from '../components/ActionPanel';
 import OnboardingHint from '../components/OnboardingHint';
@@ -41,6 +40,17 @@ export default function ServicesHome() {
     setShowDoneConfirm(false);
   }, []);
 
+  // Listen for external intent triggers (from History/Favorites)
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.detail) {
+        handleIntentResolved(e.detail);
+      }
+    };
+    window.addEventListener('uvero-trigger-intent', handler);
+    return () => window.removeEventListener('uvero-trigger-intent', handler);
+  }, [handleIntentResolved]);
+
   const handleDismissAction = useCallback(() => {
     setActiveIntent(null);
     setInteractionState('idle');
@@ -72,14 +82,19 @@ export default function ServicesHome() {
     setExternalQuery(text);
   }, []);
 
+  useEffect(() => {
+    const nextState = activeIntent ? 'processing' : showDoneConfirm ? 'result' : 'idle';
+    if (interactionState !== nextState) {
+      setInteractionState(nextState);
+    }
+  }, [activeIntent, showDoneConfirm, setInteractionState, interactionState]);
+
   const isInteracting = Boolean(activeIntent) || interactionState !== 'idle';
-  const ambientState = Boolean(activeIntent) ? 'processing' : showDoneConfirm ? 'result' : interactionState;
   const isFaded = interactionState !== 'idle';
   const fadeClass = isFaded ? 'ui-faded' : '';
 
   return (
-    <div className={`premium-home ${isInteracting ? 'premium-home-interacting' : ''} relative isolate flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 pb-24 md:pb-8`}>
-      <AmbientBackground state={ambientState} />
+    <div className={`premium-home ${isInteracting ? 'premium-home-interacting' : ''} relative flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] px-4 pb-24 md:pb-8`}>
 
       {/* ── Main content — vertically centered ── */}
       <div className={`premium-home-content relative z-10 w-full ${isInteracting ? 'max-w-3xl gap-4' : 'max-w-xl gap-5'} mx-auto flex flex-col items-center`}

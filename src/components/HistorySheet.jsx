@@ -64,7 +64,9 @@ export default function HistorySheet({ isOpen, onClose, onRerun }) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose?.(); }}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in" />
+      <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in" 
+        onClick={onClose}
+      />
 
       {/* Sheet */}
       <div className="relative w-full md:max-w-md animate-sheet-in md:animate-scale-in glass-panel md:rounded-2xl rounded-t-2xl rounded-b-none max-h-[85vh] flex flex-col overflow-hidden"

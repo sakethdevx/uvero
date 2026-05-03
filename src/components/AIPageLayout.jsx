@@ -41,27 +41,9 @@ export default function AIPageLayout({
     };
 
     return (
-        <div className="min-h-screen bg-surface-0 text-gray-900 transition-colors duration-500 dark:text-white relative overflow-hidden flex flex-col">
-            {/* Ambient Background System */}
-            <div className="pointer-events-none fixed inset-0 z-0 opacity-60">
-                {pattern === 'focused' ? (
-                    // Focused (Auth) - subtle radial glow behind the center card
-                    <>
-                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[60vh] w-[60vw] rounded-full bg-accent/10 dark:bg-accent/15 blur-[120px]" />
-                        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent dark:via-accent/20" />
-                        <div className="absolute inset-x-0 bottom-0 h-[40vh] bg-gradient-to-t from-accent/5 dark:from-accent/10 to-transparent" />
-                    </>
-                ) : (
-                    // Calm (Static) - very minimal, calm top gradient
-                    <>
-                        <div className="absolute inset-x-0 top-0 h-[40vh] bg-gradient-to-b from-accent/5 dark:from-accent/5 to-transparent" />
-                        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent dark:via-white/10" />
-                    </>
-                )}
-            </div>
-
+        <div className="w-full text-gray-900 transition-colors duration-500 dark:text-white relative flex flex-col">
             {/* Main Content Area */}
-            <main className={`relative z-10 w-full mx-auto ${maxWidth} px-4 py-8 sm:px-6 lg:px-8 sm:py-12 flex-1 flex flex-col ${centerContent ? 'justify-center min-h-[calc(100vh-4rem)]' : 'pt-16 sm:pt-24'}`}>
+            <main className={`relative z-10 w-full mx-auto ${maxWidth} px-4 py-8 sm:px-6 lg:px-8 sm:py-12 flex-1 flex flex-col ${centerContent ? 'justify-center min-h-[calc(100vh-8rem)]' : 'pt-8 sm:pt-12'}`}>
                 
                 {renderBackLink() && !centerContent && (
                     <div className="mb-4">

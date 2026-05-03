@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import AIPageLayout from '../../../components/AIPageLayout'
+import { AIBackLink } from '../../../components/AIServiceLayout'
 
 const CODE_REGEX = /^[0-9]{4}$/
 
@@ -36,13 +38,8 @@ export default function PublicClipboard() {
     }
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-1/4 -left-32 w-96 h-96 rounded-full blur-3xl bg-emerald-500/10" />
-                <div className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full blur-3xl bg-cyan-500/10" />
-            </div>
-
-            <div className="relative max-w-2xl mx-auto px-4 pt-20 pb-24">
+        <AIPageLayout pattern="focused">
+            <div className="relative max-w-2xl mx-auto px-4 py-8">
                 {/* Header */}
                 <div className="text-center mb-10">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">
@@ -105,16 +102,10 @@ export default function PublicClipboard() {
                 </div>
 
                 {/* Back link */}
-                <div className="mt-6 text-center">
-                    <Link
-                        to="/clipboard"
-                        className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
-                        Back to Clipboard
-                    </Link>
+                <div className="mt-8 text-center">
+                    <AIBackLink to="/clipboard">Back to Clipboard</AIBackLink>
                 </div>
             </div>
-        </div>
+        </AIPageLayout>
     )
 }
