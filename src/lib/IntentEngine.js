@@ -199,7 +199,7 @@ const CAPABILITIES = [
     label: 'Run Code',
     icon: '💻',
     patterns: [
-      /(?:run|execute|compile|interpret|test)\s+(?:code|python|javascript|java|c\+\+|go|rust|ruby|php|typescript|swift)/i,
+      /(?:run|execute|compile|interpret|test)\s+(?:code|python|javascript|java|c\+\+|cpp|c|go|rust|ruby|php|typescript|swift)/i,
       /(?:code|programming)\s+(?:editor|ide|playground)/i,
       /(?:online)\s+(?:compiler|interpreter|ide)/i,
     ],
