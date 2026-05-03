@@ -232,7 +232,9 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
         onClick={(e) => { if (e.target === e.currentTarget) onClose?.(); }}
       >
         {/* Backdrop */}
-        <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in" />
+        <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in" 
+          onClick={onClose}
+        />
 
         {/* Content */}
         <div className="relative w-full max-w-xl animate-scale-in">
