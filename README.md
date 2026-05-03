@@ -238,7 +238,7 @@ npm run preview
 
 ## Architecture
 
-- **Feature-based structure** — Each service (toolbox, photodrop, clipboard) is self-contained under `src/features/`
+- **Feature-based structure** — Each service (toolbox, photodrop, clipboard) is self-contained under `src/services/`
 - **Client-side Toolbox flows** — Web Workers, Canvas API, and WASM keep the main thread free
 - **Serverless API** — Vercel functions with a single router dispatching to feature-specific handlers
 - **GitHub as storage** — PhotoDrop images and clipboard boards stored via the GitHub Contents API

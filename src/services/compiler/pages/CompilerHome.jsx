@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import CodeEditor from '../components/CodeEditor';
 import LanguageSelector from '../components/LanguageSelector';
 import EditorToolbar from '../components/EditorToolbar';
@@ -10,6 +11,7 @@ import { LANGUAGES, getLanguageTemplate, getLanguageById } from '../data/languag
 import { executeCode } from '../api/executeCode';
 import useExecutionHistory from '../hooks/useExecutionHistory';
 import useShareableSnippet from '../hooks/useShareableSnippet';
+import { AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout';
 
 const STORAGE_KEY = 'uvero_compiler_prefs';
 const CODE_STORAGE_KEY = 'uvero_compiler_codes';
@@ -35,13 +37,15 @@ function saveCodes(codes) {
 }
 
 export default function CompilerHome() {
+    const [searchParams] = useSearchParams();
+    const urlLang = searchParams.get('lang');
     const prefs = loadPrefs();
     const savedCodes = useRef(loadCodes());
 
     // State
-    const [language, setLanguage] = useState(prefs.language || 'python');
+    const [language, setLanguage] = useState(urlLang || prefs.language || 'python');
     const [templateName, setTemplateName] = useState('hello');
-    const [code, setCode] = useState(savedCodes.current[prefs.language || 'python'] || getLanguageTemplate(prefs.language || 'python'));
+    const [code, setCode] = useState(savedCodes.current[urlLang || prefs.language || 'python'] || getLanguageTemplate(urlLang || prefs.language || 'python'));
     const [stdin, setStdin] = useState('');
     const [fontSize, setFontSize] = useState(prefs.fontSize || 14);
     const [output, setOutput] = useState(null);
@@ -64,6 +68,7 @@ export default function CompilerHome() {
     }, []);
 
     const { generateShareLink } = useShareableSnippet(handleSnippetRestore);
+
 
     // Detect system/site dark mode
     useEffect(() => {
@@ -138,6 +143,13 @@ export default function CompilerHome() {
         setOutput(null);
     }, [language, code]);
 
+    // Sync language from URL if provided
+    useEffect(() => {
+        if (urlLang && urlLang !== language) {
+            handleLanguageChange(urlLang);
+        }
+    }, [urlLang, language, handleLanguageChange]);
+
     // Switch template
     const handleTemplateChange = useCallback((tmpl) => {
         setTemplateName(tmpl);
@@ -176,27 +188,15 @@ export default function CompilerHome() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0f] text-gray-900 dark:text-white transition-colors duration-500">
-
-            {/* ─── Ambient Background ─── */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                {/* Grid pattern */}
-                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.04]"
-                    style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '24px 24px' }}
-                />
-                {/* Animated gradient orbs */}
-                <div className="absolute top-20 -left-40 w-[500px] h-[500px] bg-gradient-to-br from-blue-500/20 to-violet-500/20 dark:from-blue-600/10 dark:to-violet-600/10 rounded-full blur-[100px] animate-slow-drift" />
-                <div className="absolute -bottom-20 -right-40 w-[600px] h-[600px] bg-gradient-to-br from-emerald-500/15 to-cyan-500/15 dark:from-emerald-600/8 dark:to-cyan-600/8 rounded-full blur-[100px] animate-slow-drift-reverse" />
-                <div className="absolute top-1/2 left-1/3 w-[400px] h-[400px] bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-600/5 dark:to-pink-600/5 rounded-full blur-[80px] animate-slow-pulse" />
-            </div>
-
-            {/* ─── Compact Header Spacer ─── */}
-            <header className="relative pt-4 pb-2 px-4 sm:px-6">
-                <div className="max-w-7xl mx-auto" />
-            </header>
+        <AIServiceShell>
+            <CompactServiceHeader
+                eyebrow="Compiler"
+                title="Run code"
+                description="Editor, stdin, output, history, and sharing stay in one workspace."
+            />
 
             {/* ─── IDE Layout ─── */}
-            <section className="relative max-w-7xl mx-auto px-4 sm:px-6 pb-6">
+            <section className="relative pb-4">
                 {/* Main IDE card with glow border */}
                 <div className="relative rounded-2xl overflow-hidden">
                     {/* Glow border effect */}
@@ -260,46 +260,6 @@ export default function CompilerHome() {
                 </div>
             </section>
 
-            {/* ─── Features Strip ─── */}
-            <section className="relative max-w-7xl mx-auto px-4 sm:px-6 pb-20">
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                    {[
-                        {
-                            icon: (<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>),
-                            title: 'Instant Execution',
-                            desc: 'Cloud-powered sandboxed runtimes',
-                            gradient: 'from-amber-400 to-orange-500',
-                        },
-                        {
-                            icon: (<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>),
-                            title: 'Monaco Editor',
-                            desc: 'VS Code powered editing',
-                            gradient: 'from-blue-400 to-indigo-500',
-                        },
-                        {
-                            icon: (<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>),
-                            title: 'Execution History',
-                            desc: 'Last 50 runs, no login needed',
-                            gradient: 'from-violet-400 to-purple-500',
-                        },
-                        {
-                            icon: (<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" /></svg>),
-                            title: 'Shareable Links',
-                            desc: 'Share code via URL in one click',
-                            gradient: 'from-emerald-400 to-cyan-500',
-                        },
-                    ].map((feat, i) => (
-                        <div key={i} className="group relative bg-white/60 dark:bg-white/[0.03] border border-gray-200/50 dark:border-white/[0.06] rounded-xl p-5 hover:border-gray-300 dark:hover:border-white/10 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/20 backdrop-blur-sm">
-                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${feat.gradient} flex items-center justify-center text-white mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                                {feat.icon}
-                            </div>
-                            <h3 className="text-sm font-bold text-gray-800 dark:text-white mb-1">{feat.title}</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-500 leading-relaxed">{feat.desc}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
             {/* History Panel */}
             <HistoryPanel
                 isOpen={historyOpen}
@@ -342,6 +302,6 @@ export default function CompilerHome() {
                 }
                 .animate-slow-pulse { animation: slow-pulse 15s ease-in-out infinite; }
             `}</style>
-        </div>
+        </AIServiceShell>
     );
 }

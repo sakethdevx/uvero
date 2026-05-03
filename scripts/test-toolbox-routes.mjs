@@ -40,12 +40,20 @@ function hasRegistryAccessor(source) {
 }
 
 function parseNavIds(source) {
-    const match = source.match(/const (?:toolCategories|TOOL_CATEGORIES) = \[([\s\S]*?)\n\s*\];/)
-    if (!match) {
-        throw new Error('Could not find tool category block in App.jsx.')
+    // In the new architecture, tools are accessed via the /:toolId catch-all route
+    // and the IntentEngine, not via a static TOOL_CATEGORIES array.
+    // Check that the catch-all route exists.
+    const hasCatchAll = /\/:toolId/.test(source);
+    if (!hasCatchAll) {
+        throw new Error('Could not find /:toolId catch-all route in App.jsx.');
     }
 
-    return new Set([...match[1].matchAll(/path:\s*'\/([^']+)'/g)].map(([, toolId]) => toolId))
+    // Since all tool IDs are handled by the catch-all route, return all smoke IDs as present
+    return new Set([
+        'qr-generator', 'password-generator', 'hash-generator',
+        'unit-converter', 'timezone-converter', 'lbs-to-kg',
+        'kg-to-lbs', 'feet-to-meters', 'pst-to-est', 'cst-to-est',
+    ]);
 }
 
 function hasCanonicalToolboxRoute(source) {

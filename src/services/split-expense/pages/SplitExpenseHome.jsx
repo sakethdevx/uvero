@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../../auth/AuthContext'
 import { GUEST_LIMITS, splitApiRequest } from '../api/client'
+import AILoader from '../../../components/AILoader'
+import { AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout'
 
 function EmptyState({ isGuest }) {
     return (
@@ -37,17 +39,12 @@ export default function SplitExpenseHome() {
 
     const [createLoading, setCreateLoading] = useState(false)
     const [joinLoading, setJoinLoading] = useState(false)
-    const [recoverLoading, setRecoverLoading] = useState(false)
-
     const [groupName, setGroupName] = useState('')
     const [groupDescription, setGroupDescription] = useState('')
     const [displayName, setDisplayName] = useState('')
 
     const [joinCode, setJoinCode] = useState('')
     const [joinDisplayName, setJoinDisplayName] = useState('')
-    const [recoverInviteCode, setRecoverInviteCode] = useState('')
-    const [recoverCode, setRecoverCode] = useState('')
-    const [recoverDisplayName, setRecoverDisplayName] = useState('')
 
     const isGuest = !authLoading && !user
 
@@ -159,98 +156,25 @@ export default function SplitExpenseHome() {
         }
     }
 
-    async function handleGuestRecover(event) {
-        event?.preventDefault?.()
-        if (authLoading) return
-
-        if (!isGuest) {
-            setError('Guest recovery is available only in guest mode')
-            return
-        }
-
-        if (!recoverInviteCode.trim() || !recoverCode.trim()) {
-            setError('Invite code and recovery code are required')
-            return
-        }
-
-        setRecoverLoading(true)
-        setError('')
-
-        try {
-            const response = await splitApiRequest('/api/split/recover-guest', {
-                method: 'POST',
-                user,
-                body: {
-                    invite_code: recoverInviteCode,
-                    recovery_code: recoverCode,
-                    display_name: recoverDisplayName
-                }
-            })
-
-            const recoveredGroupId = response?.data?.group?.id
-            if (recoveredGroupId) {
-                navigate(`/split-expense/${recoveredGroupId}`)
-                return
-            }
-
-            await loadGroups()
-        } catch (err) {
-            setError(err.message || 'Failed to recover group in guest mode')
-        } finally {
-            setRecoverLoading(false)
-        }
-    }
-
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
-            {/* Hero */}
-            <div className="relative overflow-hidden">
-                <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute left-[-10rem] top-16 h-96 w-96 rounded-full bg-emerald-500/8 blur-3xl" />
-                    <div className="absolute right-[-8rem] top-8 h-80 w-80 rounded-full bg-blue-500/8 blur-3xl" />
-                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
-                </div>
+        <AIServiceShell>
+            <CompactServiceHeader
+                eyebrow="Split Expense"
+                title="Create, join, settle"
+                description={isGuest ? guestHint : `Signed in as ${user?.email || 'member'}`}
+            />
 
-                <section className="relative max-w-7xl mx-auto px-4 pt-16 pb-10 sm:px-6 lg:px-8">
-                    <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-8 shadow-xl shadow-emerald-100/40 dark:border-white/[0.08] dark:from-emerald-500/10 dark:via-gray-950 dark:to-blue-500/10 dark:shadow-none sm:p-10">
-                        <p className="text-xs font-bold uppercase tracking-[0.3em] text-emerald-600 dark:text-emerald-300">Split Expense</p>
-                        <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-                            Split trips,{' '}
-                            <span className="text-emerald-600 dark:text-emerald-400">settle instantly.</span>
-                        </h1>
-                        <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300">
-                            Split trip expenses, settle fast, and pay via UPI in one tap with shareable links and QR-ready payment details.
-                        </p>
-
-                        {isGuest ? (
-                            <div className="mt-6 rounded-xl border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
-                                <p className="font-semibold">You are in guest mode</p>
-                                <p className="mt-1">{guestHint}</p>
-                                <p className="mt-2">
-                                    <Link to="/login" className="font-semibold underline underline-offset-4">Sign in</Link>
-                                    {' '}to unlock unlimited groups, advanced split modes, and better settlement tracking.
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="mt-6 rounded-xl border border-emerald-200 dark:border-emerald-500/30 bg-emerald-50/80 dark:bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-300">
-                                Signed in as <span className="font-semibold">{user.email}</span>. You get unlimited groups and all split modes.
-                            </div>
-                        )}
-                    </div>
-                </section>
-            </div>
-
-            <section className="max-w-7xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
+            <section>
                 {error && (
-                    <div className="mb-6 rounded-xl border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+                    <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
                         {error}
                     </div>
                 )}
 
-                <div className="grid lg:grid-cols-2 gap-6 mb-10">
-                    <form onSubmit={handleCreateGroup} className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 shadow-sm">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Create a group</h2>
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Use this for trips, roommates, parties, and shared plans.</p>
+                <div className="mb-5 grid gap-4 lg:grid-cols-2">
+                    <form onSubmit={handleCreateGroup} className="glass-panel p-4 shadow-sm sm:p-5">
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Create a group</h2>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Trips, roommates, parties, and shared plans.</p>
 
                         <div className="mt-4 space-y-4">
                             <div>
@@ -293,9 +217,9 @@ export default function SplitExpenseHome() {
                         </div>
                     </form>
 
-                    <form onSubmit={handleJoinGroup} className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.03] p-6 shadow-sm">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Join with invite code</h2>
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Ask a friend for their PaySplit invite code and join instantly.</p>
+                    <form onSubmit={handleJoinGroup} className="glass-panel p-4 shadow-sm sm:p-5">
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Join with invite code</h2>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Paste an invite code and jump into the group.</p>
 
                         <div className="mt-4 space-y-4">
                             <div>
@@ -343,18 +267,16 @@ export default function SplitExpenseHome() {
                 </div>
 
                 {loadingGroups ? (
-                    <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.03] p-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                        Loading groups...
-                    </div>
+                    <AIInlinePanel><AILoader mode="shimmer" /></AIInlinePanel>
                 ) : groups.length === 0 ? (
                     <EmptyState isGuest={isGuest} />
                 ) : (
-                    <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                         {groups.map(group => (
                             <Link
                                 key={group.id}
                                 to={`/split-expense/${group.id}`}
-                                className="group rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.03] p-5 shadow-sm hover:shadow-lg transition-all"
+                                className="group rounded-xl border border-gray-200 bg-white/80 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg dark:border-white/[0.08] dark:bg-white/[0.04]"
                             >
                                 <div className="flex items-start justify-between gap-3">
                                     <div>
@@ -388,6 +310,6 @@ export default function SplitExpenseHome() {
                     </div>
                 )}
             </section>
-        </div>
+        </AIServiceShell>
     )
 }

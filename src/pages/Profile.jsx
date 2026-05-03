@@ -8,6 +8,7 @@ import { supabase } from '../lib/supabase/client'
 import { checkUsernameAvailability, updateMyUsername } from '../auth/usernameService'
 import { USERNAME_HELP_TEXT, isUsernameValid, normalizeUsernameInput } from '../auth/usernameRules'
 import ThemeToggle from '../components/ThemeToggle'
+import AIPageLayout from '../components/AIPageLayout'
 
 // guest session storage key removed
 
@@ -212,23 +213,16 @@ function ProfileContent() {
     if (!user) return null
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
-            {/* Background decorations */}
-            <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                <div className="absolute left-[-8rem] top-16 h-72 w-72 rounded-full bg-primary-500/8 blur-3xl" />
-                <div className="absolute right-[-6rem] top-8 h-80 w-80 rounded-full bg-blue-500/8 blur-3xl" />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-500/30 to-transparent" />
+        <AIPageLayout pattern="calm" maxWidth="max-w-2xl" backTo="/" backLabel="Back to Hub">
+            {/* Header */}
+            <div className="mb-8">
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-accent dark:text-accent-blue">Identity</p>
+                <h1 className="mt-3 text-3xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">Your Profile</h1>
             </div>
 
-            <div className="relative max-w-2xl mx-auto px-4 pt-12 pb-20 sm:px-6">
-                {/* Header */}
-                <div className="mb-8">
-                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary-600 dark:text-primary-300">Account</p>
-                    <h1 className="mt-3 text-3xl font-black tracking-tight">Your Profile</h1>
-                </div>
-
-                {/* User info card */}
-                <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-primary-50 via-white to-blue-50 p-6 shadow-xl shadow-primary-100/40 dark:border-white/[0.08] dark:from-primary-500/10 dark:via-gray-950 dark:to-blue-500/10 dark:shadow-none">
+            <div className="space-y-10">
+                {/* User info section */}
+                <div className="space-y-6">
                     <div className="flex items-center gap-4 mb-6">
                         <div className="relative">
                             {user.user_metadata?.avatar_url ? (
@@ -300,10 +294,12 @@ function ProfileContent() {
                     </form>
                 </div>
 
+                <div className="h-px bg-gray-200 dark:bg-gray-800" />
+
                 {/* Linked Accounts */}
                 {user.user_metadata?.providers && user.user_metadata.providers.length > 0 && (
-                    <div className="mt-5 rounded-3xl border border-gray-200/80 bg-white p-6 shadow-xl shadow-gray-100/40 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none">
-                        <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Linked Accounts</p>
+                    <div className="space-y-4">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Linked Accounts</p>
                         <div className="mt-4 flex flex-wrap gap-2">
                             {user.user_metadata.providers.map(provider => (
                                 <div
@@ -323,10 +319,14 @@ function ProfileContent() {
                     </div>
                 )}
                 
+                {user.user_metadata?.providers && user.user_metadata.providers.length > 0 && (
+                    <div className="h-px bg-gray-200 dark:bg-gray-800" />
+                )}
+
                 {/* App Preferences */}
-                <div className="mt-5 rounded-3xl border border-gray-200/80 bg-white p-6 shadow-xl shadow-gray-100/40 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none">
-                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">App Preferences</p>
-                    <div className="mt-5 space-y-6">
+                <div className="space-y-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">App Preferences</p>
+                    <div className="space-y-6">
                         <div className="flex items-center justify-between">
                             <div>
                                 <h3 className="text-sm font-bold text-gray-900 dark:text-white">Appearance</h3>
@@ -346,10 +346,10 @@ function ProfileContent() {
                     </div>
                 </div>
 
-                {/* PaySplit account protection removed from Profile */}
+                <div className="h-px bg-gray-200 dark:bg-gray-800" />
 
                 {/* Sign out */}
-                <div className="mt-5">
+                <div>
                     <button
                         onClick={handleSignOut}
                         className="inline-flex items-center gap-2 rounded-xl border border-red-200/80 bg-red-50 px-5 py-2.5 text-sm font-semibold text-red-700 transition-colors hover:bg-red-100 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/20"
@@ -357,10 +357,10 @@ function ProfileContent() {
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
-                        Sign out
+                        Disconnect Session
                     </button>
                 </div>
             </div>
-        </div>
+        </AIPageLayout>
     )
 }

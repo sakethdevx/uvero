@@ -4,12 +4,6 @@
  * Makes it easy to add new tools and maintain routing
  */
 
-// Image Utilities
-
-
-
-
-
 // QR & Security
 import QRGenerator from './utility/qr-generator/QRGenerator';
 import qrGeneratorSEO from './utility/qr-generator/seo.json';
@@ -36,8 +30,7 @@ import cstToEstSEO from './utility/cst-to-est/seo.json';
 
 export const tools = {
     // Image Utilities
-
-
+    // Image Utilities
 
 
     // Security & Codes

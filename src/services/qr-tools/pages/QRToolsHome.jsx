@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import useSEO from '../../../hooks/useSEO';
+import { AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout';
 
 const tools = [
     {
@@ -131,77 +132,44 @@ export default function QRToolsHome() {
     });
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
-            {/* Hero */}
-            <div className="relative overflow-hidden">
-                <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute left-[-10rem] top-16 h-96 w-96 rounded-full bg-violet-500/8 blur-3xl" />
-                    <div className="absolute right-[-8rem] top-8 h-80 w-80 rounded-full bg-purple-500/8 blur-3xl" />
-                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
+        <AIServiceShell>
+            <CompactServiceHeader
+                eyebrow="QR Tools"
+                title="Generate, scan, validate"
+                description="Use the QR tool directly or jump via CommandBar. Static tools stay client-side; dynamic tools attach analytics."
+                actions={(
+                    <>
+                        <Link to="/qr-tools/generator" className="btn-accent text-sm">Generate</Link>
+                        <Link to="/qr-tools/scanner" className="suggestion-chip !opacity-100 !animate-none">Scan</Link>
+                    </>
+                )}
+            />
+
+            <AIInlinePanel className="mb-4 !py-3">
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                    {useCases.map((uc) => (
+                        <Link key={uc.label} to="/qr-tools/generator" className="suggestion-chip !opacity-100 !animate-none shrink-0">
+                            <span>{uc.icon}</span>
+                            <span>{uc.label}</span>
+                        </Link>
+                    ))}
+                </div>
+            </AIInlinePanel>
+
+            <AIInlinePanel>
+                <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">QR workspace</h2>
+                    <span className="text-xs font-semibold text-gray-400">{tools.length} tools</span>
                 </div>
 
-                <section className="relative max-w-7xl mx-auto px-4 pt-16 pb-10 sm:px-6 lg:px-8">
-                    <div className="grid gap-6 lg:grid-cols-[1.4fr_0.85fr]">
-                        <div className="rounded-3xl border border-gray-200/80 bg-gradient-to-br from-violet-50 via-white to-purple-50 p-8 shadow-xl shadow-violet-100/40 dark:border-white/[0.08] dark:from-violet-500/10 dark:via-gray-950 dark:to-purple-500/10 dark:shadow-none sm:p-10">
-                            <p className="text-xs font-bold uppercase tracking-[0.3em] text-violet-600 dark:text-violet-300">QR Tools</p>
-                            <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-                                Generate, scan &{' '}
-                                <span className="text-violet-600 dark:text-violet-400">validate QR codes.</span>
-                            </h1>
-                            <p className="mt-4 max-w-xl text-base leading-relaxed text-gray-600 dark:text-gray-300">
-                                QR codes for URLs, WiFi, UPI payments, contacts, and 10+ more formats. Optimized for real-world scanning. Completely free.
-                            </p>
-                            <div className="mt-8 flex flex-wrap gap-3">
-                                <Link
-                                    to="/qr-tools/generator"
-                                    className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-violet-700"
-                                >
-                                    Generate QR Code
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                    </svg>
-                                </Link>
-                                <Link
-                                    to="/qr-tools/scanner"
-                                    className="inline-flex items-center gap-2 rounded-xl border border-gray-200/80 bg-white/80 px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300 dark:hover:bg-white/[0.08]"
-                                >
-                                    Scan a QR Code
-                                </Link>
-                            </div>
-                        </div>
-
-                        <div className="rounded-3xl border border-gray-200/80 bg-gray-50/80 p-6 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
-                            <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">QR for anything</p>
-                            <div className="mt-4 grid grid-cols-3 gap-2">
-                                {useCases.map((uc) => (
-                                    <Link key={uc.label} to="/qr-tools/generator"
-                                        className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-gray-200/80 bg-white/70 transition-colors hover:bg-white dark:border-white/[0.08] dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
-                                    >
-                                        <span className="text-xl">{uc.icon}</span>
-                                        <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 text-center leading-tight">{uc.label}</span>
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            {/* Tools Grid */}
-            <section className="max-w-7xl mx-auto px-4 pb-12 sm:px-6 lg:px-8">
-                <div className="mb-6">
-                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Tools</p>
-                    <h2 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">All QR Tools</h2>
-                </div>
-
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                     {tools.map((tool) => (
                         <Link
                             key={tool.id}
                             to={tool.link}
-                            className={`group flex flex-col rounded-3xl border border-gray-200/80 bg-gradient-to-br ${tool.cardBg} p-6 shadow-xl shadow-gray-100/40 transition-shadow hover:shadow-2xl dark:border-white/[0.08] dark:shadow-none`}
+                            className="group flex flex-col rounded-xl border border-gray-200 bg-white/80 p-4 transition-all duration-300 ease-apple hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-lg hover:shadow-gray-100/60 dark:border-white/[0.08] dark:bg-white/[0.04] dark:hover:border-white/15 dark:hover:shadow-none"
                         >
-                            <div className="flex items-start justify-between mb-5">
+                            <div className="mb-3 flex items-start justify-between">
                                 <div className={`flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br ${tool.gradient} text-white shadow-sm`}>
                                     {tool.icon}
                                 </div>
@@ -210,12 +178,12 @@ export default function QRToolsHome() {
                                 </span>
                             </div>
 
-                            <h3 className="text-lg font-black tracking-tight text-gray-900 dark:text-white">{tool.name}</h3>
-                            <p className="text-xs font-bold uppercase tracking-[0.15em] text-violet-600 dark:text-violet-300 mt-0.5 mb-2">{tool.tagline}</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-4 flex-1">{tool.description}</p>
+                            <h3 className="text-base font-black tracking-tight text-gray-900 dark:text-white">{tool.name}</h3>
+                            <p className="mb-2 mt-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-violet-600 dark:text-violet-300">{tool.tagline}</p>
+                            <p className="mb-3 line-clamp-2 flex-1 text-xs leading-relaxed text-gray-600 dark:text-gray-300">{tool.description}</p>
 
-                            <div className="flex flex-wrap gap-1.5 mb-5">
-                                {tool.features.map((f) => (
+                            <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1">
+                                {tool.features.slice(0, 3).map((f) => (
                                     <span key={f} className="text-xs px-2.5 py-1 rounded-full border border-gray-200/80 bg-white/70 text-gray-600 dark:border-white/[0.08] dark:bg-white/[0.05] dark:text-gray-400">{f}</span>
                                 ))}
                             </div>
@@ -229,33 +197,7 @@ export default function QRToolsHome() {
                         </Link>
                     ))}
                 </div>
-            </section>
-
-            {/* Why QR Tools */}
-            <section className="max-w-7xl mx-auto px-4 pb-12 sm:px-6 lg:px-8">
-                <div className="rounded-3xl border border-gray-200/80 bg-gray-50/80 p-6 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
-                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500 mb-5">Why choose Uvero QR</p>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {[
-                            { icon: '🎯', title: 'Scan-Optimized Output', description: 'Every QR code is generated with proper error correction, quiet zones, and size guidance for reliable real-world scanning.' },
-                            { icon: '🔒', title: 'No Login Required', description: 'Static QR generation stays frictionless and completely in your browser. No account, no tracking.' },
-                            { icon: '⚡', title: 'Instant & Offline', description: 'Generation and scanning work entirely client-side with no server round-trips. Fast even on slow connections.' },
-                        ].map((item) => (
-                            <div key={item.title} className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-2xl bg-white dark:bg-gray-900/60 border border-gray-200/80 dark:border-white/[0.08] flex items-center justify-center text-xl shrink-0 shadow-sm">
-                                    {item.icon}
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">{item.title}</h3>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">{item.description}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* CTA removed */}
-        </div>
+            </AIInlinePanel>
+        </AIServiceShell>
     );
 }

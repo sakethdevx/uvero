@@ -34,8 +34,8 @@ export default defineConfig({
         name: 'Uvero Toolbox',
         short_name: 'Uvero',
         description: 'Uvero Toolbox brings privacy-first image, PDF, audio, video, and utility tools together in one place.',
-        theme_color: '#0ea5e9',
-        background_color: '#ffffff',
+        theme_color: '#09090f',
+        background_color: '#09090f',
         display: 'standalone',
         orientation: 'portrait',
         icons: [

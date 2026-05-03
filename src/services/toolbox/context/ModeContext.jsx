@@ -60,11 +60,22 @@ export const ModeProvider = ({ children }) => {
     useEffect(() => {
         localStorage.setItem('theme', theme);
         
+        const root = document.documentElement;
         if (effectiveTheme === 'dark') {
-            document.documentElement.classList.add('dark');
+            root.classList.add('dark');
         } else {
-            document.documentElement.classList.remove('dark');
+            root.classList.remove('dark');
         }
+
+        // Update meta theme-color to match the surface color
+        const themeColor = effectiveTheme === 'dark' ? '#09090f' : '#f7f8fc';
+        let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (!metaThemeColor) {
+            metaThemeColor = document.createElement('meta');
+            metaThemeColor.name = 'theme-color';
+            document.head.appendChild(metaThemeColor);
+        }
+        metaThemeColor.setAttribute('content', themeColor);
 
         // Sync to DB if logged in
         if (user) {

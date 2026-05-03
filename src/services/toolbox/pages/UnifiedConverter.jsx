@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import Dropzone from '../shared/Dropzone.jsx';
 import Button from '../shared/Button.jsx';
 import ProgressBar from '../shared/ProgressBar.jsx';
@@ -7,6 +7,7 @@ import FileInfo from '../shared/FileInfo.jsx';
 import unifiedProcessor from '../core/unifiedProcessor.js';
 import InteractiveCropSelector from '../components/InteractiveCropSelector.jsx';
 import WatermarkSettings from '../components/WatermarkSettings.jsx';
+import AILoader from '../../../components/AILoader.jsx';
 
 const SUPPORTED_CATEGORIES = {
     image: {
@@ -179,7 +180,18 @@ export default function UnifiedConverter() {
         setIsProcessing(true);
         setError('');
         setProgress(0);
-        setProcessingMessage('Initializing Neural Engine...');
+        // Set appropriate initial message
+        if (selectedFormat === 'remove-background') {
+            setProcessingMessage('Loading AI Model...');
+        } else if (selectedFormat === 'crop') {
+            setProcessingMessage('Preparing Crop...');
+        } else if (selectedFormat === 'resize') {
+            setProcessingMessage('Preparing Resize...');
+        } else if (selectedFormat === 'watermark') {
+            setProcessingMessage('Preparing Watermark...');
+        } else {
+            setProcessingMessage('Initializing Engine...');
+        }
         setResult(null);
 
         try {
@@ -202,7 +214,7 @@ export default function UnifiedConverter() {
             }
             const res = await unifiedProcessor.convert(file, selectedFormat, (prog) => {
                 setProgress(prog);
-                if (prog > 0) setProcessingMessage('Processing File...');
+                if (prog > 0) setProcessingMessage('Processing...');
             }, convertOptions);
             setResult(res);
         } catch (err) {
@@ -237,24 +249,20 @@ export default function UnifiedConverter() {
     const categoryInfo = category ? SUPPORTED_CATEGORIES[category] : null;
 
     return (
-        <div className="max-w-4xl mx-auto">
-            <div className="relative group rounded-[2.5rem] border border-gray-200/80 bg-white/80 backdrop-blur-2xl shadow-2xl shadow-indigo-200/20 transition-all duration-700 hover:shadow-indigo-500/20 dark:border-white/[0.08] dark:bg-gray-950/60 dark:shadow-none overflow-hidden">
-                {/* AI Neural Background Effect */}
-                <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
-                
-                <div className="relative p-8 sm:p-12">
-                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-10">
-                        <div className="flex-1">
-                            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight">
-                                Unified <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">Converter</span>
+        <div className="w-full">
+            <div className="glass-panel relative overflow-hidden transition-all duration-300 ease-apple">
+                <div className="relative p-4 sm:p-5">
+                    <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div className="min-w-0">
+                            <h2 className="text-lg font-black tracking-tight text-gray-900 dark:text-white sm:text-xl">
+                                Unified Converter
                             </h2>
-                            <p className="mt-4 text-lg text-gray-500 dark:text-gray-400 max-w-xl font-medium leading-relaxed">
-                                Fast, private, and secure file processing. 
-                                <span className="text-gray-900 dark:text-white"> 100% in your browser.</span>
+                            <p className="mt-1 text-xs font-medium text-gray-500 dark:text-gray-400 sm:text-sm">
+                                Private file processing. Drop, choose output, run.
                             </p>
                         </div>
-                        
-                        <div className="flex flex-col items-end gap-4">
+
+                        <div className="flex flex-wrap items-center gap-2 md:justify-end">
                             {/* Neural Engine Status Indicator */}
                             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-500 ${
                                 engineStatus === 'ready' 
@@ -275,7 +283,7 @@ export default function UnifiedConverter() {
                             {file && (
                                 <button 
                                     onClick={handleReset}
-                                    className="group/btn flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-red-50 dark:bg-red-500/10 text-xs font-bold text-red-600 hover:bg-red-100 dark:hover:bg-red-500/20 transition-all uppercase tracking-widest"
+                                    className="suggestion-chip !opacity-100 !animate-none text-red-600 dark:text-red-400"
                                 >
                                     <svg className="w-4 h-4 transition-transform group-hover/btn:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
@@ -286,10 +294,9 @@ export default function UnifiedConverter() {
                         </div>
                     </div>
 
-                    <div className="space-y-10">
+                    <div className="space-y-4">
                     {/* AI Enhanced Dropzone */}
                     <div className="relative">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 rounded-[2rem] blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
                         <div className="relative">
                             <Dropzone
                                 onFileSelect={handleFileSelect}
@@ -301,13 +308,13 @@ export default function UnifiedConverter() {
                     </div>
 
                     {file && categoryInfo && (
-                        <div className="grid md:grid-cols-2 gap-6">
+                        <div className="grid gap-4 lg:grid-cols-[minmax(260px,0.75fr)_minmax(0,1fr)]">
                             {/* Input Preview */}
-                            <div className="border-2 border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            <div className="glass-subtle p-3">
+                                <h3 className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
                                     Original File
                                 </h3>
-                                <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
+                                <div className="aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 lg:aspect-square flex items-center justify-center">
                                     {category === 'image' && previewUrl ? (
                                         <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
                                     ) : category === 'video' && previewUrl ? (
@@ -344,7 +351,7 @@ export default function UnifiedConverter() {
                             </div>
 
                             {/* Settings */}
-                            <div className="space-y-6">
+                            <div className="space-y-4">
                                 <div>
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
                                         <label className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.15em]">
@@ -364,8 +371,8 @@ export default function UnifiedConverter() {
                                         </div>
                                     </div>
 
-                                    <div className="max-h-[340px] overflow-y-auto pr-2 -mr-2 custom-scrollbar">
-                                        <div className="grid grid-cols-2 gap-3">
+                                    <div className="max-h-[260px] overflow-y-auto pr-2 -mr-2 custom-scrollbar">
+                                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
                                             {outputFormats
                                                 .filter(fmt => 
                                                     fmt.label.toLowerCase().includes(formatSearchQuery.toLowerCase()) || 
@@ -381,7 +388,7 @@ export default function UnifiedConverter() {
                                                             type="button"
                                                             onClick={() => { setSelectedFormat(fmt.value); if (fmt.value !== 'crop') setCropArea(null); }}
                                                             disabled={isProcessing}
-                                                            className={`p-4 rounded-2xl border-2 text-left transition-all duration-300 group/fmt relative overflow-hidden ${isSelected
+                                                            className={`relative overflow-hidden rounded-xl border p-3 text-left transition-all duration-300 ease-apple group/fmt ${isSelected
                                                                 ? isSpecial
                                                                     ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/10'
                                                                     : 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10'
@@ -544,12 +551,13 @@ export default function UnifiedConverter() {
                                     className="w-full"
                                 >
                                     {isProcessing
-                                        ? (selectedFormat === 'crop' ? 'Cropping...' : selectedFormat === 'resize' ? 'Resizing...' : selectedFormat === 'watermark' ? 'Watermarking...' : 'Converting...')
-                                        : (selectedFormat === 'crop' ? 'Crop Image' : selectedFormat === 'resize' ? 'Resize Image' : selectedFormat === 'watermark' ? 'Add Watermark' : 'Convert')}
+                                        ? (selectedFormat === 'remove-background' ? 'Removing Background...' : selectedFormat === 'crop' ? 'Cropping...' : selectedFormat === 'resize' ? 'Resizing...' : selectedFormat === 'watermark' ? 'Watermarking...' : 'Converting...')
+                                        : (selectedFormat === 'remove-background' ? 'Remove Background with AI' : selectedFormat === 'crop' ? 'Crop Image' : selectedFormat === 'resize' ? 'Resize Image' : selectedFormat === 'watermark' ? 'Add Watermark' : 'Convert')}
                                 </Button>
 
                                 {isProcessing && (
-                                    <div className="space-y-4 pt-4">
+                                    <div className="space-y-3 pt-2">
+                                        <AILoader mode="steps" steps={['Prepare', 'Process', 'Package']} currentStep={progress > 85 ? 2 : progress > 5 ? 1 : 0} />
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
@@ -570,7 +578,7 @@ export default function UnifiedConverter() {
 
                      {/* Result */}
                      {result && (
-                         <div className="border-2 border-green-200 dark:border-green-800 rounded-xl p-4">
+                         <div className="result-card rounded-xl border border-green-200 bg-green-50/80 p-4 dark:border-green-800/60 dark:bg-green-500/10">
                              <div className="flex items-center justify-between mb-3">
                                  <h3 className="text-lg font-semibold text-green-700 dark:text-green-300">
                                      {selectedFormat === 'remove-background' ? '✓ Background Removed' : selectedFormat === 'crop' ? '✓ Image Cropped' : selectedFormat === 'resize' ? '✓ Image Resized' : selectedFormat === 'watermark' ? '✓ Watermark Added' : '✓ Conversion Complete'}
@@ -584,7 +592,7 @@ export default function UnifiedConverter() {
                                      </Button>
                                  </div>
                              </div>
-                             <div className="grid md:grid-cols-2 gap-4">
+                             <div className="grid gap-4 md:grid-cols-2">
                                  <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 flex items-center justify-center">
                                      {category === 'image' && resultPreviewUrl ? (
                                          <img src={resultPreviewUrl} alt="Result" className="max-w-full max-h-full object-contain" />

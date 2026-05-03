@@ -7,6 +7,9 @@ export default {
     ],
     theme: {
         extend: {
+            fontFamily: {
+                sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+            },
             colors: {
                 primary: {
                     50: '#f0f9ff',
@@ -19,7 +22,29 @@ export default {
                     700: '#0369a1',
                     800: '#075985',
                     900: '#0c4a6e',
-                }
+                },
+                /* CSS-var-driven adaptive tokens */
+                surface: {
+                    0: 'var(--surface-0)',
+                    1: 'var(--surface-1)',
+                    2: 'var(--surface-2)',
+                    glass: 'var(--surface-glass)',
+                },
+                accent: {
+                    DEFAULT: 'var(--accent)',
+                    subtle: 'var(--accent-subtle)',
+                },
+            },
+            borderColor: {
+                glass: 'var(--border-glass)',
+            },
+            boxShadow: {
+                'glow': 'var(--accent-glow)',
+                'glow-lg': '0 0 60px rgba(99, 102, 241, 0.2)',
+            },
+            transitionTimingFunction: {
+                'apple': 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+                'sheet': 'cubic-bezier(0.32, 0.72, 0, 1)',
             },
             animation: {
                 'spin-slow': 'spin 3s linear infinite',
@@ -32,6 +57,14 @@ export default {
                 'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
                 'gradient-x': 'gradientX 15s ease infinite',
                 'blob': 'blob 7s infinite',
+                /* New AI-system animations */
+                'orb-breathe': 'orbBreathe 3s ease-in-out infinite',
+                'shimmer': 'shimmer 1.5s linear infinite',
+                'float-gentle': 'floatGentle 15s ease-in-out infinite',
+                'glow-pulse': 'glowPulse 2.5s ease-in-out infinite',
+                'slide-up': 'slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1) forwards',
+                'slide-down': 'slideDown 0.25s ease-in forwards',
+                'panel-in': 'panelIn 0.35s ease-out forwards',
             },
             keyframes: {
                 fadeIn: {
@@ -72,9 +105,43 @@ export default {
                     '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
                     '100%': { transform: 'translate(0px, 0px) scale(1)' },
                 },
+                /* New AI-system keyframes */
+                orbBreathe: {
+                    '0%, 100%': { transform: 'scale(1)', opacity: '0.8' },
+                    '50%': { transform: 'scale(1.15)', opacity: '1' },
+                },
+                shimmer: {
+                    '0%': { transform: 'translateX(-100%)' },
+                    '100%': { transform: 'translateX(100%)' },
+                },
+                floatGentle: {
+                    '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+                    '25%': { transform: 'translate(10px, -15px) scale(1.02)' },
+                    '50%': { transform: 'translate(-5px, -25px) scale(0.98)' },
+                    '75%': { transform: 'translate(-15px, -10px) scale(1.01)' },
+                },
+                glowPulse: {
+                    '0%, 100%': { boxShadow: '0 0 20px var(--accent-subtle, rgba(99,102,241,0.1))' },
+                    '50%': { boxShadow: '0 0 40px var(--accent-subtle, rgba(99,102,241,0.25))' },
+                },
+                slideUp: {
+                    '0%': { transform: 'translateY(100%)', opacity: '0' },
+                    '100%': { transform: 'translateY(0)', opacity: '1' },
+                },
+                slideDown: {
+                    '0%': { transform: 'translateY(0)', opacity: '1' },
+                    '100%': { transform: 'translateY(100%)', opacity: '0' },
+                },
+                panelIn: {
+                    '0%': { opacity: '0', transform: 'translateY(12px) scale(0.98)' },
+                    '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+                },
             },
             backgroundSize: {
                 '200%': '200% 200%',
+            },
+            screens: {
+                'pwa': { raw: '(display-mode: standalone)' },
             },
         },
     },
