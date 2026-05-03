@@ -107,6 +107,15 @@
     touch-action: manipulation;
     min-height: 100%;
     height: auto;
+    
+    /* Hide scrollbars for a native app feel */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  /* Hide scrollbars for Chrome, Safari and Opera */
+  *::-webkit-scrollbar {
+    display: none;
   }
 
   ::selection {
