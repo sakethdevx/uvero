@@ -69,12 +69,6 @@ export default function CompilerHome() {
 
     const { generateShareLink } = useShareableSnippet(handleSnippetRestore);
 
-    // Sync language from URL if provided
-    useEffect(() => {
-        if (urlLang && urlLang !== language) {
-            handleLanguageChange(urlLang);
-        }
-    }, [urlLang, language, handleLanguageChange]);
 
     // Detect system/site dark mode
     useEffect(() => {
@@ -148,6 +142,13 @@ export default function CompilerHome() {
         setTemplateName('hello');
         setOutput(null);
     }, [language, code]);
+
+    // Sync language from URL if provided
+    useEffect(() => {
+        if (urlLang && urlLang !== language) {
+            handleLanguageChange(urlLang);
+        }
+    }, [urlLang, language, handleLanguageChange]);
 
     // Switch template
     const handleTemplateChange = useCallback((tmpl) => {
