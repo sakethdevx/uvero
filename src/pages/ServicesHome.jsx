@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useSEO from '../hooks/useSEO';
 import AmbientBackground from '../components/AmbientBackground';
