@@ -206,8 +206,8 @@ const CAPABILITIES = [
     extractParams: (query) => {
       const langMap = {
         python: /python|py/i, javascript: /javascript|js|node/i, java: /\bjava\b/i,
-        'c++': /c\+\+|cpp/i, go: /\bgo\b|golang/i, rust: /rust/i, ruby: /ruby/i,
-        php: /php/i, typescript: /typescript|ts/i, swift: /swift/i,
+        cpp: /c\+\+|cpp/i, c: /\bc\b/i, go: /\bgo\b|golang/i, rust: /rust/i,
+        ruby: /ruby/i, php: /php/i, typescript: /typescript|ts/i, swift: /swift/i,
       };
       let lang = null;
       for (const [l, regex] of Object.entries(langMap)) {
