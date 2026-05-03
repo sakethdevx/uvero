@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import CodeEditor from '../components/CodeEditor';
 import LanguageSelector from '../components/LanguageSelector';
 import EditorToolbar from '../components/EditorToolbar';
@@ -36,13 +37,15 @@ function saveCodes(codes) {
 }
 
 export default function CompilerHome() {
+    const [searchParams] = useSearchParams();
+    const urlLang = searchParams.get('lang');
     const prefs = loadPrefs();
     const savedCodes = useRef(loadCodes());
 
     // State
-    const [language, setLanguage] = useState(prefs.language || 'python');
+    const [language, setLanguage] = useState(urlLang || prefs.language || 'python');
     const [templateName, setTemplateName] = useState('hello');
-    const [code, setCode] = useState(savedCodes.current[prefs.language || 'python'] || getLanguageTemplate(prefs.language || 'python'));
+    const [code, setCode] = useState(savedCodes.current[urlLang || prefs.language || 'python'] || getLanguageTemplate(urlLang || prefs.language || 'python'));
     const [stdin, setStdin] = useState('');
     const [fontSize, setFontSize] = useState(prefs.fontSize || 14);
     const [output, setOutput] = useState(null);
@@ -65,6 +68,13 @@ export default function CompilerHome() {
     }, []);
 
     const { generateShareLink } = useShareableSnippet(handleSnippetRestore);
+
+    // Sync language from URL if provided
+    useEffect(() => {
+        if (urlLang && urlLang !== language) {
+            handleLanguageChange(urlLang);
+        }
+    }, [urlLang, language, handleLanguageChange]);
 
     // Detect system/site dark mode
     useEffect(() => {

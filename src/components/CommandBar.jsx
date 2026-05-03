@@ -192,7 +192,20 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
       if (mode === 'modal') onClose?.();
     } else {
       // Navigate to page
-      const path = item.navigateTo || item.path;
+      let path = item.navigateTo || item.path;
+      
+      // Append params as query string if present
+      if (item.params && Object.keys(item.params).length > 0) {
+        const urlParams = new URLSearchParams();
+        Object.entries(item.params).forEach(([key, val]) => {
+          if (val) urlParams.append(key, val);
+        });
+        const qs = urlParams.toString();
+        if (qs) {
+          path += (path.includes('?') ? '&' : '?') + qs;
+        }
+      }
+
       if (path) {
         navigate(path);
         setQuery('');
