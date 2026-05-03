@@ -5,6 +5,7 @@ import QRCode from 'qrcode'
 import JSZip from 'jszip'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../../auth/AuthContext'
+import { AIServiceShell, AIBackLink } from '../../../components/AIServiceLayout'
 
 // New component for on-demand image blob loading
 function LazyImg({ img, auth, objectUrlsRef, gridSize }) {
@@ -1053,7 +1054,7 @@ export default function EventDetail() {
     }[gridSize]
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-500">
+        <AIServiceShell>
             {/* ── Toast ── */}
             {notice && (
                 <div className="fixed bottom-6 right-6 z-50 animate-fade-in-up">
@@ -1101,21 +1102,10 @@ export default function EventDetail() {
                 </div>
             )}
 
-            {/* ── Dark Header ── */}
-            <header className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(244,63,94,0.08),transparent_60%)]" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(139,92,246,0.06),transparent_60%)]" />
-
-                <div className="relative max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 sm:py-10">
-                    {/* Back link */}
-                    <Link to="/photodrop" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-white dark:text-gray-500 dark:hover:text-white mb-5 transition-colors group">
-                        <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                        </svg>
-                        Back to PhotoDrop
-                    </Link>
-
-                    <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+            {/* ── Header ── */}
+            <header className="mb-8">
+                <AIBackLink to="/photodrop">Back to PhotoDrop</AIBackLink>
+                <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
                         <div>
                             <div className="flex items-center gap-3 mb-2">
                                 {ownerCheck && (
@@ -1256,10 +1246,8 @@ export default function EventDetail() {
                             )}
                         </div>
                     </div>
-                </div>
-            </header>
-
-            <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+                </header>
+            <div className="py-2">
                 {/* ── Upload Zone ── */}
                 <section className="mb-8">
                     <div
@@ -1713,6 +1701,6 @@ export default function EventDetail() {
                     </main>
                 </div>
             </div>
-        </div>
+        </AIServiceShell>
     )
 }

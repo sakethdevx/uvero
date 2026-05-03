@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import AIPageLayout from '../../../components/AIPageLayout';
+import AILoader from '../../../components/AILoader';
 
 /**
  * QR Redirect Page — shown briefly when a dynamic QR code is scanned.
@@ -29,23 +31,16 @@ export default function QRRedirectPage() {
         resolve();
     }, [code]);
 
-    const centerCls = 'min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4';
-
     if (status === 'loading' || status === 'redirecting') {
         return (
-            <div className={centerCls}>
-                <div className="text-center">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-violet-100 dark:bg-violet-900/20 rounded-2xl mb-4 animate-pulse">
-                        <svg className="w-8 h-8 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
-                    </div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-                        {status === 'redirecting' ? 'Redirecting…' : 'Loading…'}
-                    </h2>
+            <AIPageLayout pattern="focused">
+                <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                    <AILoader mode="orb" label={status === 'redirecting' ? 'Redirecting…' : 'Loading…'} />
                     {destination && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400 break-all max-w-xs mx-auto">{destination}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 font-mono break-all max-w-xs mx-auto mt-2">{destination}</p>
                     )}
                 </div>
-            </div>
+            </AIPageLayout>
         );
     }
 
@@ -57,15 +52,15 @@ export default function QRRedirectPage() {
     const msg = messages[status] || messages.error;
 
     return (
-        <div className={centerCls}>
-            <div className="text-center">
+        <AIPageLayout pattern="focused">
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
                 <p className="text-5xl mb-4">{msg.icon}</p>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{msg.title}</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mx-auto mb-6">{msg.body}</p>
-                <a href="/" className="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition-colors text-sm">
+                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mx-auto mb-8">{msg.body}</p>
+                <a href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white font-bold rounded-2xl hover:bg-gray-50 dark:hover:bg-white/10 transition-all">
                     Go to Uvero
                 </a>
             </div>
-        </div>
+        </AIPageLayout>
     );
 }

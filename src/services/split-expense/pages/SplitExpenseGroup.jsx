@@ -3,6 +3,8 @@ import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../auth/AuthContext'
 import { splitApiDownload, splitApiRequest } from '../api/client'
 import { formatPaise } from '../shared/splitLogic'
+import { AIServiceShell, CompactServiceHeader, AIBackLink } from '../../../components/AIServiceLayout'
+import AILoader from '../../../components/AILoader'
 
 const SPLIT_MODES = [
     { value: 'equal', label: 'Equal' },
@@ -855,36 +857,29 @@ export default function SplitExpenseGroup() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center text-gray-500 dark:text-gray-400">
-                Loading group...
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                <AILoader mode="orb" label="Loading group..." />
             </div>
         )
     }
 
     if (!data?.group) {
         return (
-            <div className="min-h-screen max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+            <AIServiceShell>
                 <div className="rounded-2xl border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 p-6 text-red-700 dark:text-red-300">
                     {error || 'Group not found'}
                 </div>
-                <Link to="/split-expense" className="inline-block mt-6 text-blue-600 dark:text-blue-400 hover:underline">
-                    Back to PaySplit home
-                </Link>
-            </div>
+                <AIBackLink to="/split-expense">Back to PaySplit home</AIBackLink>
+            </AIServiceShell>
         )
     }
 
     const currentMember = data.current_member
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
-            <section className="border-b border-gray-100 dark:border-white/10">
-                <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-                    <Link to="/split-expense" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
-                        ← Back to all groups
-                    </Link>
-
-                    <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <AIServiceShell>
+            <AIBackLink to="/split-expense">Back to all groups</AIBackLink>
+            <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white">{data.group.name}</h1>
                             {data.group.description && (
@@ -951,10 +946,7 @@ export default function SplitExpenseGroup() {
                         <span>•</span>
                         <span className="capitalize">Your role: {currentMember?.role || 'member'}</span>
                     </div>
-                </div>
-            </section>
 
-            <section className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
                 {error && (
                     <div className="mb-6 rounded-xl border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">
                         {error}
@@ -1751,7 +1743,6 @@ export default function SplitExpenseGroup() {
                         </div>
                     </div>
                 </div>
-            </section>
-        </div>
+        </AIServiceShell>
     )
 }

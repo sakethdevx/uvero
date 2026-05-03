@@ -1,6 +1,8 @@
 /* eslint-disable */
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { AIServiceShell, AIBackLink } from '../../../components/AIServiceLayout'
+import AILoader from '../../../components/AILoader'
 import QRCode from 'qrcode'
 import CliCommandList from '../components/CliCommandList'
 import { CLI_INSTALL_COMMAND, getBoardCliCommands } from '../cliCommands'
@@ -201,7 +203,7 @@ export default function ClipboardBoard() {
     /* ── Password overlay ── */
     if (needsPassword) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 flex items-center justify-center px-4 transition-colors">
+            <AIServiceShell className="flex items-center justify-center">
                 <div className="max-w-sm w-full bg-white dark:bg-white/[0.04] backdrop-blur-xl border border-gray-200 dark:border-white/[0.08] rounded-2xl p-8 text-center shadow-xl">
                     <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-500/15 dark:to-indigo-500/15 border border-purple-200 dark:border-purple-500/20 rounded-2xl flex items-center justify-center text-3xl">🔒</div>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Protected Board</h2>
@@ -222,17 +224,16 @@ export default function ClipboardBoard() {
                     >
                         Unlock
                     </button>
-                    <Link to="/clipboard" className="block mt-4 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">← Back to Clipboard</Link>
                 </div>
-            </div>
+            </AIServiceShell>
         )
     }
 
     /* ── Loading ── */
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 flex items-center justify-center transition-colors">
-                <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-800 border-t-emerald-500 rounded-full animate-spin" />
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                <AILoader mode="orb" label="Loading board..." />
             </div>
         )
     }
@@ -243,14 +244,11 @@ export default function ClipboardBoard() {
     const lineCount = content ? content.split('\n').length : 0
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 text-gray-900 dark:text-white transition-colors duration-500">
-            {/* ── Header ── */}
-            <header className="sticky top-0 z-40 bg-white/85 dark:bg-gray-950/85 backdrop-blur-xl border-b border-gray-200/60 dark:border-white/[0.06]">
-                <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <AIServiceShell>
+            <header className="sticky top-0 z-40 bg-white/85 dark:bg-gray-950/85 backdrop-blur-xl border-b border-gray-200/60 dark:border-white/[0.06] -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+                <div className="py-3 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0">
-                        <Link to="/clipboard" className="text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors flex-shrink-0">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
-                        </Link>
+                        <AIBackLink to="/clipboard" />
                         <div className="min-w-0">
                             <h1 className="text-lg font-bold truncate">/{boardId}</h1>
                             <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -322,8 +320,8 @@ export default function ClipboardBoard() {
 
                 {/* Settings panel */}
                 {showSettings && (
-                    <div className="border-t border-gray-100 dark:border-white/5 bg-gray-50/80 dark:bg-gray-900/60 backdrop-blur-sm py-5 px-4 shadow-inner animate-fade-in-down">
-                        <div className="max-w-7xl mx-auto">
+                    <div className="border-t border-gray-100 dark:border-white/5 bg-gray-50/80 dark:bg-gray-900/60 backdrop-blur-sm py-5 px-4 shadow-inner animate-fade-in-down -mx-4 sm:-mx-6 lg:-mx-8">
+                        <div>
                             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                 {/* Password */}
                                 <div>
@@ -388,7 +386,7 @@ export default function ClipboardBoard() {
             </header>
 
             {/* ── Editor ── */}
-            <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="py-4">
                 {error && (
                     <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400">
                         {error}
@@ -473,6 +471,6 @@ export default function ClipboardBoard() {
                     </div>
                 </div>
             </div>
-        </div>
+        </AIServiceShell>
     )
 }

@@ -10,6 +10,7 @@ import CommandBar from './components/CommandBar';
 import BottomNav from './components/BottomNav';
 import HistorySheet from './components/HistorySheet';
 import FavoritesSheet from './components/FavoritesSheet';
+import AmbientBackground from './components/AmbientBackground';
 import AILoader from './components/AILoader';
 import { useAuth } from './auth/AuthContext';
 import { signOut } from './auth/authService';
@@ -109,7 +110,8 @@ function AppContent() {
   }, [isHomepage, navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      <AmbientBackground state={interactionState} />
       {/* ══════ Glass Header ══════ */}
       <header className={`sticky top-0 z-50 glass-panel rounded-none transition-ui ${fadeClass}`}
         style={{

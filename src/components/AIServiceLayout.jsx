@@ -2,17 +2,7 @@ import { Link } from 'react-router-dom';
 
 export function AIServiceShell({ children, className = '', maxWidth = 'max-w-7xl' }) {
   return (
-    <div className={`min-h-screen bg-surface-0 text-gray-900 transition-colors duration-500 dark:text-white ${className}`}>
-      <div className="pointer-events-none fixed inset-0 opacity-60">
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(180deg, var(--accent-subtle), transparent 34%), radial-gradient(circle at 50% 0%, var(--surface-1), transparent 42%)',
-          }}
-        />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent dark:via-white/10" />
-      </div>
+    <div className={`w-full text-gray-900 transition-colors duration-500 dark:text-white ${className}`}>
       <main className={`relative mx-auto ${maxWidth} px-3 pb-6 pt-4 sm:px-5 sm:pb-8 sm:pt-5 lg:px-6`}>
         {children}
       </main>
