@@ -283,14 +283,32 @@ function levenshtein(a, b) {
   return dp[m][n];
 }
 
-function fuzzyScore(query, target) {
-  const q = query.toLowerCase();
-  const t = target.toLowerCase();
-  if (t.includes(q)) return 1;
-  if (q.includes(t)) return 0.8;
+function calculateScore(query, target) {
+  const q = query.toLowerCase().trim();
+  const t = target.toLowerCase().trim();
+  
+  if (!q || !t) return 0;
+
+  // 1. Exact match (highest priority)
+  if (q === t) return 1.0;
+  
+  // 2. Starts-with match
+  if (t.startsWith(q)) {
+    // Prefer shorter strings that start with the query
+    return 0.8 + (q.length / t.length) * 0.1; // Range: 0.8 - 0.9
+  }
+  
+  // 3. Includes match
+  if (t.includes(q)) {
+    return 0.6 + (q.length / t.length) * 0.1; // Range: 0.6 - 0.7
+  }
+  
+  // 4. Fuzzy match (fallback)
   const dist = levenshtein(q, t);
   const maxLen = Math.max(q.length, t.length);
-  return Math.max(0, 1 - dist / maxLen);
+  const fuzzy = Math.max(0, 1 - dist / maxLen);
+  
+  return fuzzy * 0.4; // Range: 0.0 - 0.4
 }
 
 // ─── Normalize query: expand synonyms to canonical verbs ───
@@ -337,15 +355,22 @@ export function resolveIntent(rawQuery) {
   // 2. Fuzzy match against searchIndex
   const scored = SEARCH_INDEX
     .map(item => {
-      const titleScore = fuzzyScore(rawQuery, item.title);
-      const keywordScores = item.keywords.map(k => fuzzyScore(rawQuery, k));
+      const titleScore = calculateScore(rawQuery, item.title);
+      const keywordScores = item.keywords.map(k => calculateScore(rawQuery, k));
       const bestKeyword = Math.max(...keywordScores, 0);
-      const score = Math.max(titleScore * 0.7, bestKeyword * 0.5) + (titleScore > 0.5 ? 0.2 : 0);
+      
+      // Exact keyword matches should be as strong as exact title matches
+      // but otherwise slightly prefer title matches
+      const score = Math.max(titleScore, bestKeyword === 1.0 ? 1.0 : bestKeyword * 0.9);
       return { ...item, score };
     })
-    .filter(item => item.score > 0.3)
+    .filter(item => item.score > 0.1)
     .sort((a, b) => b.score - a.score)
     .slice(0, 8);
+
+  // DEBUGGING: Log query, matched item, and score
+  console.log(`[Search Debug] Query: "${rawQuery}"`);
+  scored.slice(0, 4).forEach(item => console.log(`  - ${item.title}: score=${item.score.toFixed(3)}`));
 
   if (scored.length > 0 && scored[0].score > 0.6) {
     // High-confidence fuzzy match — find matching capability
@@ -399,9 +424,9 @@ export function resolveIntent(rawQuery) {
 function getRelatedSuggestions(capId, query) {
   return SEARCH_INDEX
     .filter(item => {
-      const score = fuzzyScore(query, item.title);
-      const keywordScores = item.keywords.map(k => fuzzyScore(query, k));
-      return Math.max(score, ...keywordScores) > 0.25;
+      const score = calculateScore(query, item.title);
+      const keywordScores = item.keywords.map(k => calculateScore(query, k));
+      return Math.max(score, ...keywordScores) > 0.2;
     })
     .slice(0, 5)
     .map(s => ({
