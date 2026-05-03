@@ -1,51 +1,32 @@
 import { Link } from 'react-router-dom';
+import AIPageLayout from '../components/AIPageLayout';
 
 /**
  * Privacy Policy Page
  */
 export default function Privacy() {
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-500">
-            {/* Background decorations */}
-            <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                <div className="absolute left-[-10rem] top-16 h-96 w-96 rounded-full bg-blue-500/8 blur-3xl" />
-                <div className="absolute right-[-8rem] top-8 h-80 w-80 rounded-full bg-violet-500/8 blur-3xl" />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent" />
+        <AIPageLayout pattern="calm" maxWidth="max-w-3xl" backTo="/" backLabel="Back to Hub">
+            {/* Hero Section */}
+            <div className="mb-10 sm:mb-12">
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-accent dark:text-accent-blue">Legal</p>
+                <h1 className="mt-3 text-3xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+                    Privacy Protocol
+                </h1>
+                <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Last updated: February 4, 2026</p>
+
+                <div className="mt-8 rounded-2xl border border-emerald-200/80 bg-emerald-50/50 p-5 dark:border-emerald-500/20 dark:bg-emerald-500/5">
+                    <h2 className="text-sm font-bold text-emerald-900 dark:text-emerald-300 uppercase tracking-wide">
+                        🔒 Local Processing Guarantee
+                    </h2>
+                    <p className="mt-2 text-sm leading-relaxed text-emerald-800 dark:text-emerald-200/80">
+                        <strong>Your files never leave your device.</strong> All processing happens entirely in your browser. We don't have servers to store your files, and we never will. This is our core promise.
+                    </p>
+                </div>
             </div>
 
-            <div className="relative max-w-4xl mx-auto px-4 pt-16 pb-20 sm:px-6 lg:px-8">
-                {/* Back Button */}
-                <Link
-                    to="/"
-                    className="inline-flex items-center gap-2 rounded-full border border-gray-200/80 bg-white/80 px-4 py-2 text-sm font-medium text-gray-600 shadow-sm transition-colors hover:bg-gray-100 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-gray-300 dark:hover:bg-white/[0.08]"
-                >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Back to Home
-                </Link>
-
-                {/* Hero card */}
-                <div className="mt-8 rounded-3xl border border-gray-200/80 bg-gradient-to-br from-blue-50 via-white to-violet-50 p-8 shadow-xl shadow-blue-100/40 dark:border-white/[0.08] dark:from-blue-500/10 dark:via-gray-950 dark:to-violet-500/10 dark:shadow-none sm:p-10">
-                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-blue-600 dark:text-blue-300">Legal</p>
-                    <h1 className="mt-4 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-                        Privacy Policy
-                    </h1>
-                    <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Last updated: February 4, 2026</p>
-
-                    <div className="mt-6 rounded-2xl border border-emerald-200/80 bg-emerald-50/80 p-5 dark:border-emerald-500/20 dark:bg-emerald-500/10">
-                        <h2 className="text-base font-bold text-emerald-900 dark:text-emerald-300">
-                            🔒 Our Privacy Commitment
-                        </h2>
-                        <p className="mt-2 text-sm leading-relaxed text-emerald-800 dark:text-emerald-200">
-                            <strong>Your files never leave your device.</strong> All processing happens entirely in your browser. We don't have servers to store your files, and we never will. This is our core promise.
-                        </p>
-                    </div>
-                </div>
-
-                {/* Content card */}
-                <div className="mt-6 rounded-3xl border border-gray-200/80 bg-white p-8 shadow-xl shadow-gray-100/40 dark:border-white/[0.08] dark:bg-gray-900/40 dark:shadow-none sm:p-10">
-                    <div className="space-y-10">
+            {/* Content Body */}
+            <div className="space-y-12">
 
                         {/* How It Works */}
                         <section>
@@ -244,22 +225,20 @@ export default function Privacy() {
                                 If you have any questions about our privacy practices, please feel free to reach out. We're committed to transparency and your privacy.
                             </p>
                         </section>
-                    </div>
-                </div>
-
-                {/* Bottom CTA */}
-                <div className="mt-8 text-center">
-                    <Link
-                        to="/"
-                        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
-                    >
-                        Start Using Our Tools
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                    </Link>
-                </div>
             </div>
-        </div>
+
+            {/* Bottom CTA */}
+            <div className="mt-16 text-center pt-8 border-t border-gray-100 dark:border-white/[0.06]">
+                <Link
+                    to="/"
+                    className="inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-accent-violet"
+                >
+                    Return to Hub
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                </Link>
+            </div>
+        </AIPageLayout>
     );
 }
