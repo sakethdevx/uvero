@@ -426,116 +426,48 @@
     filter: saturate(1.1);
   }
 
-  .ambient-background::before {
-    content: '';
+
+
+  .apple-aura {
     position: absolute;
-    left: var(--ambient-focus-x);
-    top: var(--ambient-focus-y);
-    width: min(44rem, 92vw);
-    height: min(24rem, 48vh);
-    border-radius: 9999px;
-    pointer-events: none;
-    background:
-      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--ambient-blue) 72%, transparent), transparent 44%),
-      radial-gradient(circle at 46% 48%, color-mix(in srgb, var(--ambient-violet) 70%, transparent), transparent 52%),
-      radial-gradient(circle at 58% 54%, color-mix(in srgb, var(--ambient-indigo) 58%, transparent), transparent 62%);
-    filter: blur(54px);
-    opacity: var(--ambient-focus-opacity);
-    transform: translate3d(-50%, -50%, 0) scale(var(--ambient-focus-scale));
-    transform-origin: center;
-    transition:
-      top 0.75s cubic-bezier(0.25, 0.1, 0.25, 1),
-      opacity 0.7s ease,
-      transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
-  }
-
-  .ambient-background[data-ambient-state='result']::before {
-    animation: ambientResultBloom 2.2s ease-out;
-  }
-
-  .ambient-background[data-ambient-state='processing']::before {
-    animation: ambientProcessingFocus 4.8s ease-in-out infinite;
-  }
-
-  .ambient-layer,
-  .ambient-field {
-    position: absolute;
-    pointer-events: none;
-    transform: translateZ(0);
-  }
-
-  .ambient-layer {
-    border-radius: 9999px;
-    filter: blur(76px);
-  }
-
-  .ambient-layer-orange {
-    width: min(62rem, 90vw);
-    height: min(42rem, 86vh);
     left: 50%;
-    top: -22%;
-    background: radial-gradient(circle, var(--ambient-orange) 0%, transparent 68%);
-    opacity: calc(0.74 * var(--ambient-intensity));
-    animation: ambientIndigoFlow 21s ease-in-out infinite;
+    top: var(--ambient-focus-y, 48%);
+    transform: translate(-50%, -50%) scale(var(--ambient-focus-scale, 1));
+    width: min(50rem, 100vw);
+    height: min(40rem, 90vh);
+    background: 
+      radial-gradient(circle at 50% 30%, var(--ambient-orange) 0%, transparent 45%),
+      radial-gradient(circle at 65% 60%, var(--ambient-magenta) 0%, transparent 50%),
+      radial-gradient(circle at 35% 60%, var(--ambient-violet) 0%, transparent 50%),
+      radial-gradient(circle at 50% 70%, var(--ambient-blue) 0%, transparent 60%);
+    filter: blur(64px);
+    opacity: var(--ambient-field-opacity, 0.45);
+    border-radius: 50%;
+    animation: auraBreathe 12s ease-in-out infinite alternate;
+    transition: all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+    transform-origin: center center;
+    pointer-events: none;
   }
 
-  .ambient-layer-magenta {
-    width: min(48rem, 80vw);
-    height: min(38rem, 78vh);
-    right: -18%;
-    top: 14%;
-    background: radial-gradient(circle, var(--ambient-magenta) 0%, transparent 70%);
-    opacity: calc(0.62 * var(--ambient-intensity));
-    animation: ambientVioletFloat 24s ease-in-out infinite;
+  @keyframes auraBreathe {
+    0% { transform: translate(-50%, -50%) scale(var(--ambient-focus-scale, 1)) rotate(0deg); }
+    100% { transform: translate(-50%, -48%) scale(calc(var(--ambient-focus-scale, 1) * 1.05)) rotate(2deg); }
   }
 
-  .ambient-layer-blue {
-    width: min(52rem, 90vw);
-    height: min(40rem, 82vh);
-    right: -16%;
-    bottom: -28%;
-    background: radial-gradient(circle, var(--ambient-blue) 0%, transparent 72%);
-    opacity: calc(0.58 * var(--ambient-intensity));
-    animation: ambientBlueCurrent 18s ease-in-out infinite;
+  .ambient-background[data-ambient-state='focused'] .apple-aura {
+    --ambient-focus-scale: 1.15;
+    --ambient-field-opacity: 0.65;
   }
 
-  .ambient-layer-violet {
-    width: min(38rem, 84vw);
-    height: min(32rem, 66vh);
-    left: -18%;
-    bottom: 6%;
-    background: radial-gradient(circle, var(--ambient-violet) 0%, transparent 72%);
-    opacity: calc(0.46 * var(--ambient-intensity));
-    animation: ambientPinkDrift 25s ease-in-out infinite;
+  .ambient-background[data-ambient-state='processing'] .apple-aura {
+    --ambient-focus-scale: 1.25;
+    --ambient-field-opacity: 0.75;
+    animation: auraProcess 2s ease-in-out infinite alternate;
   }
 
-  .ambient-field {
-    inset: -18%;
-    background:
-      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--ambient-blue) 66%, transparent), transparent 24%),
-      radial-gradient(circle at 44% 47%, color-mix(in srgb, var(--ambient-magenta) 66%, transparent), transparent 31%),
-      radial-gradient(circle at 58% 58%, color-mix(in srgb, var(--ambient-orange) 58%, transparent), transparent 36%),
-      radial-gradient(circle at 34% 62%, color-mix(in srgb, var(--ambient-violet) 58%, transparent), transparent 34%);
-    filter: blur(58px);
-    opacity: var(--ambient-field-opacity);
-    mask-image: radial-gradient(circle at var(--ambient-focus-x) var(--ambient-focus-y), black 0%, rgba(0, 0, 0, 0.72) 34%, transparent 78%);
-    -webkit-mask-image: radial-gradient(circle at var(--ambient-focus-x) var(--ambient-focus-y), black 0%, rgba(0, 0, 0, 0.72) 34%, transparent 78%);
-    animation: ambientFieldBlend 22s ease-in-out infinite;
-  }
-
-  .ambient-background[data-ambient-state='processing'] .ambient-field {
-    animation: ambientFieldBlend 22s ease-in-out infinite, ambientProcessingPulse 3.8s ease-in-out infinite;
-  }
-
-  @media (max-width: 640px) {
-    .ambient-layer {
-      filter: blur(58px);
-    }
-
-    .ambient-field {
-      filter: blur(46px);
-      opacity: calc(var(--ambient-field-opacity) * 0.94);
-    }
+  @keyframes auraProcess {
+    0% { transform: translate(-50%, -50%) scale(var(--ambient-focus-scale, 1)); filter: blur(64px) saturate(1); }
+    100% { transform: translate(-50%, -50%) scale(calc(var(--ambient-focus-scale, 1) * 1.05)); filter: blur(72px) saturate(1.2); }
   }
 
   .premium-home::before {

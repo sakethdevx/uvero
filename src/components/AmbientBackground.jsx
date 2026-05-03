@@ -9,11 +9,7 @@ export default function AmbientBackground({ state = 'idle' }) {
       data-ambient-state={state}
       aria-hidden="true"
     >
-      <div className="ambient-layer ambient-layer-orange" />
-      <div className="ambient-layer ambient-layer-magenta" />
-      <div className="ambient-layer ambient-layer-violet" />
-      <div className="ambient-layer ambient-layer-blue" />
-      <div className="ambient-field" />
+      <div className="apple-aura" />
     </div>
   );
 }
