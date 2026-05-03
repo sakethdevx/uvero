@@ -96,7 +96,9 @@
    ═══════════════════════════════════════════════════════ */
 
 @layer base {
+  html,
   body {
+    background-color: var(--surface-0);
     @apply bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';

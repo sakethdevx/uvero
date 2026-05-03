@@ -79,6 +79,7 @@ function AppContent() {
           borderTop: 'none',
           borderLeft: 'none',
           borderRight: 'none',
+          paddingTop: 'env(safe-area-inset-top, 0px)',
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
