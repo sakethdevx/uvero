@@ -379,15 +379,25 @@ export function resolveIntent(rawQuery) {
       return false;
     });
     
+    // Use matched capability or create a synthetic one for direct page matches
+    const capability = matchedCap || {
+      id: scored[0].id,
+      label: scored[0].title,
+      icon: scored[0].icon,
+      tier: 3,
+      navigateTo: scored[0].path,
+      description: () => scored[0].description,
+    };
+
     return {
-      capability: matchedCap || null,
+      capability,
       params: {},
       confidence: scored[0].score,
       label: scored[0].title,
       description: scored[0].description,
-      tier: matchedCap?.tier || 3,
-      handler: matchedCap?.handler || null,
-      navigateTo: scored[0].path,
+      tier: capability.tier,
+      handler: capability.handler || null,
+      navigateTo: capability.navigateTo,
       suggestions: scored.slice(1).map(s => ({
         id: s.id,
         title: s.title,
