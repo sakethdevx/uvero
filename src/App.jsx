@@ -110,10 +110,10 @@ function AppContent() {
   }, [isHomepage, navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-x-hidden">
       <AmbientBackground state={interactionState} />
       {/* ══════ Glass Header ══════ */}
-      <header className={`sticky top-0 z-50 glass-panel rounded-none transition-ui ${fadeClass}`}
+      <header className={`fixed top-0 left-0 right-0 z-50 glass-panel rounded-none transition-ui ${fadeClass}`}
         style={{
           borderRadius: 0,
           borderTop: 'none',
@@ -175,7 +175,7 @@ function AppContent() {
       </header>
 
       {/* ══════ Main Content ══════ */}
-      <main id="main" className="flex-1 pb-20 md:pb-0">
+      <main id="main" className="flex-1 pb-20 md:pb-0" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}>
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/" element={<ServicesHome />} />
