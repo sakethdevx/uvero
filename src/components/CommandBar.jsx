@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { resolveIntent, PLACEHOLDER_INTENTS } from '../lib/IntentEngine';
+import { useInteraction } from '../lib/InteractionContext';
 
 // Example prompts shown in the "Try:" row when the bar is focused and empty
 const QUICK_EXAMPLES = [
@@ -19,9 +20,9 @@ const QUICK_EXAMPLES = [
  * @param {boolean}  isOpen         - For modal mode only
  * @param {function} onClose        - For modal mode only
  * @param {function} onIntentResolved - Callback when a Tier 1/2 intent is resolved (opens ActionPanel)
- * @param {function} onInteractionStateChange - Emits 'idle' | 'typing' | 'result' for ambient color intensity
+ * @param {function} onIntentResolved - Callback when a Tier 1/2 intent is resolved (opens ActionPanel)
  */
-export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onIntentResolved, onInteractionStateChange, externalQuery, onExternalQueryConsumed }) {
+export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onIntentResolved, externalQuery, onExternalQueryConsumed }) {
   const [query, setQuery] = useState('');
   const [result, setResult] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -31,14 +32,19 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
   const inputRef = useRef(null);
   const navigate = useNavigate();
   const debounceRef = useRef(null);
+  const { setInteractionState } = useInteraction();
 
   useEffect(() => {
-    if (!query.trim()) {
-      onInteractionStateChange?.('idle');
+    if (!isFocused && !query.trim()) {
+      setInteractionState('idle');
       return;
     }
-    onInteractionStateChange?.(result ? 'result' : 'typing');
-  }, [query, result, onInteractionStateChange]);
+    if (isFocused && !query.trim()) {
+      setInteractionState('focused');
+      return;
+    }
+    setInteractionState(result ? 'result' : 'processing');
+  }, [query, result, isFocused, setInteractionState]);
 
   // Cycle placeholders with a smooth fade
   useEffect(() => {

@@ -14,6 +14,7 @@ import { useAuth } from './auth/AuthContext';
 import { signOut } from './auth/authService';
 import { getMaintenanceConfig } from './config/maintenance';
 import { resolveIntent } from './lib/IntentEngine';
+import { InteractionProvider, useInteraction } from './lib/InteractionContext';
 
 const CompilerHome = lazy(() => import('./services/compiler/pages/CompilerHome'));
 const ToolboxHome = lazy(() => import('./services/toolbox/pages/ToolboxHome'));
@@ -50,6 +51,10 @@ function AppContent() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { interactionState } = useInteraction();
+
+  const isFaded = interactionState !== 'idle';
+  const fadeClass = isFaded ? 'ui-faded' : '';
 
   // Handle Cmd+K / Ctrl+K
   useEffect(() => {
@@ -73,7 +78,7 @@ function AppContent() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* ══════ Glass Header ══════ */}
-      <header className="sticky top-0 z-50 glass-panel rounded-none"
+      <header className={`sticky top-0 z-50 glass-panel rounded-none transition-ui ${fadeClass}`}
         style={{
           borderRadius: 0,
           borderTop: 'none',
@@ -194,7 +199,7 @@ function AppContent() {
       />
 
       {/* ══════ Minimal Footer (hidden on mobile homepage) ══════ */}
-      <footer className={`mt-auto ${isHomepage ? 'hidden md:block' : ''}`}>
+      <footer className={`mt-auto transition-ui ${fadeClass} ${isHomepage ? 'hidden md:block' : ''}`}>
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs"
             style={{ color: 'var(--text-secondary)' }}
@@ -210,10 +215,12 @@ function AppContent() {
       </footer>
 
       {/* ══════ Bottom Nav (Mobile) ══════ */}
-      <BottomNav
-        onCommandPress={() => setIsSearchOpen(true)}
-        onHistoryPress={() => setIsHistoryOpen(true)}
-      />
+      <div className={`transition-ui ${fadeClass}`}>
+        <BottomNav
+          onCommandPress={() => setIsSearchOpen(true)}
+          onHistoryPress={() => setIsHistoryOpen(true)}
+        />
+      </div>
     </div>
   );
 }
@@ -229,7 +236,9 @@ function App() {
     <Router>
       <SessionProvider>
         <ModeProvider>
-          <AppContent />
+          <InteractionProvider>
+            <AppContent />
+          </InteractionProvider>
         </ModeProvider>
       </SessionProvider>
     </Router>

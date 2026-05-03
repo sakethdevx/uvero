@@ -344,10 +344,10 @@
   }
 
   .ambient-background {
-    --gradient-intensity: 1;
+    --gradient-intensity: 0.75;
     --ambient-intensity: var(--gradient-intensity);
-    --ambient-field-opacity: 0.46;
-    --ambient-focus-opacity: 0.48;
+    --ambient-field-opacity: 0.35;
+    --ambient-focus-opacity: 0.36;
     --ambient-focus-scale: 1;
     --ambient-focus-x: 50%;
     --ambient-focus-y: 48%;
@@ -355,32 +355,51 @@
     isolation: isolate;
     opacity: 1;
     transform: translateZ(0);
-    transition: opacity 0.6s ease, filter 0.6s ease;
+    transition: opacity 0.6s cubic-bezier(0.25, 0.1, 0.25, 1), filter 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
-  .ambient-background[data-ambient-state='typing'] {
-    --gradient-intensity: 1.16;
-    --ambient-field-opacity: 0.56;
-    --ambient-focus-opacity: 0.62;
-    --ambient-focus-scale: 1.08;
+  .dark .ambient-background::after {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    background: #000000;
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(circle at 50% 48%, transparent 15%, black 70%);
+    -webkit-mask-image: radial-gradient(circle at 50% 48%, transparent 15%, black 70%);
+  }
+
+  .dark .ambient-background[data-ambient-state='focused']::after,
+  .dark .ambient-background[data-ambient-state='processing']::after,
+  .dark .ambient-background[data-ambient-state='result']::after {
+    opacity: 1;
+  }
+
+  .ambient-background[data-ambient-state='focused'] {
+    --gradient-intensity: 0.85;
+    --ambient-field-opacity: 0.42;
+    --ambient-focus-opacity: 0.52;
+    --ambient-focus-scale: 1.06;
     --ambient-focus-y: 49%;
   }
 
   .ambient-background[data-ambient-state='result'] {
-    --gradient-intensity: 1.08;
-    --ambient-field-opacity: 0.52;
-    --ambient-focus-opacity: 0.7;
-    --ambient-focus-scale: 1.12;
-    --ambient-focus-y: 51%;
+    --gradient-intensity: 0.85;
+    --ambient-field-opacity: 0.4;
+    --ambient-focus-opacity: 0.55;
+    --ambient-focus-scale: 1.08;
+    --ambient-focus-y: 50%;
   }
 
   .ambient-background[data-ambient-state='processing'] {
-    --gradient-intensity: 1.28;
-    --ambient-field-opacity: 0.64;
-    --ambient-focus-opacity: 0.78;
-    --ambient-focus-scale: 1.22;
-    --ambient-focus-y: 56%;
-    filter: saturate(1.16);
+    --gradient-intensity: 1.0;
+    --ambient-field-opacity: 0.48;
+    --ambient-focus-opacity: 0.62;
+    --ambient-focus-scale: 1.15;
+    --ambient-focus-y: 54%;
+    filter: saturate(1.1);
   }
 
   .ambient-background::before {
@@ -655,6 +674,8 @@
   .command-bar-active {
     border-color: color-mix(in srgb, var(--accent-ring) 74%, var(--border-glass));
     box-shadow: var(--command-focus-shadow);
+    transform: scale(1.02);
+    z-index: 10;
     animation: commandFocusPulse 5.5s ease-in-out infinite;
   }
 
@@ -790,6 +811,15 @@
    ═══════════════════════════════════════════════════════ */
 
 @layer utilities {
+  .ui-faded {
+    opacity: 0.15;
+    pointer-events: none;
+  }
+
+  .transition-ui {
+    transition: opacity 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
   .max-w-7xl {
     max-width: 100%;
   }
