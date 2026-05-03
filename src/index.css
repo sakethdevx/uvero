@@ -594,9 +594,7 @@
   }
 
   .premium-home-interacting .command-shell {
-    opacity: 0.66;
-    transform: translateY(-2px) scale(0.965);
-    filter: saturate(0.88);
+    transform: translateY(-2px);
   }
 
   .premium-home-interacting .command-bar {
