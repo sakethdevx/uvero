@@ -45,7 +45,7 @@ export default function Login() {
             {/* Header */}
             <div className="text-center sm:text-left mb-6">
                 <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-accent dark:text-accent-blue">Neural OS</p>
-                <h1 className="mt-2 text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white">Access Portal</h1>
+                <h1 className="mt-2 text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white">Sign In</h1>
                 <p className="mt-1.5 text-xs sm:text-sm text-gray-500 dark:text-gray-400">Authenticate to sync your session.</p>
             </div>
 
