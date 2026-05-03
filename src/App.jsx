@@ -9,6 +9,7 @@ import Maintenance from './pages/Maintenance';
 import CommandBar from './components/CommandBar';
 import BottomNav from './components/BottomNav';
 import HistorySheet from './components/HistorySheet';
+import FavoritesSheet from './components/FavoritesSheet';
 import AILoader from './components/AILoader';
 import { useAuth } from './auth/AuthContext';
 import { signOut } from './auth/authService';
@@ -49,6 +50,7 @@ const Profile = lazy(() => import('./pages/Profile'));
 function AppContent() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { interactionState } = useInteraction();
@@ -74,6 +76,37 @@ function AppContent() {
   }, [location.pathname]);
 
   const isHomepage = location.pathname === '/';
+
+  // Central Intent Trigger Pipeline
+  const triggerIntent = useCallback((item) => {
+    if (!item.capability) return;
+
+    // Resolve the full capability object if we only have the ID
+    const result = resolveIntent(item.action || item.label || '');
+    
+    // If it's a Tier 1 or 2 (inline), trigger the ActionPanel on homepage
+    if (result.capability && result.tier <= 2) {
+      if (!isHomepage) navigate('/');
+      
+      // Dispatch custom event that ServicesHome listens to
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('uvero-trigger-intent', { 
+          detail: {
+            capability: result.capability,
+            params: item.params || result.params || {},
+            label: item.action || item.label,
+            description: item.description,
+            tier: result.tier,
+            handler: result.handler,
+            navigateTo: result.navigateTo,
+          } 
+        }));
+      }, 50);
+    } else if (result.navigateTo || item.navigateTo) {
+      // Tier 3 or direct navigation
+      navigate(result.navigateTo || item.navigateTo);
+    }
+  }, [isHomepage, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -185,17 +218,14 @@ function AppContent() {
       <HistorySheet
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
-        onRerun={(item) => {
-          // Re-resolve the action's capability and trigger inline
-          if (item.capability) {
-            const result = resolveIntent(item.action);
-            if (result.capability && result.handler && result.tier <= 2) {
-              navigate('/');
-            } else if (result.navigateTo) {
-              navigate(result.navigateTo);
-            }
-          }
-        }}
+        onRerun={triggerIntent}
+      />
+
+      {/* ══════ Favorites Sheet ══════ */}
+      <FavoritesSheet
+        isOpen={isFavoritesOpen}
+        onClose={() => setIsFavoritesOpen(false)}
+        onRerun={triggerIntent}
       />
 
       {/* ══════ Minimal Footer (hidden on mobile homepage) ══════ */}
@@ -219,6 +249,7 @@ function AppContent() {
         <BottomNav
           onCommandPress={() => setIsSearchOpen(true)}
           onHistoryPress={() => setIsHistoryOpen(true)}
+          onFavoritesPress={() => setIsFavoritesOpen(true)}
         />
       </div>
     </div>

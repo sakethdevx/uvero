@@ -13,7 +13,7 @@ const MAX_HISTORY = 50;
 const HISTORY_KEY = 'uvero_action_history';
 const FAVORITES_KEY = 'uvero_favorites';
 
-// ─── History persistence ───
+// ─── Persistence Utilities ───
 function loadHistory() {
   try {
     const raw = localStorage.getItem(HISTORY_KEY);
@@ -26,7 +26,7 @@ function loadHistory() {
 function saveHistory(history) {
   try {
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, MAX_HISTORY)));
-  } catch { /* quota exceeded — silently fail */ }
+  } catch { /* quota exceeded */ }
 }
 
 function loadFavorites() {
@@ -44,22 +44,79 @@ function saveFavorites(favs) {
   } catch { /* silently fail */ }
 }
 
+/**
+ * Stable Hash for capability params
+ */
+function getCapabilityIdentity(capabilityId, params = {}) {
+  if (!capabilityId) return null;
+  // Create a stable string representation of params
+  const paramStr = JSON.stringify(Object.keys(params).sort().reduce((obj, key) => {
+    obj[key] = params[key];
+    return obj;
+  }, {}));
+  return `${capabilityId}:${paramStr}`;
+}
+
 export function SessionProvider({ children }) {
   // ── Session state (in-memory, current session) ──
   const [session, setSession] = useState({
-    lastInput: null,      // { type: 'file'|'text'|'url', data: File|string, name: string }
-    lastAction: null,     // { capability: string, params: {}, label: string }
-    lastResult: null,     // { type: 'file'|'qr'|'code'|'text', data: any, meta: {} }
+    lastInput: null,
+    lastAction: null,
+    lastResult: null,
     timestamp: null,
   });
 
-  // ── History (localStorage, persistent) ──
+  // ── History & Favorites (localStorage, persistent) ──
   const [history, setHistory] = useState(loadHistory);
   const [favorites, setFavorites] = useState(loadFavorites);
 
-  // Save history whenever it changes
-  const historyRef = useRef(history);
-  historyRef.current = history;
+  // ── Rehydration Logic (PWA & Cross-tab) ──
+  const rehydrate = useCallback(() => {
+    const nextFavorites = loadFavorites();
+    const nextHistory = loadHistory();
+
+    // Only update if actually different to avoid unnecessary re-renders
+    setFavorites(prev => {
+      const isSame = JSON.stringify(prev) === JSON.stringify(nextFavorites);
+      return isSame ? prev : nextFavorites;
+    });
+
+    setHistory(prev => {
+      const isSame = JSON.stringify(prev) === JSON.stringify(nextHistory);
+      return isSame ? prev : nextHistory;
+    });
+  }, []);
+
+  // Debounced rehydration
+  const rehydrateTimer = useRef(null);
+  const triggerRehydrate = useCallback(() => {
+    if (rehydrateTimer.current) clearTimeout(rehydrateTimer.current);
+    rehydrateTimer.current = setTimeout(rehydrate, 80);
+  }, [rehydrate]);
+
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === FAVORITES_KEY || e.key === HISTORY_KEY) triggerRehydrate();
+    };
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') triggerRehydrate();
+    };
+
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('focus', triggerRehydrate);
+    window.addEventListener('pageshow', triggerRehydrate);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('focus', triggerRehydrate);
+      window.removeEventListener('pageshow', triggerRehydrate);
+      document.removeEventListener('visibilitychange', handleVisibility);
+      if (rehydrateTimer.current) clearTimeout(rehydrateTimer.current);
+    };
+  }, [triggerRehydrate]);
+
+  // ── Optimistic Persistence ──
   useEffect(() => { saveHistory(history); }, [history]);
   useEffect(() => { saveFavorites(favorites); }, [favorites]);
 
@@ -67,7 +124,6 @@ export function SessionProvider({ children }) {
   const recordAction = useCallback(({ input, action, result }) => {
     const timestamp = Date.now();
 
-    // Update in-memory session
     setSession({
       lastInput: input || null,
       lastAction: action || null,
@@ -75,11 +131,11 @@ export function SessionProvider({ children }) {
       timestamp,
     });
 
-    // Append to history
     const entry = {
       id: `${timestamp}-${Math.random().toString(36).slice(2, 6)}`,
       action: action?.label || 'Unknown action',
       capability: action?.capability || null,
+      params: action?.params || {},
       description: action?.description || '',
       icon: action?.icon || '✦',
       timestamp,
@@ -93,11 +149,9 @@ export function SessionProvider({ children }) {
   // ── Check if session has context for follow-up commands ──
   const hasContext = useCallback(() => {
     if (!session.lastResult || !session.timestamp) return false;
-    // Context expires after 10 minutes
     return Date.now() - session.timestamp < 10 * 60 * 1000;
   }, [session]);
 
-  // ── Get session context for follow-up ──
   const getContext = useCallback(() => {
     if (!hasContext()) return null;
     return {
@@ -107,7 +161,6 @@ export function SessionProvider({ children }) {
     };
   }, [session, hasContext]);
 
-  // ── Clear session ──
   const clearSession = useCallback(() => {
     setSession({ lastInput: null, lastAction: null, lastResult: null, timestamp: null });
   }, []);
@@ -115,7 +168,6 @@ export function SessionProvider({ children }) {
   // ── History operations ──
   const clearHistory = useCallback(() => {
     setHistory([]);
-    saveHistory([]);
   }, []);
 
   const removeHistoryItem = useCallback((id) => {
@@ -124,17 +176,21 @@ export function SessionProvider({ children }) {
 
   // ── Favorites operations ──
   const toggleFavorite = useCallback((capability) => {
+    const identity = getCapabilityIdentity(capability.id, capability.params);
+    if (!identity) return;
+
     setFavorites(prev => {
-      const exists = prev.some(f => f.id === capability.id);
+      const exists = prev.some(f => getCapabilityIdentity(f.id, f.params) === identity);
       if (exists) {
-        return prev.filter(f => f.id !== capability.id);
+        return prev.filter(f => getCapabilityIdentity(f.id, f.params) !== identity);
       }
       return [...prev, { ...capability, pinnedAt: Date.now() }];
     });
   }, []);
 
-  const isFavorite = useCallback((capabilityId) => {
-    return favorites.some(f => f.id === capabilityId);
+  const isFavorite = useCallback((capabilityId, params = {}) => {
+    const identity = getCapabilityIdentity(capabilityId, params);
+    return favorites.some(f => getCapabilityIdentity(f.id, f.params) === identity);
   }, [favorites]);
 
   const value = {
@@ -149,6 +205,7 @@ export function SessionProvider({ children }) {
     removeHistoryItem,
     toggleFavorite,
     isFavorite,
+    rehydrate: triggerRehydrate,
   };
 
   return (
@@ -163,3 +220,4 @@ export function useSession() {
   if (!ctx) throw new Error('useSession must be used within a SessionProvider');
   return ctx;
 }
+

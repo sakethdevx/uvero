@@ -41,6 +41,17 @@ export default function ServicesHome() {
     setShowDoneConfirm(false);
   }, []);
 
+  // Listen for external intent triggers (from History/Favorites)
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.detail) {
+        handleIntentResolved(e.detail);
+      }
+    };
+    window.addEventListener('uvero-trigger-intent', handler);
+    return () => window.removeEventListener('uvero-trigger-intent', handler);
+  }, [handleIntentResolved]);
+
   const handleDismissAction = useCallback(() => {
     setActiveIntent(null);
     setInteractionState('idle');
