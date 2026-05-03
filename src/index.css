@@ -440,7 +440,6 @@
       radial-gradient(circle at 46% 48%, color-mix(in srgb, var(--ambient-violet) 70%, transparent), transparent 52%),
       radial-gradient(circle at 58% 54%, color-mix(in srgb, var(--ambient-indigo) 58%, transparent), transparent 62%);
     filter: blur(54px);
-    mix-blend-mode: screen;
     opacity: var(--ambient-focus-opacity);
     transform: translate3d(-50%, -50%, 0) scale(var(--ambient-focus-scale));
     transform-origin: center;
@@ -448,8 +447,6 @@
       top 0.75s cubic-bezier(0.25, 0.1, 0.25, 1),
       opacity 0.7s ease,
       transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
-    will-change: transform, opacity;
-    backface-visibility: hidden;
   }
 
   .ambient-background[data-ambient-state='result']::before {
@@ -464,15 +461,12 @@
   .ambient-field {
     position: absolute;
     pointer-events: none;
-    will-change: transform, opacity;
-    backface-visibility: hidden;
-    transform: translate3d(0, 0, 0);
+    transform: translateZ(0);
   }
 
   .ambient-layer {
     border-radius: 9999px;
     filter: blur(76px);
-    mix-blend-mode: screen;
   }
 
   .ambient-layer-orange {
@@ -523,7 +517,6 @@
       radial-gradient(circle at 58% 58%, color-mix(in srgb, var(--ambient-orange) 58%, transparent), transparent 36%),
       radial-gradient(circle at 34% 62%, color-mix(in srgb, var(--ambient-violet) 58%, transparent), transparent 34%);
     filter: blur(58px);
-    mix-blend-mode: screen;
     opacity: var(--ambient-field-opacity);
     mask-image: radial-gradient(circle at var(--ambient-focus-x) var(--ambient-focus-y), black 0%, rgba(0, 0, 0, 0.72) 34%, transparent 78%);
     -webkit-mask-image: radial-gradient(circle at var(--ambient-focus-x) var(--ambient-focus-y), black 0%, rgba(0, 0, 0, 0.72) 34%, transparent 78%);
