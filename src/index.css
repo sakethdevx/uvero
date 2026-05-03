@@ -423,11 +423,8 @@
     --ambient-focus-opacity: 0.62;
     --ambient-focus-scale: 1.15;
     --ambient-focus-y: 54%;
-    filter: saturate(1.1);
   }
-
-
-
+  
   .apple-aura {
     position: absolute;
     left: 50%;
@@ -480,6 +477,30 @@
       auraSpin 4s linear infinite,
       auraMorph 2s ease-in-out infinite alternate;
     filter: blur(100px) saturate(1.5);
+  }
+
+  .ambient-grain {
+    position: fixed;
+    inset: -100%;
+    z-index: 2;
+    opacity: 0.035;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+    animation: grainMotion 1s steps(2) infinite;
+  }
+
+  @keyframes grainMotion {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-1%, -1%); }
+    20% { transform: translate(-2%, 1%); }
+    30% { transform: translate(1%, -2%); }
+    40% { transform: translate(-1%, 3%); }
+    50% { transform: translate(-2%, 1%); }
+    60% { transform: translate(3%, 0); }
+    70% { transform: translate(0, 2%); }
+    80% { transform: translate(-3%, 1%); }
+    90% { transform: translate(1%, 2%); }
   }
 
   .premium-home::before {
@@ -633,11 +654,24 @@
   }
 
   .command-bar-active {
-    border-color: color-mix(in srgb, var(--accent-ring) 74%, var(--border-glass));
+    border: 1px solid transparent;
+    background-image: 
+      linear-gradient(var(--surface-glass-strong), var(--surface-glass-strong)),
+      linear-gradient(90deg, #fb923c, #ec4899, #8b5cf6, #3b82f6, #fb923c);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    background-size: 100% 100%, 200% 100%;
     box-shadow: var(--command-focus-shadow);
     transform: scale(1.02);
     z-index: 10;
-    animation: commandFocusPulse 5.5s ease-in-out infinite;
+    animation: 
+      commandFocusPulse 5.5s ease-in-out infinite,
+      borderShimmer 4s linear infinite;
+  }
+
+  @keyframes borderShimmer {
+    from { background-position: 0% 0%, 0% 0%; }
+    to { background-position: 0% 0%, 200% 0%; }
   }
 
   .command-bar-processing {
@@ -773,11 +807,18 @@
 
 @layer utilities {
   .intelligence-text {
-    background: linear-gradient(90deg, #ec4899 0%, #f43f5e 40%, #fb923c 100%);
+    background: linear-gradient(90deg, #ec4899 0%, #fb923c 25%, #f43f5e 50%, #fb923c 75%, #ec4899 100%);
+    background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     color: transparent;
+    animation: textShimmer 6s linear infinite;
+  }
+
+  @keyframes textShimmer {
+    from { background-position: 0% center; }
+    to { background-position: 200% center; }
   }
 
   .ui-faded {

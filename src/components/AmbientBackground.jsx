@@ -10,6 +10,7 @@ export default function AmbientBackground({ state = 'idle' }) {
       aria-hidden="true"
     >
       <div className="apple-aura" />
+      <div className="ambient-grain" />
     </div>
   );
 }
