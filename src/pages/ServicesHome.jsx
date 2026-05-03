@@ -6,6 +6,7 @@ import CommandBar from '../components/CommandBar';
 import ActionPanel from '../components/ActionPanel';
 import OnboardingHint from '../components/OnboardingHint';
 import { resolveIntent } from '../lib/IntentEngine';
+import { useInteraction } from '../lib/InteractionContext';
 
 /**
  * ServicesHome — The Intelligence Interface.
@@ -26,7 +27,7 @@ export default function ServicesHome() {
   const [activeIntent, setActiveIntent] = useState(null);
   const [externalQuery, setExternalQuery] = useState('');
   const [showDoneConfirm, setShowDoneConfirm] = useState(false);
-  const [commandColorState, setCommandColorState] = useState('idle');
+  const { interactionState, setInteractionState } = useInteraction();
   const navigate = useNavigate();
 
   useSEO({
@@ -42,10 +43,11 @@ export default function ServicesHome() {
 
   const handleDismissAction = useCallback(() => {
     setActiveIntent(null);
+    setInteractionState('idle');
     // Brief "✓ Done" confirmation before chips reappear
     setShowDoneConfirm(true);
     setTimeout(() => setShowDoneConfirm(false), 1800);
-  }, []);
+  }, [setInteractionState]);
 
   const handleChipClick = useCallback((chip) => {
     if (chip.capability) {
@@ -66,21 +68,14 @@ export default function ServicesHome() {
     navigate(chip.path);
   }, [navigate]);
 
-  // Called by OnboardingHint when a user clicks an example chip
   const handleOnboardingExample = useCallback((text) => {
     setExternalQuery(text);
   }, []);
 
-  // Time-based greeting
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
-  };
-
-  const isInteracting = Boolean(activeIntent);
-  const ambientState = isInteracting ? 'processing' : showDoneConfirm ? 'result' : commandColorState;
+  const isInteracting = Boolean(activeIntent) || interactionState !== 'idle';
+  const ambientState = Boolean(activeIntent) ? 'processing' : showDoneConfirm ? 'result' : interactionState;
+  const isFaded = interactionState !== 'idle';
+  const fadeClass = isFaded ? 'ui-faded' : '';
 
   return (
     <div className={`premium-home ${isInteracting ? 'premium-home-interacting' : ''} relative isolate flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 pb-24 md:pb-8`}>
@@ -91,26 +86,22 @@ export default function ServicesHome() {
         style={{ animationDelay: '0.1s' }}
       >
         {/* Greeting */}
-        <div className="hero-copy text-center space-y-2">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {getGreeting()}.
+        <div className="hero-copy text-center max-w-sm mx-auto mb-4">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight intelligence-text">
+            Tell me what to do or choose a suggestion.
           </h1>
-          <p className="text-sm sm:text-base" style={{ color: 'var(--text-secondary)' }}>
-            What would you like to do?
-          </p>
         </div>
 
         {/* Command Bar — externalQuery lets onboarding inject example text */}
         <CommandBar
           mode="embed"
           onIntentResolved={handleIntentResolved}
-          onInteractionStateChange={setCommandColorState}
           externalQuery={externalQuery}
           onExternalQueryConsumed={() => setExternalQuery('')}
         />
 
         {/* Onboarding Hint — inline, non-blocking, first-visit only */}
-        <div className="focus-fade-wrap">
+        <div className={`focus-fade-wrap transition-ui ${fadeClass}`}>
           <OnboardingHint onExampleSelect={handleOnboardingExample} />
         </div>
 
@@ -138,7 +129,7 @@ export default function ServicesHome() {
 
         {/* Action Chips */}
         {!activeIntent && !showDoneConfirm && (
-          <div className="flex flex-wrap justify-center gap-2 animate-fade-in"
+          <div className={`flex flex-wrap justify-center gap-2 animate-fade-in transition-ui ${fadeClass}`}
             style={{ animationDelay: '0.3s' }}
           >
             {ACTION_CHIPS.map((chip) => (
@@ -156,7 +147,7 @@ export default function ServicesHome() {
 
         {/* Stats line */}
         {!activeIntent && !showDoneConfirm && (
-          <p className="text-xs font-medium tracking-wide animate-fade-in"
+          <p className={`text-xs font-medium tracking-wide animate-fade-in transition-ui ${fadeClass}`}
             style={{ color: 'var(--text-secondary)', animationDelay: '0.5s' }}
           >
             6 capabilities · 200+ actions · 100% private

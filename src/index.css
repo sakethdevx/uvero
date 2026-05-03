@@ -41,11 +41,14 @@
   --glass-shadow: 0 18px 54px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.64);
   --glass-shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.055), inset 0 1px 0 rgba(255, 255, 255, 0.52);
   --command-shadow: 0 22px 58px rgba(79, 70, 229, 0.12), 0 10px 34px rgba(15, 23, 42, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.74);
-  --command-focus-shadow: 0 28px 76px rgba(79, 70, 229, 0.18), 0 0 0 1px rgba(79, 70, 229, 0.18), 0 0 42px rgba(14, 165, 233, 0.11), inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  --command-focus-shadow: 0 0 32px rgba(236, 72, 153, 0.2), 0 0 64px rgba(79, 70, 229, 0.1), 0 28px 76px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.82);
   --execution-shadow: 0 18px 44px rgba(15, 23, 42, 0.075), inset 0 1px 0 rgba(255, 255, 255, 0.76);
   --ambient-indigo: rgba(79, 70, 229, 0.34);
   --ambient-violet: rgba(124, 58, 237, 0.3);
   --ambient-blue: rgba(14, 165, 233, 0.26);
+  --ambient-pink: rgba(244, 114, 182, 0.22);
+  --ambient-orange: rgba(245, 158, 11, 0.25);
+  --ambient-magenta: rgba(236, 72, 153, 0.28);
   --ambient-pink: rgba(244, 114, 182, 0.22);
   --ambient-cyan: var(--ambient-blue);
   --ambient-rose: var(--ambient-pink);
@@ -81,11 +84,14 @@
   --glass-shadow: 0 20px 58px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.07);
   --glass-shadow-soft: 0 14px 38px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.055);
   --command-shadow: 0 24px 68px rgba(99, 102, 241, 0.19), 0 12px 38px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.09);
-  --command-focus-shadow: 0 30px 86px rgba(99, 102, 241, 0.26), 0 0 0 1px rgba(129, 140, 248, 0.22), 0 0 48px rgba(34, 211, 238, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --command-focus-shadow: 0 0 42px rgba(236, 72, 153, 0.38), 0 0 88px rgba(99, 102, 241, 0.22), 0 30px 86px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   --execution-shadow: 0 20px 52px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.11);
   --ambient-indigo: rgba(99, 102, 241, 0.32);
   --ambient-violet: rgba(139, 92, 246, 0.28);
-  --ambient-blue: rgba(34, 211, 238, 0.2);
+  --ambient-blue: rgba(59, 130, 246, 0.2);
+  --ambient-pink: rgba(244, 114, 182, 0.18);
+  --ambient-orange: rgba(251, 146, 60, 0.35);
+  --ambient-magenta: rgba(236, 72, 153, 0.3);
   --ambient-pink: rgba(244, 114, 182, 0.18);
   --ambient-cyan: var(--ambient-blue);
   --ambient-rose: var(--ambient-pink);
@@ -280,6 +286,11 @@
       background 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
+  .dark .action-chip {
+    background: rgba(28, 28, 30, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.02);
+  }
+
   .action-chip:hover {
     border-color: color-mix(in srgb, var(--accent) 30%, var(--border-glass));
     box-shadow: 0 12px 30px rgba(15, 23, 42, 0.07), 0 0 22px var(--accent-subtle), inset 0 1px 0 var(--glass-highlight);
@@ -344,10 +355,10 @@
   }
 
   .ambient-background {
-    --gradient-intensity: 1;
+    --gradient-intensity: 0.75;
     --ambient-intensity: var(--gradient-intensity);
-    --ambient-field-opacity: 0.46;
-    --ambient-focus-opacity: 0.48;
+    --ambient-field-opacity: 0.35;
+    --ambient-focus-opacity: 0.36;
     --ambient-focus-scale: 1;
     --ambient-focus-x: 50%;
     --ambient-focus-y: 48%;
@@ -355,151 +366,141 @@
     isolation: isolate;
     opacity: 1;
     transform: translateZ(0);
-    transition: opacity 0.6s ease, filter 0.6s ease;
+    transition: opacity 0.6s cubic-bezier(0.25, 0.1, 0.25, 1), filter 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
-  .ambient-background[data-ambient-state='typing'] {
-    --gradient-intensity: 1.16;
-    --ambient-field-opacity: 0.56;
-    --ambient-focus-opacity: 0.62;
-    --ambient-focus-scale: 1.08;
-    --ambient-focus-y: 49%;
+  .dark .ambient-background::after {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    background: #000000;
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(circle at 50% 48%, transparent 10%, black 62%);
+    -webkit-mask-image: radial-gradient(circle at 50% 48%, transparent 10%, black 62%);
   }
+
+  .dark .ambient-background[data-ambient-state='focused']::after,
+  .dark .ambient-background[data-ambient-state='processing']::after,
+  .dark .ambient-background[data-ambient-state='result']::after {
+    opacity: 1;
+    transition: opacity 1.1s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .ambient-background[data-ambient-state='focused'] {
+    --gradient-intensity: 0.95;
+    --ambient-field-opacity: 0.44;
+    --ambient-focus-opacity: 0.64;
+    --ambient-focus-scale: 1.08;
+    --ambient-focus-y: 48%;
+  }
+
+  .ambient-background[data-ambient-state='focused'] .ambient-layer {
+    animation-duration: 40s;
+    filter: blur(88px);
+    transform: translate3d(0, 0, 0) scale(0.92);
+  }
+
+  .ambient-background[data-ambient-state='focused'] .ambient-layer-indigo { left: 50%; top: 40%; transform: translate(-50%, -50%); }
+  .ambient-background[data-ambient-state='focused'] .ambient-layer-violet { right: 50%; top: 40%; transform: translate(50%, -50%); }
+  .ambient-background[data-ambient-state='focused'] .ambient-layer-blue { right: 50%; bottom: 40%; transform: translate(50%, 50%); }
+  .ambient-background[data-ambient-state='focused'] .ambient-layer-pink { left: 50%; bottom: 40%; transform: translate(-50%, 50%); }
+
 
   .ambient-background[data-ambient-state='result'] {
-    --gradient-intensity: 1.08;
-    --ambient-field-opacity: 0.52;
-    --ambient-focus-opacity: 0.7;
-    --ambient-focus-scale: 1.12;
-    --ambient-focus-y: 51%;
+    --gradient-intensity: 0.85;
+    --ambient-field-opacity: 0.4;
+    --ambient-focus-opacity: 0.55;
+    --ambient-focus-scale: 1.08;
+    --ambient-focus-y: 50%;
   }
 
   .ambient-background[data-ambient-state='processing'] {
-    --gradient-intensity: 1.28;
-    --ambient-field-opacity: 0.64;
-    --ambient-focus-opacity: 0.78;
-    --ambient-focus-scale: 1.22;
-    --ambient-focus-y: 56%;
-    filter: saturate(1.16);
+    --gradient-intensity: 1.0;
+    --ambient-field-opacity: 0.48;
+    --ambient-focus-opacity: 0.62;
+    --ambient-focus-scale: 1.15;
+    --ambient-focus-y: 54%;
   }
-
-  .ambient-background::before {
-    content: '';
+  
+  .apple-aura {
     position: absolute;
-    left: var(--ambient-focus-x);
-    top: var(--ambient-focus-y);
-    width: min(44rem, 92vw);
-    height: min(24rem, 48vh);
-    border-radius: 9999px;
-    pointer-events: none;
-    background:
-      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--ambient-blue) 72%, transparent), transparent 44%),
-      radial-gradient(circle at 46% 48%, color-mix(in srgb, var(--ambient-violet) 70%, transparent), transparent 52%),
-      radial-gradient(circle at 58% 54%, color-mix(in srgb, var(--ambient-indigo) 58%, transparent), transparent 62%);
-    filter: blur(54px);
-    mix-blend-mode: screen;
-    opacity: var(--ambient-focus-opacity);
-    transform: translate3d(-50%, -50%, 0) scale(var(--ambient-focus-scale));
-    transform-origin: center;
-    transition:
-      top 0.75s cubic-bezier(0.25, 0.1, 0.25, 1),
-      opacity 0.7s ease,
-      transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
-    will-change: transform, opacity;
-    backface-visibility: hidden;
-  }
-
-  .ambient-background[data-ambient-state='result']::before {
-    animation: ambientResultBloom 2.2s ease-out;
-  }
-
-  .ambient-background[data-ambient-state='processing']::before {
-    animation: ambientProcessingFocus 4.8s ease-in-out infinite;
-  }
-
-  .ambient-layer,
-  .ambient-field {
-    position: absolute;
-    pointer-events: none;
-    will-change: transform, opacity;
-    backface-visibility: hidden;
-    transform: translate3d(0, 0, 0);
-  }
-
-  .ambient-layer {
-    border-radius: 9999px;
-    filter: blur(76px);
-    mix-blend-mode: screen;
-  }
-
-  .ambient-layer-indigo {
-    width: min(62rem, 112vw);
-    height: min(42rem, 86vh);
     left: 50%;
-    top: -22%;
-    background: radial-gradient(circle, var(--ambient-indigo) 0%, transparent 68%);
-    opacity: calc(0.74 * var(--ambient-intensity));
-    animation: ambientIndigoFlow 21s ease-in-out infinite;
+    top: var(--ambient-focus-y, 48%);
+    width: min(45rem, 95vw);
+    height: min(45rem, 95vw);
+    background: conic-gradient(
+      from 0deg at 50% 50%,
+      #fb923c 0%,
+      #ec4899 20%,
+      #8b5cf6 40%,
+      #3b82f6 60%,
+      #8b5cf6 80%,
+      #fb923c 100%
+    );
+    filter: blur(80px);
+    opacity: var(--ambient-field-opacity, 0.45);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(var(--ambient-focus-scale, 1));
+    animation: 
+      auraSpin 15s linear infinite,
+      auraMorph 8s ease-in-out infinite alternate;
+    transition: all 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-origin: center center;
+    pointer-events: none;
+    will-change: transform, opacity, filter;
   }
 
-  .ambient-layer-violet {
-    width: min(48rem, 96vw);
-    height: min(38rem, 78vh);
-    right: -18%;
-    top: 14%;
-    background: radial-gradient(circle, var(--ambient-violet) 0%, transparent 70%);
-    opacity: calc(0.62 * var(--ambient-intensity));
-    animation: ambientVioletFloat 24s ease-in-out infinite;
+  @keyframes auraSpin {
+    from { transform: translate(-50%, -50%) scale(var(--ambient-focus-scale, 1)) rotate(0deg); }
+    to { transform: translate(-50%, -50%) scale(var(--ambient-focus-scale, 1)) rotate(360deg); }
   }
 
-  .ambient-layer-blue {
-    width: min(52rem, 104vw);
-    height: min(40rem, 82vh);
-    right: -16%;
-    bottom: -28%;
-    background: radial-gradient(circle, var(--ambient-blue) 0%, transparent 72%);
-    opacity: calc(0.58 * var(--ambient-intensity));
-    animation: ambientBlueCurrent 18s ease-in-out infinite;
+  @keyframes auraMorph {
+    0% { border-radius: 50% 50% 50% 50%; transform: translate(-50%, -50%) scale(var(--ambient-focus-scale, 1)); }
+    50% { border-radius: 45% 55% 48% 52%; transform: translate(-50%, -48%) scale(calc(var(--ambient-focus-scale, 1) * 1.05)); }
+    100% { border-radius: 55% 45% 52% 48%; transform: translate(-50%, -52%) scale(calc(var(--ambient-focus-scale, 1) * 0.98)); }
   }
 
-  .ambient-layer-pink {
-    width: min(38rem, 84vw);
-    height: min(32rem, 66vh);
-    left: -18%;
-    bottom: 6%;
-    background: radial-gradient(circle, var(--ambient-pink) 0%, transparent 72%);
-    opacity: calc(0.46 * var(--ambient-intensity));
-    animation: ambientPinkDrift 25s ease-in-out infinite;
+  .ambient-background[data-ambient-state='focused'] .apple-aura {
+    --ambient-focus-scale: 1.2;
+    --ambient-field-opacity: 0.7;
+    filter: blur(90px) saturate(1.2);
   }
 
-  .ambient-field {
-    inset: -18%;
-    background:
-      radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--ambient-blue) 66%, transparent), transparent 24%),
-      radial-gradient(circle at 44% 47%, color-mix(in srgb, var(--ambient-violet) 66%, transparent), transparent 31%),
-      radial-gradient(circle at 58% 58%, color-mix(in srgb, var(--ambient-indigo) 58%, transparent), transparent 36%),
-      radial-gradient(circle at 34% 62%, color-mix(in srgb, var(--ambient-pink) 58%, transparent), transparent 34%);
-    filter: blur(58px);
-    mix-blend-mode: overlay;
-    opacity: var(--ambient-field-opacity);
-    mask-image: radial-gradient(circle at var(--ambient-focus-x) var(--ambient-focus-y), black 0%, rgba(0, 0, 0, 0.72) 34%, transparent 78%);
-    -webkit-mask-image: radial-gradient(circle at var(--ambient-focus-x) var(--ambient-focus-y), black 0%, rgba(0, 0, 0, 0.72) 34%, transparent 78%);
-    animation: ambientFieldBlend 22s ease-in-out infinite;
+  .ambient-background[data-ambient-state='processing'] .apple-aura {
+    --ambient-focus-scale: 1.35;
+    --ambient-field-opacity: 0.85;
+    animation: 
+      auraSpin 4s linear infinite,
+      auraMorph 2s ease-in-out infinite alternate;
+    filter: blur(100px) saturate(1.5);
   }
 
-  .ambient-background[data-ambient-state='processing'] .ambient-field {
-    animation: ambientFieldBlend 22s ease-in-out infinite, ambientProcessingPulse 3.8s ease-in-out infinite;
+  .ambient-grain {
+    position: fixed;
+    inset: -100%;
+    z-index: 2;
+    opacity: 0.015;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    mix-blend-mode: soft-light;
+    animation: grainMotion 1s steps(2) infinite;
   }
 
-  @media (max-width: 640px) {
-    .ambient-layer {
-      filter: blur(58px);
-    }
-
-    .ambient-field {
-      filter: blur(46px);
-      opacity: calc(var(--ambient-field-opacity) * 0.94);
-    }
+  @keyframes grainMotion {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-1%, -1%); }
+    20% { transform: translate(-2%, 1%); }
+    30% { transform: translate(1%, -2%); }
+    40% { transform: translate(-1%, 3%); }
+    50% { transform: translate(-2%, 1%); }
+    60% { transform: translate(3%, 0); }
+    70% { transform: translate(0, 2%); }
+    80% { transform: translate(-3%, 1%); }
+    90% { transform: translate(1%, 2%); }
   }
 
   .premium-home::before {
@@ -593,9 +594,7 @@
   }
 
   .premium-home-interacting .command-shell {
-    opacity: 0.66;
-    transform: translateY(-2px) scale(0.965);
-    filter: saturate(0.88);
+    transform: translateY(-2px);
   }
 
   .premium-home-interacting .command-bar {
@@ -653,9 +652,24 @@
   }
 
   .command-bar-active {
-    border-color: color-mix(in srgb, var(--accent-ring) 74%, var(--border-glass));
+    border: 1px solid transparent;
+    background-image: 
+      linear-gradient(var(--surface-glass-strong), var(--surface-glass-strong)),
+      linear-gradient(90deg, #fb923c, #ec4899, #8b5cf6, #3b82f6, #fb923c);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    background-size: 100% 100%, 200% 100%;
     box-shadow: var(--command-focus-shadow);
-    animation: commandFocusPulse 5.5s ease-in-out infinite;
+    transform: scale(1.02);
+    z-index: 10;
+    animation: 
+      commandFocusPulse 5.5s ease-in-out infinite,
+      borderShimmer 4s linear infinite;
+  }
+
+  @keyframes borderShimmer {
+    from { background-position: 0% 0%, 0% 0%; }
+    to { background-position: 0% 0%, 200% 0%; }
   }
 
   .command-bar-processing {
@@ -790,6 +804,30 @@
    ═══════════════════════════════════════════════════════ */
 
 @layer utilities {
+  .intelligence-text {
+    background: linear-gradient(90deg, #ec4899 0%, #fb923c 25%, #f43f5e 50%, #fb923c 75%, #ec4899 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    animation: textShimmer 6s linear infinite;
+  }
+
+  @keyframes textShimmer {
+    from { background-position: 0% center; }
+    to { background-position: 200% center; }
+  }
+
+  .ui-faded {
+    opacity: 0.15;
+    pointer-events: none;
+  }
+
+  .transition-ui {
+    transition: opacity 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
   .max-w-7xl {
     max-width: 100%;
   }

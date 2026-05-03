@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { resolveIntent, PLACEHOLDER_INTENTS } from '../lib/IntentEngine';
+import { useInteraction } from '../lib/InteractionContext';
 
 // Example prompts shown in the "Try:" row when the bar is focused and empty
 const QUICK_EXAMPLES = [
@@ -19,9 +20,9 @@ const QUICK_EXAMPLES = [
  * @param {boolean}  isOpen         - For modal mode only
  * @param {function} onClose        - For modal mode only
  * @param {function} onIntentResolved - Callback when a Tier 1/2 intent is resolved (opens ActionPanel)
- * @param {function} onInteractionStateChange - Emits 'idle' | 'typing' | 'result' for ambient color intensity
+ * @param {function} onIntentResolved - Callback when a Tier 1/2 intent is resolved (opens ActionPanel)
  */
-export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onIntentResolved, onInteractionStateChange, externalQuery, onExternalQueryConsumed }) {
+export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onIntentResolved, externalQuery, onExternalQueryConsumed }) {
   const [query, setQuery] = useState('');
   const [result, setResult] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -31,14 +32,19 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
   const inputRef = useRef(null);
   const navigate = useNavigate();
   const debounceRef = useRef(null);
+  const { setInteractionState } = useInteraction();
 
   useEffect(() => {
-    if (!query.trim()) {
-      onInteractionStateChange?.('idle');
+    if (!isFocused && !query.trim()) {
+      setInteractionState('idle');
       return;
     }
-    onInteractionStateChange?.(result ? 'result' : 'typing');
-  }, [query, result, onInteractionStateChange]);
+    if (isFocused && !query.trim()) {
+      setInteractionState('focused');
+      return;
+    }
+    setInteractionState(result ? 'result' : 'processing');
+  }, [query, result, isFocused, setInteractionState]);
 
   // Cycle placeholders with a smooth fade
   useEffect(() => {
@@ -263,8 +269,15 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
                 }}
               />
             ) : (
-              <svg className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg className="w-5 h-5 intelligence-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3L13.8 9.6L20.4 11.4L13.8 13.2L12 19.8L10.2 13.2L3.6 11.4L10.2 9.6L12 3Z" stroke="url(#intel-grad)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M17.4 6.6L18.6 9L21 10.2L18.6 11.4L17.4 13.8L16.2 11.4L13.8 10.2L16.2 9L17.4 6.6Z" stroke="url(#intel-grad)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <defs>
+                  <linearGradient id="intel-grad" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#ec4899" />
+                    <stop offset="100%" stopColor="#f59e0b" />
+                  </linearGradient>
+                </defs>
               </svg>
             )}
           </div>
@@ -279,7 +292,7 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 200)}
             placeholder={PLACEHOLDER_INTENTS[placeholderIndex]}
-            className="command-input flex-1 bg-transparent text-[15px] font-medium outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-colors sm:text-base"
+            className="command-input flex-1 bg-transparent text-[15px] font-medium outline-none placeholder:text-gray-400 dark:placeholder:text-[#a27798] transition-colors sm:text-base caret-yellow-400"
             style={{
               color: 'var(--text-primary)',
               '--placeholder-opacity': placeholderVisible ? 1 : 0,
