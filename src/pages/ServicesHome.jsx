@@ -68,18 +68,9 @@ export default function ServicesHome() {
     navigate(chip.path);
   }, [navigate]);
 
-  // Called by OnboardingHint when a user clicks an example chip
   const handleOnboardingExample = useCallback((text) => {
     setExternalQuery(text);
   }, []);
-
-  // Time-based greeting
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
-  };
 
   const isInteracting = Boolean(activeIntent) || interactionState !== 'idle';
   const ambientState = Boolean(activeIntent) ? 'processing' : showDoneConfirm ? 'result' : interactionState;
@@ -95,13 +86,10 @@ export default function ServicesHome() {
         style={{ animationDelay: '0.1s' }}
       >
         {/* Greeting */}
-        <div className="hero-copy text-center space-y-2">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-            {getGreeting()}.
+        <div className="hero-copy text-center max-w-sm mx-auto mb-4">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight intelligence-text">
+            Tell me what to do or choose a suggestion.
           </h1>
-          <p className="text-sm sm:text-base" style={{ color: 'var(--text-secondary)' }}>
-            What would you like to do?
-          </p>
         </div>
 
         {/* Command Bar — externalQuery lets onboarding inject example text */}
