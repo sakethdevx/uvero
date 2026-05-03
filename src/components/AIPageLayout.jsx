@@ -74,7 +74,7 @@ export default function AIPageLayout({
                 } animate-state-in relative`}>
                     
                     {renderBackLink() && centerContent && (
-                        <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
+                        <div className="mb-6 -mt-2">
                             {renderBackLink()}
                         </div>
                     )}
