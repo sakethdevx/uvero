@@ -454,6 +454,36 @@ function normalizeQuery(query) {
   return normalized;
 }
 
+// ─── Dynamic Unit Suggestion Generator ───
+function getDynamicUnitSuggestions(params) {
+  if (!params.from) return [];
+  
+  const COMMON_UNITS = {
+    weight: ['kg', 'lbs', 'g', 'oz', 'ton'],
+    length: ['m', 'ft', 'in', 'km', 'mi', 'cm', 'mm'],
+    temperature: ['c', 'f', 'k'],
+    timezone: ['America/Los_Angeles', 'America/New_York', 'America/Chicago', 'UTC']
+  };
+
+  const cat = params.cat || 'weight';
+  const from = params.from;
+  const units = COMMON_UNITS[cat] || [];
+  
+  return units
+    .filter(u => u.toLowerCase() !== from.toLowerCase())
+    .map(u => {
+      const uLabel = u.includes('/') ? u.split('/').pop().replace('_', ' ') : u;
+      return {
+        id: `unit-gen-${from}-${u}`,
+        title: `${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
+        description: `Quickly convert ${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
+        icon: '📏',
+        path: `/unit-converter?cat=${cat}&from=${from}&to=${u}`,
+        category: 'Converters' // Use 'Converters' to match CommandBar's Tier 2 fallback
+      };
+    });
+}
+
 // ─── Main resolver ───
 export function resolveIntent(rawQuery) {
   if (!rawQuery || rawQuery.trim().length === 0) {
@@ -480,33 +510,10 @@ export function resolveIntent(rawQuery) {
           suggestions: getRelatedSuggestions(cap.id, rawQuery),
         };
 
-        // ─── Special Case: Dynamic Unit Suggestions for "A to" ───
-        if (cap.id === 'unit-conversion' && params.from) {
-          const COMMON_UNITS = {
-            weight: ['kg', 'lbs', 'g', 'oz', 'ton'],
-            length: ['m', 'ft', 'in', 'km', 'mi', 'cm', 'mm'],
-            temperature: ['c', 'f', 'k'],
-            timezone: ['America/Los_Angeles', 'America/New_York', 'America/Chicago', 'UTC']
-          };
-          const cat = params.cat || 'weight';
-          const from = params.from;
-          const units = COMMON_UNITS[cat] || [];
-          
-          const dynamicSuggestions = units
-            .filter(u => u.toLowerCase() !== from.toLowerCase())
-            .map(u => {
-              const uLabel = u.includes('/') ? u.split('/').pop().replace('_', ' ') : u;
-              return {
-                id: `unit-gen-${from}-${u}`,
-                title: `${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
-                description: `Quickly convert ${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
-                icon: '📏',
-                path: `/unit-converter?cat=${cat}&from=${from}&to=${u}`,
-                category: 'Universal Converter'
-              };
-            });
-          
-          result.suggestions = [...dynamicSuggestions, ...result.suggestions].slice(0, 8);
+        // Inject dynamic unit suggestions if applicable
+        if (cap.id === 'unit-conversion') {
+          const dynamic = getDynamicUnitSuggestions(params);
+          result.suggestions = [...dynamic, ...result.suggestions].slice(0, 10);
         }
 
         return result;
