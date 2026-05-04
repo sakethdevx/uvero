@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import useSEO from '../../../hooks/useSEO';
-import AILoader from '../../../components/AILoader';
 import { AIBackLink, AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout';
+import QRResultCard from '../../../components/QRResultCard';
 
 /**
  * QR Validator
@@ -314,38 +314,52 @@ export default function QRValidator() {
                 {analyzing && <AILoader label="Analyzing QR code..." />}
 
                 {report && !analyzing && (
-                    <div className="mt-6 space-y-4">
-                        {/* Score */}
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 p-6 shadow-sm flex items-center gap-6">
-                            <ScoreRing score={score} />
-                            <div>
-                                <p className="text-lg font-bold text-gray-900 dark:text-white">Scan Quality Score</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                                    {score >= 80
-                                        ? 'Your QR code looks great and should scan reliably in most conditions.'
-                                        : score >= 55
-                                        ? 'Your QR code is usable but has some issues worth fixing before printing.'
-                                        : 'Your QR code has serious issues. Fix the warnings before use.'}
-                                </p>
+                    <div className="mt-6">
+                        <QRResultCard
+                            title="✓ QR analyzed"
+                            trustBadge="🔒 Analyzed locally"
+                            suggestions={[{ label: 'Analyze another', action: 'reset', icon: '🔄' }]}
+                            onSuggestionSelect={(s) => {
+                                if (s.action === 'reset') {
+                                    setReport(null);
+                                    setPreview(null);
+                                }
+                            }}
+                        >
+                            <div className="space-y-4">
+                                {/* Score */}
+                                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-white/5 p-5 flex items-center gap-6">
+                                    <ScoreRing score={score} />
+                                    <div>
+                                        <p className="text-lg font-bold text-gray-900 dark:text-white">Scan Quality Score</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                                            {score >= 80
+                                                ? 'Your QR code looks great and should scan reliably in most conditions.'
+                                                : score >= 55
+                                                ? 'Your QR code is usable but has some issues worth fixing before printing.'
+                                                : 'Your QR code has serious issues. Fix the warnings before use.'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Checks */}
+                                <div className="space-y-2">
+                                    {checks.map((c, i) => (
+                                        <Check key={i} status={c.status} label={c.label} detail={c.detail} />
+                                    ))}
+                                </div>
+
+                                {/* Recommendations */}
+                                <div className="bg-violet-50 dark:bg-violet-900/10 border border-violet-100 dark:border-violet-500/20 rounded-2xl p-4 text-sm text-violet-700 dark:text-violet-300 space-y-1.5 mt-2">
+                                    <p className="font-semibold">📋 General QR Recommendations</p>
+                                    <p>• Minimum print size: <strong>2 × 2 cm</strong> at 300 DPI</p>
+                                    <p>• Maintain a quiet zone of <strong>at least 4 modules</strong> around all edges</p>
+                                    <p>• Use <strong>High (H) error correction</strong> when embedding a logo</p>
+                                    <p>• Logo should cover no more than <strong>22%</strong> of the QR area</p>
+                                    <p>• Black on white provides the best contrast for scanners</p>
+                                </div>
                             </div>
-                        </div>
-
-                        {/* Checks */}
-                        <div className="space-y-2">
-                            {checks.map((c, i) => (
-                                <Check key={i} status={c.status} label={c.label} detail={c.detail} />
-                            ))}
-                        </div>
-
-                        {/* Recommendations */}
-                        <div className="bg-violet-50 dark:bg-violet-900/10 border border-violet-100 dark:border-violet-500/20 rounded-2xl p-4 text-sm text-violet-700 dark:text-violet-300 space-y-1.5">
-                            <p className="font-semibold">📋 General QR Recommendations</p>
-                            <p>• Minimum print size: <strong>2 × 2 cm</strong> at 300 DPI</p>
-                            <p>• Maintain a quiet zone of <strong>at least 4 modules</strong> around all edges</p>
-                            <p>• Use <strong>High (H) error correction</strong> when embedding a logo</p>
-                            <p>• Logo should cover no more than <strong>22%</strong> of the QR area</p>
-                            <p>• Black on white provides the best contrast for scanners</p>
-                        </div>
+                        </QRResultCard>
                     </div>
                 )}
                 </AIInlinePanel>

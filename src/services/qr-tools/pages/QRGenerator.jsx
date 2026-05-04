@@ -2,6 +2,8 @@ import { useState, useRef, useCallback } from 'react';
 import useSEO from '../../../hooks/useSEO';
 import QRCode from 'qrcode';
 import { AIBackLink, AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout';
+import QRResultCard from '../../../components/QRResultCard';
+import AILoader from '../../../components/AILoader';
 
 /* ── helpers ── */
 const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
@@ -308,7 +310,9 @@ export default function QRGenerator() {
     const [customFrameText, setCustomFrameText] = useState('');
     const [qrDataUrl, setQrDataUrl] = useState(null);
     const [generating, setGenerating] = useState(false);
+    const [loadingStep, setLoadingStep] = useState(0);
     const [error, setError] = useState('');
+    const [copied, setCopied] = useState(false);
     const logoInputRef = useRef(null);
 
     const applyTemplate = useCallback((tpl) => {
@@ -350,6 +354,11 @@ export default function QRGenerator() {
         }
         setError('');
         setGenerating(true);
+        setLoadingStep(0);
+        const startTime = Date.now();
+        const timer1 = setTimeout(() => setLoadingStep(1), 100);
+        const timer2 = setTimeout(() => setLoadingStep(2), 200);
+
         try {
             const opts = {
                 width: clamp(size, 128, 2048),
@@ -392,11 +401,17 @@ export default function QRGenerator() {
                 dataUrl = await applyFrame(dataUrl, opts.width, frame, customFrameText, fgColor, bgColor);
             }
 
+            const elapsed = Date.now() - startTime;
+            if (elapsed < 300) {
+                await new Promise(r => setTimeout(r, 300 - elapsed));
+            }
             setQrDataUrl(dataUrl);
         } catch (err) {
             setError('Failed to generate QR code. Please check your input.');
             console.error(err);
         } finally {
+            clearTimeout(timer1);
+            clearTimeout(timer2);
             setGenerating(false);
         }
     }, [type, fields, size, errLevel, fgColor, bgColor, logoDataUrl, frame, customFrameText]);
@@ -438,10 +453,28 @@ export default function QRGenerator() {
             const res = await fetch(qrDataUrl);
             const blob = await res.blob();
             await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
         } catch {
             // fallback: nothing to do silently
         }
     };
+
+    const handleSuggestion = (s) => {
+        if (s.action === 'reset') {
+            setQrDataUrl(null);
+            setFields({});
+        } else if (s.action === 'share') {
+            if (navigator.share) {
+                navigator.share({ title: 'QR Code', url: qrDataUrl }).catch(() => {});
+            }
+        }
+    };
+
+    const suggestions = [
+        { label: 'Generate another', action: 'reset', icon: '🔄' },
+        ...(navigator.share ? [{ label: 'Share QR', action: 'share', icon: '📤' }] : [])
+    ];
 
     return (
         <AIServiceShell>
@@ -452,10 +485,9 @@ export default function QRGenerator() {
                 description="Choose content, tune scan reliability, then export PNG or SVG."
             />
             <AIInlinePanel>
-
-                    <div className="grid lg:grid-cols-[1fr_380px] gap-8 items-start">
-                    {/* Left: config */}
-                    <div className="space-y-6">
+                <div className="max-w-3xl mx-auto space-y-6">
+                    {/* Config */}
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 p-6 shadow-sm space-y-6">
                         {/* Templates */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 p-6 shadow-sm">
                             <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Quick Templates</p>
@@ -621,63 +653,34 @@ export default function QRGenerator() {
                             disabled={generating}
                             className="w-full py-3.5 bg-violet-600 text-white font-bold rounded-xl shadow-sm hover:bg-violet-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                         >
-                            {generating ? 'Generating…' : 'Generate QR Code'}
+                            {generating ? 'Generating...' : 'Generate QR Code'}
                         </button>
                     </div>
 
-                    {/* Right: preview */}
-                    <div className="lg:sticky lg:top-24 space-y-4">
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 p-6 shadow-sm">
-                            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Preview</p>
-                            <div className="flex items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-800 aspect-square">
-                                {qrDataUrl ? (
-                                    <img src={qrDataUrl} alt="Generated QR Code" className="w-full h-full object-contain p-2 rounded-xl" />
-                                ) : (
-                                    <div className="text-center text-gray-400 dark:text-gray-600 p-8">
-                                        <svg className="w-16 h-16 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
-                                        </svg>
-                                        <p className="text-sm">Fill in the fields and click<br />Generate QR Code</p>
-                                    </div>
-                                )}
-                            </div>
-
-                            {qrDataUrl && (
-                                <div className="mt-4 grid grid-cols-2 gap-2">
-                                    <button
-                                        onClick={downloadPNG}
-                                        className="flex items-center justify-center gap-1.5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold rounded-xl transition-colors"
-                                    >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                                        PNG
-                                    </button>
-                                    <button
-                                        onClick={downloadSVG}
-                                        className="flex items-center justify-center gap-1.5 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:border-violet-400 transition-colors"
-                                    >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                                        SVG
-                                    </button>
-                                    <button
-                                        onClick={copyImage}
-                                        className="col-span-2 flex items-center justify-center gap-1.5 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm rounded-xl hover:border-violet-400 transition-colors"
-                                    >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                                        Copy Image
-                                    </button>
-                                </div>
-                            )}
+                    {/* Loader */}
+                    {generating && (
+                        <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 rounded-2xl shadow-sm overflow-hidden flex justify-center py-6">
+                            <AILoader mode="steps" steps={['Encoding', 'Generating', 'Finalizing']} currentStep={loadingStep} />
                         </div>
+                    )}
 
-                        {/* Tips */}
-                        <div className="bg-violet-50 dark:bg-violet-900/10 border border-violet-100 dark:border-violet-500/20 rounded-2xl p-4 text-sm text-violet-700 dark:text-violet-300 space-y-1.5">
-                            <p className="font-semibold">💡 Tips for best results</p>
-                            <p>• Use <strong>High</strong> error correction when adding a logo.</p>
-                            <p>• Keep good contrast between QR and background.</p>
-                            <p>• Maintain a quiet zone (white border) around the QR.</p>
-                            <p>• Minimum print size: <strong>2 × 2 cm</strong> for reliable scanning.</p>
-                        </div>
-                    </div>
+                    {/* Result */}
+                    {!generating && qrDataUrl && (
+                        <QRResultCard
+                            title="✓ QR generated"
+                            trustBadge="🔒 Generated locally"
+                            suggestions={suggestions}
+                            onSuggestionSelect={handleSuggestion}
+                        >
+                            <QRResultCard.Generated
+                                dataUrl={qrDataUrl}
+                                onDownloadPNG={downloadPNG}
+                                onDownloadSVG={downloadSVG}
+                                onCopyImage={copyImage}
+                                copied={copied}
+                            />
+                        </QRResultCard>
+                    )}
                 </div>
             </AIInlinePanel>
         </AIServiceShell>

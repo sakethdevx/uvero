@@ -346,7 +346,6 @@
 
   /* ── Premium homepage system ── */
   .premium-home {
-    overflow: hidden;
     background:
       radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 42%),
       radial-gradient(circle at 10% 92%, color-mix(in srgb, var(--ambient-blue) 68%, transparent), transparent 32%),
@@ -754,37 +753,6 @@
 
   .action-panel-shell {
     position: relative;
-    isolation: isolate;
-  }
-
-  .action-panel-shell::before {
-    content: '';
-    position: absolute;
-    inset: -5rem -4rem -4.5rem;
-    z-index: -2;
-    pointer-events: none;
-    background:
-      radial-gradient(circle at 50% 46%, color-mix(in srgb, var(--accent-blue) 22%, transparent), transparent 34%),
-      radial-gradient(circle at 44% 50%, color-mix(in srgb, var(--accent-violet) 20%, transparent), transparent 43%),
-      radial-gradient(circle at 58% 58%, color-mix(in srgb, var(--ambient-rose) 74%, transparent), transparent 44%);
-    opacity: 0.78;
-    filter: blur(16px);
-    transform: scale(0.96);
-    transition: opacity 0.55s ease, transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .action-panel-shell::after {
-    content: '';
-    position: absolute;
-    inset: -1.25rem;
-    z-index: -1;
-    pointer-events: none;
-    border-radius: 1.9rem;
-    background:
-      radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.34), transparent 42%),
-      var(--accent-gradient-soft);
-    opacity: 0.44;
-    filter: blur(18px);
   }
 
   .execution-surface {

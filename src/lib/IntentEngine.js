@@ -76,20 +76,28 @@ const CAPABILITIES = [
     label: 'Generate QR Code',
     icon: '🔳',
     patterns: [
-      /(?:generate|create|make|build)\s+(?:a\s+)?qr\s*(?:code)?(?:\s+(?:for|of|with))?\s*(?:url|link|text)?/i,
+      /(?:generate|create|make|build)\s+(?:a\s+)?qr\s*(?:code)?(?:\s+(?:for|of|with))?\s*(?:url|link|text|wifi)?/i,
+      /(?:generate|create|make|build)\s+(?:wifi\s+)qr/i,
       /qr\s*(?:code)?\s+(?:for|of)\s+/i,
       /(?:quick|simple|fast)\s+qr/i,
+      /qr\s+wifi/i,
     ],
     extractParams: (query) => {
+      // Try to detect wifi
+      if (/wifi/i.test(query)) {
+        return { type: 'wifi' };
+      }
+      
       // Try to extract a URL from the query
       const urlMatch = query.match(/(https?:\/\/[^\s]+)/i);
       const textMatch = query.match(/(?:for|of|with)\s+(.+)$/i);
       return {
+        type: 'text',
         url: urlMatch ? urlMatch[1] : null,
         text: !urlMatch && textMatch ? textMatch[1].trim() : null,
       };
     },
-    description: () => 'URL or Text → QR Code',
+    description: (params) => params.type === 'wifi' ? 'WiFi → QR Code' : 'URL or Text → QR Code',
   },
   {
     id: 'clipboard-share',
@@ -118,7 +126,7 @@ const CAPABILITIES = [
     patterns: [
       /(?:generate|create|make)\s+(?:a\s+)?(?:custom|advanced|styled|branded)\s+qr/i,
       /qr\s+(?:with|using)\s+(?:logo|frame|template|color|design)/i,
-      /(?:generate|create)\s+qr\s+(?:for|of)\s+(?:wifi|upi|vcard|email|sms|whatsapp|contact)/i,
+      /(?:generate|create)\s+qr\s+(?:for|of)\s+(?:upi|vcard|email|sms|whatsapp|contact)/i,
     ],
     extractParams: (query) => {
       // Detect QR sub-type

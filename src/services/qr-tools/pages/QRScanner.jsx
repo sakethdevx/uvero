@@ -3,6 +3,7 @@ import useSEO from '../../../hooks/useSEO';
 import jsQR from 'jsqr';
 import AILoader from '../../../components/AILoader';
 import { AIBackLink, AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout';
+import QRResultCard from '../../../components/QRResultCard';
 
 /**
  * QR Scanner — camera live scan + image upload
@@ -79,70 +80,35 @@ function ResultCard({ result, onClear }) {
     const isEmail = /^mailto:/i.test(result);
     const isPhone = /^tel:/i.test(result);
     const isWhatsApp = /^https?:\/\/wa\.me\//i.test(result);
-    const typeLabel = getTypeLabel(result);
+
+    const actions = [];
+    if (isUrl || isWhatsApp) actions.push({ label: 'Open URL →', href: result });
+    if (isEmail) actions.push({ label: 'Open Email App', href: result });
+    if (isPhone) actions.push({ label: 'Call', href: result });
+    if (isUpi) actions.push({ label: 'Open Payment App', href: result });
+
+    const suggestions = [
+        { label: 'Scan another', action: 'clear', icon: '🔄' },
+    ];
+
+    const handleSuggestion = (s) => {
+        if (s.action === 'clear') onClear();
+    };
 
     return (
-        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl p-5 space-y-4">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 flex-shrink-0" />
-                    <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">QR Decoded</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-800/40 text-emerald-600 dark:text-emerald-300">{typeLabel}</span>
-                </div>
-                <button onClick={onClear} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 rounded-xl p-4 break-all font-mono text-sm text-gray-800 dark:text-gray-200 select-all border border-gray-100 dark:border-white/5">
-                {result}
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-                <button
-                    onClick={handleCopy}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors"
-                >
-                    {copied ? '✓ Copied!' : 'Copy Text'}
-                </button>
-                {(isUrl || isWhatsApp) && (
-                    <a
-                        href={result}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:border-emerald-400 transition-colors"
-                    >
-                        Open URL →
-                    </a>
-                )}
-                {isEmail && (
-                    <a
-                        href={result}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:border-emerald-400 transition-colors"
-                    >
-                        Open Email App
-                    </a>
-                )}
-                {isPhone && (
-                    <a
-                        href={result}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:border-emerald-400 transition-colors"
-                    >
-                        Call
-                    </a>
-                )}
-                {isUpi && (
-                    <a
-                        href={result}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:border-emerald-400 transition-colors"
-                    >
-                        Open Payment App
-                    </a>
-                )}
-            </div>
-        </div>
+        <QRResultCard
+            title="✓ QR decoded"
+            trustBadge="🔒 Decoded locally"
+            suggestions={suggestions}
+            onSuggestionSelect={handleSuggestion}
+        >
+            <QRResultCard.Decoded
+                text={result}
+                onCopyText={handleCopy}
+                copied={copied}
+                actions={actions}
+            />
+        </QRResultCard>
     );
 }
 

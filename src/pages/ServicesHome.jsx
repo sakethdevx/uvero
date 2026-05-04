@@ -83,11 +83,11 @@ export default function ServicesHome() {
   }, []);
 
   useEffect(() => {
-    const nextState = activeIntent ? 'processing' : showDoneConfirm ? 'result' : 'idle';
+    const nextState = activeIntent ? 'processing' : 'idle';
     if (interactionState !== nextState) {
       setInteractionState(nextState);
     }
-  }, [activeIntent, showDoneConfirm, setInteractionState, interactionState]);
+  }, [activeIntent, setInteractionState, interactionState]);
 
   const isInteracting = Boolean(activeIntent) || interactionState !== 'idle';
   const isFaded = interactionState !== 'idle';
@@ -120,16 +120,6 @@ export default function ServicesHome() {
           <OnboardingHint onExampleSelect={handleOnboardingExample} />
         </div>
 
-        {/* Action Panel (appears when intent is resolved) */}
-        {activeIntent && (
-          <div className="action-panel-stage w-full">
-            <ActionPanel
-              intent={activeIntent}
-              onDismiss={handleDismissAction}
-            />
-          </div>
-        )}
-
         {/* Post-action micro-confirmation */}
         {showDoneConfirm && !activeIntent && (
           <div className="success-highlight flex items-center gap-2 text-sm font-medium animate-state-in"
@@ -143,7 +133,7 @@ export default function ServicesHome() {
         )}
 
         {/* Action Chips */}
-        {!activeIntent && !showDoneConfirm && (
+        {!activeIntent && (
           <div className={`flex flex-wrap justify-center gap-2 animate-fade-in transition-ui ${fadeClass}`}
             style={{ animationDelay: '0.3s' }}
           >
@@ -161,7 +151,7 @@ export default function ServicesHome() {
         )}
 
         {/* Stats line */}
-        {!activeIntent && !showDoneConfirm && (
+        {!activeIntent && (
           <p className={`text-xs font-medium tracking-wide animate-fade-in transition-ui ${fadeClass}`}
             style={{ color: 'var(--text-secondary)', animationDelay: '0.5s' }}
           >
@@ -169,6 +159,14 @@ export default function ServicesHome() {
           </p>
         )}
       </div>
+
+      {/* Action Panel (appears when intent is resolved) */}
+      {activeIntent && (
+        <ActionPanel
+          intent={activeIntent}
+          onDismiss={handleDismissAction}
+        />
+      )}
     </div>
   );
 }
