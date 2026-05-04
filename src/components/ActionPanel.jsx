@@ -111,7 +111,7 @@ export default function ActionPanel({ intent, onDismiss, onIntentChange }) {
 
   return (
     <div 
-      className={`fixed inset-0 w-[100vw] h-[100vh] z-[100] flex items-center justify-center transition-all duration-[420ms] ease-apple ${
+      className={`fixed inset-0 z-[100] flex items-center justify-center transition-all duration-[420ms] ease-apple ${
         isVisible
           ? 'opacity-100'
           : 'opacity-0 pointer-events-none'

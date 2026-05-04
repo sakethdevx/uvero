@@ -779,9 +779,7 @@
     z-index: -1;
     pointer-events: none;
     border-radius: 1.9rem;
-    background:
-      radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.34), transparent 42%),
-      var(--accent-gradient-soft);
+    background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.34), transparent 42%);
     opacity: 0.44;
     filter: blur(18px);
   }
