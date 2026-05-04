@@ -102,7 +102,13 @@
    ═══════════════════════════════════════════════════════ */
 
 @layer base {
-  html,
+  html {
+    background-color: var(--surface-0);
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
   body {
     background-color: var(--surface-0);
     color: var(--text-primary);
@@ -112,8 +118,17 @@
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     min-height: 100%;
-    height: auto;
-    overscroll-behavior-y: contain;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overscroll-behavior-y: none; /* Changed from contain to none to be more aggressive on overscroll */
+    position: relative;
+  }
+
+  #root {
+    height: 100%;
+    min-height: 100%;
+  }
     
     /* Hide scrollbars on mobile for a native app feel */
     @media (max-width: 768px) {
@@ -365,9 +380,9 @@
 
   .ambient-background[data-is-home='true'] {
     background:
-      radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 45%),
-      radial-gradient(circle at 15% 85%, color-mix(in srgb, var(--ambient-blue) 62%, transparent), transparent 35%),
-      radial-gradient(circle at 85% 85%, color-mix(in srgb, var(--ambient-pink) 64%, transparent), transparent 35%),
+      radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 42%),
+      radial-gradient(circle at 10% 92%, color-mix(in srgb, var(--ambient-blue) 68%, transparent), transparent 32%),
+      radial-gradient(circle at 88% 70%, color-mix(in srgb, var(--ambient-pink) 72%, transparent), transparent 30%),
       var(--surface-0);
   }
 
@@ -447,7 +462,7 @@
     border-radius: 50%;
     transform: translate(-50%, -50%) scale(var(--ambient-focus-scale, 1));
     animation: 
-      auraSpin 60s linear infinite,
+      auraSpin 15s linear infinite,
       auraMorph 8s ease-in-out infinite alternate;
     transition: all 1.2s cubic-bezier(0.23, 1, 0.32, 1);
     transform-origin: center center;
