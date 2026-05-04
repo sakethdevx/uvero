@@ -264,7 +264,7 @@ export default function UnifiedConverter() {
 
                         <div className="flex flex-wrap items-center gap-2 md:justify-end">
                             {/* Neural Engine Status Indicator */}
-                            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-500 ${
+                            <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all duration-500 ${
                                 engineStatus === 'ready' 
                                 ? 'bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400' 
                                 : engineStatus === 'downloading'
@@ -275,15 +275,15 @@ export default function UnifiedConverter() {
                                     engineStatus === 'ready' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 
                                     engineStatus === 'downloading' ? 'bg-indigo-500 animate-ping' : 'bg-gray-400'
                                 }`} />
-                                <span className="text-[10px] font-black uppercase tracking-widest">
-                                    Engine: {engineStatus === 'ready' ? 'Ready' : engineStatus === 'downloading' ? 'Optimizing' : 'Idle'}
+                                <span className="text-xs font-bold uppercase tracking-wider">
+                                    {engineStatus === 'ready' ? 'Engine Ready' : engineStatus === 'downloading' ? 'Optimizing' : 'Engine Idle'}
                                 </span>
                             </div>
 
                             {file && (
                                 <button 
                                     onClick={handleReset}
-                                    className="suggestion-chip !opacity-100 !animate-none text-red-600 dark:text-red-400"
+                                    className="suggestion-chip !opacity-100 !animate-none text-red-600 dark:text-red-400 flex items-center gap-2"
                                 >
                                     <svg className="w-4 h-4 transition-transform group-hover/btn:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
