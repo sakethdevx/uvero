@@ -26,6 +26,42 @@ const SYNONYM_MAP = {
   crop:      ['trim', 'cut', 'clip', 'slice'],
 };
 
+// ─── Unit Conversion Constants ───
+const UNIT_NORMALIZE_MAP = {
+  kilograms: 'kg', kilogram: 'kg', kgs: 'kg', pounds: 'lbs', pound: 'lbs', grams: 'g', gram: 'g', ounces: 'oz', ounce: 'oz',
+  meters: 'm', meter: 'm', feet: 'ft', foot: 'ft', inches: 'in', inch: 'in', miles: 'mi', mile: 'mi',
+  celsius: 'c', celcius: 'c', centigrade: 'c', fahrenheit: 'f', kelvin: 'k',
+  eastern: 'America/New_York', pacific: 'America/Los_Angeles', central: 'America/Chicago', mountain: 'America/Denver',
+  pst: 'America/Los_Angeles', est: 'America/New_York', cst: 'America/Chicago', mst: 'America/Denver',
+  liters: 'l', liter: 'l', millilitres: 'ml', milliliter: 'ml',
+  gallons: 'gal', gallon: 'gal', quarts: 'qt', quart: 'qt', pints: 'pt', pint: 'pt', cups: 'cup',
+  acres: 'acre', hectares: 'hectare', sqft: 'ft2', 'sq ft': 'ft2', 'square feet': 'ft2', 'square foot': 'ft2', 
+  sqmeters: 'm2', 'sq m': 'm2', 'square meters': 'm2', 'square meter': 'm2',
+  'sq km': 'km2', 'square kilometers': 'km2', 'sq cm': 'cm2', 'square centimeters': 'cm2',
+  'sq in': 'in2', 'square inches': 'in2', 'square inch': 'in2',
+  knots: 'knot', 'miles per hour': 'mph', 'kilometers per hour': 'kph', 'meters per second': 'mps', 'feet per second': 'fps',
+  seconds: 's', second: 's', minutes: 'min', minute: 'min', hours: 'hr', hour: 'hr', days: 'day',
+  weeks: 'week', months: 'month', years: 'year'
+};
+
+const UNIT_TO_CAT = {
+  kg: 'weight', lbs: 'weight', g: 'weight', oz: 'weight', ton: 'weight', stone: 'weight',
+  m: 'length', km: 'length', cm: 'length', mm: 'length', ft: 'length', in: 'length', yd: 'length', mi: 'length',
+  c: 'temperature', f: 'temperature', k: 'temperature',
+  'america/new_york': 'timezone', 'america/los_angeles': 'timezone', 'america/chicago': 'timezone', 'america/denver': 'timezone',
+  utc: 'timezone',
+  l: 'volume', ml: 'volume', gal: 'volume', qt: 'volume', pt: 'volume', cup: 'volume', floz: 'volume', m3: 'volume',
+  m2: 'area', km2: 'area', cm2: 'area', ft2: 'area', in2: 'area', acre: 'area', hectare: 'area',
+  mps: 'speed', kph: 'speed', mph: 'speed', fps: 'speed', knot: 'speed',
+  s: 'time', min: 'time', hr: 'time', day: 'time', week: 'time', month: 'time', year: 'time'
+};
+
+const unitKeywords = Array.from(new Set([...Object.keys(UNIT_NORMALIZE_MAP), ...Object.keys(UNIT_TO_CAT)]));
+unitKeywords.sort((a, b) => b.length - a.length);
+const UNIT_REGEX = new RegExp(`^(?:${unitKeywords.join('|')})(?:\\s+converter)?$`, 'i');
+const CATEGORIES = ['weight', 'length', 'temperature', 'volume', 'speed', 'area', 'timezone', 'time'];
+const CAT_REGEX = new RegExp(`^(?:${CATEGORIES.join('|')})(?:\\s+converter)?$`, 'i');
+
 // ─── Capability definitions with regex patterns ───
 const CAPABILITIES = [
   {
@@ -41,41 +77,48 @@ const CAPABILITIES = [
       /(?:convert|transform)\s+(\w+)\s+to\s+(\w+)/i,
       /(?:convert|transform)\s+(\w+)\s+to\s*$/i,
       /(?:timezone|time)\s+converter/i,
-      /(?:weight|length|temperature|volume|speed)\s+converter/i,
+      /(?:weight|length|temperature|volume|speed|area)\s+converter/i,
+      UNIT_REGEX,
+      CAT_REGEX,
     ],
     extractParams: (query) => {
+      let from, to, catMatch;
       const match = query.match(/(\w+)\s+to\s+(\w+)?/i);
+      
       if (match) {
-        let from = match[1].toLowerCase();
-        let to = (match[2] || '').toLowerCase();
+        from = match[1].toLowerCase();
+        to = (match[2] || '').toLowerCase();
+      } else {
+        const fullQuery = query.toLowerCase().trim().replace(/\s+converter$/, '');
+        if (UNIT_NORMALIZE_MAP[fullQuery] || UNIT_TO_CAT[fullQuery]) {
+          from = fullQuery;
+          to = '';
+        } else if (CATEGORIES.includes(fullQuery)) {
+          catMatch = fullQuery;
+        } else {
+          const words = fullQuery.split(/\s+/);
+          for (const w of words) {
+            if (UNIT_NORMALIZE_MAP[w] || UNIT_TO_CAT[w]) {
+              from = w;
+              to = '';
+              break;
+            }
+          }
+        }
+      }
+
+      if (catMatch) {
+        return { cat: catMatch };
+      }
+
+      if (from) {
+        const finalFrom = UNIT_NORMALIZE_MAP[from] || from;
+        const finalTo = to ? (UNIT_NORMALIZE_MAP[to] || to) : '';
+
+        const catFrom = UNIT_TO_CAT[finalFrom.toLowerCase()];
+        const catTo = finalTo ? UNIT_TO_CAT[finalTo.toLowerCase()] : null;
         
-        // Normalize common abbreviations/names
-        const normalizeMap = {
-          kilograms: 'kg', kilogram: 'kg', pounds: 'lbs', pound: 'lbs', grams: 'g', gram: 'g', ounces: 'oz', ounce: 'oz',
-          meters: 'm', meter: 'm', feet: 'ft', foot: 'ft', inches: 'in', inch: 'in', miles: 'mi', mile: 'mi',
-          celsius: 'c', celcius: 'c', centigrade: 'c', fahrenheit: 'f', kelvin: 'k',
-          eastern: 'America/New_York', pacific: 'America/Los_Angeles', central: 'America/Chicago', mountain: 'America/Denver'
-        };
-        from = normalizeMap[from] || from;
-        to = normalizeMap[to] || to;
-
-        // Detect category
-        const unitToCat = {
-          kg: 'weight', lbs: 'weight', g: 'weight', oz: 'weight', ton: 'weight', stone: 'weight',
-          m: 'length', km: 'length', cm: 'length', mm: 'length', ft: 'length', in: 'length', yd: 'length', mi: 'length',
-          c: 'temperature', f: 'temperature', k: 'temperature',
-          'america/new_york': 'timezone', 'america/los_angeles': 'timezone', 'america/chicago': 'timezone', 'america/denver': 'timezone',
-          pst: 'timezone', est: 'timezone', cst: 'timezone', mst: 'timezone', utc: 'timezone'
-        };
-
-        // Handle specific timezone abbreviations mapping to full IDs
-        const tzAbbrMap = {
-          pst: 'America/Los_Angeles', est: 'America/New_York', cst: 'America/Chicago', mst: 'America/Denver'
-        };
-        const finalFrom = tzAbbrMap[from] || from;
-        const finalTo = tzAbbrMap[to] || to;
-
-        const cat = unitToCat[finalFrom] || unitToCat[finalTo] || 'weight';
+        const cat = catFrom || catTo || 'weight';
         return { cat, from: finalFrom, to: finalTo || null };
       }
       return {};
@@ -456,32 +499,64 @@ function normalizeQuery(query) {
 
 // ─── Dynamic Unit Suggestion Generator ───
 function getDynamicUnitSuggestions(params) {
-  if (!params.from) return [];
+  if (!params.from && !params.cat) return [];
   
   const COMMON_UNITS = {
     weight: ['kg', 'lbs', 'g', 'oz', 'ton'],
     length: ['m', 'ft', 'in', 'km', 'mi', 'cm', 'mm'],
     temperature: ['c', 'f', 'k'],
-    timezone: ['America/Los_Angeles', 'America/New_York', 'America/Chicago', 'UTC']
+    timezone: ['America/Los_Angeles', 'America/New_York', 'America/Chicago', 'UTC'],
+    volume: ['l', 'ml', 'gal', 'qt', 'pt', 'cup', 'floz', 'm3'],
+    area: ['m2', 'km2', 'cm2', 'ft2', 'in2', 'acre', 'hectare'],
+    speed: ['mps', 'kph', 'mph', 'fps', 'knot'],
+    time: ['s', 'min', 'hr', 'day', 'week', 'month', 'year']
   };
 
-  const cat = params.cat || 'weight';
-  const from = params.from;
-  const units = COMMON_UNITS[cat] || [];
-  
-  return units
-    .filter(u => u.toLowerCase() !== from.toLowerCase())
-    .map(u => {
-      const uLabel = u.includes('/') ? u.split('/').pop().replace('_', ' ') : u;
+  if (params.from) {
+    const cat = params.cat || 'weight';
+    const from = params.from;
+    const units = COMMON_UNITS[cat] || [];
+    
+    return units
+      .filter(u => u.toLowerCase() !== from.toLowerCase())
+      .map(u => {
+        const uLabel = u.includes('/') ? u.split('/').pop().replace('_', ' ') : u;
+        return {
+          id: `unit-gen-${from}-${u}`,
+          title: `${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
+          description: `Quickly convert ${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
+          icon: '📏',
+          path: `/unit-converter?cat=${cat}&from=${from}&to=${u}`,
+          category: 'Converters' // Use 'Converters' to match CommandBar's Tier 2 fallback
+        };
+      });
+  } else if (params.cat) {
+    const cat = params.cat;
+    const catPairs = {
+      speed: [['mph', 'kph'], ['kph', 'mph'], ['mps', 'fps'], ['knot', 'mph']],
+      area: [['acre', 'ft2'], ['ft2', 'm2'], ['m2', 'ft2'], ['hectare', 'acre']],
+      volume: [['gal', 'l'], ['l', 'gal'], ['cup', 'ml'], ['floz', 'ml']],
+      weight: [['kg', 'lbs'], ['lbs', 'kg'], ['g', 'oz'], ['ton', 'kg']],
+      length: [['mi', 'km'], ['km', 'mi'], ['ft', 'm'], ['m', 'ft']],
+      temperature: [['c', 'f'], ['f', 'c'], ['c', 'k']],
+      timezone: [['America/New_York', 'America/Los_Angeles'], ['UTC', 'America/New_York']],
+      time: [['hr', 'min'], ['day', 'hr'], ['week', 'day']]
+    };
+    const pairs = catPairs[cat] || [];
+    return pairs.map(([f, t]) => {
+      const fLabel = f.includes('/') ? f.split('/').pop().replace('_', ' ') : f;
+      const tLabel = t.includes('/') ? t.split('/').pop().replace('_', ' ') : t;
       return {
-        id: `unit-gen-${from}-${u}`,
-        title: `${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
-        description: `Quickly convert ${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
+        id: `unit-gen-cat-${cat}-${f}-${t}`,
+        title: `${f.toUpperCase()} to ${tLabel.toUpperCase()}`,
+        description: `Quickly convert ${f.toUpperCase()} to ${tLabel.toUpperCase()}`,
         icon: '📏',
-        path: `/unit-converter?cat=${cat}&from=${from}&to=${u}`,
-        category: 'Converters' // Use 'Converters' to match CommandBar's Tier 2 fallback
+        path: `/unit-converter?cat=${cat}&from=${f}&to=${t}`,
+        category: 'Converters'
       };
     });
+  }
+  return [];
 }
 
 // ─── Main resolver ───
