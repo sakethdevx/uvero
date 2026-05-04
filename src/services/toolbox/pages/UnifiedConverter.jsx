@@ -463,7 +463,7 @@ export default function UnifiedConverter() {
 
                                          {resizeMode === 'dimensions' ? (
                                              <div className="space-y-3">
-                                                 <div className="grid grid-cols-2 gap-3">
+                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                      <div>
                                                          <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 mb-1">Width</label>
                                                          <input
@@ -579,15 +579,15 @@ export default function UnifiedConverter() {
                      {/* Result */}
                      {result && (
                          <div className="result-card rounded-xl border border-green-200 bg-green-50/80 p-4 dark:border-green-800/60 dark:bg-green-500/10">
-                             <div className="flex items-center justify-between mb-3">
+                             <div className="flex flex-col sm:flex-row items-center justify-between mb-4 gap-3">
                                  <h3 className="text-lg font-semibold text-green-700 dark:text-green-300">
                                      {selectedFormat === 'remove-background' ? '✓ Background Removed' : selectedFormat === 'crop' ? '✓ Image Cropped' : selectedFormat === 'resize' ? '✓ Image Resized' : selectedFormat === 'watermark' ? '✓ Watermark Added' : '✓ Conversion Complete'}
                                  </h3>
-                                 <div className="flex gap-2">
-                                     <Button onClick={handleReset} variant="outline" size="sm">
+                                 <div className="flex gap-2 w-full sm:w-auto">
+                                     <Button onClick={handleReset} variant="outline" size="sm" className="flex-1 sm:flex-none">
                                          {selectedFormat === 'remove-background' ? 'Process Another' : selectedFormat === 'crop' ? 'Crop Another' : selectedFormat === 'resize' ? 'Resize Another' : selectedFormat === 'watermark' ? 'Add to Another' : 'New Conversion'}
                                      </Button>
-                                     <Button onClick={handleDownload} size="sm">
+                                     <Button onClick={handleDownload} size="sm" className="flex-1 sm:flex-none">
                                          Download
                                      </Button>
                                  </div>
