@@ -289,19 +289,19 @@ const UnitConverter = ({ initialCategory = 'weight', initialFrom = null, initial
                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500 ml-1">
                         Select Category
                     </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
+                    <div className="flex overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-4 md:grid-cols-8 gap-3 scrollbar-hide">
                         {Object.entries(conversionData).map(([key, cat]) => (
                             <button
                                 key={key}
                                 onClick={() => handleCategoryChange(key)}
-                                className={`group flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-300 ${
+                                className={`group flex-shrink-0 flex flex-col items-center justify-center p-3 sm:p-4 min-w-[85px] sm:min-w-0 rounded-2xl border transition-all duration-300 ${
                                     category === key
                                         ? 'border-indigo-500 bg-indigo-500/[0.05] shadow-sm'
                                         : 'border-gray-100 dark:border-white/5 hover:border-indigo-200 dark:hover:border-indigo-900/50 bg-white dark:bg-white/[0.02]'
                                 }`}
                             >
-                                <span className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-300">{cat.icon}</span>
-                                <span className={`text-[10px] font-black uppercase tracking-widest ${
+                                <span className="text-xl sm:text-2xl mb-1.5 sm:mb-2 group-hover:scale-110 transition-transform duration-300">{cat.icon}</span>
+                                <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-center ${
                                     category === key ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500'
                                 }`}>{cat.name}</span>
                             </button>
