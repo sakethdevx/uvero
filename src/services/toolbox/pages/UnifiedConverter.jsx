@@ -308,13 +308,13 @@ export default function UnifiedConverter() {
                     </div>
 
                     {file && categoryInfo && (
-                        <div className="grid gap-4 lg:grid-cols-[minmax(260px,0.75fr)_minmax(0,1fr)]">
+                        <div className="grid gap-6 md:grid-cols-[minmax(280px,0.4fr)_1fr] lg:grid-cols-[minmax(320px,0.75fr)_minmax(0,1fr)]">
                             {/* Input Preview */}
-                            <div className="glass-subtle p-3">
-                                <h3 className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
+                            <div className="glass-subtle p-3 flex flex-col">
+                                <h3 className="mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
                                     Original File
                                 </h3>
-                                <div className="aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 lg:aspect-square flex items-center justify-center">
+                                <div className="aspect-video md:aspect-[4/3] lg:aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-white/[0.03] flex items-center justify-center border border-gray-200 dark:border-white/5">
                                     {category === 'image' && previewUrl ? (
                                         <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
                                     ) : category === 'video' && previewUrl ? (
@@ -347,7 +347,9 @@ export default function UnifiedConverter() {
                                         </div>
                                     )}
                                 </div>
-                                <FileInfo file={file} className="mt-2" />
+                                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-white/5">
+                                    <FileInfo file={file} variant="ghost" />
+                                </div>
                             </div>
 
                             {/* Settings */}
@@ -388,7 +390,7 @@ export default function UnifiedConverter() {
                                                             type="button"
                                                             onClick={() => { setSelectedFormat(fmt.value); if (fmt.value !== 'crop') setCropArea(null); }}
                                                             disabled={isProcessing}
-                                                            className={`relative overflow-hidden rounded-xl border p-3 text-left transition-all duration-300 ease-apple group/fmt ${isSelected
+                                                            className={`relative overflow-hidden rounded-xl border p-2.5 text-left transition-all duration-300 ease-apple group/fmt flex flex-col justify-between min-h-[72px] ${isSelected
                                                                 ? isSpecial
                                                                     ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/10'
                                                                     : 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10'
@@ -397,13 +399,15 @@ export default function UnifiedConverter() {
                                                                     : 'border-gray-100 dark:border-white/5 hover:border-indigo-200 dark:hover:border-indigo-900/50 bg-white dark:bg-white/[0.02]'
                                                                 }`}
                                                         >
-                                                            {isSelected && (
-                                                                <div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${isSpecial ? 'bg-purple-500' : 'bg-indigo-500'} animate-pulse`} />
-                                                            )}
-                                                            <div className={`font-black text-sm tracking-tight transition-colors ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300 group-hover/fmt:text-indigo-600 dark:group-hover/fmt:text-indigo-400'}`}>
-                                                                {fmt.label}
+                                                            <div className="flex justify-between items-start gap-1">
+                                                                <div className={`font-black text-[13px] tracking-tight transition-colors ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300 group-hover/fmt:text-indigo-600 dark:group-hover/fmt:text-indigo-400'}`}>
+                                                                    {fmt.label}
+                                                                </div>
+                                                                {isSelected && (
+                                                                    <div className={`w-1.5 h-1.5 rounded-full ${isSpecial ? 'bg-purple-500' : 'bg-indigo-500'} animate-pulse shrink-0 mt-1`} />
+                                                                )}
                                                             </div>
-                                                            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-1.5 font-medium leading-tight">
+                                                            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 font-medium leading-tight line-clamp-2">
                                                                 {fmt.desc}
                                                             </div>
                                                         </button>
