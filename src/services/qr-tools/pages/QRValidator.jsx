@@ -328,9 +328,9 @@ export default function QRValidator() {
                         >
                             <div className="space-y-4">
                                 {/* Score */}
-                                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-white/5 p-5 flex items-center gap-6">
+                                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-white/5 p-5 flex flex-col sm:flex-row items-center gap-6">
                                     <ScoreRing score={score} />
-                                    <div>
+                                    <div className="text-center sm:text-left">
                                         <p className="text-lg font-bold text-gray-900 dark:text-white">Scan Quality Score</p>
                                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                                             {score >= 80
