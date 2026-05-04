@@ -97,9 +97,7 @@ export default function ServicesHome() {
     <div className={`premium-home ${isInteracting ? 'premium-home-interacting' : ''} relative flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] px-4 pb-24 md:pb-8`}>
 
       {/* ── Main content — vertically centered ── */}
-      <div className={`premium-home-content relative z-10 w-full ${isInteracting ? 'max-w-3xl gap-4' : 'max-w-xl gap-5'} mx-auto flex flex-col items-center`}
-        style={{ animationDelay: '0.1s' }}
-      >
+      <div className={`premium-home-content relative z-10 w-full ${isInteracting ? 'max-w-3xl gap-4' : 'max-w-xl gap-5'} mx-auto flex flex-col items-center`}>
         {/* Greeting */}
         <div className="hero-copy text-center max-w-sm mx-auto mb-4">
           <h1 className="text-xl sm:text-2xl font-semibold tracking-tight intelligence-text">
@@ -134,9 +132,7 @@ export default function ServicesHome() {
 
         {/* Action Chips */}
         {!activeIntent && (
-          <div className={`flex flex-wrap justify-center gap-2 animate-fade-in transition-ui ${fadeClass}`}
-            style={{ animationDelay: '0.3s' }}
-          >
+          <div className={`flex flex-wrap justify-center gap-2 animate-fade-in transition-ui ${fadeClass}`}>
             {ACTION_CHIPS.map((chip) => (
               <button
                 key={chip.label}
@@ -153,7 +149,7 @@ export default function ServicesHome() {
         {/* Stats line */}
         {!activeIntent && (
           <p className={`text-xs font-medium tracking-wide animate-fade-in transition-ui ${fadeClass}`}
-            style={{ color: 'var(--text-secondary)', animationDelay: '0.5s' }}
+            style={{ color: 'var(--text-secondary)' }}
           >
             6 capabilities · 200+ actions · 100% private
           </p>
