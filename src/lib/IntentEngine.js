@@ -242,8 +242,8 @@ const CAPABILITIES = [
   },
   {
     id: 'qr-scan',
-    tier: 2,
-    handler: null,
+    tier: 1,
+    handler: 'QRQuickPanel',
     navigateTo: '/qr-tools/scanner',
     label: 'Scan QR Code',
     icon: '📷',
@@ -251,8 +251,8 @@ const CAPABILITIES = [
       /(?:scan|read|decode|detect|capture)\s+(?:a\s+)?qr\s*(?:code)?/i,
       /qr\s+(?:scanner|reader)/i,
     ],
-    extractParams: () => ({}),
-    description: () => 'Camera → Decode',
+    extractParams: () => ({ type: 'scanner' }),
+    description: () => 'Upload or Camera → Decode',
   },
 
   // Tier 3 — Navigate to full page
