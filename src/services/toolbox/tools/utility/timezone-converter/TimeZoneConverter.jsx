@@ -115,158 +115,165 @@ export default function TimeZoneConverter() {
     };
 
     return (
-        <div className="max-w-3xl mx-auto">
-            <div className="card">
-
+        <div className="glass-panel p-4 sm:p-6 md:p-8">
+            <div className="space-y-8">
                 {/* Current Time Display */}
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gradient-to-br from-blue-50 dark:from-gray-900 to-blue-100 rounded-lg p-4">
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-1 truncate">
+                <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="glass-subtle p-5 rounded-2xl bg-gradient-to-br from-indigo-500/5 to-transparent border-indigo-500/10">
+                        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-2 truncate">
                             {timeZones.find(tz => tz.value === fromZone)?.label}
-                        </p>
-                        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{currentFromTime}</p>
+                        </div>
+                        <div className="text-3xl font-black text-gray-900 dark:text-white tabular-nums tracking-tight">
+                            {currentFromTime}
+                        </div>
                     </div>
-                    <div className="bg-gradient-to-br from-green-50 dark:from-gray-900 to-green-100 rounded-lg p-4">
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-1 truncate">
+                    <div className="glass-subtle p-5 rounded-2xl bg-gradient-to-br from-emerald-500/5 to-transparent border-emerald-500/10">
+                        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 truncate">
                             {timeZones.find(tz => tz.value === toZone)?.label}
-                        </p>
-                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">{currentToTime}</p>
+                        </div>
+                        <div className="text-3xl font-black text-gray-900 dark:text-white tabular-nums tracking-tight">
+                            {currentToTime}
+                        </div>
                     </div>
                 </div>
 
-                <div className="space-y-6">
-                    {/* Date Input */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                            Date
-                        </label>
-                        <input
-                            type="date"
-                            value={inputDate}
-                            onChange={(e) => setInputDate(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        />
-                    </div>
-
-                    {/* From Zone */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                            From Time Zone
-                        </label>
-                        <select
-                            value={fromZone}
-                            onChange={(e) => setFromZone(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        >
-                            {timeZones.map(tz => (
-                                <option key={tz.value} value={tz.value}>
-                                    {tz.label} ({tz.offset})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Time Input */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                            Time
-                        </label>
-                        <input
-                            type="time"
-                            value={inputTime}
-                            onChange={handleInputChange}
-                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        />
-                    </div>
-
-                    {/* Swap Button */}
-                    <div className="flex justify-center">
-                        <Button
-                            onClick={handleSwapZones}
-                            variant="secondary"
-                            className="flex items-center gap-2"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                            </svg>
-                            Swap Time Zones
-                        </Button>
-                    </div>
-
-                    {/* To Zone */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                            To Time Zone
-                        </label>
-                        <select
-                            value={toZone}
-                            onChange={(e) => setToZone(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        >
-                            {timeZones.map(tz => (
-                                <option key={tz.value} value={tz.value}>
-                                    {tz.label} ({tz.offset})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Result Section */}
-                    {result && (
-                        <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:to-gray-800 rounded-lg p-6">
-                            <div className="text-center">
-                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Converted Time</p>
-                                <p className="text-4xl font-bold text-primary-600">
-                                    {result}
-                                </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                                    {inputTime} ({timeZones.find(tz => tz.value === fromZone)?.label}) 
-                                    <br />= {result} ({timeZones.find(tz => tz.value === toZone)?.label})
-                                </p>
+                <div className="grid lg:grid-cols-[1fr_300px] gap-8">
+                    <div className="space-y-6">
+                        {/* Date & Time Selection */}
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500 ml-1">
+                                    Base Date
+                                </label>
+                                <input
+                                    type="date"
+                                    value={inputDate}
+                                    onChange={(e) => setInputDate(e.target.value)}
+                                    className="w-full px-4 py-3 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/5 rounded-xl focus:outline-none transition-all"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500 ml-1">
+                                    Base Time
+                                </label>
+                                <input
+                                    type="time"
+                                    value={inputTime}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-3 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/5 rounded-xl focus:outline-none transition-all font-mono"
+                                />
                             </div>
                         </div>
-                    )}
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-3">
-                        <Button
-                            onClick={handleConvert}
-                            disabled={!inputTime}
-                            variant="primary"
-                            className="flex-1"
-                        >
-                            Convert
-                        </Button>
-                        <Button
-                            onClick={handleReset}
-                            variant="secondary"
-                        >
-                            Reset
-                        </Button>
+                        {/* Zone Selection */}
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500 ml-1">
+                                    Origin Time Zone
+                                </label>
+                                <select
+                                    value={fromZone}
+                                    onChange={(e) => setFromZone(e.target.value)}
+                                    className="w-full px-4 py-3 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/5 rounded-xl focus:outline-none transition-all appearance-none cursor-pointer"
+                                >
+                                    {timeZones.map(tz => (
+                                        <option key={tz.value} value={tz.value}>
+                                            {tz.label} ({tz.offset})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="flex justify-center -my-2 relative z-10">
+                                <button
+                                    onClick={handleSwapZones}
+                                    className="suggestion-chip !opacity-100 !animate-none p-3 rounded-full hover:rotate-180 transition-transform duration-500 group/swap"
+                                    title="Swap Zones"
+                                >
+                                    <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500 ml-1">
+                                    Destination Time Zone
+                                </label>
+                                <select
+                                    value={toZone}
+                                    onChange={(e) => setToZone(e.target.value)}
+                                    className="w-full px-4 py-3 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/5 rounded-xl focus:outline-none transition-all appearance-none cursor-pointer"
+                                >
+                                    {timeZones.map(tz => (
+                                        <option key={tz.value} value={tz.value}>
+                                            {tz.label} ({tz.offset})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Conversion Controls */}
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                onClick={handleConvert}
+                                disabled={!inputTime}
+                                className="flex-1 btn-accent py-4 rounded-2xl flex items-center justify-center gap-2"
+                            >
+                                Execute Conversion
+                            </button>
+                            <button
+                                onClick={handleReset}
+                                className="suggestion-chip !opacity-100 !animate-none px-6 rounded-2xl text-xs font-bold uppercase tracking-widest text-gray-500"
+                            >
+                                Clear
+                            </button>
+                        </div>
                     </div>
 
-                    {/* Info */}
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Features</h3>
-                        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-200">
-                            <li className="flex items-start gap-2">
-                                <span className="text-primary-600 mt-0.5">•</span>
-                                <span>Supports 17 major time zones worldwide</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-primary-600 mt-0.5">•</span>
-                                <span>Automatically accounts for Daylight Saving Time</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-primary-600 mt-0.5">•</span>
-                                <span>Real-time clock display for both time zones</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-primary-600 mt-0.5">•</span>
-                                <span>Instant conversion as you type</span>
-                            </li>
-                        </ul>
+                    <div className="space-y-6">
+                        {/* Result Display */}
+                        {result ? (
+                            <div className="glass-subtle p-6 rounded-2xl bg-indigo-500/[0.03] border-indigo-500/20 flex flex-col items-center justify-center text-center animate-resultReveal">
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-4">Converted Result</p>
+                                <div className="text-5xl font-black text-gray-900 dark:text-white tabular-nums tracking-tighter mb-4">
+                                    {result}
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                                        {inputTime} @ {fromZone.split('/').pop().replace('_', ' ')}
+                                    </p>
+                                    <p className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                                        → {result} @ {toZone.split('/').pop().replace('_', ' ')}
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="glass-subtle p-6 rounded-2xl border-dashed border-gray-200 dark:border-white/10 flex flex-col items-center justify-center text-center h-full min-h-[200px]">
+                                <p className="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">Awaiting Input</p>
+                            </div>
+                        )}
                     </div>
+                </div>
+
+                {/* Features / Info */}
+                <div className="glass-subtle p-5 rounded-2xl grid sm:grid-cols-3 gap-6">
+                    {[
+                        { icon: '🌍', label: 'Global Coverage', desc: '17 major time zones supported' },
+                        { icon: '⏰', label: 'DST Aware', desc: 'Automatic daylight saving adjustments' },
+                        { icon: '⚡', label: 'Live Engine', desc: 'Real-time clock synchronization' }
+                    ].map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/5 flex items-center justify-center text-xl shadow-sm border border-gray-100 dark:border-white/5">
+                                {item.icon}
+                            </div>
+                            <div>
+                                <div className="text-[10px] font-black uppercase tracking-widest text-gray-900 dark:text-white">{item.label}</div>
+                                <div className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">{item.desc}</div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

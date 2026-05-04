@@ -99,186 +99,195 @@ const PasswordGenerator = () => {
     };
 
     return (
-        <div className="mx-auto max-w-5xl space-y-6">
-            <div className="max-w-4xl mx-auto">
-
-                {/* Main Content */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
-                    {/* Generated Password Display */}
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
-                            Your Password
-                        </label>
-                        <div className="relative">
-                            <input
-                                type="text"
-                                value={password}
-                                readOnly
-                                className="w-full px-4 py-4 pr-24 text-lg font-mono bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none"
-                            />
-                            <Button
+        <div className="glass-panel p-4 sm:p-6 md:p-8">
+            <div className="space-y-8">
+                {/* Generated Password Display */}
+                <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
+                        Generated Password
+                    </label>
+                    <div className="relative group/pwd">
+                        <input
+                            type="text"
+                            value={password}
+                            readOnly
+                            className="w-full px-5 py-5 pr-28 text-lg font-mono bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/5 rounded-2xl focus:outline-none transition-all duration-300 shadow-sm dark:shadow-none"
+                        />
+                        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1.5 p-1">
+                            <button
                                 onClick={handleCopy}
                                 disabled={!password}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2"
+                                className="suggestion-chip !opacity-100 !animate-none flex items-center gap-2 h-10 px-4 active:scale-95 transition-transform"
                             >
                                 {copied ? (
-                                    <span className="flex items-center gap-2">
-                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <>
+                                        <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                         </svg>
-                                        Copied
-                                    </span>
+                                        <span className="text-green-600 dark:text-green-400">Copied</span>
+                                    </>
                                 ) : (
-                                    <span className="flex items-center gap-2">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <>
+                                        <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                         </svg>
-                                        Copy
-                                    </span>
+                                        <span>Copy</span>
+                                    </>
                                 )}
-                            </Button>
+                            </button>
                         </div>
+                    </div>
 
-                        {/* Strength Indicator */}
-                        <div className="mt-3">
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Password Strength:</span>
-                                <span className={`text-sm font-semibold text-${strength.color}-600`}>
-                                    {strength.label}
-                                </span>
+                    {/* Strength Indicator */}
+                    <div className="glass-subtle p-3 flex flex-col gap-3">
+                        <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Security Score</span>
+                            <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${
+                                strength.color === 'green' ? 'bg-green-500/10 border-green-500/20 text-green-600' :
+                                strength.color === 'red' ? 'bg-red-500/10 border-red-500/20 text-red-600' :
+                                'bg-orange-500/10 border-orange-500/20 text-orange-600'
+                            }`}>
+                                {strength.label}
+                            </span>
+                        </div>
+                        <div className="w-full h-1.5 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
+                            <div
+                                className={`h-full transition-all duration-500 ease-apple ${
+                                    strength.color === 'green' ? 'bg-green-500' :
+                                    strength.color === 'red' ? 'bg-red-500' :
+                                    'bg-orange-500'
+                                }`}
+                                style={{ width: getStrengthBarWidth() }}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid lg:grid-cols-[1fr_320px] gap-8">
+                    <div className="space-y-8">
+                        {/* Character Options */}
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
+                                Character Types
+                            </label>
+                            <div className="grid sm:grid-cols-2 gap-3">
+                                {[
+                                    { id: 'upper', checked: includeUppercase, setter: setIncludeUppercase, label: 'Uppercase', desc: 'A-Z', chars: uppercase },
+                                    { id: 'lower', checked: includeLowercase, setter: setIncludeLowercase, label: 'Lowercase', desc: 'a-z', chars: lowercase },
+                                    { id: 'nums', checked: includeNumbers, setter: setIncludeNumbers, label: 'Numbers', desc: '0-9', chars: numbers },
+                                    { id: 'syms', checked: includeSymbols, setter: setIncludeSymbols, label: 'Symbols', desc: '!@#$', chars: symbols }
+                                ].map((opt) => (
+                                    <label 
+                                        key={opt.id}
+                                        className={`group relative flex items-center gap-4 p-4 rounded-2xl border transition-all cursor-pointer ${
+                                            opt.checked 
+                                            ? 'border-indigo-500 bg-indigo-500/[0.03] dark:bg-indigo-500/5' 
+                                            : 'border-gray-100 dark:border-white/5 hover:border-indigo-200 dark:hover:border-indigo-900/50 bg-white dark:bg-white/[0.02]'
+                                        }`}
+                                    >
+                                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                                            opt.checked ? 'bg-indigo-500 border-indigo-500' : 'border-gray-200 dark:border-white/10'
+                                        }`}>
+                                            {opt.checked && (
+                                                <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            )}
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            checked={opt.checked}
+                                            onChange={(e) => opt.setter(e.target.checked)}
+                                            className="hidden"
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-sm font-bold text-gray-900 dark:text-white">{opt.label}</div>
+                                            <div className="text-[10px] text-gray-500 dark:text-gray-400 font-mono truncate">{opt.chars}</div>
+                                        </div>
+                                    </label>
+                                ))}
                             </div>
-                            <div className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
-                                <div
-                                    className={`h-full bg-${strength.color}-500 transition-all duration-300`}
-                                    style={{ width: getStrengthBarWidth() }}
-                                />
+                        </div>
+
+                        {/* Advanced Options */}
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
+                                Refinements
+                            </label>
+                            <div className="grid sm:grid-cols-2 gap-3">
+                                {[
+                                    { id: 'sim', checked: excludeSimilar, setter: setExcludeSimilar, label: 'Exclude Similar', desc: 'Avoid confusion: i, l, 1, L, o, 0, O' },
+                                    { id: 'amb', checked: excludeAmbiguous, setter: setExcludeAmbiguous, label: 'Exclude Ambiguous', desc: 'Avoid special chars: { } [ ] ( ) / \\' }
+                                ].map((opt) => (
+                                    <label 
+                                        key={opt.id}
+                                        className={`group relative flex items-start gap-4 p-4 rounded-2xl border transition-all cursor-pointer ${
+                                            opt.checked 
+                                            ? 'border-purple-500 bg-purple-500/[0.03] dark:bg-purple-500/5' 
+                                            : 'border-gray-100 dark:border-white/5 hover:border-purple-200 dark:hover:border-purple-900/50 bg-white dark:bg-white/[0.02]'
+                                        }`}
+                                    >
+                                        <div className={`w-5 h-5 mt-0.5 rounded-md border-2 flex items-center justify-center transition-all ${
+                                            opt.checked ? 'bg-purple-500 border-purple-500' : 'border-gray-200 dark:border-white/10'
+                                        }`}>
+                                            {opt.checked && (
+                                                <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            )}
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            checked={opt.checked}
+                                            onChange={(e) => opt.setter(e.target.checked)}
+                                            className="hidden"
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-sm font-bold text-gray-900 dark:text-white">{opt.label}</div>
+                                            <div className="text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed">{opt.desc}</div>
+                                        </div>
+                                    </label>
+                                ))}
                             </div>
                         </div>
                     </div>
 
-                    {/* Length Slider */}
-                    <div className="mb-6">
-                        <div className="flex items-center justify-between mb-3">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                                Password Length
-                            </label>
-                            <span className="text-lg font-bold text-cyan-600">{length}</span>
+                    <div className="space-y-8">
+                        {/* Length Control */}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
+                                    Character Length
+                                </label>
+                                <span className="text-xl font-black text-indigo-500 tabular-nums">{length}</span>
+                            </div>
+                            <div className="glass-subtle p-5 rounded-2xl space-y-4">
+                                <input
+                                    type="range"
+                                    min="6"
+                                    max="64"
+                                    value={length}
+                                    onChange={(e) => setLength(parseInt(e.target.value))}
+                                    className="w-full h-1.5 bg-gray-200 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                                />
+                                <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                    <span>6 chars</span>
+                                    <span>64 chars</span>
+                                </div>
+                            </div>
                         </div>
-                        <input
-                            type="range"
-                            min="6"
-                            max="64"
-                            value={length}
-                            onChange={(e) => setLength(parseInt(e.target.value))}
-                            className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer accent-cyan-600"
-                        />
-                        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            <span>6</span>
-                            <span>64</span>
-                        </div>
+
+                        {/* Generate Button */}
+                        <button
+                            onClick={generatePassword}
+                            className="w-full btn-accent py-4 rounded-2xl flex items-center justify-center gap-3 group/gen"
+                        >
+                            <svg className="w-5 h-5 transition-transform group-hover/gen:rotate-180 duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Generate New Password
+                        </button>
                     </div>
-
-                    {/* Character Options */}
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
-                            Character Types
-                        </label>
-                        <div className="space-y-3">
-                            <label className="flex items-center gap-3 p-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-cyan-300 cursor-pointer transition-colors">
-                                <input
-                                    type="checkbox"
-                                    checked={includeUppercase}
-                                    onChange={(e) => setIncludeUppercase(e.target.checked)}
-                                    className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500"
-                                />
-                                <div className="flex-1">
-                                    <div className="font-medium text-gray-900 dark:text-white">Uppercase Letters (A-Z)</div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">ABCDEFGHIJKLMNOPQRSTUVWXYZ</div>
-                                </div>
-                            </label>
-
-                            <label className="flex items-center gap-3 p-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-cyan-300 cursor-pointer transition-colors">
-                                <input
-                                    type="checkbox"
-                                    checked={includeLowercase}
-                                    onChange={(e) => setIncludeLowercase(e.target.checked)}
-                                    className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500"
-                                />
-                                <div className="flex-1">
-                                    <div className="font-medium text-gray-900 dark:text-white">Lowercase Letters (a-z)</div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">abcdefghijklmnopqrstuvwxyz</div>
-                                </div>
-                            </label>
-
-                            <label className="flex items-center gap-3 p-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-cyan-300 cursor-pointer transition-colors">
-                                <input
-                                    type="checkbox"
-                                    checked={includeNumbers}
-                                    onChange={(e) => setIncludeNumbers(e.target.checked)}
-                                    className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500"
-                                />
-                                <div className="flex-1">
-                                    <div className="font-medium text-gray-900 dark:text-white">Numbers (0-9)</div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">0123456789</div>
-                                </div>
-                            </label>
-
-                            <label className="flex items-center gap-3 p-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-cyan-300 cursor-pointer transition-colors">
-                                <input
-                                    type="checkbox"
-                                    checked={includeSymbols}
-                                    onChange={(e) => setIncludeSymbols(e.target.checked)}
-                                    className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500"
-                                />
-                                <div className="flex-1">
-                                    <div className="font-medium text-gray-900 dark:text-white">Symbols</div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">!@#$%^&*()_+-=[]|;:,.</div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    {/* Advanced Options */}
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
-                            Advanced Options
-                        </label>
-                        <div className="space-y-3">
-                            <label className="flex items-center gap-3 p-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-cyan-300 cursor-pointer transition-colors">
-                                <input
-                                    type="checkbox"
-                                    checked={excludeSimilar}
-                                    onChange={(e) => setExcludeSimilar(e.target.checked)}
-                                    className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500"
-                                />
-                                <div className="flex-1">
-                                    <div className="font-medium text-gray-900 dark:text-white">Exclude Similar Characters</div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400">Avoid confusion: i, l, 1, L, o, 0, O</div>
-                                </div>
-                            </label>
-
-                            <label className="flex items-center gap-3 p-3 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-cyan-300 cursor-pointer transition-colors">
-                                <input
-                                    type="checkbox"
-                                    checked={excludeAmbiguous}
-                                    onChange={(e) => setExcludeAmbiguous(e.target.checked)}
-                                    className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500"
-                                />
-                                <div className="flex-1">
-                                    <div className="font-medium text-gray-900 dark:text-white">Exclude Ambiguous Symbols</div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400">Avoid special chars: {`{} [] () / \\ ' " \` ~ , ; : . < >`}</div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    {/* Generate Button */}
-                    <Button
-                        onClick={generatePassword}
-                        className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700"
-                    >
-                        Generate New Password
-                    </Button>
                 </div>
             </div>
         </div>

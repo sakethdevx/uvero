@@ -86,106 +86,111 @@ export default function PSTToEST() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto">
-            <div className="card">
-
+        <div className="glass-panel p-4 sm:p-6 md:p-8">
+            <div className="space-y-8">
                 {/* Current Time Display */}
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gradient-to-br from-blue-50 dark:from-gray-900 to-blue-100 rounded-lg p-4">
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Current PST</p>
-                        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{currentPST}</p>
+                <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="glass-subtle p-5 rounded-2xl bg-gradient-to-br from-blue-500/5 to-transparent border-blue-500/10">
+                        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 mb-2 truncate">
+                            Current PST (Pacific)
+                        </div>
+                        <div className="text-3xl font-black text-gray-900 dark:text-white tabular-nums tracking-tight">
+                            {currentPST}
+                        </div>
                     </div>
-                    <div className="bg-gradient-to-br from-green-50 dark:from-gray-900 to-green-100 rounded-lg p-4">
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Current EST</p>
-                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">{currentEST}</p>
+                    <div className="glass-subtle p-5 rounded-2xl bg-gradient-to-br from-indigo-500/5 to-transparent border-indigo-500/10">
+                        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-2 truncate">
+                            Current EST (Eastern)
+                        </div>
+                        <div className="text-3xl font-black text-gray-900 dark:text-white tabular-nums tracking-tight">
+                            {currentEST}
+                        </div>
                     </div>
                 </div>
 
-                <div className="space-y-6">
-                    {/* Date Input */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                            Date
-                        </label>
-                        <input
-                            type="date"
-                            value={inputDate}
-                            onChange={(e) => setInputDate(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        />
+                <div className="grid lg:grid-cols-[1fr_300px] gap-8">
+                    <div className="space-y-6">
+                        {/* Date & Time Selection */}
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500 ml-1">
+                                    Base Date
+                                </label>
+                                <input
+                                    type="date"
+                                    value={inputDate}
+                                    onChange={(e) => setInputDate(e.target.value)}
+                                    className="w-full px-4 py-3 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/5 rounded-xl focus:outline-none transition-all"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500 ml-1">
+                                    PST Time
+                                </label>
+                                <input
+                                    type="time"
+                                    value={inputTime}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-3 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/5 rounded-xl focus:outline-none transition-all font-mono"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Conversion Controls */}
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                onClick={handleConvert}
+                                disabled={!inputTime}
+                                className="flex-1 btn-accent py-4 rounded-2xl flex items-center justify-center gap-2"
+                            >
+                                Execute Conversion
+                            </button>
+                            <button
+                                onClick={handleReset}
+                                className="suggestion-chip !opacity-100 !animate-none px-6 rounded-2xl text-xs font-bold uppercase tracking-widest text-gray-500"
+                            >
+                                Reset
+                            </button>
+                        </div>
                     </div>
 
-                    {/* Time Input */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                            PST Time
-                        </label>
-                        <input
-                            type="time"
-                            value={inputTime}
-                            onChange={handleInputChange}
-                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        />
-                    </div>
-
-                    {/* Result Section */}
-                    {result && (
-                        <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:to-gray-800 rounded-lg p-6">
-                            <div className="text-center">
-                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">EST Time</p>
-                                <p className="text-4xl font-bold text-primary-600">
+                    <div className="space-y-6">
+                        {/* Result Display */}
+                        {result ? (
+                            <div className="glass-subtle p-6 rounded-2xl bg-indigo-500/[0.03] border-indigo-500/20 flex flex-col items-center justify-center text-center animate-resultReveal">
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-4">Converted EST Result</p>
+                                <div className="text-5xl font-black text-gray-900 dark:text-white tabular-nums tracking-tighter mb-4">
                                     {result}
-                                </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                </div>
+                                <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                                     {inputTime} PST = {result} EST
                                 </p>
                             </div>
-                        </div>
-                    )}
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-3">
-                        <Button
-                            onClick={handleConvert}
-                            disabled={!inputTime}
-                            variant="primary"
-                            className="flex-1"
-                        >
-                            Convert
-                        </Button>
-                        <Button
-                            onClick={handleReset}
-                            variant="secondary"
-                        >
-                            Reset
-                        </Button>
+                        ) : (
+                            <div className="glass-subtle p-6 rounded-2xl border-dashed border-gray-200 dark:border-white/10 flex flex-col items-center justify-center text-center h-full min-h-[200px]">
+                                <p className="text-xs font-bold text-gray-400 dark:text-gray-600 uppercase tracking-widest">Awaiting Input</p>
+                            </div>
+                        )}
                     </div>
+                </div>
 
-                    {/* Info */}
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Time Zone Information</h3>
-                        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-200">
-                            <li className="flex items-start gap-2">
-                                <span className="text-primary-600 mt-0.5">•</span>
-                                <span>PST (Pacific Standard Time) is UTC-8</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-primary-600 mt-0.5">•</span>
-                                <span>EST (Eastern Standard Time) is UTC-5</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-primary-600 mt-0.5">•</span>
-                                <span>EST is 3 hours ahead of PST</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-primary-600 mt-0.5">•</span>
-                                <span>During daylight saving time, PDT (UTC-7) and EDT (UTC-4) are used</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <span className="text-orange-600 mt-0.5">⚠</span>
-                                <span className="text-orange-600">Note: This uses a fixed 3-hour offset. For DST-aware conversion, use the Time Zone Converter tool.</span>
-                            </li>
-                        </ul>
+                {/* Time Zone Information */}
+                <div className="glass-subtle p-5 rounded-2xl bg-orange-500/[0.02] border-orange-500/10">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-500 mb-4">Time Zone Metadata</h3>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
+                                <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">PST (Pacific Standard Time) is UTC-8</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
+                                <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">EST (Eastern Standard Time) is UTC-5</span>
+                            </div>
+                        </div>
+                        <div className="p-3 bg-white dark:bg-black/20 rounded-xl border border-orange-500/10 text-[10px] font-mono text-orange-600/80 dark:text-orange-400/80 leading-relaxed italic">
+                            Note: This tool uses a fixed 3-hour offset. For DST-aware conversions, please utilize the primary Time Zone Converter engine.
+                        </div>
                     </div>
                 </div>
             </div>
