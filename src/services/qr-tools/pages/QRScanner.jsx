@@ -1,15 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import useSEO from '../../../hooks/useSEO';
-import jsQR from 'jsqr';
-import AILoader from '../../../components/AILoader';
 import { AIBackLink, AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout';
 import QRResultCard from '../../../components/QRResultCard';
-
-/**
- * QR Scanner — camera live scan + image upload
- * Uses BarcodeDetector API (Chromium 88+) with jsQR as a universal fallback.
- */
-const isBarcodeDetectorSupported = () => typeof BarcodeDetector !== 'undefined';
+import { detectQRFromCanvas, isBarcodeDetectorSupported } from '../qr-core';
 
 const HISTORY_KEY = 'qr-scan-history';
 
@@ -35,25 +28,7 @@ function getTypeLabel(value) {
     return '📝 Text';
 }
 
-/**
- * Detects QR code from a canvas element.
- * Tries the native BarcodeDetector API first; falls back to jsQR for full
- * browser compatibility (Safari, Firefox, etc.).
- */
-async function detectQRFromCanvas(canvas) {
-    if (isBarcodeDetectorSupported()) {
-        try {
-            const detector = new BarcodeDetector({ formats: ['qr_code'] });
-            const codes = await detector.detect(canvas);
-            if (codes.length > 0) return codes[0].rawValue;
-        } catch { /* fall through to jsQR */ }
-    }
-    // jsQR fallback — works in all browsers including Safari on iOS
-    const ctx = canvas.getContext('2d');
-    const { data, width, height } = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(data, width, height);
-    return code ? code.data : null;
-}
+
 
 function copyToClipboard(text) {
     if (navigator.clipboard) return navigator.clipboard.writeText(text);

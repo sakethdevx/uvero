@@ -11,7 +11,6 @@ const APP_PATH = path.join(PROJECT_ROOT, 'src', 'App.jsx')
 
 // Updated to match the new simplified toolbox
 const SMOKE_TOOL_IDS = [
-    'qr-generator',
     'password-generator',
     'hash-generator',
     'unit-converter',
@@ -50,7 +49,7 @@ function parseNavIds(source) {
 
     // Since all tool IDs are handled by the catch-all route, return all smoke IDs as present
     return new Set([
-        'qr-generator', 'password-generator', 'hash-generator',
+        'password-generator', 'hash-generator',
         'unit-converter', 'timezone-converter', 'lbs-to-kg',
         'kg-to-lbs', 'feet-to-meters', 'pst-to-est', 'cst-to-est',
     ]);

@@ -4,9 +4,7 @@
  * Makes it easy to add new tools and maintain routing
  */
 
-// QR & Security
-import QRGenerator from './utility/qr-generator/QRGenerator';
-import qrGeneratorSEO from './utility/qr-generator/seo.json';
+// Security & Codes
 import PasswordGenerator from './utility/password-generator/PasswordGenerator';
 import passwordGeneratorSEO from './utility/password-generator/seo.json';
 import HashGenerator from './utility/hash-generator/HashGenerator';
@@ -34,16 +32,6 @@ export const tools = {
 
 
     // Security & Codes
-    'qr-generator': {
-        id: 'qr-generator',
-        name: 'QR Code Generator',
-        description: 'Generate QR codes for URLs, text, WiFi, vCard, and more',
-        component: QRGenerator,
-        category: 'security',
-        seo: qrGeneratorSEO,
-        icon: '🔳',
-        popular: true,
-    },
     'password-generator': {
         id: 'password-generator',
         name: 'Password Generator',

@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import QRCode from 'qrcode';
 import { getSuggestions } from '../../lib/Suggestions';
 import { useSession } from '../../lib/SessionContext';
+import { buildPayload, generateQR, downloadPNG, downloadSVG, copyQRImage } from '../../services/qr-tools/qr-core';
 import QRResultCard from '../QRResultCard';
 import AILoader from '../AILoader';
 
@@ -56,13 +56,7 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
     const timer2 = setTimeout(() => setLoadingStep(2), 200);
 
     try {
-      const isDark = document.documentElement.classList.contains('dark');
-      const dataUrl = await QRCode.toDataURL(payload, {
-        width: 512,
-        errorCorrectionLevel: 'M',
-        color: { dark: isDark ? '#e8eaed' : '#1a1a2e', light: isDark ? '#111118' : '#ffffff' },
-        margin: 4,
-      });
+      const dataUrl = await generateQR(payload);
       
       const elapsed = Date.now() - startTime;
       if (elapsed < 300) {
@@ -98,45 +92,26 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
 
   const handleKeyDown = useCallback((e) => { if (e.key === 'Enter') generate(); }, [generate]);
 
-  const downloadPNG = useCallback(() => {
-    if (!qrDataUrl) return;
-    const a = document.createElement('a');
-    a.download = `qr-${Date.now()}.png`;
-    a.href = qrDataUrl;
-    a.click();
+  const downloadPNGFile = useCallback(() => {
+    downloadPNG(qrDataUrl);
   }, [qrDataUrl]);
 
-  const downloadSVG = useCallback(async () => {
-    const payload = qrType === 'wifi' ? `WIFI:T:${wifiSecurity};S:${wifiSsid.trim()};P:${wifiPassword};;` : input.trim();
+  const downloadSVGFile = useCallback(async () => {
+    const payload = qrType === 'wifi' ? buildPayload('wifi', { ssid: wifiSsid, password: wifiPassword, security: wifiSecurity }) : buildPayload('text', { text: input });
     if (!payload) return;
     try {
-      const isDark = document.documentElement.classList.contains('dark');
-      const svg = await QRCode.toString(payload, {
-        type: 'svg', width: 512, errorCorrectionLevel: 'M',
-        color: { dark: isDark ? '#e8eaed' : '#1a1a2e', light: isDark ? '#111118' : '#ffffff' },
-        margin: 4,
-      });
-      const blob = new Blob([svg], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.download = `qr-${Date.now()}.svg`;
-      a.href = url;
-      a.click();
-      URL.revokeObjectURL(url);
+      await downloadSVG(payload);
     } catch {
       setError('Failed to generate SVG.');
     }
   }, [input, wifiSsid, wifiPassword, wifiSecurity, qrType]);
 
-  const copyImage = useCallback(async () => {
-    if (!qrDataUrl) return;
-    try {
-      const res = await fetch(qrDataUrl);
-      const blob = await res.blob();
-      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+  const handleCopyImage = useCallback(async () => {
+    const success = await copyQRImage(qrDataUrl);
+    if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch { /* silently fail */ }
+    }
   }, [qrDataUrl]);
 
   const handleReset = useCallback(() => {
@@ -150,9 +125,9 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
 
   const handleSuggestion = useCallback((suggestion) => {
     if (suggestion.action === 'reset') { handleReset(); return; }
-    if (suggestion.action === 'downloadSVG') { downloadSVG(); return; }
+    if (suggestion.action === 'downloadSVG') { downloadSVGFile(); return; }
     if (suggestion.intent) { onSuggestionSelect?.(suggestion); }
-  }, [handleReset, downloadSVG, onSuggestionSelect]);
+  }, [handleReset, downloadSVGFile, onSuggestionSelect]);
 
   const suggestions = getSuggestions('qr-generate-quick');
 
@@ -247,9 +222,9 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
         >
             <QRResultCard.Generated
                 dataUrl={qrDataUrl}
-                onDownloadPNG={downloadPNG}
-                onDownloadSVG={downloadSVG}
-                onCopyImage={copyImage}
+                onDownloadPNG={downloadPNGFile}
+                onDownloadSVG={downloadSVGFile}
+                onCopyImage={handleCopyImage}
                 copied={copied}
             />
         </QRResultCard>
