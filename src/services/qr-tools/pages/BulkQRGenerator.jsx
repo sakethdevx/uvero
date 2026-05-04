@@ -1,10 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import useSEO from '../../../hooks/useSEO';
-import QRCode from 'qrcode';
 import JSZip from 'jszip';
 import { jsPDF } from 'jspdf';
 import AILoader from '../../../components/AILoader';
 import { AIBackLink, AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout';
+import { generateQR } from '../qr-core';
 
 /* ── helpers ── */
 const HISTORY_KEY = 'uvero_qr_bulk_history';
@@ -52,14 +52,7 @@ function parsePasteList(text) {
     return { headers, rows };
 }
 
-async function generateQRDataUrl(content, opts) {
-    return QRCode.toDataURL(content, {
-        width: opts.size || 400,
-        errorCorrectionLevel: opts.errorLevel || 'M',
-        color: { dark: opts.darkColor || '#000000', light: opts.lightColor || '#ffffff' },
-        margin: 4,
-    });
-}
+
 
 const EXPORT_OPTS = { size: 400, errorLevel: 'M', darkColor: '#000000', lightColor: '#ffffff' };
 
@@ -179,7 +172,12 @@ export default function BulkQRGenerator() {
                 results.push({ ...row, dataUrl: null, error: 'Empty content' });
             } else {
                 try {
-                    const dataUrl = await generateQRDataUrl(row.content, { size: qrSize, errorLevel, darkColor, lightColor });
+                    const dataUrl = await generateQR(row.content, { 
+                        width: qrSize, 
+                        errorCorrectionLevel: errorLevel, 
+                        darkColor, 
+                        lightColor 
+                    });
                     results.push({ ...row, dataUrl, error: null });
                 } catch {
                     results.push({ ...row, dataUrl: null, error: 'Failed to generate' });

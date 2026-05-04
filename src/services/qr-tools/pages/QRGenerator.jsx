@@ -1,176 +1,22 @@
 import { useState, useRef, useCallback } from 'react';
 import useSEO from '../../../hooks/useSEO';
-import QRCode from 'qrcode';
 import { AIBackLink, AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout';
 import QRResultCard from '../../../components/QRResultCard';
 import AILoader from '../../../components/AILoader';
+import { 
+    INPUT_TYPES, 
+    FRAME_TYPES, 
+    FRAME_TEXT_DEFAULTS, 
+    TEMPLATES, 
+    buildPayload, 
+    generateQR, 
+    downloadPNG as downloadPNGHelper, 
+    downloadSVG as downloadSVGHelper, 
+    copyQRImage,
+    applyFrame
+} from '../qr-core';
 
-/* ── helpers ── */
-const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
 
-function buildPayload(type, fields) {
-    switch (type) {
-        case 'url':
-            return fields.url || '';
-        case 'text':
-            return fields.text || '';
-        case 'email': {
-            const { email, subject, body } = fields;
-            const params = [];
-            if (subject) params.push(`subject=${encodeURIComponent(subject)}`);
-            if (body) params.push(`body=${encodeURIComponent(body)}`);
-            return `mailto:${email || ''}${params.length ? '?' + params.join('&') : ''}`;
-        }
-        case 'phone':
-            return `tel:${fields.phone || ''}`;
-        case 'sms':
-            return `sms:${fields.phone || ''}${fields.message ? `?body=${encodeURIComponent(fields.message)}` : ''}`;
-        case 'wifi':
-            return `WIFI:T:${fields.security || 'WPA'};S:${fields.ssid || ''};P:${fields.password || ''};;`;
-        case 'whatsapp':
-            return `https://wa.me/${(fields.phone || '').replace(/\D/g, '')}${fields.message ? `?text=${encodeURIComponent(fields.message)}` : ''}`;
-        case 'upi':
-            return `upi://pay?pa=${encodeURIComponent(fields.vpa || '')}&pn=${encodeURIComponent(fields.name || '')}${fields.amount ? `&am=${fields.amount}` : ''}&cu=INR${fields.note ? `&tn=${encodeURIComponent(fields.note)}` : ''}`;
-        case 'vcard':
-            return [
-                'BEGIN:VCARD',
-                'VERSION:3.0',
-                `FN:${[fields.firstName, fields.lastName].filter(Boolean).join(' ')}`,
-                fields.org ? `ORG:${fields.org}` : '',
-                fields.phone ? `TEL:${fields.phone}` : '',
-                fields.email ? `EMAIL:${fields.email}` : '',
-                fields.url ? `URL:${fields.url}` : '',
-                fields.address ? `ADR:;;${fields.address};;;` : '',
-                'END:VCARD',
-            ].filter(Boolean).join('\n');
-        case 'maps':
-            return `https://maps.google.com/?q=${encodeURIComponent(fields.location || '')}`;
-        case 'social': {
-            const base = { instagram: 'https://instagram.com/', twitter: 'https://x.com/', linkedin: 'https://linkedin.com/in/', youtube: 'https://youtube.com/@', github: 'https://github.com/' };
-            return `${base[fields.platform] || ''}${fields.username || ''}`;
-        }
-        default:
-            return '';
-    }
-}
-
-const INPUT_TYPES = [
-    { value: 'url',       label: 'URL',       icon: '🔗' },
-    { value: 'text',      label: 'Text',      icon: '📝' },
-    { value: 'email',     label: 'Email',     icon: '📧' },
-    { value: 'phone',     label: 'Phone',     icon: '📞' },
-    { value: 'sms',       label: 'SMS',       icon: '💬' },
-    { value: 'wifi',      label: 'WiFi',      icon: '📶' },
-    { value: 'whatsapp',  label: 'WhatsApp',  icon: '🟢' },
-    { value: 'upi',       label: 'UPI Pay',   icon: '💳' },
-    { value: 'vcard',     label: 'vCard',     icon: '👤' },
-    { value: 'maps',      label: 'Maps',      icon: '📍' },
-    { value: 'social',    label: 'Social',    icon: '🌐' },
-];
-
-/* ── Frame types ── */
-const FRAME_TYPES = [
-    { value: 'none',          label: 'None',           icon: '✕' },
-    { value: 'border',        label: 'Border',          icon: '▢' },
-    { value: 'rounded',       label: 'Rounded',         icon: '⬜' },
-    { value: 'scan_me',       label: 'Scan Me',         icon: '📲' },
-    { value: 'visit_website', label: 'Visit Website',   icon: '🔗' },
-    { value: 'follow_us',     label: 'Follow Us',       icon: '❤' },
-    { value: 'pay_here',      label: 'Pay Here',        icon: '💳' },
-    { value: 'wifi_connect',  label: 'Connect WiFi',    icon: '📶' },
-    { value: 'custom',        label: 'Custom Text',     icon: '✏' },
-];
-
-const FRAME_TEXT_DEFAULTS = {
-    scan_me: 'SCAN ME',
-    visit_website: 'VISIT WEBSITE',
-    follow_us: 'FOLLOW US',
-    pay_here: 'PAY HERE',
-    wifi_connect: 'CONNECT TO WiFi',
-};
-
-/* ── Templates ── */
-const TEMPLATES = [
-    { id: 'restaurant', label: '🍽️ Restaurant Menu',  fgColor: '#166534', bgColor: '#f0fdf4', errLevel: 'H', frame: 'scan_me' },
-    { id: 'payment',    label: '💳 UPI Payment',       fgColor: '#1d4ed8', bgColor: '#eff6ff', errLevel: 'M', frame: 'pay_here' },
-    { id: 'wifi',       label: '📶 WiFi Sharing',      fgColor: '#0369a1', bgColor: '#f0f9ff', errLevel: 'M', frame: 'wifi_connect' },
-    { id: 'event',      label: '📅 Event Check-in',    fgColor: '#6d28d9', bgColor: '#f5f3ff', errLevel: 'H', frame: 'scan_me' },
-    { id: 'social',     label: '📸 Social Profile',    fgColor: '#9d174d', bgColor: '#fdf2f8', errLevel: 'H', frame: 'follow_us' },
-    { id: 'product',    label: '🛍️ Product Page',      fgColor: '#b45309', bgColor: '#fffbeb', errLevel: 'M', frame: 'visit_website' },
-    { id: 'business',   label: '👤 Business Card',     fgColor: '#111827', bgColor: '#ffffff', errLevel: 'H', frame: 'none' },
-    { id: 'minimal',    label: '⬛ Classic Black',      fgColor: '#000000', bgColor: '#ffffff', errLevel: 'M', frame: 'none' },
-];
-
-/* ── Frame compositing helper ── */
-async function applyFrame(sourceDataUrl, qrWidth, frame, customText, fgColor, bgColor) {
-    if (frame === 'none') return sourceDataUrl;
-
-    return new Promise((resolve, reject) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        img.onload = () => {
-            const bw = 16; // border width
-            if (frame === 'border' || frame === 'rounded') {
-                canvas.width = qrWidth + bw * 2;
-                canvas.height = qrWidth + bw * 2;
-                ctx.fillStyle = bgColor;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.strokeStyle = fgColor;
-                ctx.lineWidth = bw;
-                if (frame === 'rounded') {
-                    ctx.beginPath();
-                    ctx.roundRect(bw / 2, bw / 2, canvas.width - bw, canvas.height - bw, 24);
-                    ctx.stroke();
-                } else {
-                    ctx.strokeRect(bw / 2, bw / 2, canvas.width - bw, canvas.height - bw);
-                }
-                ctx.drawImage(img, bw, bw, qrWidth, qrWidth);
-            } else {
-                // Text band frames
-                const padX = Math.round(qrWidth * 0.04);
-                const bandH = Math.round(qrWidth * 0.16);
-                const padTop = Math.round(qrWidth * 0.04);
-                const padBottom = Math.round(qrWidth * 0.02);
-                canvas.width = qrWidth + padX * 2;
-                canvas.height = qrWidth + padTop + bandH + padBottom;
-
-                // White/light background
-                ctx.fillStyle = bgColor;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                // QR image with top/side padding
-                ctx.drawImage(img, padX, padTop, qrWidth, qrWidth);
-
-                // Colored band
-                ctx.fillStyle = fgColor;
-                ctx.fillRect(0, padTop + qrWidth, canvas.width, bandH + padBottom);
-
-                // Label text centered in band (with ellipsis if too wide)
-                const label = customText.trim() || FRAME_TEXT_DEFAULTS[frame] || 'SCAN ME';
-                const fontSize = Math.max(12, Math.round(bandH * 0.48));
-                const maxTextWidth = canvas.width - padX * 2;
-                ctx.fillStyle = bgColor;
-                ctx.font = `bold ${fontSize}px system-ui, sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                const cy = padTop + qrWidth + (bandH + padBottom) / 2;
-                // Truncate with ellipsis if text overflows
-                let displayLabel = label;
-                if (ctx.measureText(displayLabel).width > maxTextWidth) {
-                    while (displayLabel.length > 1 && ctx.measureText(displayLabel + '…').width > maxTextWidth) {
-                        displayLabel = displayLabel.slice(0, -1);
-                    }
-                    displayLabel += '…';
-                }
-                ctx.fillText(displayLabel, canvas.width / 2, cy);
-            }
-            resolve(canvas.toDataURL('image/png'));
-        };
-        img.onerror = reject;
-        img.src = sourceDataUrl;
-    });
-}
 
 function FieldGroup({ label, children }) {
     return (
@@ -360,13 +206,13 @@ export default function QRGenerator() {
         const timer2 = setTimeout(() => setLoadingStep(2), 200);
 
         try {
-            const opts = {
-                width: clamp(size, 128, 2048),
+            const base = await generateQR(payload, {
+                width: size,
                 errorCorrectionLevel: errLevel,
-                color: { dark: fgColor, light: bgColor },
+                darkColor: fgColor,
+                lightColor: bgColor,
                 margin: 4,
-            };
-            const base = await QRCode.toDataURL(payload, opts);
+            });
 
             let dataUrl = base;
             if (logoDataUrl) {
@@ -377,13 +223,13 @@ export default function QRGenerator() {
 
                 const qrImg = new Image();
                 await new Promise((res, rej) => { qrImg.onload = res; qrImg.onerror = rej; qrImg.src = base; });
-                ctx.drawImage(qrImg, 0, 0, opts.width, opts.width);
+                ctx.drawImage(qrImg, 0, 0, size, size);
 
                 const logoImg = new Image();
                 await new Promise((res, rej) => { logoImg.onload = res; logoImg.onerror = rej; logoImg.src = logoDataUrl; });
-                const logoSize = Math.round(opts.width * 0.22);
-                const logoX = Math.round((opts.width - logoSize) / 2);
-                const logoY = Math.round((opts.width - logoSize) / 2);
+                const logoSize = Math.round(size * 0.22);
+                const logoX = Math.round((size - logoSize) / 2);
+                const logoY = Math.round((size - logoSize) / 2);
 
                 // white background badge for logo
                 ctx.fillStyle = '#ffffff';
@@ -398,7 +244,7 @@ export default function QRGenerator() {
 
             // Apply decorative frame
             if (frame !== 'none') {
-                dataUrl = await applyFrame(dataUrl, opts.width, frame, customFrameText, fgColor, bgColor);
+                dataUrl = await applyFrame(dataUrl, size, frame, customFrameText, fgColor, bgColor);
             }
 
             const elapsed = Date.now() - startTime;
@@ -417,46 +263,29 @@ export default function QRGenerator() {
     }, [type, fields, size, errLevel, fgColor, bgColor, logoDataUrl, frame, customFrameText]);
 
     const downloadPNG = () => {
-        if (!qrDataUrl) return;
-        const a = document.createElement('a');
-        a.download = `qr-${type}-${Date.now()}.png`;
-        a.href = qrDataUrl;
-        a.click();
+        downloadPNGHelper(qrDataUrl, `qr-${type}-${Date.now()}.png`);
     };
 
     const downloadSVG = async () => {
         const payload = buildPayload(type, fields);
         if (!payload.trim()) return;
         try {
-            const svg = await QRCode.toString(payload, {
-                type: 'svg',
+            await downloadSVGHelper(payload, {
                 width: size,
                 errorCorrectionLevel: errLevel,
-                color: { dark: fgColor, light: bgColor },
-                margin: 4,
-            });
-            const blob = new Blob([svg], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.download = `qr-${type}-${Date.now()}.svg`;
-            a.href = url;
-            a.click();
-            URL.revokeObjectURL(url);
+                darkColor: fgColor,
+                lightColor: bgColor,
+            }, `qr-${type}-${Date.now()}.svg`);
         } catch {
             setError('Failed to generate SVG.');
         }
     };
 
     const copyImage = async () => {
-        if (!qrDataUrl) return;
-        try {
-            const res = await fetch(qrDataUrl);
-            const blob = await res.blob();
-            await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        const success = await copyQRImage(qrDataUrl);
+        if (success) {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-        } catch {
-            // fallback: nothing to do silently
         }
     };
 

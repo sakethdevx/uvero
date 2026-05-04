@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { lazy, Suspense, useState, useEffect, useCallback } from 'react';
 import { ModeProvider } from './services/toolbox/context/ModeContext';
 import { SessionProvider } from './lib/SessionContext';
@@ -196,6 +196,7 @@ function AppContent() {
             <Route path="/qr-tools/bulk" element={<BulkQRGenerator />} />
             <Route path="/qr-tools/dynamic" element={<DynamicQRManager />} />
             <Route path="/qr-tools/analytics" element={<QRAnalytics />} />
+            <Route path="/qr-generator" element={<Navigate to="/qr-tools" replace />} />
             <Route path="/qr/r/:code" element={<QRRedirectPage />} />
             <Route path="/invite/:token" element={<InvitePage />} />
             <Route path="/:toolId" element={<ToolPage />} />
