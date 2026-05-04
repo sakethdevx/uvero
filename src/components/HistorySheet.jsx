@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { useSession } from '../lib/SessionContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -10,24 +10,55 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function HistorySheet({ isOpen, onClose, onRerun }) {
   const { history, clearHistory, removeHistoryItem, toggleFavorite, isFavorite } = useSession();
 
-  // Support swipe-down-to-close from the scrollable list
+  // Support swipe-down-to-close from the scrollable list without rubber-banding the page
   const scrollRef = useRef(null);
-  const [touchStartY, setTouchStartY] = useState(null);
+  const touchStartRef = useRef(null);
 
-  const handleTouchStart = (e) => {
-    if (scrollRef.current && scrollRef.current.scrollTop <= 0) {
-      setTouchStartY(e.touches[0].clientY);
-    } else {
-      setTouchStartY(null);
-    }
-  };
+  useEffect(() => {
+    if (!isOpen) return;
 
-  const handleTouchEnd = (e) => {
-    if (touchStartY === null) return;
-    const dy = e.changedTouches[0].clientY - touchStartY;
-    if (dy > 60) onClose(); // Dismiss if dragged down more than 60px
-    setTouchStartY(null);
-  };
+    // Small delay to ensure the scrollable element has mounted
+    const timer = setTimeout(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+
+      const handleTouchStart = (e) => {
+        if (el.scrollTop <= 0) {
+          touchStartRef.current = e.touches[0].clientY;
+        } else {
+          touchStartRef.current = null;
+        }
+      };
+
+      const handleTouchMove = (e) => {
+        if (touchStartRef.current === null) return;
+        const dy = e.touches[0].clientY - touchStartRef.current;
+        // If at top and pulling down, prevent native body overscroll
+        if (el.scrollTop <= 0 && dy > 0) {
+          if (e.cancelable) e.preventDefault();
+        }
+      };
+
+      const handleTouchEnd = (e) => {
+        if (touchStartRef.current === null) return;
+        const dy = e.changedTouches[0].clientY - touchStartRef.current;
+        if (dy > 60) onClose();
+        touchStartRef.current = null;
+      };
+
+      el.addEventListener('touchstart', handleTouchStart, { passive: true });
+      el.addEventListener('touchmove', handleTouchMove, { passive: false });
+      el.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+      return () => {
+        el.removeEventListener('touchstart', handleTouchStart);
+        el.removeEventListener('touchmove', handleTouchMove);
+        el.removeEventListener('touchend', handleTouchEnd);
+      };
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [isOpen, onClose]);
 
   const formatTime = (ts) => {
     const d = new Date(ts);
@@ -149,8 +180,6 @@ export default function HistorySheet({ isOpen, onClose, onRerun }) {
         {/* List */}
         <div 
           ref={scrollRef}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
           className="flex-1 overflow-y-auto overscroll-contain px-4 py-3 space-y-4"
         >
           {history.length === 0 ? (
