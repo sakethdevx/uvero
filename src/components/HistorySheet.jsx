@@ -151,7 +151,7 @@ export default function HistorySheet({ isOpen, onClose, onRerun }) {
           ref={scrollRef}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className="flex-1 overflow-y-auto px-4 py-3 space-y-4"
+          className="flex-1 overflow-y-auto overscroll-contain px-4 py-3 space-y-4"
         >
           {history.length === 0 ? (
             /* ── Empty state with example prompts ── */

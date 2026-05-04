@@ -100,7 +100,7 @@ export default function FavoritesSheet({ isOpen, onClose, onRerun }) {
           ref={scrollRef}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className="flex-1 overflow-y-auto px-4 py-3 space-y-4"
+          className="flex-1 overflow-y-auto overscroll-contain px-4 py-3 space-y-4"
         >
           {favorites.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 gap-4 text-center">
