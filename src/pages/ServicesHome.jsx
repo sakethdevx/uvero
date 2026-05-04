@@ -120,16 +120,6 @@ export default function ServicesHome() {
           <OnboardingHint onExampleSelect={handleOnboardingExample} />
         </div>
 
-        {/* Action Panel (appears when intent is resolved) */}
-        {activeIntent && (
-          <div className="action-panel-stage w-full">
-            <ActionPanel
-              intent={activeIntent}
-              onDismiss={handleDismissAction}
-            />
-          </div>
-        )}
-
         {/* Post-action micro-confirmation */}
         {showDoneConfirm && !activeIntent && (
           <div className="success-highlight flex items-center gap-2 text-sm font-medium animate-state-in"
@@ -169,6 +159,16 @@ export default function ServicesHome() {
           </p>
         )}
       </div>
+
+      {/* Action Panel (appears when intent is resolved) */}
+      {activeIntent && (
+        <div className="action-panel-stage w-full">
+          <ActionPanel
+            intent={activeIntent}
+            onDismiss={handleDismissAction}
+          />
+        </div>
+      )}
     </div>
   );
 }

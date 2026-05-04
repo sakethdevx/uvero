@@ -110,16 +110,33 @@ export default function ActionPanel({ intent, onDismiss, onIntentChange }) {
   }
 
   return (
-    <div
-      className={`action-panel-shell w-full max-w-3xl mx-auto transition-all duration-[420ms] ease-apple ${
+    <div 
+      className={`fixed inset-0 w-[100vw] h-[100vh] z-[100] flex items-center justify-center transition-all duration-[420ms] ease-apple ${
         isVisible
-          ? 'opacity-100 translate-y-0 scale-100 sm:scale-[1.015]'
-          : 'opacity-0 translate-y-2 scale-[0.98] pointer-events-none'
+          ? 'opacity-100'
+          : 'opacity-0 pointer-events-none'
       }`}
+      style={{
+        backdropFilter: 'blur(20px) saturate(1.6)',
+        WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
+        background: 'var(--surface-glass-soft)'
+      }}
+      onClick={handleDismiss}
     >
-      <div className={`execution-surface glass-panel overflow-hidden transition-all duration-500 ${
-        isVisible && !isTransitioning ? 'execution-surface-active' : ''
-      }`}>
+      <div
+        className={`action-panel-shell w-full max-w-3xl mx-auto px-4 transition-all duration-[420ms] ease-apple ${
+          isVisible
+            ? 'translate-y-0 scale-100 sm:scale-[1.015]'
+            : 'translate-y-2 scale-[0.98]'
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div 
+          className={`execution-surface glass-panel transition-all duration-500 ${
+            isVisible && !isTransitioning ? 'execution-surface-active' : ''
+          }`}
+          style={{ backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
+        >
         {/* ── Intent Feedback Header ── */}
         <div className="execution-header flex items-center justify-between px-5 py-3.5 sm:px-6 sm:py-4 border-b"
           style={{ borderColor: 'var(--border-glass)' }}
@@ -197,6 +214,7 @@ export default function ActionPanel({ intent, onDismiss, onIntentChange }) {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 }
