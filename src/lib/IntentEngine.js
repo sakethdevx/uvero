@@ -51,7 +51,7 @@ const CAPABILITIES = [
         const normalizeMap = {
           kilograms: 'kg', kilogram: 'kg', pounds: 'lbs', pound: 'lbs', grams: 'g', gram: 'g', ounces: 'oz', ounce: 'oz',
           meters: 'm', meter: 'm', feet: 'ft', foot: 'ft', inches: 'in', inch: 'in', miles: 'mi', mile: 'mi',
-          celsius: 'c', fahrenheit: 'f', kelvin: 'k',
+          celsius: 'c', celcius: 'c', centigrade: 'c', fahrenheit: 'f', kelvin: 'k',
           eastern: 'America/New_York', pacific: 'America/Los_Angeles', central: 'America/Chicago', mountain: 'America/Denver'
         };
         from = normalizeMap[from] || from;
@@ -73,7 +73,7 @@ const CAPABILITIES = [
         const finalFrom = tzAbbrMap[from] || from;
         const finalTo = tzAbbrMap[to] || to;
 
-        const cat = unitToCat[from] || unitToCat[to] || 'weight';
+        const cat = unitToCat[finalFrom] || unitToCat[finalTo] || 'weight';
         return { cat, from: finalFrom, to: finalTo };
       }
       return {};

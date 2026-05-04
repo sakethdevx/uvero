@@ -174,9 +174,12 @@ const UnitConverter = ({ cat = 'weight', from = null, to = null }) => {
         if (!value || isNaN(value)) return '';
         const numValue = parseFloat(value);
         if (cat === 'temperature') return convertTemperature(numValue, from, to);
+        
+        const catData = conversionData[cat];
+        if (!catData || !catData.units[from] || !catData.units[to]) return '';
 
-        const fromFactor = conversionData[cat].units[from].toBase;
-        const toFactor = conversionData[cat].units[to].toBase;
+        const fromFactor = catData.units[from].toBase;
+        const toFactor = catData.units[to].toBase;
         return (numValue * fromFactor) / toFactor;
     }, [conversionData, getTimezoneOffset, inputDate, inputTime]);
 
