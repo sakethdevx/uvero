@@ -52,7 +52,7 @@ export default function WatermarkSettings({ options, onChange }) {
                             placeholder="© Your Name"
                         />
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 mb-1">Font Size ({options.fontSize}px)</label>
                             <input
@@ -97,7 +97,7 @@ export default function WatermarkSettings({ options, onChange }) {
                 </div>
             )}
 
-            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-cyan-100 dark:border-cyan-900/30">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-cyan-100 dark:border-cyan-900/30">
                 <div>
                     <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 mb-1">Opacity ({Math.round(options.opacity * 100)}%)</label>
                     <input
