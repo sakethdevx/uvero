@@ -667,6 +667,10 @@
       borderShimmer 4s linear infinite;
   }
 
+  .command-bar.is-typing {
+    transform: translateZ(0) scale(1) !important;
+  }
+
   @keyframes borderShimmer {
     from { background-position: 0% 0%, 0% 0%; }
     to { background-position: 0% 0%, 200% 0%; }
@@ -690,6 +694,28 @@
     background-size: 180% 180%;
     box-shadow: 0 0 18px var(--accent-subtle), 0 0 44px color-mix(in srgb, var(--accent-blue) 24%, transparent);
     animation: orbBreathe 3s ease-in-out infinite, signatureGradientShift 7s ease-in-out infinite;
+  }
+
+  .command-input {
+    /* STABILIZE INPUT LAYOUT */
+    min-height: 24px;
+    padding: 0;
+    line-height: normal;
+    
+    /* Avoid animating layout properties */
+    transition: color 0.1s ease, opacity 0.1s ease !important;
+    
+    /* GPU & RENDER FIXES */
+    transform: translateZ(0);
+    will-change: transform;
+    
+    /* MOBILE / PWA FIXES */
+    -webkit-user-select: text;
+    user-select: text;
+
+    /* HANDLE BACKDROP FILTER */
+    position: relative;
+    z-index: 10;
   }
 
   .command-input::placeholder {

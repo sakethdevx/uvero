@@ -48,6 +48,10 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
 
   // Cycle placeholders with a smooth fade
   useEffect(() => {
+    if (isFocused || query) {
+      setPlaceholderVisible(true);
+      return;
+    }
     const interval = setInterval(() => {
       // Fade out
       setPlaceholderVisible(false);
@@ -58,7 +62,7 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
       }, 400);
     }, 3200);
     return () => clearInterval(interval);
-  }, []);
+  }, [isFocused, query]);
 
   // Focus input when modal opens
   useEffect(() => {
@@ -259,7 +263,7 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
         <div
           className={`command-bar relative flex items-center gap-3.5 transition-all duration-[350ms] ease-apple glass-panel px-5 py-4 sm:px-6 sm:py-[1.05rem] ${
             isFocused || query ? 'command-bar-active glass-glow' : ''} ${
-              query ? 'command-bar-processing' : ''
+              query ? 'command-bar-processing is-typing' : ''
             }`}
         >
           {/* Search icon / AI indicator */}
@@ -294,7 +298,7 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 200)}
             placeholder={PLACEHOLDER_INTENTS[placeholderIndex]}
-            className="command-input flex-1 bg-transparent text-[15px] font-medium outline-none placeholder:text-gray-400 dark:placeholder:text-[#a27798] transition-colors sm:text-base caret-yellow-400"
+            className="command-input flex-1 bg-transparent text-[15px] font-medium outline-none placeholder:text-gray-400 dark:placeholder:text-[#a27798] sm:text-base caret-yellow-400"
             style={{
               color: 'var(--text-primary)',
               '--placeholder-opacity': placeholderVisible ? 1 : 0,
