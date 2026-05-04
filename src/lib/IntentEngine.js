@@ -326,6 +326,65 @@ const CAPABILITIES = [
     extractParams: () => ({}),
     description: () => 'Manage boards',
   },
+  {
+    id: 'unit-conversion',
+    tier: 3,
+    handler: null,
+    navigateTo: '/unit-converter',
+    label: 'Universal Converter',
+    icon: '📏',
+    patterns: [
+      /(\w+)\s+to\s+(\w+)/i,
+      /(?:convert|transform)\s+(\w+)\s+to\s+(\w+)/i,
+      /(?:timezone|time)\s+converter/i,
+      /(?:weight|length|temperature|volume|speed)\s+converter/i,
+    ],
+    extractParams: (query) => {
+      const match = query.match(/(\w+)\s+to\s+(\w+)/i);
+      if (match) {
+        let from = match[1].toLowerCase();
+        let to = match[2].toLowerCase();
+        
+        // Normalize common abbreviations/names
+        const normalizeMap = {
+          kilograms: 'kg', kilogram: 'kg', pounds: 'lbs', pound: 'lbs', grams: 'g', gram: 'g', ounces: 'oz', ounce: 'oz',
+          meters: 'm', meter: 'm', feet: 'ft', foot: 'ft', inches: 'in', inch: 'in', miles: 'mi', mile: 'mi',
+          celsius: 'c', fahrenheit: 'f', kelvin: 'k',
+          eastern: 'America/New_York', pacific: 'America/Los_Angeles', central: 'America/Chicago', mountain: 'America/Denver'
+        };
+        from = normalizeMap[from] || from;
+        to = normalizeMap[to] || to;
+
+        // Detect category
+        const unitToCat = {
+          kg: 'weight', lbs: 'weight', g: 'weight', oz: 'weight', ton: 'weight', stone: 'weight',
+          m: 'length', km: 'length', cm: 'length', mm: 'length', ft: 'length', in: 'length', yd: 'length', mi: 'length',
+          c: 'temperature', f: 'temperature', k: 'temperature',
+          'america/new_york': 'timezone', 'america/los_angeles': 'timezone', 'america/chicago': 'timezone', 'america/denver': 'timezone',
+          pst: 'timezone', est: 'timezone', cst: 'timezone', mst: 'timezone', utc: 'timezone'
+        };
+
+        // Handle specific timezone abbreviations mapping to full IDs
+        const tzAbbrMap = {
+          pst: 'America/Los_Angeles', est: 'America/New_York', cst: 'America/Chicago', mst: 'America/Denver'
+        };
+        const finalFrom = tzAbbrMap[from] || from;
+        const finalTo = tzAbbrMap[to] || to;
+
+        const cat = unitToCat[from] || unitToCat[to] || 'weight';
+        return { cat, from: finalFrom, to: finalTo };
+      }
+      return {};
+    },
+    description: (params) => {
+      if (params.from && params.to) {
+        const from = params.from.includes('/') ? params.from.split('/').pop().replace('_', ' ') : params.from;
+        const to = params.to.includes('/') ? params.to.split('/').pop().replace('_', ' ') : params.to;
+        return `${from.toUpperCase()} → ${to.toUpperCase()}`;
+      }
+      return 'Weight, Length, Timezones & more';
+    },
+  },
 ];
 
 // ─── Fuzzy matching (Levenshtein) ───
@@ -410,7 +469,11 @@ export function resolveIntent(rawQuery) {
           description: cap.description(params),
           tier: cap.tier,
           handler: cap.handler,
-          navigateTo: cap.navigateTo || null,
+          navigateTo: cap.navigateTo ? (() => {
+            const url = new URL(cap.navigateTo, 'https://uvero.app');
+            Object.entries(params).forEach(([k, v]) => { if (v) url.searchParams.set(k, v); });
+            return url.pathname + url.search;
+          })() : null,
           suggestions: getRelatedSuggestions(cap.id, rawQuery),
         };
       }

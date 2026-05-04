@@ -2,10 +2,10 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Button from '../../../shared/Button';
 
-const UnitConverter = ({ initialCategory = 'weight', initialFrom = null, initialTo = null }) => {
-    const [category, setCategory] = useState(initialCategory);
-    const [fromUnit, setFromUnit] = useState(initialFrom || '');
-    const [toUnit, setToUnit] = useState(initialTo || '');
+const UnitConverter = ({ cat = 'weight', from = null, to = null }) => {
+    const [category, setCategory] = useState(cat);
+    const [fromUnit, setFromUnit] = useState(from || '');
+    const [toUnit, setToUnit] = useState(to || '');
     const [inputValue, setInputValue] = useState('');
     const [inputDate, setInputDate] = useState(new Date().toISOString().split('T')[0]);
     const [inputTime, setInputTime] = useState(new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }));

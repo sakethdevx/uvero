@@ -1,4 +1,4 @@
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate, useSearchParams } from 'react-router-dom';
 import { getToolById } from '../tools';
 import { useEffect } from 'react';
 import ToolPageShell, { buildToolFaqs } from '../components/ToolPageShell';
@@ -132,7 +132,8 @@ export default function ToolPage() {
         return <Navigate to="/" replace />;
     }
 
-    const ToolComponent = tool.component;
+    const [searchParams] = useSearchParams();
+    const queryParams = Object.fromEntries([...searchParams]);
     const isRuntimeUnavailable = shouldVerifyRuntime && !runtimeStatus.isLoading && !runtimeStatus.isAvailable;
 
     return (
@@ -159,7 +160,7 @@ export default function ToolPage() {
                     </div>
                 </div>
             ) : (
-                <ToolComponent toolRuntimeStatus={runtimeStatus} />
+                <ToolComponent {...queryParams} toolRuntimeStatus={runtimeStatus} />
             )}
         </ToolPageShell>
     );
