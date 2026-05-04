@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { useSession } from '../lib/SessionContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -9,6 +9,56 @@ import { motion, AnimatePresence } from 'framer-motion';
  */
 export default function HistorySheet({ isOpen, onClose, onRerun }) {
   const { history, clearHistory, removeHistoryItem, toggleFavorite, isFavorite } = useSession();
+
+  // Support swipe-down-to-close from the scrollable list without rubber-banding the page
+  const scrollRef = useRef(null);
+  const touchStartRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Small delay to ensure the scrollable element has mounted
+    const timer = setTimeout(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+
+      const handleTouchStart = (e) => {
+        if (el.scrollTop <= 0) {
+          touchStartRef.current = e.touches[0].clientY;
+        } else {
+          touchStartRef.current = null;
+        }
+      };
+
+      const handleTouchMove = (e) => {
+        if (touchStartRef.current === null) return;
+        const dy = e.touches[0].clientY - touchStartRef.current;
+        // If at top and pulling down, prevent native body overscroll
+        if (el.scrollTop <= 0 && dy > 0) {
+          if (e.cancelable) e.preventDefault();
+        }
+      };
+
+      const handleTouchEnd = (e) => {
+        if (touchStartRef.current === null) return;
+        const dy = e.changedTouches[0].clientY - touchStartRef.current;
+        if (dy > 60) onClose();
+        touchStartRef.current = null;
+      };
+
+      el.addEventListener('touchstart', handleTouchStart, { passive: true });
+      el.addEventListener('touchmove', handleTouchMove, { passive: false });
+      el.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+      return () => {
+        el.removeEventListener('touchstart', handleTouchStart);
+        el.removeEventListener('touchmove', handleTouchMove);
+        el.removeEventListener('touchend', handleTouchEnd);
+      };
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [isOpen, onClose]);
 
   const formatTime = (ts) => {
     const d = new Date(ts);
@@ -128,7 +178,10 @@ export default function HistorySheet({ isOpen, onClose, onRerun }) {
             </div>
 
         {/* List */}
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+        <div 
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto overscroll-contain px-4 py-3 space-y-4"
+        >
           {history.length === 0 ? (
             /* ── Empty state with example prompts ── */
             <div className="flex flex-col items-center justify-center py-10 gap-4">
