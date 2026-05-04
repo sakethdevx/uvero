@@ -467,7 +467,8 @@ export function resolveIntent(rawQuery) {
     for (const pattern of cap.patterns) {
       if (pattern.test(query)) {
         const params = cap.extractParams ? cap.extractParams(query) : {};
-        return {
+        
+        const result = {
           capability: cap,
           params,
           confidence: 0.9,
@@ -478,6 +479,37 @@ export function resolveIntent(rawQuery) {
           navigateTo: cap.navigateTo || null,
           suggestions: getRelatedSuggestions(cap.id, rawQuery),
         };
+
+        // ─── Special Case: Dynamic Unit Suggestions for "A to" ───
+        if (cap.id === 'unit-conversion' && params.from) {
+          const COMMON_UNITS = {
+            weight: ['kg', 'lbs', 'g', 'oz', 'ton'],
+            length: ['m', 'ft', 'in', 'km', 'mi', 'cm', 'mm'],
+            temperature: ['c', 'f', 'k'],
+            timezone: ['America/Los_Angeles', 'America/New_York', 'America/Chicago', 'UTC']
+          };
+          const cat = params.cat || 'weight';
+          const from = params.from;
+          const units = COMMON_UNITS[cat] || [];
+          
+          const dynamicSuggestions = units
+            .filter(u => u.toLowerCase() !== from.toLowerCase())
+            .map(u => {
+              const uLabel = u.includes('/') ? u.split('/').pop().replace('_', ' ') : u;
+              return {
+                id: `unit-gen-${from}-${u}`,
+                title: `${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
+                description: `Quickly convert ${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
+                icon: '📏',
+                path: `/unit-converter?cat=${cat}&from=${from}&to=${u}`,
+                category: 'Universal Converter'
+              };
+            });
+          
+          result.suggestions = [...dynamicSuggestions, ...result.suggestions].slice(0, 8);
+        }
+
+        return result;
       }
     }
   }
