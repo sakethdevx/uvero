@@ -35,8 +35,11 @@ const UNIT_NORMALIZE_MAP = {
   pst: 'America/Los_Angeles', est: 'America/New_York', cst: 'America/Chicago', mst: 'America/Denver',
   liters: 'l', liter: 'l', millilitres: 'ml', milliliter: 'ml',
   gallons: 'gal', gallon: 'gal', quarts: 'qt', quart: 'qt', pints: 'pt', pint: 'pt', cups: 'cup',
-  acres: 'acre', hectares: 'hectare', sqft: 'ft2', sqmeters: 'm2',
-  knots: 'knot',
+  acres: 'acre', hectares: 'hectare', sqft: 'ft2', 'sq ft': 'ft2', 'square feet': 'ft2', 'square foot': 'ft2', 
+  sqmeters: 'm2', 'sq m': 'm2', 'square meters': 'm2', 'square meter': 'm2',
+  'sq km': 'km2', 'square kilometers': 'km2', 'sq cm': 'cm2', 'square centimeters': 'cm2',
+  'sq in': 'in2', 'square inches': 'in2', 'square inch': 'in2',
+  knots: 'knot', 'miles per hour': 'mph', 'kilometers per hour': 'kph', 'meters per second': 'mps', 'feet per second': 'fps',
   seconds: 's', second: 's', minutes: 'min', minute: 'min', hours: 'hr', hour: 'hr', days: 'day',
   weeks: 'week', months: 'month', years: 'year'
 };
@@ -54,7 +57,10 @@ const UNIT_TO_CAT = {
 };
 
 const unitKeywords = Array.from(new Set([...Object.keys(UNIT_NORMALIZE_MAP), ...Object.keys(UNIT_TO_CAT)]));
+unitKeywords.sort((a, b) => b.length - a.length);
 const UNIT_REGEX = new RegExp(`^(?:${unitKeywords.join('|')})(?:\\s+converter)?$`, 'i');
+const CATEGORIES = ['weight', 'length', 'temperature', 'volume', 'speed', 'area', 'timezone', 'time'];
+const CAT_REGEX = new RegExp(`^(?:${CATEGORIES.join('|')})(?:\\s+converter)?$`, 'i');
 
 // ─── Capability definitions with regex patterns ───
 const CAPABILITIES = [
@@ -73,23 +79,36 @@ const CAPABILITIES = [
       /(?:timezone|time)\s+converter/i,
       /(?:weight|length|temperature|volume|speed|area)\s+converter/i,
       UNIT_REGEX,
+      CAT_REGEX,
     ],
     extractParams: (query) => {
-      let from, to;
+      let from, to, catMatch;
       const match = query.match(/(\w+)\s+to\s+(\w+)?/i);
       
       if (match) {
         from = match[1].toLowerCase();
         to = (match[2] || '').toLowerCase();
       } else {
-        const words = query.toLowerCase().split(/\s+/);
-        for (const w of words) {
-          if (UNIT_NORMALIZE_MAP[w] || UNIT_TO_CAT[w]) {
-            from = w;
-            to = '';
-            break;
+        const fullQuery = query.toLowerCase().trim().replace(/\s+converter$/, '');
+        if (UNIT_NORMALIZE_MAP[fullQuery] || UNIT_TO_CAT[fullQuery]) {
+          from = fullQuery;
+          to = '';
+        } else if (CATEGORIES.includes(fullQuery)) {
+          catMatch = fullQuery;
+        } else {
+          const words = fullQuery.split(/\s+/);
+          for (const w of words) {
+            if (UNIT_NORMALIZE_MAP[w] || UNIT_TO_CAT[w]) {
+              from = w;
+              to = '';
+              break;
+            }
           }
         }
+      }
+
+      if (catMatch) {
+        return { cat: catMatch };
       }
 
       if (from) {
@@ -480,7 +499,7 @@ function normalizeQuery(query) {
 
 // ─── Dynamic Unit Suggestion Generator ───
 function getDynamicUnitSuggestions(params) {
-  if (!params.from) return [];
+  if (!params.from && !params.cat) return [];
   
   const COMMON_UNITS = {
     weight: ['kg', 'lbs', 'g', 'oz', 'ton'],
@@ -493,23 +512,51 @@ function getDynamicUnitSuggestions(params) {
     time: ['s', 'min', 'hr', 'day', 'week', 'month', 'year']
   };
 
-  const cat = params.cat || 'weight';
-  const from = params.from;
-  const units = COMMON_UNITS[cat] || [];
-  
-  return units
-    .filter(u => u.toLowerCase() !== from.toLowerCase())
-    .map(u => {
-      const uLabel = u.includes('/') ? u.split('/').pop().replace('_', ' ') : u;
+  if (params.from) {
+    const cat = params.cat || 'weight';
+    const from = params.from;
+    const units = COMMON_UNITS[cat] || [];
+    
+    return units
+      .filter(u => u.toLowerCase() !== from.toLowerCase())
+      .map(u => {
+        const uLabel = u.includes('/') ? u.split('/').pop().replace('_', ' ') : u;
+        return {
+          id: `unit-gen-${from}-${u}`,
+          title: `${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
+          description: `Quickly convert ${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
+          icon: '📏',
+          path: `/unit-converter?cat=${cat}&from=${from}&to=${u}`,
+          category: 'Converters' // Use 'Converters' to match CommandBar's Tier 2 fallback
+        };
+      });
+  } else if (params.cat) {
+    const cat = params.cat;
+    const catPairs = {
+      speed: [['mph', 'kph'], ['kph', 'mph'], ['mps', 'fps'], ['knot', 'mph']],
+      area: [['acre', 'ft2'], ['ft2', 'm2'], ['m2', 'ft2'], ['hectare', 'acre']],
+      volume: [['gal', 'l'], ['l', 'gal'], ['cup', 'ml'], ['floz', 'ml']],
+      weight: [['kg', 'lbs'], ['lbs', 'kg'], ['g', 'oz'], ['ton', 'kg']],
+      length: [['mi', 'km'], ['km', 'mi'], ['ft', 'm'], ['m', 'ft']],
+      temperature: [['c', 'f'], ['f', 'c'], ['c', 'k']],
+      timezone: [['America/New_York', 'America/Los_Angeles'], ['UTC', 'America/New_York']],
+      time: [['hr', 'min'], ['day', 'hr'], ['week', 'day']]
+    };
+    const pairs = catPairs[cat] || [];
+    return pairs.map(([f, t]) => {
+      const fLabel = f.includes('/') ? f.split('/').pop().replace('_', ' ') : f;
+      const tLabel = t.includes('/') ? t.split('/').pop().replace('_', ' ') : t;
       return {
-        id: `unit-gen-${from}-${u}`,
-        title: `${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
-        description: `Quickly convert ${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
+        id: `unit-gen-cat-${cat}-${f}-${t}`,
+        title: `${f.toUpperCase()} to ${tLabel.toUpperCase()}`,
+        description: `Quickly convert ${f.toUpperCase()} to ${tLabel.toUpperCase()}`,
         icon: '📏',
-        path: `/unit-converter?cat=${cat}&from=${from}&to=${u}`,
-        category: 'Converters' // Use 'Converters' to match CommandBar's Tier 2 fallback
+        path: `/unit-converter?cat=${cat}&from=${f}&to=${t}`,
+        category: 'Converters'
       };
     });
+  }
+  return [];
 }
 
 // ─── Main resolver ───
