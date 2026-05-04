@@ -37,15 +37,17 @@ const CAPABILITIES = [
     icon: '📏',
     patterns: [
       /(\w+)\s+to\s+(\w+)/i,
+      /(\w+)\s+to\s*$/i,
       /(?:convert|transform)\s+(\w+)\s+to\s+(\w+)/i,
+      /(?:convert|transform)\s+(\w+)\s+to\s*$/i,
       /(?:timezone|time)\s+converter/i,
       /(?:weight|length|temperature|volume|speed)\s+converter/i,
     ],
     extractParams: (query) => {
-      const match = query.match(/(\w+)\s+to\s+(\w+)/i);
+      const match = query.match(/(\w+)\s+to\s+(\w+)?/i);
       if (match) {
         let from = match[1].toLowerCase();
-        let to = match[2].toLowerCase();
+        let to = (match[2] || '').toLowerCase();
         
         // Normalize common abbreviations/names
         const normalizeMap = {
@@ -74,7 +76,7 @@ const CAPABILITIES = [
         const finalTo = tzAbbrMap[to] || to;
 
         const cat = unitToCat[finalFrom] || unitToCat[finalTo] || 'weight';
-        return { cat, from: finalFrom, to: finalTo };
+        return { cat, from: finalFrom, to: finalTo || null };
       }
       return {};
     },
@@ -83,6 +85,10 @@ const CAPABILITIES = [
         const from = params.from.includes('/') ? params.from.split('/').pop().replace('_', ' ') : params.from;
         const to = params.to.includes('/') ? params.to.split('/').pop().replace('_', ' ') : params.to;
         return `${from.toUpperCase()} → ${to.toUpperCase()}`;
+      }
+      if (params.from) {
+        const from = params.from.includes('/') ? params.from.split('/').pop().replace('_', ' ') : params.from;
+        return `Convert ${from.toUpperCase()} to other units`;
       }
       return 'Weight, Length, Timezones & more';
     },
