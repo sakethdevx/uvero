@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useSession } from '../lib/SessionContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 /**
  * HistorySheet — Displays recent actions as compact glass cards.
@@ -8,8 +9,6 @@ import { useSession } from '../lib/SessionContext';
  */
 export default function HistorySheet({ isOpen, onClose, onRerun }) {
   const { history, clearHistory, removeHistoryItem, toggleFavorite, isFavorite } = useSession();
-
-  if (!isOpen) return null;
 
   const formatTime = (ts) => {
     const d = new Date(ts);
@@ -60,50 +59,73 @@ export default function HistorySheet({ isOpen, onClose, onRerun }) {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-start md:justify-center md:pt-[10vh] px-0 md:px-4"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose?.(); }}
-    >
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in" 
-        onClick={onClose}
-      />
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-end md:items-start md:justify-center md:pt-[10vh] px-0 md:px-4 native-feel">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm" 
+            onClick={onClose}
+          />
 
-      {/* Sheet */}
-      <div className="relative w-full md:max-w-md animate-sheet-in md:animate-scale-in glass-panel md:rounded-2xl rounded-t-2xl rounded-b-none max-h-[85vh] flex flex-col overflow-hidden"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b"
-          style={{ borderColor: 'var(--border-glass)' }}
-        >
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5" style={{ color: 'var(--accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h2 className="text-base font-bold text-gray-900 dark:text-white">History</h2>
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full"
-              style={{ background: 'var(--surface-2)', color: 'var(--text-secondary)' }}
+          {/* Sheet */}
+          <motion.div
+            initial={{ y: '100%', scale: 0.96 }}
+            animate={{ y: 0, scale: 1 }}
+            exit={{ y: '100%', scale: 0.96 }}
+            transition={{ type: 'spring', damping: 26, stiffness: 280 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={0.2}
+            onDragEnd={(e, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onClose();
+              }
+            }}
+            className="relative w-full md:max-w-md glass-panel md:rounded-2xl rounded-t-3xl rounded-b-none max-h-[85vh] flex flex-col overflow-hidden"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+          >
+            {/* Grab handle for mobile */}
+            <div className="w-full flex justify-center py-2 md:hidden">
+              <div className="w-12 h-1.5 rounded-full bg-gray-300 dark:bg-gray-700/60" />
+            </div>
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-3 border-b"
+              style={{ borderColor: 'var(--border-glass)' }}
             >
-              {history.length}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            {history.length > 0 && (
-              <button onClick={clearHistory} className="text-xs font-medium hover:underline"
-                style={{ color: 'var(--text-secondary)' }}
-              >
-                Clear history
-              </button>
-            )}
-            <button onClick={onClose}
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5" style={{ color: 'var(--accent)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h2 className="text-base font-bold text-gray-900 dark:text-white">History</h2>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full"
+                  style={{ background: 'var(--surface-2)', color: 'var(--text-secondary)' }}
+                >
+                  {history.length}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {history.length > 0 && (
+                  <button onClick={clearHistory} className="text-xs font-medium hover:underline p-2 -my-2"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    Clear history
+                  </button>
+                )}
+                <button onClick={onClose}
+                  className="w-11 h-11 -mr-2 rounded-xl flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
 
         {/* List */}
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
@@ -229,7 +251,9 @@ export default function HistorySheet({ isOpen, onClose, onRerun }) {
             ))
           )}
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }
