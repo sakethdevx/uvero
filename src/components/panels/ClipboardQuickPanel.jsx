@@ -179,10 +179,10 @@ export default function ClipboardQuickPanel({ params, onDismiss, onSuggestionSel
             <div className="p-4 rounded-xl text-sm" style={{ background: 'var(--surface-2)', color: 'var(--text-primary)' }}>
               <pre className="whitespace-pre-wrap break-words font-mono text-xs">{retrievedText}</pre>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <button onClick={copyRetrieved} className="btn-accent flex-1 text-sm">{copied ? '✓ Copied' : 'Copy Text'}</button>
               <button onClick={handleReset}
-                className="px-4 py-2.5 rounded-xl text-sm font-medium"
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium"
                 style={{ background: 'var(--surface-2)', color: 'var(--text-secondary)' }}>Retrieve Another</button>
             </div>
             <SuggestionChips suggestions={suggestions} onSelect={handleSuggestion} />

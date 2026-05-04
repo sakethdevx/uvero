@@ -104,7 +104,7 @@ function PayloadFields({ type, fields, onChange }) {
         case 'vcard':
             return (
                 <FieldGroup label="Contact (vCard)">
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <Field label="First Name">{inp('firstName', 'Jane')}</Field>
                         <Field label="Last Name">{inp('lastName', 'Doe')}</Field>
                     </div>
@@ -366,7 +366,7 @@ export default function QRGenerator() {
                             <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Design Options</p>
 
                             {/* Colors */}
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <Field label="QR Color">
                                     <div className="flex items-center gap-2">
                                         <input type="color" value={fgColor} onChange={(e) => setFgColor(e.target.value)} className="w-10 h-10 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer" />
@@ -395,7 +395,7 @@ export default function QRGenerator() {
 
                             {/* Error correction */}
                             <Field label="Error Correction">
-                                <div className="grid grid-cols-4 gap-2">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                     {[
                                         { v: 'L', label: 'Low', desc: '7%' },
                                         { v: 'M', label: 'Medium', desc: '15%' },
@@ -417,7 +417,7 @@ export default function QRGenerator() {
 
                             {/* Frame */}
                                 <Field label="Frame Style">
-                                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                                         {FRAME_TYPES.map((f) => (
                                             <button
                                                 key={f.value}

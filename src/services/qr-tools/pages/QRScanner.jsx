@@ -107,23 +107,23 @@ function ScanHistoryPanel({ history, onDelete, onDeleteAll }) {
 
     return (
         <div className="mt-8 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/5">
+            <div className="flex flex-col sm:flex-row items-center justify-between px-5 py-4 gap-3 border-b border-gray-100 dark:border-white/5">
                 <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Scan History</span>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">{history.length}</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
                     {selected.size > 0 && (
                         <button
                             onClick={handleDeleteSelected}
-                            className="text-xs px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors"
+                            className="flex-1 sm:flex-none text-xs px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors"
                         >
-                            Delete {selected.size} selected
+                            Delete {selected.size}
                         </button>
                     )}
                     <button
                         onClick={onDeleteAll}
-                        className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 font-semibold rounded-lg transition-colors"
+                        className="flex-1 sm:flex-none text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 font-semibold rounded-lg transition-colors"
                     >
                         Clear all
                     </button>
@@ -332,7 +332,7 @@ export default function QRScanner() {
             <AIInlinePanel>
 
                 {/* Mode tabs */}
-                <div className="flex gap-2 mb-6 bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 rounded-2xl p-1.5 shadow-sm">
+                <div className="flex flex-col sm:flex-row gap-2 mb-6 bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 rounded-2xl p-1.5 shadow-sm">
                     {[
                         { id: 'camera', label: 'Camera Scan', icon: '📷' },
                         { id: 'upload', label: 'Upload Image', icon: '🖼️' },

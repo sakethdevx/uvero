@@ -382,7 +382,7 @@ export default function BulkQRGenerator() {
                                         placeholder={"url,name,description\nhttps://example.com,Example,My website\nhttps://github.com,GitHub,Code hosting"}
                                     />
                                     {csvHeaders.length > 0 && (
-                                        <div className="grid grid-cols-2 gap-3">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Content Column <span className="text-red-400">*</span></label>
                                                 <select className={inputCls} value={contentCol} onChange={(e) => { setContentCol(e.target.value); setGenerated([]); }}>
@@ -409,7 +409,7 @@ export default function BulkQRGenerator() {
                         {/* Content transform */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 p-5 shadow-sm">
                             <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Content Transform</p>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">Prefix (prepend to each)</label>
                                     <input className={inputCls} value={prefix} onChange={(e) => { setPrefix(e.target.value); setGenerated([]); }} placeholder="https://" />
@@ -424,7 +424,7 @@ export default function BulkQRGenerator() {
                         {/* Design options */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-white/5 p-5 shadow-sm">
                             <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">QR Design (applies to all)</p>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">QR Color</label>
                                     <div className="flex items-center gap-2">
@@ -513,7 +513,7 @@ export default function BulkQRGenerator() {
                                     </div>
 
                                     {/* Export buttons */}
-                                    <div className="mt-4 grid grid-cols-2 gap-2">
+                                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
                                         <button
                                             onClick={downloadZIP}
                                             disabled={!successCount}
