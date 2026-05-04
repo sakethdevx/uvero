@@ -190,7 +190,10 @@ const UnitConverter = () => {
         setCategory(conv.category);
         setFromUnit(conv.from);
         setToUnit(conv.to);
-        setInputValue('');    return (
+        setInputValue('');
+    };
+
+    return (
         <div className="glass-panel p-4 sm:p-6 md:p-8">
             <div className="space-y-10">
                 {/* Category Selector */}
