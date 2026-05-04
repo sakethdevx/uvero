@@ -213,7 +213,7 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
             className="w-full px-4 py-2.5 rounded-xl text-sm font-medium transition-all outline-none"
             style={{ background: 'var(--surface-2)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
           />
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="password"
               value={wifiPassword}
@@ -226,7 +226,7 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
             <select
               value={wifiSecurity}
               onChange={(e) => { setWifiSecurity(e.target.value); setQrDataUrl(null); }}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all outline-none"
+              className="px-4 py-2.5 rounded-xl text-sm font-medium transition-all outline-none sm:w-32"
               style={{ background: 'var(--surface-2)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
             >
               <option value="WPA">WPA/WPA2</option>
@@ -237,7 +237,7 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
           <button
             onClick={generate}
             disabled={generating || !wifiSsid.trim()}
-            className="btn-accent w-full flex items-center justify-center gap-1.5 py-2.5 text-sm shrink-0 disabled:opacity-40"
+            className="btn-accent w-full flex items-center justify-center gap-1.5 py-3 text-sm shrink-0 disabled:opacity-40"
           >
             {generating ? 'Generating...' : 'Generate WiFi QR'}
           </button>
@@ -245,7 +245,7 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
       )}
 
       {qrType === 'text' && !qrDataUrl && (
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             ref={inputRef}
             type="text"
@@ -259,7 +259,7 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
           <button
             onClick={generate}
             disabled={generating || !input.trim()}
-            className="btn-accent flex items-center gap-1.5 text-sm shrink-0 disabled:opacity-40"
+            className="btn-accent flex items-center justify-center gap-1.5 py-2.5 sm:py-0 px-6 text-sm shrink-0 disabled:opacity-40"
           >
             {generating ? 'Generating' : 'Generate QR'}
           </button>
