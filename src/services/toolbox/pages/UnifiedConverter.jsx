@@ -283,7 +283,7 @@ export default function UnifiedConverter() {
                             {file && (
                                 <button 
                                     onClick={handleReset}
-                                    className="suggestion-chip !opacity-100 !animate-none text-red-600 dark:text-red-400 flex items-center gap-2"
+                                    className="suggestion-chip !opacity-100 !animate-none !transform-none text-red-600 dark:text-red-400 flex items-center gap-2"
                                 >
                                     <svg className="w-4 h-4 transition-transform group-hover/btn:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
