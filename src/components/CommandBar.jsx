@@ -186,22 +186,28 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
           }
         }
 
+        const params = matchedCap?.extractParams ? matchedCap.extractParams(query) : {};
+        const description = (matchedCap && typeof matchedCap.description === 'function') 
+          ? matchedCap.description(params) 
+          : (s.description || (matchedCap?.description && typeof matchedCap.description === 'string' ? matchedCap.description : ''));
+
         items.push({
           type: 'suggestion',
           id: s.id,
           icon: s.icon,
           title: s.title,
-          description: s.description,
+          description,
           path: s.path,
           tier,
           handler: matchedCap ? matchedCap.handler : null,
           capability: matchedCap ? matchedCap : null,
+          params,
         });
       });
     }
 
     return items.slice(0, 6);
-  }, [result]);
+  }, [result, query]);
 
   const selectItem = useCallback((item) => {
     if (!item) return;

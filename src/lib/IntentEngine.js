@@ -520,9 +520,10 @@ export function getAllCapabilities() {
     tier: c.tier,
     label: c.label,
     icon: c.icon,
-    description: c.description({}),
+    description: c.description,
     handler: c.handler,
     navigateTo: c.navigateTo,
+    extractParams: c.extractParams,
   }));
 }
 
