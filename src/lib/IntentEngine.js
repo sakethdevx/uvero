@@ -28,6 +28,71 @@ const SYNONYM_MAP = {
 
 // ─── Capability definitions with regex patterns ───
 const CAPABILITIES = [
+  {
+    id: 'unit-conversion',
+    tier: 3,
+    handler: null,
+    navigateTo: '/unit-converter',
+    label: 'Universal Converter',
+    icon: '📏',
+    patterns: [
+      /(\w+)\s+to\s+(\w+)/i,
+      /(\w+)\s+to\s*$/i,
+      /(?:convert|transform)\s+(\w+)\s+to\s+(\w+)/i,
+      /(?:convert|transform)\s+(\w+)\s+to\s*$/i,
+      /(?:timezone|time)\s+converter/i,
+      /(?:weight|length|temperature|volume|speed)\s+converter/i,
+    ],
+    extractParams: (query) => {
+      const match = query.match(/(\w+)\s+to\s+(\w+)?/i);
+      if (match) {
+        let from = match[1].toLowerCase();
+        let to = (match[2] || '').toLowerCase();
+        
+        // Normalize common abbreviations/names
+        const normalizeMap = {
+          kilograms: 'kg', kilogram: 'kg', pounds: 'lbs', pound: 'lbs', grams: 'g', gram: 'g', ounces: 'oz', ounce: 'oz',
+          meters: 'm', meter: 'm', feet: 'ft', foot: 'ft', inches: 'in', inch: 'in', miles: 'mi', mile: 'mi',
+          celsius: 'c', celcius: 'c', centigrade: 'c', fahrenheit: 'f', kelvin: 'k',
+          eastern: 'America/New_York', pacific: 'America/Los_Angeles', central: 'America/Chicago', mountain: 'America/Denver'
+        };
+        from = normalizeMap[from] || from;
+        to = normalizeMap[to] || to;
+
+        // Detect category
+        const unitToCat = {
+          kg: 'weight', lbs: 'weight', g: 'weight', oz: 'weight', ton: 'weight', stone: 'weight',
+          m: 'length', km: 'length', cm: 'length', mm: 'length', ft: 'length', in: 'length', yd: 'length', mi: 'length',
+          c: 'temperature', f: 'temperature', k: 'temperature',
+          'america/new_york': 'timezone', 'america/los_angeles': 'timezone', 'america/chicago': 'timezone', 'america/denver': 'timezone',
+          pst: 'timezone', est: 'timezone', cst: 'timezone', mst: 'timezone', utc: 'timezone'
+        };
+
+        // Handle specific timezone abbreviations mapping to full IDs
+        const tzAbbrMap = {
+          pst: 'America/Los_Angeles', est: 'America/New_York', cst: 'America/Chicago', mst: 'America/Denver'
+        };
+        const finalFrom = tzAbbrMap[from] || from;
+        const finalTo = tzAbbrMap[to] || to;
+
+        const cat = unitToCat[finalFrom] || unitToCat[finalTo] || 'weight';
+        return { cat, from: finalFrom, to: finalTo || null };
+      }
+      return {};
+    },
+    description: (params) => {
+      if (params.from && params.to) {
+        const from = params.from.includes('/') ? params.from.split('/').pop().replace('_', ' ') : params.from;
+        const to = params.to.includes('/') ? params.to.split('/').pop().replace('_', ' ') : params.to;
+        return `${from.toUpperCase()} → ${to.toUpperCase()}`;
+      }
+      if (params.from) {
+        const from = params.from.includes('/') ? params.from.split('/').pop().replace('_', ' ') : params.from;
+        return `Convert ${from.toUpperCase()} to other units`;
+      }
+      return 'Weight, Length, Timezones & more';
+    },
+  },
   // Tier 1 — Inline execution
   {
     id: 'file-convert',
@@ -389,6 +454,36 @@ function normalizeQuery(query) {
   return normalized;
 }
 
+// ─── Dynamic Unit Suggestion Generator ───
+function getDynamicUnitSuggestions(params) {
+  if (!params.from) return [];
+  
+  const COMMON_UNITS = {
+    weight: ['kg', 'lbs', 'g', 'oz', 'ton'],
+    length: ['m', 'ft', 'in', 'km', 'mi', 'cm', 'mm'],
+    temperature: ['c', 'f', 'k'],
+    timezone: ['America/Los_Angeles', 'America/New_York', 'America/Chicago', 'UTC']
+  };
+
+  const cat = params.cat || 'weight';
+  const from = params.from;
+  const units = COMMON_UNITS[cat] || [];
+  
+  return units
+    .filter(u => u.toLowerCase() !== from.toLowerCase())
+    .map(u => {
+      const uLabel = u.includes('/') ? u.split('/').pop().replace('_', ' ') : u;
+      return {
+        id: `unit-gen-${from}-${u}`,
+        title: `${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
+        description: `Quickly convert ${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
+        icon: '📏',
+        path: `/unit-converter?cat=${cat}&from=${from}&to=${u}`,
+        category: 'Converters' // Use 'Converters' to match CommandBar's Tier 2 fallback
+      };
+    });
+}
+
 // ─── Main resolver ───
 export function resolveIntent(rawQuery) {
   if (!rawQuery || rawQuery.trim().length === 0) {
@@ -402,7 +497,8 @@ export function resolveIntent(rawQuery) {
     for (const pattern of cap.patterns) {
       if (pattern.test(query)) {
         const params = cap.extractParams ? cap.extractParams(query) : {};
-        return {
+        
+        const result = {
           capability: cap,
           params,
           confidence: 0.9,
@@ -413,6 +509,14 @@ export function resolveIntent(rawQuery) {
           navigateTo: cap.navigateTo || null,
           suggestions: getRelatedSuggestions(cap.id, rawQuery),
         };
+
+        // Inject dynamic unit suggestions if applicable
+        if (cap.id === 'unit-conversion') {
+          const dynamic = getDynamicUnitSuggestions(params);
+          result.suggestions = [...dynamic, ...result.suggestions].slice(0, 10);
+        }
+
+        return result;
       }
     }
   }

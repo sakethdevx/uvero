@@ -262,20 +262,20 @@ export default function UnifiedConverter() {
                             </p>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2 md:justify-end">
+                        <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 md:gap-4 w-full sm:w-auto">
                             {/* Neural Engine Status Indicator */}
-                            <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all duration-500 ${
+                            <div className={`flex items-center gap-2 px-3 h-10 rounded-xl border transition-all duration-500 shrink-0 ${
                                 engineStatus === 'ready' 
                                 ? 'bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400' 
                                 : engineStatus === 'downloading'
                                 ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:text-indigo-400 animate-pulse'
                                 : 'bg-gray-100 dark:bg-white/[0.05] border-gray-200 dark:border-white/10 text-gray-500'
                             }`}>
-                                <div className={`w-1.5 h-1.5 rounded-full ${
+                                <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                                     engineStatus === 'ready' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 
                                     engineStatus === 'downloading' ? 'bg-indigo-500 animate-ping' : 'bg-gray-400'
                                 }`} />
-                                <span className="text-xs font-bold uppercase tracking-wider">
+                                <span className="text-[10px] font-black uppercase tracking-wider">
                                     {engineStatus === 'ready' ? 'Engine Ready' : engineStatus === 'downloading' ? 'Optimizing' : 'Engine Idle'}
                                 </span>
                             </div>
@@ -283,12 +283,12 @@ export default function UnifiedConverter() {
                             {file && (
                                 <button 
                                     onClick={handleReset}
-                                    className="suggestion-chip !animate-none text-red-600 dark:text-red-400 flex items-center gap-2"
+                                    className="suggestion-chip !opacity-100 !animate-none h-10 text-red-600 dark:text-red-400 flex items-center gap-2 px-4 group/discard"
                                 >
-                                    <svg className="w-4 h-4 transition-transform group-hover/btn:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4 transition-transform group-hover/discard:rotate-90 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
-                                    Discard
+                                    <span className="text-[10px] font-black uppercase tracking-wider">Discard</span>
                                 </button>
                             )}
                         </div>
@@ -310,11 +310,11 @@ export default function UnifiedConverter() {
                     {file && categoryInfo && (
                         <div className="grid gap-6 md:grid-cols-[minmax(280px,0.4fr)_1fr] lg:grid-cols-[minmax(320px,0.75fr)_minmax(0,1fr)]">
                             {/* Input Preview */}
-                            <div className="glass-subtle p-3 flex flex-col">
-                                <h3 className="mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
-                                    Original File
+                            <div className="glass-subtle p-5 flex flex-col bg-white/5 dark:bg-black/20 border-gray-200/50 dark:border-white/5">
+                                <h3 className="mb-4 text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 dark:text-gray-500">
+                                    Source Node
                                 </h3>
-                                <div className="aspect-video md:aspect-[4/3] lg:aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-white/[0.03] flex items-center justify-center border border-gray-200 dark:border-white/5">
+                                <div className="aspect-video md:aspect-[4/3] lg:aspect-square overflow-hidden rounded-2xl bg-gray-100 dark:bg-black/40 flex items-center justify-center border border-gray-200 dark:border-white/10 shadow-inner">
                                     {category === 'image' && previewUrl ? (
                                         <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
                                     ) : category === 'video' && previewUrl ? (

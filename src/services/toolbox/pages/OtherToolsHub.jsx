@@ -35,9 +35,9 @@ export default function OtherToolsHub() {
                 <span className="suggestion-chip !opacity-100 !animate-none">{tools.length} active</span>
             </div>
 
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
                 {/* Sidebar Navigation */}
-                <div className="w-full shrink-0 overflow-x-auto pb-1 scrollbar-hide lg:w-56 lg:overflow-x-visible">
+                <div className="w-full shrink-0 overflow-x-auto pb-2 scrollbar-hide lg:w-60 lg:overflow-x-visible">
                     <nav className="flex min-w-max gap-2 lg:min-w-0 lg:flex-col">
                         {categories.map((cat) => {
                             const isActive = activeCategory === cat.id;
@@ -45,13 +45,13 @@ export default function OtherToolsHub() {
                                 <button
                                     key={cat.id}
                                     onClick={() => setActiveCategory(cat.id)}
-                                    className={`flex items-center rounded-xl px-3 py-2 text-sm font-semibold transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-primary-500
+                                    className={`flex items-center rounded-2xl px-4 py-3 text-xs font-black uppercase tracking-[0.1em] transition-all duration-300 outline-none
                                         ${isActive 
-                                            ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white' 
-                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-200'
+                                            ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-950 shadow-lg shadow-gray-200/50 dark:shadow-none' 
+                                            : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200'
                                         }`}
                                 >
-                                    <span className="text-lg mr-3 opacity-80">{cat.icon}</span>
+                                    <span className="text-xl mr-3 opacity-90">{cat.icon}</span>
                                     {cat.name}
                                 </button>
                             );
@@ -61,36 +61,48 @@ export default function OtherToolsHub() {
 
                 {/* Main Content Area */}
                 <div className="flex-1 w-full min-w-0">
-                    <div className="mb-3 flex items-center justify-between">
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                            {CATEGORIES[activeCategory].name}
-                        </h3>
-                        <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 rounded-full font-medium">
-                            {tools.length} {tools.length === 1 ? 'tool' : 'tools'}
+                    <div className="mb-5 flex items-center justify-between px-1">
+                        <div>
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+                                {CATEGORIES[activeCategory].name}
+                            </h3>
+                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-1">
+                                {CATEGORIES[activeCategory].description}
+                            </p>
+                        </div>
+                        <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest bg-gray-100 dark:bg-white/5 px-3 py-1.5 rounded-full border border-gray-200 dark:border-white/5">
+                            {tools.length} active
                         </span>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                         {tools.map((tool) => (
                             <Link
                                 key={tool.id}
                                 to={`/${tool.id}`}
-                                className="group relative rounded-xl border border-gray-200 bg-white/80 p-4 transition-all duration-300 ease-apple hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-lg hover:shadow-gray-200/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-white/[0.08] dark:bg-white/[0.04] dark:hover:border-white/15 dark:hover:shadow-none"
+                                className="group relative glass-subtle p-5 rounded-[2rem] border-gray-200 dark:border-white/5 transition-all duration-500 ease-apple hover:-translate-y-1.5 hover:border-primary-500/30 hover:bg-white dark:hover:bg-white/[0.08] hover:shadow-2xl hover:shadow-primary-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 overflow-hidden"
                             >
-                                <div className="mb-3 flex items-start justify-between">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-100 bg-gray-50 transition-transform duration-300 group-hover:scale-105 dark:border-white/[0.08] dark:bg-gray-900">
-                                        <span className="text-2xl">{tool.icon}</span>
+                                {/* Decorative background gradient */}
+                                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary-500/5 blur-3xl transition-all duration-500 group-hover:bg-primary-500/10 group-hover:scale-150"></div>
+                                
+                                <div className="relative z-10">
+                                    <div className="mb-5 flex items-start justify-between">
+                                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-white/10 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 group-hover:border-primary-500/20 group-hover:shadow-lg group-hover:shadow-primary-500/5">
+                                            <span className="text-2xl">{tool.icon}</span>
+                                        </div>
+                                        <div className="p-2 rounded-full bg-gray-50 dark:bg-white/5 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-500 delay-75">
+                                            <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                            </svg>
+                                        </div>
                                     </div>
-                                    <svg className="w-5 h-5 text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                    </svg>
+                                    <h4 className="mb-2 text-sm font-black text-gray-900 uppercase tracking-wider dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                        {tool.name}
+                                    </h4>
+                                    <p className="line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400 font-medium opacity-80 group-hover:opacity-100 transition-opacity">
+                                        {tool.description}
+                                    </p>
                                 </div>
-                                <h4 className="mb-1 text-sm font-bold text-gray-900 transition-colors group-hover:text-primary-600 dark:text-gray-100 dark:group-hover:text-primary-400">
-                                    {tool.name}
-                                </h4>
-                                <p className="line-clamp-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
-                                    {tool.description}
-                                </p>
                             </Link>
                         ))}
                     </div>

@@ -9,7 +9,7 @@ const allCapabilities = getAllCapabilities();
 const QUICK_EXAMPLES = [
   'Convert a PDF to images',
   'Generate a QR code for WiFi',
-  'Compress this image',
+  'kg to lbs',
 ];
 
 /**
