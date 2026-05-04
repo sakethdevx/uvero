@@ -177,6 +177,15 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
           (c.id === s.id)
         );
 
+        // Category-based fallback for tiering
+        let tier = matchedCap ? matchedCap.tier : 3;
+        if (!matchedCap) {
+          const toolCategories = ['Converters', 'Utilities', 'QR Tools'];
+          if (toolCategories.includes(s.category)) {
+            tier = 2;
+          }
+        }
+
         items.push({
           type: 'suggestion',
           id: s.id,
@@ -184,7 +193,7 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
           title: s.title,
           description: s.description,
           path: s.path,
-          tier: matchedCap ? matchedCap.tier : 3,
+          tier,
           handler: matchedCap ? matchedCap.handler : null,
           capability: matchedCap ? matchedCap : null,
         });
