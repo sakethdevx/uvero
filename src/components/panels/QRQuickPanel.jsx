@@ -1,18 +1,20 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import QRCode from 'qrcode';
-import SuggestionChips from '../SuggestionChips';
 import { getSuggestions } from '../../lib/Suggestions';
 import { useSession } from '../../lib/SessionContext';
+import QRResultCard from '../QRResultCard';
+import AILoader from '../AILoader';
 
 /**
  * QRQuickPanel — Tier 1 inline QR generator.
- * Now with: session memory, result suggestions, session recording.
+ * Now with: session memory, result suggestions, session recording, and unified UI.
  */
 export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect }) {
   const { recordAction } = useSession();
   const [input, setInput] = useState(params.url || params.text || '');
   const [qrDataUrl, setQrDataUrl] = useState(null);
   const [generating, setGenerating] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const inputRef = useRef(null);
@@ -26,6 +28,12 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
     }
     setError('');
     setGenerating(true);
+    setLoadingStep(0);
+    const startTime = Date.now();
+
+    const timer1 = setTimeout(() => setLoadingStep(1), 100);
+    const timer2 = setTimeout(() => setLoadingStep(2), 200);
+
     try {
       const isDark = document.documentElement.classList.contains('dark');
       const dataUrl = await QRCode.toDataURL(input.trim(), {
@@ -34,8 +42,12 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
         color: { dark: isDark ? '#e8eaed' : '#1a1a2e', light: isDark ? '#111118' : '#ffffff' },
         margin: 4,
       });
-      // Brief pause before reveal — prevents flash
-      await new Promise(r => setTimeout(r, 200));
+      
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 300) {
+        await new Promise(r => setTimeout(r, 300 - elapsed));
+      }
+      
       setQrDataUrl(dataUrl);
 
       // Record in session
@@ -56,6 +68,8 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
     } catch {
       setError('Failed to generate QR code.');
     } finally {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
       setGenerating(false);
     }
   }, [input, recordAction]);
@@ -136,65 +150,41 @@ export default function QRQuickPanel({ params, onOpenFull, onSuggestionSelect })
           disabled={generating || !input.trim()}
           className="btn-accent flex items-center gap-1.5 text-sm shrink-0 disabled:opacity-40"
         >
-          {generating ? (
-            <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-          ) : (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          )}
-          Generate
+          {generating ? 'Generating' : 'Generate QR'}
         </button>
       </div>
 
       {error && <p className="text-xs text-red-500 bg-red-50 dark:bg-red-900/10 px-3 py-2 rounded-lg">{error}</p>}
 
-      {/* Result */}
-      {qrDataUrl && (
-        <div className="result-card">
-          {/* Success confirmation */}
-          <div className="flex items-center gap-2 mb-3">
-            <svg className="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-            </svg>
-            <p className="text-sm font-semibold text-gray-900 dark:text-white">✓ QR generated</p>
-          </div>
-
-          <div className="flex gap-4 items-start">
-            <div className="w-28 h-28 shrink-0 rounded-xl overflow-hidden" style={{ background: 'var(--surface-2)' }}>
-              <img src={qrDataUrl} alt="QR Code" className="w-full h-full object-contain p-1" />
-            </div>
-            <div className="flex-1 flex flex-col gap-2">
-              <button onClick={downloadPNG} className="btn-accent text-sm flex items-center justify-center gap-1.5 w-full">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Download PNG
-              </button>
-              <div className="flex gap-2">
-                <button onClick={downloadSVG} className="flex-1 px-3 py-2 rounded-xl text-xs font-medium transition-colors hover:bg-gray-100 dark:hover:bg-white/5"
-                  style={{ background: 'var(--surface-2)', color: 'var(--text-secondary)' }}>SVG</button>
-                <button onClick={copyImage} className="flex-1 px-3 py-2 rounded-xl text-xs font-medium transition-colors hover:bg-gray-100 dark:hover:bg-white/5"
-                  style={{ background: 'var(--surface-2)', color: 'var(--text-secondary)' }}>
-                  {copied ? '✓ Copied' : 'Copy'}
-                </button>
-              </div>
-              {/* Selective trust signal — result state only */}
-              <p className="text-[10px]" style={{ color: 'var(--text-secondary)' }}>
-                🔒 Generated in your browser
-              </p>
-            </div>
-          </div>
-
-          <SuggestionChips suggestions={suggestions} onSelect={handleSuggestion} />
-
-          {onOpenFull && (
-            <button onClick={onOpenFull} className="mt-3 text-xs font-medium hover:underline w-full text-center"
-              style={{ color: 'var(--accent)' }}>
-              Need logos, frames, or WiFi QR? Open advanced generator →
-            </button>
-          )}
+      {/* Loading */}
+      {generating && (
+        <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 rounded-2xl shadow-sm overflow-hidden flex justify-center py-4">
+            <AILoader mode="steps" steps={['Encoding', 'Generating', 'Finalizing']} currentStep={loadingStep} />
         </div>
+      )}
+
+      {/* Result */}
+      {!generating && qrDataUrl && (
+        <QRResultCard
+            title="✓ QR generated"
+            trustBadge="🔒 Generated locally"
+            suggestions={suggestions}
+            onSuggestionSelect={handleSuggestion}
+            footerAction={onOpenFull && (
+                <button onClick={onOpenFull} className="text-xs font-medium hover:underline w-full text-center mt-2"
+                  style={{ color: 'var(--accent)' }}>
+                  Need logos, frames, or WiFi QR? Open advanced generator →
+                </button>
+            )}
+        >
+            <QRResultCard.Generated
+                dataUrl={qrDataUrl}
+                onDownloadPNG={downloadPNG}
+                onDownloadSVG={downloadSVG}
+                onCopyImage={copyImage}
+                copied={copied}
+            />
+        </QRResultCard>
       )}
     </div>
   );
