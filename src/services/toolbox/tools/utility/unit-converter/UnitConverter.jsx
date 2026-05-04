@@ -2,12 +2,36 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import Button from '../../../shared/Button';
 
-const UnitConverter = () => {
-    const [category, setCategory] = useState('weight');
-    const [fromUnit, setFromUnit] = useState('kg');
-    const [toUnit, setToUnit] = useState('lbs');
+const UnitConverter = ({ initialCategory = 'weight', initialFrom = null, initialTo = null }) => {
+    const [category, setCategory] = useState(initialCategory);
+    const [fromUnit, setFromUnit] = useState(initialFrom || '');
+    const [toUnit, setToUnit] = useState(initialTo || '');
     const [inputValue, setInputValue] = useState('');
+    const [inputDate, setInputDate] = useState(new Date().toISOString().split('T')[0]);
+    const [inputTime, setInputTime] = useState(new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }));
+    const [currentFromTime, setCurrentFromTime] = useState('');
+    const [currentToTime, setCurrentToTime] = useState('');
     const [result, setResult] = useState('');
+
+    const timeZones = useMemo(() => [
+        { value: 'America/New_York', label: 'Eastern Time (ET)', offset: 'UTC-5/-4' },
+        { value: 'America/Chicago', label: 'Central Time (CT)', offset: 'UTC-6/-5' },
+        { value: 'America/Denver', label: 'Mountain Time (MT)', offset: 'UTC-7/-6' },
+        { value: 'America/Los_Angeles', label: 'Pacific Time (PT)', offset: 'UTC-8/-7' },
+        { value: 'America/Anchorage', label: 'Alaska Time (AKT)', offset: 'UTC-9/-8' },
+        { value: 'Pacific/Honolulu', label: 'Hawaii Time (HT)', offset: 'UTC-10' },
+        { value: 'Europe/London', label: 'London (GMT/BST)', offset: 'UTC+0/+1' },
+        { value: 'Europe/Paris', label: 'Central European Time (CET)', offset: 'UTC+1/+2' },
+        { value: 'Europe/Athens', label: 'Eastern European Time (EET)', offset: 'UTC+2/+3' },
+        { value: 'Europe/Moscow', label: 'Moscow (MSK)', offset: 'UTC+3' },
+        { value: 'Asia/Dubai', label: 'Dubai (GST)', offset: 'UTC+4' },
+        { value: 'Asia/Kolkata', label: 'India (IST)', offset: 'UTC+5:30' },
+        { value: 'Asia/Shanghai', label: 'China (CST)', offset: 'UTC+8' },
+        { value: 'Asia/Tokyo', label: 'Japan (JST)', offset: 'UTC+9' },
+        { value: 'Australia/Sydney', label: 'Sydney (AEST/AEDT)', offset: 'UTC+10/+11' },
+        { value: 'Pacific/Auckland', label: 'New Zealand (NZST/NZDT)', offset: 'UTC+12/+13' },
+        { value: 'UTC', label: 'UTC (Coordinated Universal Time)', offset: 'UTC+0' }
+    ], []);
 
     const conversionData = useMemo(() => ({
         weight: {
@@ -44,6 +68,11 @@ const UnitConverter = () => {
                 f: { name: 'Fahrenheit (°F)', toBase: null },
                 k: { name: 'Kelvin (K)', toBase: null }
             }
+        },
+        timezone: {
+            name: 'Timezone',
+            icon: '🌍',
+            units: timeZones.reduce((acc, tz) => ({ ...acc, [tz.value]: { name: tz.label, offset: tz.offset } }), {})
         },
         volume: {
             name: 'Volume',
@@ -96,68 +125,95 @@ const UnitConverter = () => {
                 year: { name: 'Year (year)', toBase: 31557600 } // Average year (365.25 days)
             }
         }
-    }), []);
+    }), [timeZones]);
+
+    useEffect(() => {
+        if (!fromUnit || !toUnit) {
+            const units = Object.keys(conversionData[category].units);
+            if (!fromUnit) setFromUnit(units[0]);
+            if (!toUnit) setToUnit(units[1] || units[0]);
+        }
+    }, [category, conversionData, fromUnit, toUnit]);
+
+    const getTimezoneOffset = useCallback((date, timezone) => {
+        const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
+        const tzDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }));
+        return tzDate.getTime() - utcDate.getTime();
+    }, []);
 
     const convertTemperature = (value, from, to) => {
         let celsius;
-        
-        // Convert to Celsius first
         switch (from) {
-            case 'c':
-                celsius = value;
-                break;
-            case 'f':
-                celsius = (value - 32) * 5/9;
-                break;
-            case 'k':
-                celsius = value - 273.15;
-                break;
-            default:
-                return 0;
+            case 'c': celsius = value; break;
+            case 'f': celsius = (value - 32) * 5/9; break;
+            case 'k': celsius = value - 273.15; break;
+            default: return 0;
         }
-
-        // Convert from Celsius to target
         switch (to) {
-            case 'c':
-                return celsius;
-            case 'f':
-                return (celsius * 9/5) + 32;
-            case 'k':
-                return celsius + 273.15;
-            default:
-                return 0;
+            case 'c': return celsius;
+            case 'f': return (celsius * 9/5) + 32;
+            case 'k': return celsius + 273.15;
+            default: return 0;
         }
     };
 
     const convert = useCallback((value, from, to, cat) => {
-        if (!value || isNaN(value)) return '';
-
-        const numValue = parseFloat(value);
-
-        if (cat === 'temperature') {
-            return convertTemperature(numValue, from, to);
+        if (cat === 'timezone') {
+            if (!inputTime) return '';
+            try {
+                const dateTimeString = `${inputDate}T${inputTime}:00`;
+                const sourceDate = new Date(dateTimeString);
+                const sourceOffset = getTimezoneOffset(sourceDate, from);
+                const targetOffset = getTimezoneOffset(sourceDate, to);
+                const offsetDiff = targetOffset - sourceOffset;
+                const targetDate = new Date(sourceDate.getTime() + offsetDiff);
+                return `${String(targetDate.getHours()).padStart(2, '0')}:${String(targetDate.getMinutes()).padStart(2, '0')}`;
+            } catch (err) { return 'Invalid'; }
         }
 
-        // For other categories, use the base unit conversion
+        if (!value || isNaN(value)) return '';
+        const numValue = parseFloat(value);
+        if (cat === 'temperature') return convertTemperature(numValue, from, to);
+
         const fromFactor = conversionData[cat].units[from].toBase;
         const toFactor = conversionData[cat].units[to].toBase;
-
-        const baseValue = numValue * fromFactor;
-        const convertedValue = baseValue / toFactor;
-
-        return convertedValue;
-    }, [conversionData]);
+        return (numValue * fromFactor) / toFactor;
+    }, [conversionData, getTimezoneOffset, inputDate, inputTime]);
 
     useEffect(() => {
+        // Live Clocks for Timezone mode
+        if (category === 'timezone') {
+            const interval = setInterval(() => {
+                const now = new Date();
+                const fromTime = new Date(now.toLocaleString('en-US', { timeZone: fromUnit }));
+                setCurrentFromTime(fromTime.toLocaleTimeString('en-US', { hour12: false }));
+                const toTime = new Date(now.toLocaleString('en-US', { timeZone: toUnit }));
+                setCurrentToTime(toTime.toLocaleTimeString('en-US', { hour12: false }));
+            }, 1000);
+            return () => clearInterval(interval);
+        }
+    }, [category, fromUnit, toUnit]);
+
+    useEffect(() => {
+        if (category === 'timezone') {
+            if (inputTime && inputTime.includes(':')) {
+                setResult(convert('', fromUnit, toUnit, 'timezone'));
+            } else {
+                setResult('');
+            }
+            return;
+        }
+
         if (inputValue && !isNaN(inputValue)) {
             const converted = convert(inputValue, fromUnit, toUnit, category);
-            // Format the result: remove unnecessary trailing zeros but keep significant digits
-            const formatted = converted.toFixed(6).replace(/(\.\d*?[1-9])0+$|\.0+$/, '$1');
+            const formatted = typeof converted === 'number' 
+                ? converted.toFixed(6).replace(/(\.\d*?[1-9])0+$|\.0+$/, '$1')
+                : converted;
             setResult(formatted);
         } else {
             setResult('');
         }
-    }, [inputValue, fromUnit, toUnit, category, convert]);
+    }, [inputValue, inputDate, inputTime, fromUnit, toUnit, category, convert]);
 
     const handleCategoryChange = (newCategory) => {
         setCategory(newCategory);
@@ -191,30 +247,62 @@ const UnitConverter = () => {
         setFromUnit(conv.from);
         setToUnit(conv.to);
         setInputValue('');
+        if (conv.category === 'timezone') {
+            setInputTime(new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }));
+        }
+    };
+
+    const handleReset = () => {
+        setInputValue('');
+        setInputDate(new Date().toISOString().split('T')[0]);
+        setInputTime(new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }));
+        setResult('');
     };
 
     return (
         <div className="glass-panel p-4 sm:p-6 md:p-8">
             <div className="space-y-10">
+                {/* Live Clocks for Timezone */}
+                {category === 'timezone' && (
+                    <div className="grid sm:grid-cols-2 gap-4 animate-fadeIn">
+                        <div className="glass-subtle p-5 rounded-2xl bg-gradient-to-br from-indigo-500/5 to-transparent border-indigo-500/10">
+                            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 mb-2 truncate">
+                                {conversionData.timezone.units[fromUnit]?.name}
+                            </div>
+                            <div className="text-3xl font-black text-gray-900 dark:text-white tabular-nums tracking-tight">
+                                {currentFromTime}
+                            </div>
+                        </div>
+                        <div className="glass-subtle p-5 rounded-2xl bg-gradient-to-br from-emerald-500/5 to-transparent border-emerald-500/10">
+                            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500 mb-2 truncate">
+                                {conversionData.timezone.units[toUnit]?.name}
+                            </div>
+                            <div className="text-3xl font-black text-gray-900 dark:text-white tabular-nums tracking-tight">
+                                {currentToTime}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Category Selector */}
                 <div className="space-y-4">
                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500 ml-1">
                         Select Category
                     </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
                         {Object.entries(conversionData).map(([key, cat]) => (
                             <button
                                 key={key}
                                 onClick={() => handleCategoryChange(key)}
                                 className={`group flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-300 ${
                                     category === key
-                                        ? 'border-blue-500 bg-blue-500/[0.05] shadow-sm'
-                                        : 'border-gray-100 dark:border-white/5 hover:border-blue-200 dark:hover:border-blue-900/50 bg-white dark:bg-white/[0.02]'
+                                        ? 'border-indigo-500 bg-indigo-500/[0.05] shadow-sm'
+                                        : 'border-gray-100 dark:border-white/5 hover:border-indigo-200 dark:hover:border-indigo-900/50 bg-white dark:bg-white/[0.02]'
                                 }`}
                             >
                                 <span className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-300">{cat.icon}</span>
                                 <span className={`text-[10px] font-black uppercase tracking-widest ${
-                                    category === key ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'
+                                    category === key ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500'
                                 }`}>{cat.name}</span>
                             </button>
                         ))}
@@ -227,7 +315,7 @@ const UnitConverter = () => {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500 ml-1">
-                                Source Unit
+                                Source {category === 'timezone' ? 'Zone' : 'Unit'}
                             </label>
                             <select
                                 value={fromUnit}
@@ -236,18 +324,36 @@ const UnitConverter = () => {
                             >
                                 {Object.entries(conversionData[category].units).map(([key, unit]) => (
                                     <option key={key} value={key}>
-                                        {unit.name}
+                                        {unit.name} {unit.offset ? `(${unit.offset})` : ''}
                                     </option>
                                 ))}
                             </select>
                         </div>
-                        <input
-                            type="number"
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            placeholder="Enter value..."
-                            className="w-full px-5 py-4 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/5 rounded-2xl focus:outline-none transition-all font-mono text-lg shadow-sm dark:shadow-none"
-                        />
+                        
+                        {category === 'timezone' ? (
+                            <div className="grid grid-cols-2 gap-3">
+                                <input
+                                    type="date"
+                                    value={inputDate}
+                                    onChange={(e) => setInputDate(e.target.value)}
+                                    className="w-full px-4 py-3 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/5 rounded-xl focus:outline-none transition-all text-xs"
+                                />
+                                <input
+                                    type="time"
+                                    value={inputTime}
+                                    onChange={(e) => setInputTime(e.target.value)}
+                                    className="w-full px-4 py-3 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/5 rounded-xl focus:outline-none transition-all font-mono text-xs"
+                                />
+                            </div>
+                        ) : (
+                            <input
+                                type="number"
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                placeholder="Enter value..."
+                                className="w-full px-5 py-4 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/5 rounded-2xl focus:outline-none transition-all font-mono text-lg shadow-sm dark:shadow-none"
+                            />
+                        )}
                     </div>
 
                     {/* Swap Connector */}
@@ -255,9 +361,9 @@ const UnitConverter = () => {
                         <button
                             onClick={handleSwapUnits}
                             className="suggestion-chip !opacity-100 !animate-none p-4 rounded-full hover:rotate-180 transition-transform duration-500 group/swap"
-                            title="Swap Units"
+                            title="Swap"
                         >
-                            <svg className="w-6 h-6 text-blue-500 lg:rotate-0 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-6 h-6 text-indigo-500 lg:rotate-0 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                             </svg>
                         </button>
@@ -267,7 +373,7 @@ const UnitConverter = () => {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500 ml-1">
-                                Target Unit
+                                Target {category === 'timezone' ? 'Zone' : 'Unit'}
                             </label>
                             <select
                                 value={toUnit}
@@ -276,13 +382,13 @@ const UnitConverter = () => {
                             >
                                 {Object.entries(conversionData[category].units).map(([key, unit]) => (
                                     <option key={key} value={key}>
-                                        {unit.name}
+                                        {unit.name} {unit.offset ? `(${unit.offset})` : ''}
                                     </option>
                                 ))}
                             </select>
                         </div>
-                        <div className="w-full px-5 py-4 bg-blue-500/[0.03] dark:bg-blue-500/5 border border-blue-500/20 rounded-2xl text-lg font-black text-blue-600 dark:text-blue-400 font-mono shadow-inner">
-                            {result || '0.00'}
+                        <div className={`w-full px-5 py-4 bg-indigo-500/[0.03] dark:bg-indigo-500/5 border border-indigo-500/20 rounded-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono shadow-inner ${category === 'timezone' ? 'text-2xl py-3' : 'text-lg'}`}>
+                            {result || (category === 'timezone' ? '--:--' : '0.00')}
                         </div>
                     </div>
                 </div>
@@ -291,14 +397,36 @@ const UnitConverter = () => {
                 {result && (
                     <div className="glass-subtle p-5 rounded-2xl bg-emerald-500/[0.03] border-emerald-500/20 flex flex-col items-center justify-center text-center animate-resultReveal">
                         <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            <span className="font-mono text-lg font-black text-gray-900 dark:text-white mr-2">{inputValue}</span>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mr-3">{conversionData[category].units[fromUnit].name}</span>
-                            <span className="text-gray-400 mr-3">is equivalent to</span>
-                            <span className="font-mono text-lg font-black text-emerald-600 dark:text-emerald-400 mr-2">{result}</span>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{conversionData[category].units[toUnit].name}</span>
+                            {category === 'timezone' ? (
+                                <>
+                                    <span className="font-mono text-lg font-black text-gray-900 dark:text-white mr-2">{inputTime}</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mr-3">in {conversionData.timezone.units[fromUnit]?.name}</span>
+                                    <span className="text-gray-400 mr-3">becomes</span>
+                                    <span className="font-mono text-lg font-black text-emerald-600 dark:text-emerald-400 mr-2">{result}</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">in {conversionData.timezone.units[toUnit]?.name}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="font-mono text-lg font-black text-gray-900 dark:text-white mr-2">{inputValue}</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mr-3">{conversionData[category].units[fromUnit].name}</span>
+                                    <span className="text-gray-400 mr-3">is equivalent to</span>
+                                    <span className="font-mono text-lg font-black text-emerald-600 dark:text-emerald-400 mr-2">{result}</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{conversionData[category].units[toUnit].name}</span>
+                                </>
+                            )}
                         </p>
                     </div>
                 )}
+                
+                {/* Reset Action */}
+                <div className="flex justify-center pt-2">
+                    <button 
+                        onClick={handleReset}
+                        className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                        Flush Engine Parameters
+                    </button>
+                </div>
             </div>
         </div>
     );
