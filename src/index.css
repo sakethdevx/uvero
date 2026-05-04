@@ -130,11 +130,10 @@
     min-height: 100%;
   }
     
-    /* Hide scrollbars on mobile for a native app feel */
-    @media (max-width: 768px) {
-      scrollbar-width: none; /* Firefox */
-      -ms-overflow-style: none; /* IE and Edge */
-    }
+  /* Hide scrollbars on mobile for a native app feel */
+  @media (max-width: 768px) {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
   }
 
   /* Hide scrollbars on mobile for Chrome, Safari and Opera */
