@@ -1,3 +1,4 @@
+import { useState, useRef } from 'react';
 import { useSession } from '../lib/SessionContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -7,6 +8,25 @@ import { motion, AnimatePresence } from 'framer-motion';
  */
 export default function FavoritesSheet({ isOpen, onClose, onRerun }) {
   const { favorites, toggleFavorite, isFavorite } = useSession();
+
+  // Support swipe-down-to-close from the scrollable list
+  const scrollRef = useRef(null);
+  const [touchStartY, setTouchStartY] = useState(null);
+
+  const handleTouchStart = (e) => {
+    if (scrollRef.current && scrollRef.current.scrollTop <= 0) {
+      setTouchStartY(e.touches[0].clientY);
+    } else {
+      setTouchStartY(null);
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartY === null) return;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (dy > 60) onClose(); // Dismiss if dragged down more than 60px
+    setTouchStartY(null);
+  };
 
   // Example prompts for the empty state
   const suggestions = [
@@ -76,7 +96,12 @@ export default function FavoritesSheet({ isOpen, onClose, onRerun }) {
             </div>
 
         {/* List */}
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+        <div 
+          ref={scrollRef}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          className="flex-1 overflow-y-auto px-4 py-3 space-y-4"
+        >
           {favorites.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 gap-4 text-center">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center"

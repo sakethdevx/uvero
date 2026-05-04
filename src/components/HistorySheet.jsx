@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { useSession } from '../lib/SessionContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -9,6 +9,25 @@ import { motion, AnimatePresence } from 'framer-motion';
  */
 export default function HistorySheet({ isOpen, onClose, onRerun }) {
   const { history, clearHistory, removeHistoryItem, toggleFavorite, isFavorite } = useSession();
+
+  // Support swipe-down-to-close from the scrollable list
+  const scrollRef = useRef(null);
+  const [touchStartY, setTouchStartY] = useState(null);
+
+  const handleTouchStart = (e) => {
+    if (scrollRef.current && scrollRef.current.scrollTop <= 0) {
+      setTouchStartY(e.touches[0].clientY);
+    } else {
+      setTouchStartY(null);
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartY === null) return;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (dy > 60) onClose(); // Dismiss if dragged down more than 60px
+    setTouchStartY(null);
+  };
 
   const formatTime = (ts) => {
     const d = new Date(ts);
@@ -128,7 +147,12 @@ export default function HistorySheet({ isOpen, onClose, onRerun }) {
             </div>
 
         {/* List */}
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+        <div 
+          ref={scrollRef}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          className="flex-1 overflow-y-auto px-4 py-3 space-y-4"
+        >
           {history.length === 0 ? (
             /* ── Empty state with example prompts ── */
             <div className="flex flex-col items-center justify-center py-10 gap-4">
