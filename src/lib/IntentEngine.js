@@ -26,6 +26,36 @@ const SYNONYM_MAP = {
   crop:      ['trim', 'cut', 'clip', 'slice'],
 };
 
+// ─── Unit Conversion Constants ───
+const UNIT_NORMALIZE_MAP = {
+  kilograms: 'kg', kilogram: 'kg', kgs: 'kg', pounds: 'lbs', pound: 'lbs', grams: 'g', gram: 'g', ounces: 'oz', ounce: 'oz',
+  meters: 'm', meter: 'm', feet: 'ft', foot: 'ft', inches: 'in', inch: 'in', miles: 'mi', mile: 'mi',
+  celsius: 'c', celcius: 'c', centigrade: 'c', fahrenheit: 'f', kelvin: 'k',
+  eastern: 'America/New_York', pacific: 'America/Los_Angeles', central: 'America/Chicago', mountain: 'America/Denver',
+  pst: 'America/Los_Angeles', est: 'America/New_York', cst: 'America/Chicago', mst: 'America/Denver',
+  liters: 'l', liter: 'l', millilitres: 'ml', milliliter: 'ml',
+  gallons: 'gal', gallon: 'gal', quarts: 'qt', quart: 'qt', pints: 'pt', pint: 'pt', cups: 'cup',
+  acres: 'acre', hectares: 'hectare', sqft: 'ft2', sqmeters: 'm2',
+  knots: 'knot',
+  seconds: 's', second: 's', minutes: 'min', minute: 'min', hours: 'hr', hour: 'hr', days: 'day',
+  weeks: 'week', months: 'month', years: 'year'
+};
+
+const UNIT_TO_CAT = {
+  kg: 'weight', lbs: 'weight', g: 'weight', oz: 'weight', ton: 'weight', stone: 'weight',
+  m: 'length', km: 'length', cm: 'length', mm: 'length', ft: 'length', in: 'length', yd: 'length', mi: 'length',
+  c: 'temperature', f: 'temperature', k: 'temperature',
+  'america/new_york': 'timezone', 'america/los_angeles': 'timezone', 'america/chicago': 'timezone', 'america/denver': 'timezone',
+  utc: 'timezone',
+  l: 'volume', ml: 'volume', gal: 'volume', qt: 'volume', pt: 'volume', cup: 'volume', floz: 'volume', m3: 'volume',
+  m2: 'area', km2: 'area', cm2: 'area', ft2: 'area', in2: 'area', acre: 'area', hectare: 'area',
+  mps: 'speed', kph: 'speed', mph: 'speed', fps: 'speed', knot: 'speed',
+  s: 'time', min: 'time', hr: 'time', day: 'time', week: 'time', month: 'time', year: 'time'
+};
+
+const unitKeywords = Array.from(new Set([...Object.keys(UNIT_NORMALIZE_MAP), ...Object.keys(UNIT_TO_CAT)]));
+const UNIT_REGEX = new RegExp(`^(?:${unitKeywords.join('|')})(?:\\s+converter)?$`, 'i');
+
 // ─── Capability definitions with regex patterns ───
 const CAPABILITIES = [
   {
@@ -41,41 +71,35 @@ const CAPABILITIES = [
       /(?:convert|transform)\s+(\w+)\s+to\s+(\w+)/i,
       /(?:convert|transform)\s+(\w+)\s+to\s*$/i,
       /(?:timezone|time)\s+converter/i,
-      /(?:weight|length|temperature|volume|speed)\s+converter/i,
+      /(?:weight|length|temperature|volume|speed|area)\s+converter/i,
+      UNIT_REGEX,
     ],
     extractParams: (query) => {
+      let from, to;
       const match = query.match(/(\w+)\s+to\s+(\w+)?/i);
+      
       if (match) {
-        let from = match[1].toLowerCase();
-        let to = (match[2] || '').toLowerCase();
+        from = match[1].toLowerCase();
+        to = (match[2] || '').toLowerCase();
+      } else {
+        const words = query.toLowerCase().split(/\s+/);
+        for (const w of words) {
+          if (UNIT_NORMALIZE_MAP[w] || UNIT_TO_CAT[w]) {
+            from = w;
+            to = '';
+            break;
+          }
+        }
+      }
+
+      if (from) {
+        const finalFrom = UNIT_NORMALIZE_MAP[from] || from;
+        const finalTo = to ? (UNIT_NORMALIZE_MAP[to] || to) : '';
+
+        const catFrom = UNIT_TO_CAT[finalFrom.toLowerCase()];
+        const catTo = finalTo ? UNIT_TO_CAT[finalTo.toLowerCase()] : null;
         
-        // Normalize common abbreviations/names
-        const normalizeMap = {
-          kilograms: 'kg', kilogram: 'kg', pounds: 'lbs', pound: 'lbs', grams: 'g', gram: 'g', ounces: 'oz', ounce: 'oz',
-          meters: 'm', meter: 'm', feet: 'ft', foot: 'ft', inches: 'in', inch: 'in', miles: 'mi', mile: 'mi',
-          celsius: 'c', celcius: 'c', centigrade: 'c', fahrenheit: 'f', kelvin: 'k',
-          eastern: 'America/New_York', pacific: 'America/Los_Angeles', central: 'America/Chicago', mountain: 'America/Denver'
-        };
-        from = normalizeMap[from] || from;
-        to = normalizeMap[to] || to;
-
-        // Detect category
-        const unitToCat = {
-          kg: 'weight', lbs: 'weight', g: 'weight', oz: 'weight', ton: 'weight', stone: 'weight',
-          m: 'length', km: 'length', cm: 'length', mm: 'length', ft: 'length', in: 'length', yd: 'length', mi: 'length',
-          c: 'temperature', f: 'temperature', k: 'temperature',
-          'america/new_york': 'timezone', 'america/los_angeles': 'timezone', 'america/chicago': 'timezone', 'america/denver': 'timezone',
-          pst: 'timezone', est: 'timezone', cst: 'timezone', mst: 'timezone', utc: 'timezone'
-        };
-
-        // Handle specific timezone abbreviations mapping to full IDs
-        const tzAbbrMap = {
-          pst: 'America/Los_Angeles', est: 'America/New_York', cst: 'America/Chicago', mst: 'America/Denver'
-        };
-        const finalFrom = tzAbbrMap[from] || from;
-        const finalTo = tzAbbrMap[to] || to;
-
-        const cat = unitToCat[finalFrom] || unitToCat[finalTo] || 'weight';
+        const cat = catFrom || catTo || 'weight';
         return { cat, from: finalFrom, to: finalTo || null };
       }
       return {};
@@ -462,7 +486,11 @@ function getDynamicUnitSuggestions(params) {
     weight: ['kg', 'lbs', 'g', 'oz', 'ton'],
     length: ['m', 'ft', 'in', 'km', 'mi', 'cm', 'mm'],
     temperature: ['c', 'f', 'k'],
-    timezone: ['America/Los_Angeles', 'America/New_York', 'America/Chicago', 'UTC']
+    timezone: ['America/Los_Angeles', 'America/New_York', 'America/Chicago', 'UTC'],
+    volume: ['l', 'ml', 'gal', 'qt', 'pt', 'cup', 'floz', 'm3'],
+    area: ['m2', 'km2', 'cm2', 'ft2', 'in2', 'acre', 'hectare'],
+    speed: ['mps', 'kph', 'mph', 'fps', 'knot'],
+    time: ['s', 'min', 'hr', 'day', 'week', 'month', 'year']
   };
 
   const cat = params.cat || 'weight';
