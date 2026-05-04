@@ -105,33 +105,57 @@ QRResultCard.Generated = function QRGenerated({
  */
 QRResultCard.Decoded = function QRDecoded({
   text,
-  onCopyText,
+  type, // 'url', 'wifi', 'text'
+  onCopy,
   copied,
-  actions // Array of { label, href, onClick, icon }
 }) {
+  const isUrl = type === 'url' || text.startsWith('http');
+  const isWifi = type === 'wifi' || text.startsWith('WIFI:');
+
+  const getActions = () => {
+    const actions = [];
+    if (isUrl) {
+      actions.push({ label: 'Open URL', href: text, icon: '🔗' });
+    }
+    if (isWifi) {
+      // Basic WiFi parser
+      const ssid = text.match(/S:([^;]+)/)?.[1];
+      actions.push({ label: `Join ${ssid || 'WiFi'}`, onClick: () => alert('Please use your system settings to connect to: ' + ssid), icon: '📶' });
+    }
+    return actions;
+  };
+
+  const actions = getActions();
+
   return (
     <div className="space-y-4">
-      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 break-all font-mono text-sm text-gray-800 dark:text-gray-200 select-all border border-gray-200 dark:border-gray-700">
+      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 break-all font-mono text-xs sm:text-sm text-gray-800 dark:text-gray-200 select-all border border-gray-200 dark:border-gray-700 max-h-32 overflow-y-auto">
         {text}
       </div>
       
       <div className="flex flex-wrap gap-2">
         <button
-          onClick={onCopyText}
-          className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-bold rounded-xl transition-colors shadow-sm"
+          onClick={onCopy}
+          className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors shadow-sm"
         >
-          {copied ? '✓ Copied!' : 'Copy Text'}
+          {copied ? (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+              Copied!
+            </>
+          ) : 'Copy Text'}
         </button>
-        {actions && actions.map((action, i) => (
+        
+        {actions.map((action, i) => (
           <a
             key={i}
             href={action.href}
             onClick={action.onClick}
             target={action.href ? "_blank" : undefined}
             rel={action.href ? "noopener noreferrer" : undefined}
-            className="flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-xl hover:border-violet-400 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-semibold rounded-xl hover:border-violet-400 dark:hover:border-violet-500/50 transition-colors cursor-pointer"
           >
-            {action.label}
+            {action.icon} {action.label}
           </a>
         ))}
       </div>

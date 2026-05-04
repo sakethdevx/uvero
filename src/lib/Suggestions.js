@@ -45,6 +45,14 @@ export const RESULT_SUGGESTIONS = {
       { label: 'Share QR via clipboard', icon: '📋', intent: 'share text', reuseInput: false },
     ],
   },
+  
+  'qr-scan': {
+    default: [
+      { label: 'Scan another', icon: '🔄', action: 'reset' },
+      { label: 'Generate QR for this', icon: '🔳', intent: 'generate qr', reuseInput: true },
+      { label: 'Share via clipboard', icon: '📋', intent: 'share text', reuseInput: true },
+    ],
+  },
 
   'clipboard-share': {
     default: [

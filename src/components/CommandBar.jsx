@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { resolveIntent, PLACEHOLDER_INTENTS } from '../lib/IntentEngine';
+import { resolveIntent, PLACEHOLDER_INTENTS, getAllCapabilities } from '../lib/IntentEngine';
 import { useInteraction } from '../lib/InteractionContext';
+
+const allCapabilities = getAllCapabilities();
 
 // Example prompts shown in the "Try:" row when the bar is focused and empty
 const QUICK_EXAMPLES = [
@@ -168,25 +170,57 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
     if (result.suggestions) {
       result.suggestions.forEach(s => {
         if (items.some(i => i.id === s.id)) return;
+        
+        // Try to find a matching capability to get the correct tier
+        const matchedCap = allCapabilities.find(c => 
+          (c.navigateTo && s.path === c.navigateTo) || 
+          (c.id === s.id)
+        );
+
+        // Category-based fallback for tiering
+        let tier = matchedCap ? matchedCap.tier : 3;
+        if (!matchedCap) {
+          const toolCategories = ['Converters', 'Utilities', 'QR Tools'];
+          if (toolCategories.includes(s.category)) {
+            tier = 2;
+          }
+        }
+
+        // If it's a suggestion matching a Tier 1 capability, 
+        // "downgrade" it to a Tool (Tier 2) so it navigates instead of opening panel
+        let handler = matchedCap ? matchedCap.handler : null;
+        if (tier === 1) {
+          tier = 2;
+          handler = null;
+        }
+
+        const params = matchedCap?.extractParams ? matchedCap.extractParams(query) : {};
+        const description = (matchedCap && typeof matchedCap.description === 'function') 
+          ? matchedCap.description(params) 
+          : (s.description || (matchedCap?.description && typeof matchedCap.description === 'string' ? matchedCap.description : ''));
+
         items.push({
           type: 'suggestion',
           id: s.id,
           icon: s.icon,
           title: s.title,
-          description: s.description,
+          description,
           path: s.path,
-          tier: 3,
+          tier,
+          handler,
+          capability: matchedCap ? matchedCap : null,
+          params,
         });
       });
     }
 
     return items.slice(0, 6);
-  }, [result]);
+  }, [result, query]);
 
   const selectItem = useCallback((item) => {
     if (!item) return;
 
-    if (item.type === 'capability' && (item.tier === 1 || item.tier === 2) && item.handler) {
+    if ((item.tier === 1 || item.tier === 2) && item.handler) {
       // Inline execution — open ActionPanel
       onIntentResolved?.({
         capability: item.capability,
@@ -384,18 +418,25 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
                   <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                     {item.title}
                   </p>
-                  {item.isBestMatch && (
-                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full shrink-0"
-                      style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}
-                    >
-                      Best match
-                    </span>
-                  )}
-                  {item.tier === 1 && !item.isBestMatch && (
-                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full shrink-0 bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400">
-                      Quick
-                    </span>
-                  )}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {item.tier === 1 && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-100/50 dark:border-emerald-500/20">
+                        Quick
+                      </span>
+                    )}
+                    {item.tier === 2 && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-100/50 dark:border-blue-500/20">
+                        Tool
+                      </span>
+                    )}
+                    {item.isBestMatch && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                        style={{ background: 'var(--accent-subtle)', color: 'var(--accent)', border: '1px solid var(--accent-subtle)' }}
+                      >
+                        Best match
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <p className="text-[11px] truncate mt-0.5" style={{ color: 'var(--text-secondary)' }}>
                   {item.description}

@@ -140,6 +140,63 @@ const CAPABILITIES = [
     description: (params) => params.type ? `QR Code (${params.type})` : 'Custom QR Code',
   },
   {
+    id: 'qr-bulk',
+    tier: 2,
+    handler: null,
+    navigateTo: '/qr-tools/bulk',
+    label: 'Bulk QR Generator',
+    icon: '📦',
+    patterns: [
+      /(?:bulk|batch|mass|csv)\s+(?:generate|create|make)\s+qr/i,
+      /qr\s+(?:bulk|batch|csv)/i,
+    ],
+    extractParams: () => ({}),
+    description: () => 'Generate hundreds via CSV',
+  },
+  {
+    id: 'qr-validator',
+    tier: 2,
+    handler: null,
+    navigateTo: '/qr-tools/validator',
+    label: 'QR Validator',
+    icon: '✅',
+    patterns: [
+      /(?:validate|check|verify|test)\s+(?:a\s+)?qr\s*(?:code)?/i,
+      /qr\s+(?:validator|checker|verifier)/i,
+      /(?:print|quality|reliability)\s+qr/i,
+    ],
+    extractParams: () => ({}),
+    description: () => 'Check print & scan quality',
+  },
+  {
+    id: 'qr-analytics',
+    tier: 2,
+    handler: null,
+    navigateTo: '/qr-tools/analytics',
+    label: 'QR Analytics',
+    icon: '📊',
+    patterns: [
+      /qr\s+(?:analytics|stats|performance|data|tracking)/i,
+      /(?:view|show|track)\s+qr\s+(?:scans|stats)/i,
+    ],
+    extractParams: () => ({}),
+    description: () => 'Track scan performance',
+  },
+  {
+    id: 'qr-dynamic',
+    tier: 2,
+    handler: null,
+    navigateTo: '/qr-tools/dynamic',
+    label: 'Dynamic QR Codes',
+    icon: '🔄',
+    patterns: [
+      /(?:dynamic|editable|changeable)\s+qr/i,
+      /qr\s+dynamic/i,
+    ],
+    extractParams: () => ({}),
+    description: () => 'Edit destinations after printing',
+  },
+  {
     id: 'image-crop',
     tier: 2,
     handler: null,
@@ -185,8 +242,8 @@ const CAPABILITIES = [
   },
   {
     id: 'qr-scan',
-    tier: 2,
-    handler: null,
+    tier: 1,
+    handler: 'QRQuickPanel',
     navigateTo: '/qr-tools/scanner',
     label: 'Scan QR Code',
     icon: '📷',
@@ -194,8 +251,8 @@ const CAPABILITIES = [
       /(?:scan|read|decode|detect|capture)\s+(?:a\s+)?qr\s*(?:code)?/i,
       /qr\s+(?:scanner|reader)/i,
     ],
-    extractParams: () => ({}),
-    description: () => 'Camera → Decode',
+    extractParams: () => ({ type: 'scanner' }),
+    description: () => 'Upload or Camera → Decode',
   },
 
   // Tier 3 — Navigate to full page
@@ -463,9 +520,10 @@ export function getAllCapabilities() {
     tier: c.tier,
     label: c.label,
     icon: c.icon,
-    description: c.description({}),
+    description: c.description,
     handler: c.handler,
     navigateTo: c.navigateTo,
+    extractParams: c.extractParams,
   }));
 }
 
