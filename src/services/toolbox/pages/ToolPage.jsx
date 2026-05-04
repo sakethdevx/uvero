@@ -134,6 +134,7 @@ export default function ToolPage() {
 
     const [searchParams] = useSearchParams();
     const queryParams = Object.fromEntries([...searchParams]);
+    const ToolComponent = tool.component;
     const isRuntimeUnavailable = shouldVerifyRuntime && !runtimeStatus.isLoading && !runtimeStatus.isAvailable;
 
     return (
