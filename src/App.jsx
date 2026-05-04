@@ -110,8 +110,8 @@ function AppContent() {
   }, [isHomepage, navigate]);
 
   return (
-    <div className="min-h-full flex-1 flex flex-col relative">
-      <AmbientBackground state={interactionState} />
+    <div className="min-h-screen flex flex-col relative overflow-x-hidden">
+      <AmbientBackground state={interactionState} isHome={location.pathname === '/'} />
       {/* ══════ Glass Header ══════ */}
       <header className={`fixed top-0 left-0 right-0 z-50 glass-panel rounded-none transition-ui ${fadeClass}`}
         style={{

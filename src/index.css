@@ -111,14 +111,8 @@
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
     min-height: 100%;
-    min-height: -webkit-fill-available;
-    height: -webkit-fill-available;
-    overflow-x: hidden;
+    height: auto;
     overscroll-behavior-y: contain;
     
     /* Hide scrollbars on mobile for a native app feel */
@@ -126,15 +120,6 @@
       scrollbar-width: none; /* Firefox */
       -ms-overflow-style: none; /* IE and Edge */
     }
-  }
-
-  #root {
-    height: 100%;
-    width: 100%;
-    min-height: 100%;
-    min-height: -webkit-fill-available;
-    display: flex;
-    flex-direction: column;
   }
 
   /* Hide scrollbars on mobile for Chrome, Safari and Opera */
@@ -358,11 +343,8 @@
 
   /* ── Premium homepage system ── */
   .premium-home {
-    background:
-      radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 42%),
-      radial-gradient(circle at 10% 92%, color-mix(in srgb, var(--ambient-blue) 68%, transparent), transparent 32%),
-      radial-gradient(circle at 88% 70%, color-mix(in srgb, var(--ambient-pink) 72%, transparent), transparent 30%),
-      var(--surface-0);
+    /* Background removed here, moved to .ambient-background for infinite area feel */
+    background: transparent;
   }
 
   .ambient-background {
@@ -378,17 +360,15 @@
     opacity: 1;
     transform: translateZ(0);
     transition: opacity 0.6s cubic-bezier(0.25, 0.1, 0.25, 1), filter 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
-    
-    /* Ensure full screen coverage including safe areas */
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100vw;
-    height: 100vh;
-    height: -webkit-fill-available;
-    z-index: 0;
+    background-color: var(--surface-0);
+  }
+
+  .ambient-background[data-is-home='true'] {
+    background:
+      radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 42%),
+      radial-gradient(circle at 10% 92%, color-mix(in srgb, var(--ambient-blue) 68%, transparent), transparent 32%),
+      radial-gradient(circle at 88% 70%, color-mix(in srgb, var(--ambient-pink) 72%, transparent), transparent 30%),
+      var(--surface-0);
   }
 
   .dark .ambient-background::after {
