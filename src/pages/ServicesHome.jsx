@@ -162,12 +162,10 @@ export default function ServicesHome() {
 
       {/* Action Panel (appears when intent is resolved) */}
       {activeIntent && (
-        <div className="action-panel-stage w-full">
-          <ActionPanel
-            intent={activeIntent}
-            onDismiss={handleDismissAction}
-          />
-        </div>
+        <ActionPanel
+          intent={activeIntent}
+          onDismiss={handleDismissAction}
+        />
       )}
     </div>
   );
