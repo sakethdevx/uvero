@@ -111,7 +111,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
-      <AmbientBackground state={interactionState} />
+      <AmbientBackground state={interactionState} isHome={location.pathname === '/'} />
       {/* ══════ Glass Header ══════ */}
       <header className={`fixed top-0 left-0 right-0 z-50 glass-panel rounded-none transition-ui ${fadeClass}`}
         style={{
@@ -119,6 +119,7 @@ function AppContent() {
           borderTop: 'none',
           borderLeft: 'none',
           borderRight: 'none',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)', /* Replaces glass-panel shadow to remove top inset line */
           paddingTop: 'env(safe-area-inset-top, 0px)',
         }}
       >

@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 /**
  * BottomNav — Mobile-only bottom navigation.
@@ -30,41 +31,31 @@ export default function BottomNav({ onCommandPress, onHistoryPress, onFavoritesP
     }
   };
 
-
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden glass-panel rounded-none"
-      style={{
-        borderTop: '1px solid var(--border-glass)',
-        borderRadius: 0,
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-      }}
+    <nav className="fixed bottom-6 left-4 right-4 z-40 md:hidden glass-panel rounded-full native-feel shadow-xl"
+      style={{ padding: '0.375rem 0.5rem' }}
     >
-      <div className="flex items-center justify-around px-2 py-1.5">
+      <div className="flex items-center justify-between relative">
         {items.map((item) => {
+          // Both paths and modals can be "active" visually if we wanted, but logic maps primarily to path or we can just leave active indicator for paths.
           const isActive = item.path && path === item.path;
           const Icon = item.icon;
 
           if (item.isCenter) {
             return (
-              <button
-                key={item.id}
-                onClick={() => handlePress(item)}
-                className="relative flex flex-col items-center -mt-5"
-              >
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-95"
+              <div key={item.id} className="relative z-10 px-1">
+                <button
+                  onClick={() => handlePress(item)}
+                  className="w-[3.25rem] h-[3.25rem] rounded-full flex items-center justify-center shadow-md transition-transform active:scale-95"
                   style={{
                     background: 'var(--accent)',
-                    boxShadow: '0 4px 20px var(--accent-subtle)',
+                    boxShadow: '0 4px 14px var(--accent-subtle)',
                   }}
+                  aria-label="Command"
                 >
                   <Icon size={22} color="white" />
-                </div>
-                <span className="text-[9px] font-bold mt-1 uppercase tracking-wider"
-                  style={{ color: 'var(--accent)' }}
-                >
-                  {item.label}
-                </span>
-              </button>
+                </button>
+              </div>
             );
           }
 
@@ -72,17 +63,24 @@ export default function BottomNav({ onCommandPress, onHistoryPress, onFavoritesP
             <button
               key={item.id}
               onClick={() => handlePress(item)}
-              className="flex flex-col items-center gap-0.5 py-1.5 px-3 rounded-xl transition-colors"
+              className="relative flex flex-col items-center justify-center w-14 h-12 rounded-2xl z-10 transition-transform active:scale-95"
             >
-              <Icon size={20} color={isActive ? 'var(--accent)' : 'var(--text-secondary)'} />
-              <span className="text-[9px] font-semibold"
-                style={{ color: isActive ? 'var(--accent)' : 'var(--text-secondary)' }}
-              >
-                {item.label}
-              </span>
               {isActive && (
-                <div className="w-1 h-1 rounded-full mt-0.5" style={{ background: 'var(--accent)' }} />
+                <motion.div
+                  layoutId="bottom-nav-active"
+                  className="absolute inset-0 rounded-2xl"
+                  style={{ background: 'var(--surface-2)' }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
               )}
+              <div className="relative z-10 flex flex-col items-center justify-center">
+                <Icon size={20} color={isActive ? 'var(--accent)' : 'var(--text-secondary)'} />
+                <span className="text-[9px] font-semibold mt-0.5"
+                  style={{ color: isActive ? 'var(--accent)' : 'var(--text-secondary)' }}
+                >
+                  {item.label}
+                </span>
+              </div>
             </button>
           );
         })}
