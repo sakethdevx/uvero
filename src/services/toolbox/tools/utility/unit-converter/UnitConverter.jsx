@@ -12,6 +12,13 @@ const UnitConverter = ({ cat = 'weight', from = null, to = null }) => {
     const [currentFromTime, setCurrentFromTime] = useState('');
     const [currentToTime, setCurrentToTime] = useState('');
     const [result, setResult] = useState('');
+    
+    // Sync props to state for deep-linking/search updates
+    useEffect(() => {
+        if (cat) setCategory(cat);
+        if (from) setFromUnit(from);
+        if (to) setToUnit(to);
+    }, [cat, from, to]);
 
     const timeZones = useMemo(() => [
         { value: 'America/New_York', label: 'Eastern Time (ET)', offset: 'UTC-5/-4' },
