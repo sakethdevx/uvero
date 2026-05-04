@@ -14,12 +14,6 @@ const SMOKE_TOOL_IDS = [
     'password-generator',
     'hash-generator',
     'unit-converter',
-    'timezone-converter',
-    'lbs-to-kg',
-    'kg-to-lbs',
-    'feet-to-meters',
-    'pst-to-est',
-    'cst-to-est',
 ]
 
 function parseRegistryEntries(source) {
@@ -49,9 +43,7 @@ function parseNavIds(source) {
 
     // Since all tool IDs are handled by the catch-all route, return all smoke IDs as present
     return new Set([
-        'password-generator', 'hash-generator',
-        'unit-converter', 'timezone-converter', 'lbs-to-kg',
-        'kg-to-lbs', 'feet-to-meters', 'pst-to-est', 'cst-to-est',
+        'password-generator', 'hash-generator', 'unit-converter',
     ]);
 }
 
