@@ -186,6 +186,14 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
           }
         }
 
+        // If it's a suggestion matching a Tier 1 capability, 
+        // "downgrade" it to a Tool (Tier 2) so it navigates instead of opening panel
+        let handler = matchedCap ? matchedCap.handler : null;
+        if (tier === 1) {
+          tier = 2;
+          handler = null;
+        }
+
         const params = matchedCap?.extractParams ? matchedCap.extractParams(query) : {};
         const description = (matchedCap && typeof matchedCap.description === 'function') 
           ? matchedCap.description(params) 
@@ -199,7 +207,7 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
           description,
           path: s.path,
           tier,
-          handler: matchedCap ? matchedCap.handler : null,
+          handler,
           capability: matchedCap ? matchedCap : null,
           params,
         });
