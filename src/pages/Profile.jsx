@@ -26,6 +26,7 @@ function ProfileContent() {
     // PaySplit guest-claim functionality removed; signed-in users only
     const [usernameInput, setUsernameInput] = useState('')
     const [savedUsername, setSavedUsername] = useState('')
+    const [isEditingUsername, setIsEditingUsername] = useState(false)
     const [usernameLoading, setUsernameLoading] = useState(true)
     const [usernameChecking, setUsernameChecking] = useState(false)
     const [usernameSaving, setUsernameSaving] = useState(false)
@@ -189,6 +190,7 @@ function ProfileContent() {
                 // ignore
             }
             setUsernameMessage('Username updated successfully.')
+            setIsEditingUsername(false)
         } catch (err) {
             setUsernameMessage(err.message || 'Failed to update username')
         } finally {
@@ -262,36 +264,81 @@ function ProfileContent() {
                         </div>
                     </div>
 
-                    <form onSubmit={handleSaveUsername} className="mt-5 rounded-2xl border border-gray-200/80 bg-white/85 p-5 shadow-sm dark:border-white/[0.08] dark:bg-gray-950/50">
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white">Username</p>
-                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{USERNAME_HELP_TEXT}</p>
-                        <div className="mt-3">
-                            <input
-                                value={usernameInput}
-                                onChange={e => setUsernameInput(normalizeUsernameInput(e.target.value))}
-                                autoCapitalize="none"
-                                autoCorrect="off"
-                                spellCheck={false}
-                                placeholder="yourname"
-                                className="w-full rounded-xl border border-gray-200/80 bg-white px-4 py-2.5 text-sm text-gray-900 transition-colors focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-white/[0.08] dark:bg-gray-900/60 dark:text-white dark:placeholder-gray-500"
-                            />
-                            <p className={`mt-1 text-xs ${usernameStatusClass}`}>
-                                {usernameChecking ? 'Checking availability…' : usernameStatus.message}
-                            </p>
-                        </div>
-                        <button
-                            type="submit"
-                            disabled={usernameLoading || usernameSaving || usernameChecking || usernameStatus.tone === 'invalid' || usernameStatus.tone === 'taken'}
-                            className="mt-3 inline-flex items-center justify-center rounded-xl bg-primary-600 text-white text-sm font-semibold px-4 py-2.5 hover:bg-primary-700 transition-colors disabled:opacity-60"
+                    {!isEditingUsername ? (
+                        <div 
+                            onClick={() => setIsEditingUsername(true)}
+                            className="group mt-5 cursor-pointer rounded-2xl border border-gray-200/80 bg-white/85 p-5 shadow-sm transition-all hover:border-primary-300 hover:bg-white dark:border-white/[0.08] dark:bg-gray-950/50 dark:hover:border-white/20 dark:hover:bg-gray-950/80"
                         >
-                            {usernameSaving ? 'Saving…' : 'Save Username'}
-                        </button>
-                        {usernameMessage && (
-                            <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300">
-                                {usernameMessage}
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-xs font-bold uppercase tracking-[0.1em] text-gray-400 dark:text-gray-500">Username</p>
+                                    <p className="mt-1 text-lg font-black text-gray-900 dark:text-white">
+                                        {savedUsername ? `@${savedUsername}` : 'Choose your username'}
+                                    </p>
+                                </div>
+                                <div className="h-10 w-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 transition-colors group-hover:bg-primary-100 dark:bg-primary-900/20 dark:text-primary-400 dark:group-hover:bg-primary-900/40">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </div>
                             </div>
-                        )}
-                    </form>
+                        </div>
+                    ) : (
+                        <form onSubmit={handleSaveUsername} className="mt-5 rounded-2xl border border-primary-200 bg-primary-50/30 p-5 shadow-md animate-in fade-in slide-in-from-top-4 duration-500 dark:border-primary-500/20 dark:bg-primary-500/5">
+                            <div className="flex items-center justify-between mb-4">
+                                <p className="text-sm font-black text-gray-900 dark:text-white">Customize Identity</p>
+                                <button 
+                                    type="button"
+                                    onClick={() => {
+                                        setIsEditingUsername(false);
+                                        setUsernameInput(savedUsername);
+                                        setUsernameMessage('');
+                                    }}
+                                    className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{USERNAME_HELP_TEXT}</p>
+                            <div className="mt-4">
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">@</span>
+                                    <input
+                                        value={usernameInput}
+                                        onChange={e => setUsernameInput(normalizeUsernameInput(e.target.value))}
+                                        autoFocus
+                                        autoCapitalize="none"
+                                        autoCorrect="off"
+                                        spellCheck={false}
+                                        placeholder="yourname"
+                                        className="w-full rounded-xl border border-gray-200 bg-white pl-8 pr-4 py-3 text-sm text-gray-900 transition-all focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-white/10 dark:bg-gray-900 dark:text-white"
+                                    />
+                                </div>
+                                <p className={`mt-2 text-[10px] font-bold uppercase tracking-widest ${usernameStatusClass}`}>
+                                    {usernameChecking ? 'Validating…' : usernameStatus.message}
+                                </p>
+                            </div>
+                            <div className="mt-5 flex gap-3">
+                                <button
+                                    type="submit"
+                                    disabled={usernameLoading || usernameSaving || usernameChecking || usernameStatus.tone === 'invalid' || usernameStatus.tone === 'taken' || usernameInput === savedUsername}
+                                    className="flex-1 inline-flex items-center justify-center rounded-xl bg-primary-600 text-white text-sm font-bold px-4 py-3 hover:bg-primary-700 transition-all disabled:opacity-50 disabled:grayscale"
+                                >
+                                    {usernameSaving ? (
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            <span>Syncing…</span>
+                                        </div>
+                                    ) : 'Apply Change'}
+                                </button>
+                            </div>
+                            {usernameMessage && (
+                                <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs font-medium text-blue-700 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-300">
+                                    {usernameMessage}
+                                </div>
+                            )}
+                        </form>
+                    )}
                 </div>
 
                 <div className="h-px bg-gray-200 dark:bg-gray-800" />
