@@ -180,7 +180,7 @@ const HashGenerator = () => {
                             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">
                                 Target File
                             </label>
-                            <Dropzone onFilesSelected={handleFileSelect} maxFiles={1} />
+                            <Dropzone onFileSelect={handleFileSelect} maxFiles={1} minimized={!!selectedFile} />
                             {selectedFile && (
                                 <div className="glass-subtle p-4 rounded-2xl flex items-center justify-between border-purple-500/20 bg-purple-500/[0.02]">
                                     <div className="flex items-center gap-3">

@@ -302,7 +302,7 @@ export default function UnifiedConverter() {
                                 onFileSelect={handleFileSelect}
                                 accept="image/*,video/*,audio/*,.doc,.docx,.pdf,.epub,.odt,.html,.md,.txt,.rst,.csv,.tsv,.json,.docbook"
                                 disabled={isProcessing}
-                                value={file}
+                                minimized={!!file}
                             />
                         </div>
                     </div>
