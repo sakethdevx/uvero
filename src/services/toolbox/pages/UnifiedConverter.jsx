@@ -308,13 +308,13 @@ export default function UnifiedConverter() {
                     </div>
 
                     {file && categoryInfo && (
-                        <div className="grid gap-4 sm:gap-6 md:grid-cols-[minmax(280px,0.4fr)_1fr] lg:grid-cols-[minmax(320px,0.75fr)_minmax(0,1fr)]">
+                        <div className="grid min-w-0 gap-4 sm:gap-6 lg:grid-cols-[minmax(320px,0.75fr)_minmax(0,1fr)]">
                             {/* Input Preview */}
-                            <div className="glass-subtle p-4 sm:p-5 flex flex-col bg-white/5 dark:bg-black/20 border-gray-200/50 dark:border-white/5">
+                            <div className="glass-subtle min-w-0 p-3 sm:p-5 flex flex-col bg-white/5 dark:bg-black/20 border-gray-200/50 dark:border-white/5">
                                 <h3 className="mb-3 sm:mb-4 text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 dark:text-gray-500">
-                                    Source Node
+                                    Uploaded File
                                 </h3>
-                                <div className="aspect-[2/1] sm:aspect-video md:aspect-[4/3] lg:aspect-square overflow-hidden rounded-2xl bg-gray-100 dark:bg-black/40 flex items-center justify-center border border-gray-200 dark:border-white/10 shadow-inner">
+                                <div className="aspect-[2.6/1] sm:aspect-video lg:aspect-square overflow-hidden rounded-xl sm:rounded-2xl bg-gray-100 dark:bg-black/40 flex items-center justify-center border border-gray-200 dark:border-white/10 shadow-inner">
                                     {category === 'image' && previewUrl ? (
                                         <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
                                     ) : category === 'video' && previewUrl ? (
@@ -347,19 +347,19 @@ export default function UnifiedConverter() {
                                         </div>
                                     )}
                                 </div>
-                                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-white/5">
+                                <div className="mt-3 min-w-0 pt-3 border-t border-gray-100 dark:border-white/5">
                                     <FileInfo file={file} variant="ghost" />
                                 </div>
                             </div>
 
                             {/* Settings */}
-                            <div className="space-y-4">
+                            <div className="min-w-0 space-y-4">
                                 <div>
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-5">
                                         <label className="text-[10px] sm:text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.15em]">
-                                            Target Format
+                                            Actions
                                         </label>
-                                        <div className="relative flex-1 max-w-xs">
+                                        <div className="relative w-full sm:max-w-xs sm:flex-1">
                                             <input
                                                 type="text"
                                                 placeholder="Search formats..."
@@ -373,8 +373,8 @@ export default function UnifiedConverter() {
                                         </div>
                                     </div>
 
-                                    <div className="max-h-[320px] sm:max-h-[260px] overflow-y-auto pr-2 -mr-2 custom-scrollbar">
-                                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
+                                    <div className="overflow-visible sm:max-h-[260px] sm:overflow-y-auto sm:pr-2 sm:-mr-2 custom-scrollbar">
+                                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                                             {outputFormats
                                                 .filter(fmt => 
                                                     fmt.label.toLowerCase().includes(formatSearchQuery.toLowerCase()) || 
@@ -390,7 +390,7 @@ export default function UnifiedConverter() {
                                                             type="button"
                                                             onClick={() => { setSelectedFormat(fmt.value); if (fmt.value !== 'crop') setCropArea(null); }}
                                                             disabled={isProcessing}
-                                                            className={`relative overflow-hidden rounded-xl border p-2 sm:p-2.5 text-left transition-all duration-300 ease-apple group/fmt flex flex-col justify-between min-h-[64px] sm:min-h-[72px] ${isSelected
+                                                            className={`relative min-w-0 overflow-hidden rounded-xl border p-3 sm:p-2.5 text-left transition-all duration-300 ease-apple group/fmt flex flex-col justify-between min-h-[68px] sm:min-h-[72px] ${isSelected
                                                                 ? isSpecial
                                                                     ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/10'
                                                                     : 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10'
@@ -399,8 +399,8 @@ export default function UnifiedConverter() {
                                                                     : 'border-gray-100 dark:border-white/5 hover:border-indigo-200 dark:hover:border-indigo-900/50 bg-white dark:bg-white/[0.02]'
                                                                 }`}
                                                         >
-                                                            <div className="flex justify-between items-start gap-1">
-                                                                <div className={`font-black text-[13px] tracking-tight transition-colors ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300 group-hover/fmt:text-indigo-600 dark:group-hover/fmt:text-indigo-400'}`}>
+                                                            <div className="flex min-w-0 justify-between items-start gap-2">
+                                                                <div className={`min-w-0 break-words font-black text-[13px] tracking-tight transition-colors ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300 group-hover/fmt:text-indigo-600 dark:group-hover/fmt:text-indigo-400'}`}>
                                                                     {fmt.label}
                                                                 </div>
                                                                 {isSelected && (

@@ -8,9 +8,16 @@ export default function Button({
   disabled = false,
   fullWidth = false,
   icon = null,
-  loading = false
+  loading = false,
+  size = 'md',
+  className = ''
 }) {
-  const baseClasses = 'relative inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all duration-300 overflow-hidden active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:pointer-events-none';
+  const baseClasses = 'relative inline-flex items-center justify-center gap-2 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all duration-300 overflow-hidden active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:pointer-events-none';
+
+  const sizes = {
+    sm: 'px-4 py-2.5',
+    md: 'px-6 py-3.5',
+  };
 
   const variants = {
     primary: 'btn-accent shadow-xl shadow-indigo-500/10',
@@ -25,8 +32,10 @@ export default function Button({
       disabled={disabled || loading}
       className={`
         ${baseClasses}
+        ${sizes[size] || sizes.md}
         ${variants[variant]}
         ${fullWidth ? 'w-full' : ''}
+        ${className}
       `}
     >
       {loading && (
