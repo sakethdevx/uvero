@@ -250,8 +250,8 @@ export default function UnifiedConverter() {
 
     return (
         <div className="w-full">
-            <div className="glass-panel relative overflow-hidden transition-all duration-300 ease-apple">
-                <div className="relative p-4 sm:p-5">
+            <div className="glass-panel relative transition-all duration-300 ease-apple">
+                <div className="relative p-3.5 sm:p-5">
                     <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                         <div className="min-w-0">
                             <h2 className="text-lg font-black tracking-tight text-gray-900 dark:text-white sm:text-xl">
@@ -308,13 +308,13 @@ export default function UnifiedConverter() {
                     </div>
 
                     {file && categoryInfo && (
-                        <div className="grid gap-6 md:grid-cols-[minmax(280px,0.4fr)_1fr] lg:grid-cols-[minmax(320px,0.75fr)_minmax(0,1fr)]">
+                        <div className="grid gap-4 sm:gap-6 md:grid-cols-[minmax(280px,0.4fr)_1fr] lg:grid-cols-[minmax(320px,0.75fr)_minmax(0,1fr)]">
                             {/* Input Preview */}
-                            <div className="glass-subtle p-5 flex flex-col bg-white/5 dark:bg-black/20 border-gray-200/50 dark:border-white/5">
-                                <h3 className="mb-4 text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 dark:text-gray-500">
+                            <div className="glass-subtle p-4 sm:p-5 flex flex-col bg-white/5 dark:bg-black/20 border-gray-200/50 dark:border-white/5">
+                                <h3 className="mb-3 sm:mb-4 text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 dark:text-gray-500">
                                     Source Node
                                 </h3>
-                                <div className="aspect-video md:aspect-[4/3] lg:aspect-square overflow-hidden rounded-2xl bg-gray-100 dark:bg-black/40 flex items-center justify-center border border-gray-200 dark:border-white/10 shadow-inner">
+                                <div className="aspect-[2/1] sm:aspect-video md:aspect-[4/3] lg:aspect-square overflow-hidden rounded-2xl bg-gray-100 dark:bg-black/40 flex items-center justify-center border border-gray-200 dark:border-white/10 shadow-inner">
                                     {category === 'image' && previewUrl ? (
                                         <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
                                     ) : category === 'video' && previewUrl ? (
@@ -356,7 +356,7 @@ export default function UnifiedConverter() {
                             <div className="space-y-4">
                                 <div>
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-                                        <label className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.15em]">
+                                        <label className="text-[10px] sm:text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.15em]">
                                             Target Format
                                         </label>
                                         <div className="relative flex-1 max-w-xs">
@@ -365,7 +365,7 @@ export default function UnifiedConverter() {
                                                 placeholder="Search formats..."
                                                 value={formatSearchQuery}
                                                 onChange={(e) => setFormatSearchQuery(e.target.value)}
-                                                className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium"
+                                                className="w-full pl-9 pr-4 py-1.5 sm:py-2 bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 rounded-xl text-[11px] sm:text-xs focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium"
                                             />
                                             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -373,7 +373,7 @@ export default function UnifiedConverter() {
                                         </div>
                                     </div>
 
-                                    <div className="max-h-[260px] overflow-y-auto pr-2 -mr-2 custom-scrollbar">
+                                    <div className="max-h-[320px] sm:max-h-[260px] overflow-y-auto pr-2 -mr-2 custom-scrollbar">
                                         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
                                             {outputFormats
                                                 .filter(fmt => 
@@ -390,7 +390,7 @@ export default function UnifiedConverter() {
                                                             type="button"
                                                             onClick={() => { setSelectedFormat(fmt.value); if (fmt.value !== 'crop') setCropArea(null); }}
                                                             disabled={isProcessing}
-                                                            className={`relative overflow-hidden rounded-xl border p-2.5 text-left transition-all duration-300 ease-apple group/fmt flex flex-col justify-between min-h-[72px] ${isSelected
+                                                            className={`relative overflow-hidden rounded-xl border p-2 sm:p-2.5 text-left transition-all duration-300 ease-apple group/fmt flex flex-col justify-between min-h-[64px] sm:min-h-[72px] ${isSelected
                                                                 ? isSpecial
                                                                     ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/10'
                                                                     : 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10'
