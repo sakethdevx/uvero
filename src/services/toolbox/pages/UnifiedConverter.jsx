@@ -308,12 +308,12 @@ export default function UnifiedConverter() {
                         {file && categoryInfo && (
                             <div className="grid grid-cols-1 min-w-0 gap-4 sm:gap-6 lg:grid-cols-[minmax(320px,0.75fr)_minmax(0,1fr)]">
                                 {/* Input Preview */}
-                                <div className="glass-subtle min-w-0 p-3 sm:p-5 flex flex-col bg-white/5 dark:bg-black/20 border-gray-200/50 dark:border-white/5">
+                                <div className="glass-subtle min-w-0 p-3 sm:p-5 flex flex-col bg-white/5 dark:bg-black/20 border-gray-200/50 dark:border-white/5 lg:col-span-2 xl:col-span-1 lg:mx-auto lg:max-w-[1100px]">
                                     <h3 className="mb-3 sm:mb-4 text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 dark:text-gray-500">
                                         Uploaded File
                                     </h3>
                                     <div
-                                        className="overflow-hidden rounded-xl sm:rounded-2xl bg-gray-100 dark:bg-black/40 flex items-center justify-center border border-gray-200 dark:border-white/10 shadow-inner"
+                                        className="overflow-hidden rounded-xl sm:rounded-2xl bg-gray-100 dark:bg-black/40 flex items-center justify-center border border-gray-200 dark:border-white/10 shadow-inner lg:mx-auto lg:max-w-[1100px]"
                                         style={category === 'image' && originalDimensions ? { aspectRatio: `${originalDimensions.width} / ${originalDimensions.height}` } : undefined}
                                     >
                                         {category === 'image' && previewUrl ? (
@@ -354,7 +354,7 @@ export default function UnifiedConverter() {
                                 </div>
 
                                 {/* Settings */}
-                                <div className="min-w-0 space-y-4">
+                                <div className="min-w-0 space-y-4 lg:hidden xl:block">
                                     <div>
                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-5">
                                             <label className="text-[10px] sm:text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.15em]">
@@ -613,9 +613,12 @@ export default function UnifiedConverter() {
                                     </div>
                                 </div>
                                 <div className="grid gap-4 md:grid-cols-2">
-                                    <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 flex items-center justify-center">
+                                    <div
+                                        className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 flex items-center justify-center overflow-hidden max-h-[60vh] sm:max-h-[50vh] lg:max-h-[70vh] lg:mx-auto lg:max-w-[1100px]"
+                                        style={result?.width && result?.height ? { aspectRatio: `${result.width} / ${result.height}` } : undefined}
+                                    >
                                         {category === 'image' && resultPreviewUrl ? (
-                                            <img src={resultPreviewUrl} alt="Result" className="max-w-full max-h-full object-contain" />
+                                            <img src={resultPreviewUrl} alt="Result" className="w-full h-auto max-h-full object-contain" />
                                         ) : category === 'video' && resultPreviewUrl ? (
                                             <div className="w-full px-4 flex flex-col items-center justify-center">
                                                 {isBrowserSupportedVideo(result.file.name) ? (
