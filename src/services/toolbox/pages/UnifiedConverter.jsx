@@ -313,7 +313,7 @@ export default function UnifiedConverter() {
                                         Uploaded File
                                     </h3>
                                     <div
-                                        className="overflow-hidden rounded-xl sm:rounded-2xl bg-gray-100 dark:bg-black/40 flex items-center justify-center border border-gray-200 dark:border-white/10 shadow-inner lg:mx-auto lg:max-w-[1100px]"
+                                        className="w-full max-w-full box-border overflow-hidden rounded-xl sm:rounded-2xl bg-gray-100 dark:bg-black/40 flex items-center justify-center border border-gray-200 dark:border-white/10 shadow-inner lg:mx-auto lg:max-w-[1100px]"
                                         style={category === 'image' && originalDimensions ? { aspectRatio: `${originalDimensions.width} / ${originalDimensions.height}` } : undefined}
                                     >
                                         {category === 'image' && previewUrl ? (
@@ -614,11 +614,11 @@ export default function UnifiedConverter() {
                                 </div>
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <div
-                                        className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 flex items-center justify-center overflow-hidden max-h-[60vh] sm:max-h-[50vh] lg:max-h-[70vh] lg:mx-auto lg:max-w-[1100px]"
+                                        className="w-full max-w-full box-border bg-gray-100 dark:bg-gray-800 rounded-lg p-4 flex items-center justify-center overflow-hidden max-h-[60vh] sm:max-h-[50vh] lg:max-h-[70vh] lg:mx-auto lg:max-w-[1100px]"
                                         style={result?.width && result?.height ? { aspectRatio: `${result.width} / ${result.height}` } : undefined}
                                     >
                                         {category === 'image' && resultPreviewUrl ? (
-                                            <img src={resultPreviewUrl} alt="Result" className="w-full h-auto max-h-full object-contain" />
+                                            <img src={resultPreviewUrl} alt="Result" className="max-w-full max-h-full object-contain" />
                                         ) : category === 'video' && resultPreviewUrl ? (
                                             <div className="w-full px-4 flex flex-col items-center justify-center">
                                                 {isBrowserSupportedVideo(result.file.name) ? (
