@@ -15,7 +15,22 @@ import hashGeneratorSEO from './utility/hash-generator/seo.json';
 import UnitConverter from './utility/unit-converter/UnitConverter';
 import unitConverterSEO from './utility/unit-converter/seo.json';
 
+// Document Tools
+import MergePdfTool, { metadata as mergePdfMetadata } from './document/merge-pdf/index.jsx';
+
 export const tools = {
+    // Document Tools
+    'merge-pdf': {
+        ...mergePdfMetadata,
+        description: 'Combine multiple PDF files into a single document easily.',
+        component: MergePdfTool,
+        popular: true,
+        seo: {
+            title: "Merge PDF | Uvero",
+            description: "Combine multiple PDF files into one quickly and securely in your browser."
+        }
+    },
+
     // Image Utilities
     // Image Utilities
 
