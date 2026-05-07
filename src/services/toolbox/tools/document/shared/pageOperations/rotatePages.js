@@ -6,6 +6,9 @@
  * @param {Object} pdfLib - The pdf-lib instance
  */
 export function applyPageRotation(pdfDoc, pageIndices, rotation, pdfLib) {
+    // Import degrees from pdf-lib
+    const { degrees } = pdfLib;
+    
     // Normalize rotation to be within 0-360
     const normalizedRotation = ((rotation % 360) + 360) % 360;
     
@@ -17,7 +20,7 @@ export function applyPageRotation(pdfDoc, pageIndices, rotation, pdfLib) {
     // Apply rotation to each specified page using pdf-lib's degrees helper
     for (const pageIndex of pageIndices) {
         const page = pdfDoc.getPage(pageIndex);
-        page.setRotation(pdfLib.degrees(normalizedRotation));
+        page.setRotation(degrees(normalizedRotation));
     }
 }
 
@@ -103,8 +106,9 @@ export function validateRotation(rotation) {
         return 'Rotation must be a valid number';
     }
     
-    if (rotation % 90 !== 0) {
-        return 'Rotation must be a multiple of 90 degrees (90, 180, 270, etc.)';
+    // Only allow specific rotation values: 90, 180, 270 degrees
+    if (![90, 180, 270].includes(rotation)) {
+        return `Invalid rotation: ${rotation}. Must be 90, 180, or 270 degrees.`;
     }
     
     return null;
