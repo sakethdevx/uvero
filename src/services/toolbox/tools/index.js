@@ -17,6 +17,7 @@ import unitConverterSEO from './utility/unit-converter/seo.json';
 
 // Document Tools
 import MergePdfTool, { metadata as mergePdfMetadata } from './document/merge-pdf/index.jsx';
+import SplitPdfTool, { metadata as splitPdfMetadata } from './document/split-pdf/index.jsx';
 
 export const tools = {
     // Document Tools
@@ -28,6 +29,16 @@ export const tools = {
         seo: {
             title: "Merge PDF | Uvero",
             description: "Combine multiple PDF files into one quickly and securely in your browser."
+        }
+    },
+    'split-pdf': {
+        ...splitPdfMetadata,
+        description: 'Split a PDF file into multiple documents based on page ranges.',
+        component: SplitPdfTool,
+        popular: true,
+        seo: {
+            title: "Split PDF | Uvero",
+            description: "Split PDF files into multiple documents quickly and securely in your browser."
         }
     },
 
