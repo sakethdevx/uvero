@@ -14,13 +14,10 @@ export function applyPageRotation(pdfDoc, pageIndices, rotation, pdfLib) {
         throw new Error('Rotation must be a multiple of 90 degrees');
     }
     
-    // Convert to PDFLib rotation values (0, 90, 180, 270)
-    const pdfLibRotation = normalizedRotation;
-    
-    // Apply rotation to each specified page
+    // Apply rotation to each specified page using pdf-lib's degrees helper
     for (const pageIndex of pageIndices) {
         const page = pdfDoc.getPage(pageIndex);
-        page.setRotation(pdfLibRotation);
+        page.setRotation(pdfLib.degrees(normalizedRotation));
     }
 }
 
