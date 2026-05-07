@@ -18,6 +18,7 @@ import unitConverterSEO from './utility/unit-converter/seo.json';
 // Document Tools
 import MergePdfTool, { metadata as mergePdfMetadata } from './document/merge-pdf/index.jsx';
 import SplitPdfTool, { metadata as splitPdfMetadata } from './document/split-pdf/index.jsx';
+import RotatePdfTool, { metadata as rotatePdfMetadata } from './document/rotate-pdf/index.jsx';
 
 export const tools = {
     // Document Tools
@@ -39,6 +40,16 @@ export const tools = {
         seo: {
             title: "Split PDF | Uvero",
             description: "Split PDF files into multiple documents quickly and securely in your browser."
+        }
+    },
+    'rotate-pdf': {
+        ...rotatePdfMetadata,
+        description: 'Rotate specific pages or all pages in a PDF document.',
+        component: RotatePdfTool,
+        popular: true,
+        seo: {
+            title: "Rotate PDF | Uvero",
+            description: "Rotate PDF pages quickly and securely in your browser."
         }
     },
 
