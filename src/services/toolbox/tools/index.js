@@ -19,6 +19,7 @@ import unitConverterSEO from './utility/unit-converter/seo.json';
 import MergePdfTool, { metadata as mergePdfMetadata } from './document/merge-pdf/index.jsx';
 import SplitPdfTool, { metadata as splitPdfMetadata } from './document/split-pdf/index.jsx';
 import RotatePdfTool, { metadata as rotatePdfMetadata } from './document/rotate-pdf/index.jsx';
+import DeletePdfTool, { metadata as deletePdfMetadata } from './document/delete-pdf/index.jsx';
 
 export const tools = {
     // Document Tools
@@ -50,6 +51,16 @@ export const tools = {
         seo: {
             title: "Rotate PDF | Uvero",
             description: "Rotate PDF pages quickly and securely in your browser."
+        }
+    },
+    'delete-pdf': {
+        ...deletePdfMetadata,
+        description: 'Delete specific pages from a PDF document.',
+        component: DeletePdfTool,
+        popular: true,
+        seo: {
+            title: "Delete PDF Pages | Uvero",
+            description: "Delete pages from PDF documents quickly and securely in your browser."
         }
     },
 
