@@ -1,13 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
 export const usePdfMerge = () => {
-    const cancel = useCallback(() => {
-        if (isProcessing && workerRef.current) {
-            workerRef.current.terminate();
-            workerRef.current = new Worker(new URL("./worker.js", import.meta.url), { type: "module" });
-            // Re-attach listener logic here ideally... handled by effect instead.
-        }
-    }, [isProcessing]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [progress, setProgress] = useState(0);
     const [progressMessage, setProgressMessage] = useState('');
@@ -15,12 +8,14 @@ export const usePdfMerge = () => {
     const [result, setResult] = useState(null);
     const workerRef = useRef(null);
 
-    useEffect(() => {
-        workerRef.current = new Worker(new URL('./worker.js', import.meta.url), {
+    const initWorker = useCallback(() => {
+        if (workerRef.current) {
+            workerRef.current.terminate();
+        }
+
+        const worker = new Worker(new URL('./worker.js', import.meta.url), {
             type: 'module'
         });
-
-        const worker = workerRef.current;
 
         worker.onmessage = (e) => {
             const { type, percentage, message, blob, filename, metadata, error: workerError } = e.data;
@@ -43,14 +38,24 @@ export const usePdfMerge = () => {
                     console.warn(`Unknown message type from worker: ${type}`);
             }
         };
-
-        return () => {
-            worker.terminate();
-        };
+        workerRef.current = worker;
     }, []);
 
+    useEffect(() => {
+        initWorker();
+
+        return () => {
+            if (workerRef.current) {
+                workerRef.current.terminate();
+                workerRef.current = null;
+            }
+        };
+    }, [initWorker]);
+
     const merge = useCallback((files, options = {}) => {
-        if (!workerRef.current) return;
+        if (!workerRef.current) {
+            initWorker();
+        }
 
         setIsProcessing(true);
         setProgress(0);
@@ -63,6 +68,17 @@ export const usePdfMerge = () => {
             options,
             id: Date.now()
         });
+    }, [initWorker]);
+
+    const cancel = useCallback(() => {
+        if (workerRef.current) {
+            workerRef.current.terminate();
+            workerRef.current = null;
+        }
+        setIsProcessing(false);
+        setProgress(0);
+        setProgressMessage('');
+        setError(new Error('Processing was cancelled.'));
     }, []);
 
     const reset = useCallback(() => {
@@ -75,6 +91,7 @@ export const usePdfMerge = () => {
 
     return {
         merge,
+        cancel,
         reset,
         isProcessing,
         progress,

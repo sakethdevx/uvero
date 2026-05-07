@@ -19,7 +19,7 @@ export default function MergePdfTool() {
     const [files, setFiles] = useState([]);
     const [draggedIdx, setDraggedIdx] = useState(null);
 
-    const { merge, reset, isProcessing, progress, progressMessage, error, result } = usePdfMerge();
+    const { merge, cancel, reset, isProcessing, progress, progressMessage, error, result } = usePdfMerge();
 
     const handleFileSelect = useCallback((newFile) => {
         setFiles((prev) => {
@@ -129,7 +129,12 @@ export default function MergePdfTool() {
                     {isProcessing ? (
                         <div className="space-y-4">
                             <ProgressBar progress={progress} />
-                            <p className="text-center text-sm text-gray-500">{progressMessage}</p>
+                            <div className="flex justify-between items-center text-sm text-gray-500">
+                                <p>{progressMessage}</p>
+                                <Button onClick={cancel} variant="outline" className="text-red-500 border-red-200">
+                                    Cancel
+                                </Button>
+                            </div>
                         </div>
                     ) : (
                         <div className="flex justify-end gap-3">
