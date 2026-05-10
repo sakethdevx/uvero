@@ -55,7 +55,7 @@ export default function DeletePdfTool() {
     const handleDragEnd = () => setDraggedIdx(null);
 
     const handleDelete = () => {
-        deleteFiles(files, { 
+        deletePages(files, { 
             pageRanges 
         });
     };
