@@ -20,6 +20,7 @@ import MergePdfTool, { metadata as mergePdfMetadata } from './document/merge-pdf
 import SplitPdfTool, { metadata as splitPdfMetadata } from './document/split-pdf/index.jsx';
 import RotatePdfTool, { metadata as rotatePdfMetadata } from './document/rotate-pdf/index.jsx';
 import DeletePdfTool, { metadata as deletePdfMetadata } from './document/delete-pdf/index.jsx';
+import ReorderPdfTool, { metadata as reorderPdfMetadata } from './document/reorder-pdf/index.jsx';
 
 export const tools = {
     // Document Tools
@@ -61,6 +62,16 @@ export const tools = {
         seo: {
             title: "Delete PDF Pages | Uvero",
             description: "Delete pages from PDF documents quickly and securely in your browser."
+        }
+    },
+    'reorder-pdf': {
+        ...reorderPdfMetadata,
+        description: 'Reorder pages in a PDF document using drag-and-drop.',
+        component: ReorderPdfTool,
+        popular: true,
+        seo: {
+            title: "Reorder PDF Pages | Uvero",
+            description: "Reorder pages in PDF documents quickly and securely in your browser."
         }
     },
 
