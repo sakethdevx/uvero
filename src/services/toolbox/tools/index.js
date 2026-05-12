@@ -21,6 +21,7 @@ import SplitPdfTool, { metadata as splitPdfMetadata } from './document/split-pdf
 import RotatePdfTool, { metadata as rotatePdfMetadata } from './document/rotate-pdf/index.jsx';
 import DeletePdfTool, { metadata as deletePdfMetadata } from './document/delete-pdf/index.jsx';
 import ReorderPdfTool, { metadata as reorderPdfMetadata } from './document/reorder-pdf/index.jsx';
+import ExtractPdfTool, { metadata as extractPdfMetadata } from './document/extract-pdf/index.jsx';
 
 export const tools = {
     // Document Tools
@@ -72,6 +73,16 @@ export const tools = {
         seo: {
             title: "Reorder PDF Pages | Uvero",
             description: "Reorder pages in PDF documents quickly and securely in your browser."
+        }
+    },
+    'extract-pdf': {
+        ...extractPdfMetadata,
+        description: 'Extract specific pages from a PDF document.',
+        component: ExtractPdfTool,
+        popular: true,
+        seo: {
+            title: "Extract PDF Pages | Uvero",
+            description: "Extract specific pages from PDF documents quickly and securely in your browser."
         }
     },
 

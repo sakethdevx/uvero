@@ -1,0 +1,16 @@
+import { processExtract } from './engine';
+
+self.onmessage = async (e) => {
+    const { files, options, id } = e.data;
+
+    try {
+        const onProgress = (percentage, message) => {
+            self.postMessage({ type: 'progress', percentage, message, id });
+        };
+
+        const result = await processExtract(files, options, onProgress);
+        self.postMessage({ type: 'success', ...result, id });
+    } catch (error) {
+        self.postMessage({ type: 'error', error: error.message, id });
+    }
+};
