@@ -22,6 +22,7 @@ import RotatePdfTool, { metadata as rotatePdfMetadata } from './document/rotate-
 import DeletePdfTool, { metadata as deletePdfMetadata } from './document/delete-pdf/index.jsx';
 import ReorderPdfTool, { metadata as reorderPdfMetadata } from './document/reorder-pdf/index.jsx';
 import ExtractPdfTool, { metadata as extractPdfMetadata } from './document/extract-pdf/index.jsx';
+import CompressPdfTool, { metadata as compressPdfMetadata } from './document/compress-pdf/index.jsx';
 
 export const tools = {
     // Document Tools
@@ -83,6 +84,16 @@ export const tools = {
         seo: {
             title: "Extract PDF Pages | Uvero",
             description: "Extract specific pages from PDF documents quickly and securely in your browser."
+        }
+    },
+    'compress-pdf': {
+        ...compressPdfMetadata,
+        description: 'Compress a PDF file to reduce its file size.',
+        component: CompressPdfTool,
+        popular: true,
+        seo: {
+            title: "Compress PDF | Uvero",
+            description: "Compress PDF files to reduce size while maintaining readability, all locally in your browser."
         }
     },
 
