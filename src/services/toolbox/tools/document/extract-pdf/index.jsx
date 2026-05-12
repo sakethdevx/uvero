@@ -147,12 +147,12 @@ export default function ExtractPdfTool() {
                         </svg>
                     </div>
 
-                    <div>
-                        <h2 className="text-2xl font-bold mb-2">Extraction Complete!</h2>
-                        <p className="text-gray-500">
-                            Successfully extracted {result.metadata.extractedPages} pages.
-                        </p>
-                    </div>
+                     <div>
+                         <h2 className="text-2xl font-bold mb-2">Extraction Complete!</h2>
+                         <p className="text-gray-500">
+                             Successfully extracted {result.metadata.pageCount} pages.
+                         </p>
+                     </div>
 
                     <div className="flex justify-center gap-4 flex-wrap">
                         <Button onClick={handleRestart} variant="outline">

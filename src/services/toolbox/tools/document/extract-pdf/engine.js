@@ -52,15 +52,18 @@ export const processExtract = async (files, options = {}, onProgress) => {
     // Create a new PDF document
     const newPdf = await createPdfDocument();
 
+    // Adaptive progress update: aim for ~20 updates during extraction
+    const progressStep = Math.max(1, Math.floor(pagesToExtract.length / 20));
+
     // Copy the selected pages from the source PDF
     for (let i = 0; i < pagesToExtract.length; i++) {
         const originalPageIndex = pagesToExtract[i];
-        
-        if (onProgress && i % 10 === 0) {
+
+        if (onProgress && (i % progressStep === 0 || i === pagesToExtract.length - 1)) {
             const progress = 25 + Math.round((i / pagesToExtract.length) * 45);
             onProgress(progress, `Extracting page ${i + 1} of ${pagesToExtract.length}...`);
         }
-        
+
         // Copy the page from the source PDF
         const copiedPages = await newPdf.copyPages(sourcePdf, [originalPageIndex]);
         for (const page of copiedPages) {
@@ -80,13 +83,12 @@ export const processExtract = async (files, options = {}, onProgress) => {
     // Generate filename
     const filename = generateExtractFilename(file.name);
 
-    return { 
-        blob, 
-        filename, 
-        metadata: { 
+    return {
+        blob,
+        filename,
+        metadata: {
             pageCount: pagesToExtract.length,
-            extractedPages: pagesToExtract.length,
             sourcePageCount: totalPages
-        } 
+        }
     };
 };

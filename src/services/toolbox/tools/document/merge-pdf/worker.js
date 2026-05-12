@@ -14,3 +14,8 @@ self.onmessage = async (e) => {
         self.postMessage({ type: 'error', error: error.message, id });
     }
 };
+
+self.onerror = (error) => {
+    self.postMessage({ type: 'error', error: error.message || 'Unknown worker error', id: null });
+    return true;
+};
