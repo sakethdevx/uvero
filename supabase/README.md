@@ -11,8 +11,7 @@ Execute the SQL scripts in the **SQL Editor** in the following order to ensure d
 
 1.  **[profiles_table.sql](file:///Users/saketh_jangala/Documents/Projects/Antigravity/uvero/supabase/profiles_table.sql)**: Core user profiles and account-synced settings. Also sets up the automatic auth-to-profile data mirroring trigger.
 2.  **[clipboard_tables.sql](file:///Users/saketh_jangala/Documents/Projects/Antigravity/uvero/supabase/clipboard_tables.sql)**: Tables for the Universal Clipboard service.
-3.  **[split_expense_tables.sql](file:///Users/saketh_jangala/Documents/Projects/Antigravity/uvero/supabase/split_expense_tables.sql)**: Tables for the PaySplit service.
-4.  **[qr_tools_tables.sql](file:///Users/saketh_jangala/Documents/Projects/Antigravity/uvero/supabase/qr_tools_tables.sql)**: Tables for QR code generation and tracking.
+3.  **[qr_tools_tables.sql](file:///Users/saketh_jangala/Documents/Projects/Antigravity/uvero/supabase/qr_tools_tables.sql)**: Tables for QR code generation and tracking.
 
 ## 3. Authentication Configuration
 - **Site URL**: In Supabase Auth -> Settings, set the `Site URL` to your deployment origin (e.g., `http://localhost:5173` for local dev).
@@ -22,7 +21,7 @@ Execute the SQL scripts in the **SQL Editor** in the following order to ensure d
 ## 4. Security (RLS)
 Uvero uses **Row Level Security (RLS)** to protect user data. 
 - All tables have RLS enabled by default in the SQL scripts.
-- Policies are designed so users can only access their own data or data they have been explicitly invited to, such as shared expense groups.
+- Policies are designed so users can only access records they own or are authorized to use.
 - **Never disable RLS in production.**
 
 ## 5. Environment Variables

@@ -1,6 +1,6 @@
 # Uvero
 
-> A privacy-minded digital tools workspace for file conversion, PDF editing, code execution, QR workflows, secure clipboard sharing, and shared expense tracking.
+> A privacy-minded digital tools workspace for file conversion, PDF editing, code execution, QR workflows, and secure clipboard sharing.
 
 ![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=111)
 ![Vite](https://img.shields.io/badge/Vite-7-646cff?style=flat-square&logo=vite&logoColor=fff)
@@ -8,7 +8,7 @@
 ![Supabase](https://img.shields.io/badge/Supabase-Auth_%2B_Data-3ecf8e?style=flat-square&logo=supabase&logoColor=fff)
 ![Vercel](https://img.shields.io/badge/Vercel-Serverless-000?style=flat-square&logo=vercel&logoColor=fff)
 
-Uvero brings everyday digital utilities into one focused app: convert files, work with PDFs, run code, generate QR codes, share clipboard boards, and split expenses without jumping across a pile of separate sites.
+Uvero brings everyday digital utilities into one focused app: convert files, work with PDFs, run code, generate QR codes, and share clipboard boards without jumping across a pile of separate sites.
 
 ## Highlights
 
@@ -18,7 +18,6 @@ Uvero brings everyday digital utilities into one focused app: convert files, wor
 | PDF Tools | Merge, split, rotate, delete pages, reorder pages, extract pages, compress, unlock, and protect PDFs |
 | QR Tools | Generator, scanner, validator, bulk generator, dynamic QR manager, redirects, and analytics |
 | Clipboard | Quick text share, private boards, password locks, expiry, burn-after-read, QR sharing, and CLI routes |
-| PaySplit | Group expenses, invite codes, smart split modes, balances, settlements, reminders, proofs, receipts, and CSV export |
 | Compiler | Monaco-powered online editor for 19 languages with templates, stdin, output panels, and execution history |
 
 ## Product Surface
@@ -57,19 +56,6 @@ Clipboard is built for quick sharing and richer private boards.
 - CLI-friendly endpoints support quick send/get and board send/get workflows.
 - Metadata lives in Supabase; board content can be stored in GitHub-backed storage.
 
-### PaySplit
-
-PaySplit handles shared trips, dinners, roommates, and small-group expense flows.
-
-- Create groups and invite members with shareable codes.
-- Add expenses with equal, exact, percentage, and share-based split modes.
-- Calculate balances and minimal settlements automatically.
-- Save payment details such as UPI ID, phone, QR URL, and notes.
-- Generate UPI payment links for common apps.
-- Attach receipts as external links or GitHub-backed uploads.
-- Record settlements, payment proofs, reminders, and export group records as CSV.
-- Supports signed-in users and guest sessions, including recovery and account-claim flows.
-
 ### Online Compiler
 
 The compiler uses Monaco for editing and a server-side execution proxy.
@@ -91,7 +77,7 @@ The compiler uses Monaco for editing and a server-side execution proxy.
 | Backend | Vercel Serverless Functions with a shared API router |
 | File Engines | Web Workers, FFmpeg WASM, ImageMagick WASM, Pandoc WASM, qpdf-wasm, pdf-lib, pdfjs |
 | QR | qrcode, jsQR, html2canvas, jsPDF |
-| Storage | GitHub Contents API for clipboard boards and PaySplit receipt uploads |
+| Storage | GitHub Contents API for clipboard boards |
 | Deployment | Vercel |
 
 ## Project Structure
@@ -119,9 +105,8 @@ uvero/
 │       ├── clipboard/                   # Clipboard pages, APIs, CLI commands, GitHub storage
 │       ├── compiler/                    # Online compiler UI, language data, execution API
 │       ├── qr-tools/                    # QR generator, scanner, dynamic codes, analytics
-│       ├── split-expense/               # PaySplit pages, APIs, shared split logic
 │       └── toolbox/                     # Unified converter, PDF tools, utilities, processors
-├── supabase/                            # SQL schemas for profiles, clipboard, PaySplit, QR tools
+├── supabase/                            # SQL schemas for profiles, clipboard, and QR tools
 ├── vercel.json                          # API rewrites and SPA fallback
 ├── vite.config.js
 └── package.json
@@ -139,8 +124,6 @@ uvero/
 | `/clipboard/:boardId` | Private clipboard board |
 | `/c/:code` | Public clipboard retrieval link |
 | `/cli` | Clipboard CLI docs |
-| `/split-expense` | PaySplit groups home |
-| `/split-expense/:groupId` | PaySplit group workspace |
 | `/qr-tools` | QR tools hub |
 | `/qr-tools/generator` | QR code generator |
 | `/qr-tools/scanner` | QR scanner |
@@ -159,7 +142,7 @@ uvero/
 - Node.js 18+
 - npm
 - Supabase project for auth and persisted metadata
-- Optional GitHub repositories for clipboard board storage and PaySplit receipt uploads
+- Optional GitHub repositories for clipboard board storage
 
 ### Install
 
@@ -207,18 +190,6 @@ CLIPBOARD_PRIVATE_STORAGE_GITHUB_OWNER=
 CLIPBOARD_PRIVATE_STORAGE_GITHUB_REPO=clipboard-private-storage
 ```
 
-### PaySplit Receipt Storage
-
-```env
-PAYSPLIT_RECEIPTS_GITHUB_TOKEN=
-PAYSPLIT_RECEIPTS_GITHUB_OWNER=
-PAYSPLIT_RECEIPTS_GITHUB_REPO=uvero-paysplit-receipts-storage
-PAYSPLIT_RECEIPTS_GITHUB_BRANCH=main
-PAYSPLIT_RECEIPT_MAX_UPLOAD_BYTES=5242880
-```
-
-Users can still attach external receipt URLs when upload storage is not configured.
-
 ### Compiler And Toolbox APIs
 
 ```env
@@ -252,8 +223,7 @@ Run the SQL files in `supabase/` in this order:
 
 1. `profiles_table.sql`
 2. `clipboard_tables.sql`
-3. `split_expense_tables.sql`
-4. `qr_tools_tables.sql`
+3. `qr_tools_tables.sql`
 
 Row Level Security is enabled in the schemas. Keep `SUPABASE_SERVICE_KEY` server-only.
 

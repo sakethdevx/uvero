@@ -75,15 +75,6 @@ export const SEARCH_INDEX = [
         keywords: ['copy', 'paste', 'text', 'share'],
     },
     {
-        id: 'app-paysplit',
-        title: 'PaySplit',
-        description: 'Split expenses and bills with friends easily.',
-        icon: '💸',
-        path: '/split-expense',
-        category: 'Apps',
-        keywords: ['money', 'split', 'bills', 'expense'],
-    },
-    {
         id: 'app-qrtools',
         title: 'QR Tools Hub',
         description: 'Generate, scan, and manage dynamic QR codes.',

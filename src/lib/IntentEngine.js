@@ -391,21 +391,6 @@ const CAPABILITIES = [
     description: (params) => params.lang ? `${params.lang} IDE` : 'Code Playground',
   },
   {
-    id: 'split-expense',
-    tier: 3,
-    handler: null,
-    navigateTo: '/split-expense',
-    label: 'Split Bills',
-    icon: '💸',
-    patterns: [
-      /(?:split|divide)\s+(?:bill|expense|cost|payment|trip)/i,
-      /(?:expense|bill)\s+(?:split|splitter|calculator|divide)/i,
-      /(?:share|calculate)\s+(?:expense|bill|cost)/i,
-    ],
-    extractParams: () => ({}),
-    description: () => 'Group expenses',
-  },
-  {
     id: 'clipboard-board',
     tier: 3,
     handler: null,

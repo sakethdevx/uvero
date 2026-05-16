@@ -18,7 +18,6 @@ const ACTION_CHIPS = [
   { label: 'Generate QR', icon: '🔳', path: '/qr-tools', capability: 'qr-generate-quick' },
   { label: 'Share text', icon: '📋', path: '/clipboard', capability: 'clipboard-share' },
   { label: 'Run code', icon: '💻', path: '/compiler' },
-  { label: 'Split bills', icon: '💸', path: '/split-expense' },
 ];
 
 export default function ServicesHome() {

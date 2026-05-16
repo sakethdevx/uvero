@@ -27,8 +27,6 @@ const Clipboard = lazy(() => import('./services/clipboard/pages/Clipboard'));
 const ClipboardBoard = lazy(() => import('./services/clipboard/pages/ClipboardBoard'));
 const PublicClipboard = lazy(() => import('./services/clipboard/pages/PublicClipboard'));
 const ClipboardCli = lazy(() => import('./services/clipboard/pages/ClipboardCli'));
-const SplitExpenseHome = lazy(() => import('./services/split-expense/pages/SplitExpenseHome'));
-const SplitExpenseGroup = lazy(() => import('./services/split-expense/pages/SplitExpenseGroup'));
 const QRToolsHome = lazy(() => import('./services/qr-tools/pages/QRToolsHome'));
 const QRGenerator = lazy(() => import('./services/qr-tools/pages/QRGenerator'));
 const QRScanner = lazy(() => import('./services/qr-tools/pages/QRScanner'));
@@ -183,8 +181,6 @@ function AppContent() {
             <Route path="/clipboard/:boardId" element={<ClipboardBoard />} />
             <Route path="/c/:code" element={<PublicClipboard />} />
             <Route path="/cli" element={<ClipboardCli />} />
-            <Route path="/split-expense" element={<SplitExpenseHome />} />
-            <Route path="/split-expense/:groupId" element={<SplitExpenseGroup />} />
             <Route path="/qr-tools" element={<QRToolsHome />} />
             <Route path="/qr-tools/generator" element={<QRGenerator />} />
             <Route path="/qr-tools/scanner" element={<QRScanner />} />

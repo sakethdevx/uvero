@@ -3,7 +3,6 @@ import { useAuth } from '../auth/AuthContext'
 import RequireAuth from '../auth/RequireAuth'
 import { signOut } from '../auth/authService'
 import { useNavigate } from 'react-router-dom'
-// split-expense guest claim/recover removed
 import { supabase } from '../lib/supabase/client'
 import { checkUsernameAvailability, updateMyUsername } from '../auth/usernameService'
 import { USERNAME_HELP_TEXT, isUsernameValid, normalizeUsernameInput } from '../auth/usernameRules'
@@ -23,7 +22,6 @@ export default function Profile() {
 function ProfileContent() {
     const { user } = useAuth()
     const navigate = useNavigate()
-    // PaySplit guest-claim functionality removed; signed-in users only
     const [usernameInput, setUsernameInput] = useState('')
     const [savedUsername, setSavedUsername] = useState('')
     const [isEditingUsername, setIsEditingUsername] = useState(false)
