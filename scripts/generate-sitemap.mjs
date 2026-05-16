@@ -15,7 +15,6 @@ const TODAY = new Date().toISOString().slice(0, 10)
 const STATIC_ROUTES = [
     { path: '/', changefreq: 'daily', priority: '1.0' },
     { path: '/toolbox', changefreq: 'weekly', priority: '0.95' },
-    { path: '/photodrop', changefreq: 'weekly', priority: '0.9' },
     { path: '/clipboard', changefreq: 'weekly', priority: '0.9' },
     { path: '/cli', changefreq: 'monthly', priority: '0.8' },
     { path: '/contact', changefreq: 'yearly', priority: '0.5' },

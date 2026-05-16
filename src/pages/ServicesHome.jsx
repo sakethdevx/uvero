@@ -19,7 +19,6 @@ const ACTION_CHIPS = [
   { label: 'Share text', icon: '📋', path: '/clipboard', capability: 'clipboard-share' },
   { label: 'Run code', icon: '💻', path: '/compiler' },
   { label: 'Split bills', icon: '💸', path: '/split-expense' },
-  { label: 'PhotoDrop', icon: '📸', path: '/photodrop' },
 ];
 
 export default function ServicesHome() {

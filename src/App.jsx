@@ -23,9 +23,6 @@ const ToolboxHome = lazy(() => import('./services/toolbox/pages/ToolboxHome'));
 const ToolPage = lazy(() => import('./services/toolbox/pages/ToolPage'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Contact = lazy(() => import('./pages/Contact'));
-const EventsPage = lazy(() => import('./services/photodrop/pages/Events'));
-const EventDetail = lazy(() => import('./services/photodrop/pages/EventDetail'));
-const InvitePage = lazy(() => import('./services/photodrop/pages/Invite'));
 const Clipboard = lazy(() => import('./services/clipboard/pages/Clipboard'));
 const ClipboardBoard = lazy(() => import('./services/clipboard/pages/ClipboardBoard'));
 const PublicClipboard = lazy(() => import('./services/clipboard/pages/PublicClipboard'));
@@ -182,8 +179,6 @@ function AppContent() {
             <Route path="/" element={<ServicesHome />} />
             <Route path="/compiler" element={<CompilerHome />} />
             <Route path="/toolbox" element={<ToolboxHome />} />
-            <Route path="/photodrop" element={<EventsPage />} />
-            <Route path="/photodrop/:id" element={<EventDetail />} />
             <Route path="/clipboard" element={<Clipboard />} />
             <Route path="/clipboard/:boardId" element={<ClipboardBoard />} />
             <Route path="/c/:code" element={<PublicClipboard />} />
@@ -199,7 +194,6 @@ function AppContent() {
             <Route path="/qr-tools/analytics" element={<QRAnalytics />} />
             <Route path="/qr-generator" element={<Navigate to="/qr-tools" replace />} />
             <Route path="/qr/r/:code" element={<QRRedirectPage />} />
-            <Route path="/invite/:token" element={<InvitePage />} />
             <Route path="/:toolId" element={<ToolPage />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/contact" element={<Contact />} />

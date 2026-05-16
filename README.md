@@ -1,6 +1,6 @@
 # Uvero
 
-> Professional digital tools — Uvero Toolbox, photo sharing, and online clipboard — built with privacy and speed in mind.
+> Professional digital tools — Uvero Toolbox, online clipboard, PaySplit, QR tools, and an online compiler — built with privacy and speed in mind.
 
 ## Features
 
@@ -19,19 +19,6 @@ Most Toolbox workflows run client-side in the browser, while a few advanced conv
 | **Document** (3) | Document Converter, EPUB to PDF, EPUB to MOBI |
 | **Utility** (10) | QR Generator, Password Generator, Hash Generator, Unit Converter, Timezone Converter, Lbs↔Kg, Feet↔Meters, PST/CST→EST |
 | **Archive** (2) | RAR to ZIP, Archive Converter |
-
----
-
-### 📸 PhotoDrop
-
-Event-based photo sharing platform with AI-powered face detection.
-
-- Create events & upload photos (stored on GitHub via API)
-- **AI face detection** — automatically identifies and groups people in photos (Hugging Face inference)
-- Invite system with unique shareable links & tokens
-- Event management — create, browse, delete events & images
-- Person tagging and name management
-- Auth-gated access via Supabase
 
 ---
 
@@ -77,8 +64,8 @@ Splitwise-style expense management for trips and shared plans.
 | Auth | Supabase (email/password) |
 | Backend API | Vercel Serverless Functions |
 | Uvero Toolbox | Web Workers, Canvas API, FFmpeg WASM, pdf-lib, pdfjs, jsPDF, SheetJS, Mammoth, Sharp |
-| Image Storage | GitHub Contents API (PhotoDrop + Clipboard) |
-| AI / ML | Hugging Face Inference API (face detection), @imgly/background-removal |
+| File Storage | GitHub Contents API (Clipboard + PaySplit receipts) |
+| AI / ML | @imgly/background-removal |
 | QR | qrcode library |
 | Deployment | Vercel |
 
@@ -94,7 +81,7 @@ uvero/
 │   ├── auth/                             # Supabase auth (AuthProvider, RequireAuth, authService)
 │   ├── components/                       # Global UI (ThemeToggle)
 │   ├── pages/                            # Login, Signup, ResetPassword, Profile, Privacy
-│   ├── features/
+│   ├── services/
 │   │   ├── toolbox/
 │   │   │   ├── tools/                    # 63+ tools organized by category
 │   │   │   │   ├── image/               # 11 image tools
@@ -111,14 +98,13 @@ uvero/
 │   │   │   ├── services/                # Processing services
 │   │   │   ├── context/                 # ModeContext
 │   │   │   └── api/                     # compress, convert-video-to-mp3
-│   │   ├── photodrop/
-│   │   │   ├── pages/                   # Events, EventDetail, Invite
-│   │   │   ├── api/                     # 13 API endpoints (events, images, faces, invites)
-│   │   │   └── services/               # GitHub image storage
-│   │   └── clipboard/
+│   │   ├── clipboard/
 │   │       ├── pages/                   # Clipboard (public), ClipboardBoard (private)
 │   │       ├── api/                     # Clipboard API (CRUD + code assignment)
 │   │       └── services/               # GitHub storage (repo-separated)
+│   │   ├── split-expense/              # PaySplit pages and APIs
+│   │   ├── qr-tools/                   # QR generator, scanner, dynamic codes
+│   │   └── compiler/                   # Online compiler UI and API proxy
 │   ├── App.jsx                          # Root layout, routing, navigation
 │   ├── main.jsx                         # Entry point
 │   └── index.css                        # Global styles
@@ -221,9 +207,6 @@ npm run preview
 | `/` | Services home (landing page) |
 | `/toolbox` | Uvero Toolbox hub |
 | `/:toolId` | Individual tool (e.g. `/compress-image`, `/merge-pdf`) |
-| `/photodrop` | PhotoDrop events |
-| `/photodrop/:id` | Event detail + photos |
-| `/invite/:token` | Accept event invite |
 | `/clipboard` | Online Clipboard (quick share + board entry) |
 | `/clipboard/:boardId` | Private clipboard board |
 | `/split-expense` | PaySplit groups home |
@@ -238,11 +221,11 @@ npm run preview
 
 ## Architecture
 
-- **Feature-based structure** — Each service (toolbox, photodrop, clipboard) is self-contained under `src/services/`
+- **Feature-based structure** — Each service is self-contained under `src/services/`
 - **Client-side Toolbox flows** — Web Workers, Canvas API, and WASM keep the main thread free
 - **Serverless API** — Vercel functions with a single router dispatching to feature-specific handlers
-- **GitHub as storage** — PhotoDrop images and clipboard boards stored via the GitHub Contents API
-- **Supabase for metadata & auth** — Board metadata, event data, and user auth managed through Supabase
+- **GitHub as storage** — Clipboard boards and PaySplit receipts can be stored via the GitHub Contents API
+- **Supabase for metadata & auth** — Board metadata, PaySplit data, QR analytics, and user auth managed through Supabase
 - **Dark mode** — Full dark/light theme support with ThemeToggle
 - **Responsive** — Mobile-first design with mega-menu navigation on desktop
 
