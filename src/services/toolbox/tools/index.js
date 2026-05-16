@@ -24,6 +24,7 @@ import ReorderPdfTool, { metadata as reorderPdfMetadata } from './document/reord
 import ExtractPdfTool, { metadata as extractPdfMetadata } from './document/extract-pdf/index.jsx';
 import CompressPdfTool, { metadata as compressPdfMetadata } from './document/compress-pdf/index.jsx';
 import DecryptPdfTool, { metadata as decryptPdfMetadata } from './document/decrypt-pdf/index.jsx';
+import ProtectPdfTool, { metadata as protectPdfMetadata } from './document/protect-pdf/index.jsx';
 
 export const tools = {
     // Document Tools
@@ -105,6 +106,16 @@ export const tools = {
         seo: {
             title: "Unlock PDF | Uvero",
             description: "Remove password protection from PDF files securely in your browser."
+        }
+    },
+    'protect-pdf': {
+        ...protectPdfMetadata,
+        description: 'Encrypt a PDF file with a password and set permissions.',
+        component: ProtectPdfTool,
+        popular: true,
+        seo: {
+            title: "Protect PDF | Uvero",
+            description: "Encrypt and password protect PDF files securely in your browser."
         }
     },
 
