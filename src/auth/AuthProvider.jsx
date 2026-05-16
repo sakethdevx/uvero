@@ -150,7 +150,7 @@ export function AuthProvider({ children }) {
                         try {
                             const redirect = localStorage.getItem('postAuthRedirect')
                             const path = window.location.pathname || ''
-                            if (refreshedUser && redirect && (path === '/signup' || path === '/login' || path.startsWith('/invite') || path === '/')) {
+                            if (refreshedUser && redirect && (path === '/signup' || path === '/login' || path === '/')) {
                                 // clear and navigate
                                 localStorage.removeItem('postAuthRedirect')
                                 window.location.href = redirect
@@ -176,4 +176,3 @@ export function AuthProvider({ children }) {
     const value = { user, loading }
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
-

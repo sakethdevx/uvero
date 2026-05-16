@@ -30,11 +30,6 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
-        if (originalPath === '/api/events') {
-            const mod = await import('../src/services/photodrop/api/events.js')
-            return mod.default(req, res)
-        }
-
         if (originalPath === '/api/compress') {
             const mod = await import('../src/services/toolbox/api/compress.js')
             return mod.default(req, res)
@@ -80,134 +75,6 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
-        if (originalPath === '/api/delete-event') {
-            const mod = await import('../src/services/photodrop/api/delete-event.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/delete-image') {
-            const mod = await import('../src/services/photodrop/api/delete-image.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/join-event') {
-            const mod = await import('../src/services/photodrop/api/join-event.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/create-invite') {
-            const mod = await import('../src/services/photodrop/api/create-invite.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/invite-info') {
-            const mod = await import('../src/services/photodrop/api/invite-info.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/persons') {
-            const mod = await import('../src/services/photodrop/api/persons.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/update-person-name') {
-            const mod = await import('../src/services/photodrop/api/update-person-name.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/merge-persons') {
-            const mod = await import('../src/services/photodrop/api/merge-persons.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/process-faces') {
-            const mod = await import('../src/services/photodrop/api/process-faces.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/reprocess-faces') {
-            const mod = await import('../src/services/photodrop/api/reprocess-faces.js')
-            return mod.default(req, res)
-        }
-
-
-        if (originalPath === '/api/split/groups') {
-            const mod = await import('../src/services/split-expense/api/groups.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/split/join') {
-            const mod = await import('../src/services/split-expense/api/join.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/split/group') {
-            const mod = await import('../src/services/split-expense/api/group.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/split/claim-guest') {
-            const mod = await import('../src/services/split-expense/api/claim-guest.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/split/recovery-code') {
-            const mod = await import('../src/services/split-expense/api/recovery-code.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/split/recover') {
-            const mod = await import('../src/services/split-expense/api/recover.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/split/recover-guest') {
-            const mod = await import('../src/services/split-expense/api/recover-guest.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/split/export') {
-            const mod = await import('../src/services/split-expense/api/export.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/split/members') {
-            const mod = await import('../src/services/split-expense/api/members.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/split/expenses') {
-            const mod = await import('../src/services/split-expense/api/expenses.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/split/receipts') {
-            const mod = await import('../src/services/split-expense/api/receipts.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/split/settlements') {
-            const mod = await import('../src/services/split-expense/api/settlements.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/split/payment-proofs') {
-            const mod = await import('../src/services/split-expense/api/payment-proofs.js')
-            return mod.default(req, res)
-        }
-
-        if (originalPath === '/api/split/reminders') {
-            const mod = await import('../src/services/split-expense/api/reminders.js')
-            return mod.default(req, res)
-        }
-
-
-
-        if (originalPath === '/api/upload-image') {
-            const mod = await import('../src/services/photodrop/api/upload-image.js')
-            return mod.default(req, res)
-        }
-
         // ── CLI clipboard endpoints (must come before generic /api/clipboard) ──
 
         if (originalPath === '/api/clipboard/cli-health') {
@@ -246,21 +113,6 @@ export default async function handler(req, res) {
 
         if (originalPath === '/api/clipboard') {
             const mod = await import('../src/services/clipboard/api/index.js')
-            return mod.default(req, res)
-        }
-
-        // images collection
-        if (originalPath === '/api/images') {
-            const mod = await import('../src/services/photodrop/api/images/index.js')
-            return mod.default(req, res)
-        }
-
-        // single image: forwarded contains id when rewrite matched
-        if (forwarded && forwarded.startsWith('images/')) {
-            const id = forwarded.split('/')[1]
-            req.query = req.query || {}
-            req.query.id = id
-            const mod = await import('../src/services/photodrop/api/images/[id].js')
             return mod.default(req, res)
         }
 

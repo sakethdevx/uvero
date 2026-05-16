@@ -1,237 +1,93 @@
-# 🚀 Quick Start Guide - Uvero
+# Uvero Quickstart
 
-## What's Been Built
+This guide is the short path from a fresh checkout to a working local Uvero app.
 
-✅ **Phase 1 is COMPLETE** - A production-ready Image Compressor tool
+## Prerequisites
 
-### Project Status
+- Node.js 18+
+- npm
+- A Supabase project for auth and persisted metadata
+- Optional GitHub repositories for clipboard storage
 
-- ✅ React + Vite project initialized
-- ✅ Tailwind CSS v3 configured
-- ✅ Routing with React Router setup
-- ✅ Shared UI components created
-- ✅ Image Compressor with Web Worker implemented
-- ✅ SEO structure in place
-- ✅ Privacy page created
-- ✅ Professional landing page designed
-
-## How to Run
+## Install
 
 ```bash
-# The server is already running at:
-http://localhost:5173
+git clone https://github.com/sakethdevx/uvero.git
+cd uvero
+npm install
+cp .env.example .env
+```
 
-# If you need to restart:
+Fill the required values in `.env`:
+
+```env
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+SUPABASE_URL=
+SUPABASE_SERVICE_KEY=
+```
+
+Clipboard GitHub storage is optional, but recommended if you want persistent public/private boards:
+
+```env
+CLIPBOARD_PUBLIC_STORAGE_GITHUB_TOKEN=
+CLIPBOARD_PUBLIC_STORAGE_GITHUB_OWNER=
+CLIPBOARD_PUBLIC_STORAGE_GITHUB_REPO=clipboard-public-storage
+
+CLIPBOARD_PRIVATE_STORAGE_GITHUB_TOKEN=
+CLIPBOARD_PRIVATE_STORAGE_GITHUB_OWNER=
+CLIPBOARD_PRIVATE_STORAGE_GITHUB_REPO=clipboard-private-storage
+```
+
+## Database
+
+Run the Supabase SQL files in this order:
+
+1. `supabase/profiles_table.sql`
+2. `supabase/clipboard_tables.sql`
+3. `supabase/qr_tools_tables.sql`
+
+## Run Locally
+
+```bash
 npm run dev
 ```
 
-## What You Can Do Right Now
+Open `http://localhost:5173`.
 
-1. **Home Page** (<http://localhost:5173>)
-   - Professional landing page
-   - Category overview
-   - Feature highlights
-   - Privacy badges
+## What To Test
 
-2. **Image Compressor** (<http://localhost:5173/compress-image>)
-   - Drag & drop image upload
-   - Adjust compression quality (10-100%)
-   - See real-time preview
-   - Compare original vs compressed size
-   - Download compressed image
-   - View FAQ section
-   - All processing happens in browser!
+- `/` - command-first home
+- `/toolbox` - unified converter and utility tools
+- `/merge-pdf`, `/split-pdf`, `/protect-pdf` - dedicated PDF tools
+- `/clipboard` and `/cli` - clipboard workflows
+- `/qr-tools` - QR generator, scanner, validator, bulk, dynamic, and analytics tools
+- `/compiler` - Monaco-based online compiler
+- `/privacy` and `/contact` - static support pages
 
-3. **Privacy Page** (<http://localhost:5173/privacy>)
-   - Complete privacy policy
-   - Explains client-side processing
-   - User rights and security info
-
-## Test the Image Compressor
-
-1. Go to <http://localhost:5173/compress-image>
-2. Drag & drop a JPG, PNG, or WebP image
-3. Adjust the quality slider
-4. Click "Compress Image"
-5. See the size reduction
-6. Download your compressed image
-
-## File Structure Created
-
-```
-src/
-├── tools/
-│   ├── image/
-│   │   └── image-compressor/
-│   │       ├── ImageCompressor.jsx  ✅ Main component
-│   │       ├── processor.js         ✅ Worker manager
-│   │       ├── worker.js            ✅ Web Worker
-│   │       └── seo.json             ✅ SEO metadata
-│   └── index.js                     ✅ Tool registry
-├── shared/
-│   ├── Dropzone.jsx                 ✅ File upload
-│   ├── Button.jsx                   ✅ Reusable button
-│   ├── ProgressBar.jsx              ✅ Progress indicator
-│   └── FileInfo.jsx                 ✅ File info display
-├── pages/
-│   ├── Home.jsx                     ✅ Landing page
-│   ├── ToolPage.jsx                 ✅ Dynamic tool loader
-│   └── Privacy.jsx                  ✅ Privacy policy
-├── App.jsx                          ✅ Main app with header/footer
-├── main.jsx                         ✅ Entry point
-└── index.css                        ✅ Tailwind styles
-```
-
-## Key Features Implemented
-
-### 🎨 UI/UX
-
-- Professional SaaS-style design
-- Responsive on all devices
-- Smooth animations and transitions
-- Clean, modern color scheme
-- Privacy-first messaging throughout
-
-### ⚡ Performance
-
-- Web Worker for image processing
-- No UI freezing during compression
-- Progress indicators
-- Optimized for low-end devices
-
-### 🔒 Privacy
-
-- 100% client-side processing
-- No file uploads to servers
-- Privacy badges visible
-- Clear messaging about data handling
-
-### 🔍 SEO
-
-- Dedicated routes for each tool
-- Meta tags in index.html
-- SEO.json for each tool
-- FAQ sections for rich content
-- Structured data ready
-
-### 🏗️ Architecture
-
-- Modular tool system
-- Easy to add new tools
-- Shared components
-- Scalable structure
-- Well-commented code
-
-## Next Steps (When You're Ready)
-
-### Phase 2: Image Converter
-
-- Convert between formats (JPG, PNG, WebP, GIF)
-- Resize images
-- Custom dimensions
-
-### Phase 3: PDF Tools
-
-- PDF compression
-- PDF merge/split
-- PDF to image
-
-### Phase 4: Audio Tools
-
-- Audio compression
-- Format conversion
-
-### Phase 5: Monetization
-
-- Google AdSense placeholders
-- Pro plan architecture
-- Batch processing
-
-## Production Build
-
-When ready to deploy:
+## Build
 
 ```bash
-# Build for production
 npm run build
-
-# Preview production build
 npm run preview
-
-# The optimized files will be in /dist
 ```
 
-## Important Files
+`npm run build` runs toolbox checks, route smoke tests, sitemap generation, and the Vite production build.
 
-- **Adding new tools**: Edit `src/services/toolbox/tools/index.js`
-- **Shared components**: `src/services/toolbox/shared/`
-- **Styling**: `tailwind.config.js` for theme customization
-- **SEO**: `index.html` for global meta tags, `seo.json` for tool-specific
+## Useful Scripts
 
-## Architecture Highlights
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | Start local development |
+| `npm run build` | Run checks and build production assets |
+| `npm run preview` | Preview the production build |
+| `npm run lint` | Run ESLint |
+| `npm run generate:sitemap` | Regenerate sitemap and robots.txt |
+| `npm run check:toolbox` | Validate toolbox registry consistency |
+| `npm run test:toolbox-routes` | Smoke test representative toolbox routes |
 
-### Adding a New Tool (Example)
+## Notes
 
-1. Create folder: `src/services/toolbox/tools/pdf/pdf-compressor/`
-2. Add files: `PdfCompressor.jsx`, `processor.js`, `worker.js`, `seo.json`
-3. Register in `src/services/toolbox/tools/index.js`
-4. Done! Tool is automatically integrated
-
-### Web Worker Pattern
-
-All heavy processing follows this pattern:
-
-- Main thread: UI interaction
-- Worker: Heavy computation
-- Communication: postMessage API
-- No blocking: Smooth user experience
-
-## Code Quality
-
-✅ All code is:
-
-- Production-ready (no placeholders)
-- Well-commented
-- Following best practices
-- Modular and reusable
-- Performance-optimized
-- Privacy-focused
-
-## Browser Compatibility
-
-Works on:
-
-- Chrome/Edge (latest)
-- Firefox (latest)
-- Safari (latest)
-- Mobile browsers
-
-Requires:
-
-- ES6+ support
-- Web Worker API
-- Canvas API
-- File API
-
-## Deployment Ready
-
-The project can be deployed to:
-
-- Vercel
-- Netlify
-- GitHub Pages
-- Any static hosting
-
-No backend needed!
-
----
-
-## ✅ PHASE 1 IS COMPLETE
-
-**Everything is working and ready to use!**
-
-Open <http://localhost:5173> and start compressing images! 🎉
-
----
-
-**Questions?** Check the main README.md for detailed documentation.
+- Heavy file work uses browser workers and WASM where possible.
+- Some server/API flows require Vercel-style environment variables.
+- Keep `SUPABASE_SERVICE_KEY` server-only. Never expose it in frontend code.

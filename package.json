@@ -25,7 +25,6 @@
     "@monaco-editor/react": "^4.7.0",
     "@neslinesli93/qpdf-wasm": "^0.3.0",
     "@supabase/supabase-js": "^2.35.0",
-    "browser-image-compression": "^2.0.2",
     "client-zip": "^2.5.0",
     "epubjs": "^0.3.93",
     "formidable": "^3.5.4",
@@ -34,14 +33,11 @@
     "heic2any": "^0.0.4",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.1.0",
-    "jspdf-autotable": "^5.0.7",
     "jsqr": "^1.4.0",
     "jszip": "^3.10.1",
     "lamejs": "^1.2.1",
     "lz-string": "^1.5.0",
     "mammoth": "^1.11.0",
-    "mime": "^3.0.0",
-    "moment-timezone": "^0.6.0",
     "node-unrar-js": "^2.0.2",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^5.4.624",
@@ -51,8 +47,7 @@
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0",
     "sanitize-filename": "^1.6.3",
-    "sharp": "^0.34.5",
-    "xlsx-republish": "^0.20.3"
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

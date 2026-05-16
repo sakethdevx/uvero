@@ -66,15 +66,6 @@ export const SEARCH_INDEX = [
         keywords: ['ide', 'code', 'python', 'javascript', 'java', 'c++'],
     },
     {
-        id: 'app-photodrop',
-        title: 'PhotoDrop',
-        description: 'Share photos instantly with face-recognition delivery.',
-        icon: '📸',
-        path: '/photodrop',
-        category: 'Apps',
-        keywords: ['photos', 'events', 'sharing', 'face'],
-    },
-    {
         id: 'app-clipboard',
         title: 'Online Clipboard',
         description: 'Secure, real-time shared clipboard.',
@@ -82,15 +73,6 @@ export const SEARCH_INDEX = [
         path: '/clipboard',
         category: 'Apps',
         keywords: ['copy', 'paste', 'text', 'share'],
-    },
-    {
-        id: 'app-paysplit',
-        title: 'PaySplit',
-        description: 'Split expenses and bills with friends easily.',
-        icon: '💸',
-        path: '/split-expense',
-        category: 'Apps',
-        keywords: ['money', 'split', 'bills', 'expense'],
     },
     {
         id: 'app-qrtools',

@@ -391,36 +391,6 @@ const CAPABILITIES = [
     description: (params) => params.lang ? `${params.lang} IDE` : 'Code Playground',
   },
   {
-    id: 'split-expense',
-    tier: 3,
-    handler: null,
-    navigateTo: '/split-expense',
-    label: 'Split Bills',
-    icon: '💸',
-    patterns: [
-      /(?:split|divide)\s+(?:bill|expense|cost|payment|trip)/i,
-      /(?:expense|bill)\s+(?:split|splitter|calculator|divide)/i,
-      /(?:share|calculate)\s+(?:expense|bill|cost)/i,
-    ],
-    extractParams: () => ({}),
-    description: () => 'Group expenses',
-  },
-  {
-    id: 'photodrop',
-    tier: 3,
-    handler: null,
-    navigateTo: '/photodrop',
-    label: 'PhotoDrop',
-    icon: '📸',
-    patterns: [
-      /(?:photo|image)\s+(?:drop|share|event|album)/i,
-      /photodrop/i,
-      /(?:share|upload)\s+(?:event\s+)?photos/i,
-    ],
-    extractParams: () => ({}),
-    description: () => 'Photo sharing',
-  },
-  {
     id: 'clipboard-board',
     tier: 3,
     handler: null,
@@ -548,8 +518,8 @@ function getDynamicUnitSuggestions(params) {
       const tLabel = t.includes('/') ? t.split('/').pop().replace('_', ' ') : t;
       return {
         id: `unit-gen-cat-${cat}-${f}-${t}`,
-        title: `${f.toUpperCase()} to ${tLabel.toUpperCase()}`,
-        description: `Quickly convert ${f.toUpperCase()} to ${tLabel.toUpperCase()}`,
+        title: `${fLabel.toUpperCase()} to ${tLabel.toUpperCase()}`,
+        description: `Quickly convert ${fLabel.toUpperCase()} to ${tLabel.toUpperCase()}`,
         icon: '📏',
         path: `/unit-converter?cat=${cat}&from=${f}&to=${t}`,
         category: 'Converters'
