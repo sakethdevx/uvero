@@ -22,7 +22,7 @@ Execute the SQL scripts in the **SQL Editor** in the following order to ensure d
 ## 4. Security (RLS)
 Uvero uses **Row Level Security (RLS)** to protect user data. 
 - All tables have RLS enabled by default in the SQL scripts.
-- Policies are designed so users can only access their own data or data they have been explicitly invited to (e.g., shared expenses or photo events).
+- Policies are designed so users can only access their own data or data they have been explicitly invited to, such as shared expense groups.
 - **Never disable RLS in production.**
 
 ## 5. Environment Variables

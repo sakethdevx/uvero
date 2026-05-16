@@ -1,235 +1,285 @@
 # Uvero
 
-> Professional digital tools — Uvero Toolbox, online clipboard, PaySplit, QR tools, and an online compiler — built with privacy and speed in mind.
+> A privacy-minded digital tools workspace for file conversion, PDF editing, code execution, QR workflows, secure clipboard sharing, and shared expense tracking.
 
-## Features
+![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=111)
+![Vite](https://img.shields.io/badge/Vite-7-646cff?style=flat-square&logo=vite&logoColor=fff)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-38bdf8?style=flat-square&logo=tailwindcss&logoColor=fff)
+![Supabase](https://img.shields.io/badge/Supabase-Auth_%2B_Data-3ecf8e?style=flat-square&logo=supabase&logoColor=fff)
+![Vercel](https://img.shields.io/badge/Vercel-Serverless-000?style=flat-square&logo=vercel&logoColor=fff)
 
-Uvero is a multi-service platform deployed on **Vercel**, combining Uvero Toolbox with cloud-powered collaboration tools.
+Uvero brings everyday digital utilities into one focused app: convert files, work with PDFs, run code, generate QR codes, share clipboard boards, and split expenses without jumping across a pile of separate sites.
 
-### 🧰 Uvero Toolbox — 63+ Tools
+## Highlights
 
-Most Toolbox workflows run client-side in the browser, while a few advanced conversions use clearly labeled server-backed runtimes when required.
+| Area | What is available now |
+|------|------------------------|
+| Toolbox | Unified image, document, audio, and video conversion plus dedicated PDF/security/unit tools |
+| PDF Tools | Merge, split, rotate, delete pages, reorder pages, extract pages, compress, unlock, and protect PDFs |
+| QR Tools | Generator, scanner, validator, bulk generator, dynamic QR manager, redirects, and analytics |
+| Clipboard | Quick text share, private boards, password locks, expiry, burn-after-read, QR sharing, and CLI routes |
+| PaySplit | Group expenses, invite codes, smart split modes, balances, settlements, reminders, proofs, receipts, and CSV export |
+| Compiler | Monaco-powered online editor for 19 languages with templates, stdin, output panels, and execution history |
 
-| Category | Tools |
-|----------|-------|
-| **PDF** (27) | Compress, Merge, Split, Convert (to/from Word, PowerPoint, Excel, Image, HTML, PDF/A), Edit, Sign, Rotate, Watermark, Protect, Unlock, Organize, Page Numbers, Repair, Crop, Redact, OCR, Compare, Scan to PDF, Translate |
-| **Image** (11) | Compress, Convert, Resize, Crop, Image to PDF, JPG to PDF, PDF to JPG, HEIC to JPG, GIF Maker, Add Watermark, Background Remover |
-| **Video** (5) | Compress, Convert, MP4 Converter, Video to GIF, MOV to MP4 |
-| **Audio** (5) | Compress, Convert, Video to MP3, MP3 Converter, MP4 to MP3 |
-| **Document** (3) | Document Converter, EPUB to PDF, EPUB to MOBI |
-| **Utility** (10) | QR Generator, Password Generator, Hash Generator, Unit Converter, Timezone Converter, Lbs↔Kg, Feet↔Meters, PST/CST→EST |
-| **Archive** (2) | RAR to ZIP, Archive Converter |
+## Product Surface
 
----
+### Toolbox
 
-### 📋 Online Clipboard
+The Toolbox combines a broad drag-and-drop converter with dedicated task pages.
 
-Instant text sharing — no login required.
+- **Unified converter** for image, document, audio, and video formats.
+- **Image operations** include format conversion, crop, resize, watermark, and AI background removal.
+- **Document conversion** supports formats such as DOCX, DOC, Markdown, HTML, RTF, CSV, TSV, JSON, EPUB, ODT, and DocBook.
+- **Audio/video conversion** runs through browser-first FFmpeg workflows where supported.
+- **Dedicated PDF tools** include merge, split, rotate, delete, reorder, extract, compress, unlock, and protect.
+- **Utility tools** include password generation, hash generation, and unit conversion.
 
-- **Quick Share** — Paste text, get a 4-digit code. Share the code for instant retrieval.
-- **Private Boards** — Named boards (`/clipboard/my-notes`) with rich features:
-  - Syntax highlighting (25+ languages)
-  - Markdown preview (edit / preview / split view)
-  - Password protection
-  - Burn after read & auto-expiry (1h to 30d)
-  - QR code sharing
-  - Auto-save & download (.txt, .md, .py, .js, etc.)
-- **Separated storage** — Public and private board data stored in separate GitHub repositories
-- Metadata tracked in Supabase, content stored in GitHub
+### QR Tools
 
----
+Uvero includes a complete QR workflow rather than a single generator page.
 
-### 💸 PaySplit – Split Expenses
+- Generate QR codes for URLs, text, email, phone, SMS, WiFi, WhatsApp, UPI, vCard contacts, maps, app links, menus, and calendar/event data.
+- Customize colors, logos, frames, and export PNG or SVG.
+- Scan codes from the camera or uploaded images.
+- Validate contrast, quiet zone, print size, and logo safety.
+- Create QR codes in bulk from pasted lists or CSV input, with ZIP and printable PDF export.
+- Manage dynamic QR codes whose destinations can be edited after printing.
+- Track scans, trends, countries, top codes, and export analytics.
 
-Splitwise-style expense management for trips and shared plans.
+### Online Clipboard
 
-- Create groups and invite friends with shareable invite codes
-- Add expenses with smart split modes: equal, exact, percentage, shares
-- Auto-calculate balances and suggest minimal settlement transfers
-- Save payment details per member: UPI ID, mobile, QR URL, payment note
-- 1-tap UPI payment deep links with app references (GPay, PhonePe, Paytm, BHIM)
-- Receipts support both privacy-first external links and direct file upload to Uvero-managed GitHub storage
-- Supports both signed-in users and guest sessions (guest mode has limits)
-- Phase 3: Export complete group records as CSV (expenses, settlements, payment proofs, reminders)
-- Phase 4: Claim guest data after sign-in, or recover as guest using invite + one-time recovery code
+Clipboard is built for quick sharing and richer private boards.
 
----
+- Quick Share creates short retrieval codes for text snippets.
+- Private boards support syntax highlighting, Markdown preview, split view, autosave, and file download.
+- Security controls include password protection, expiry windows, and burn-after-read.
+- Boards can be shared with QR codes.
+- CLI-friendly endpoints support quick send/get and board send/get workflows.
+- Metadata lives in Supabase; board content can be stored in GitHub-backed storage.
+
+### PaySplit
+
+PaySplit handles shared trips, dinners, roommates, and small-group expense flows.
+
+- Create groups and invite members with shareable codes.
+- Add expenses with equal, exact, percentage, and share-based split modes.
+- Calculate balances and minimal settlements automatically.
+- Save payment details such as UPI ID, phone, QR URL, and notes.
+- Generate UPI payment links for common apps.
+- Attach receipts as external links or GitHub-backed uploads.
+- Record settlements, payment proofs, reminders, and export group records as CSV.
+- Supports signed-in users and guest sessions, including recovery and account-claim flows.
+
+### Online Compiler
+
+The compiler uses Monaco for editing and a server-side execution proxy.
+
+- Supports **19 languages**: Python 3, Node.js, TypeScript, C, C++, Java, Go, Rust, Ruby, PHP, Perl, R, Bash, Lua, Swift, Kotlin, C#, Scala, and Haskell.
+- Includes starter templates for common language patterns.
+- Provides stdin, stdout, stderr, compile output, and execution history.
+- Shareable snippets are supported from the compiler UI.
 
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
+|-------|------------|
 | Frontend | React 19, Vite 7, Tailwind CSS 3 |
 | Routing | React Router 7 |
-| Auth | Supabase (email/password) |
-| Backend API | Vercel Serverless Functions |
-| Uvero Toolbox | Web Workers, Canvas API, FFmpeg WASM, pdf-lib, pdfjs, jsPDF, SheetJS, Mammoth, Sharp |
-| File Storage | GitHub Contents API (Clipboard + PaySplit receipts) |
-| AI / ML | @imgly/background-removal |
-| QR | qrcode library |
+| Motion/UI | Framer Motion, custom glass UI system |
+| Editor | Monaco Editor |
+| Auth/Data | Supabase Auth, Postgres, RLS |
+| Backend | Vercel Serverless Functions with a shared API router |
+| File Engines | Web Workers, FFmpeg WASM, ImageMagick WASM, Pandoc WASM, qpdf-wasm, pdf-lib, pdfjs |
+| QR | qrcode, jsQR, html2canvas, jsPDF |
+| Storage | GitHub Contents API for clipboard boards and PaySplit receipt uploads |
 | Deployment | Vercel |
-
----
 
 ## Project Structure
 
-```
+```text
 uvero/
 ├── api/
-│   └── index.js                          # Vercel serverless router → dispatches to feature APIs
+│   ├── index.js                         # Vercel API dispatcher
+│   └── maintenance.js                   # Shared maintenance response helpers
+├── public/
+│   ├── workers/                         # Heavy browser workers and WASM helpers
+│   └── sitemap.xml
+├── scripts/
+│   ├── generate-sitemap.mjs
+│   ├── check-toolbox-consistency.mjs
+│   └── test-*.mjs
 ├── src/
-│   ├── auth/                             # Supabase auth (AuthProvider, RequireAuth, authService)
-│   ├── components/                       # Global UI (ThemeToggle)
-│   ├── pages/                            # Login, Signup, ResetPassword, Profile, Privacy
-│   ├── services/
-│   │   ├── toolbox/
-│   │   │   ├── tools/                    # 63+ tools organized by category
-│   │   │   │   ├── image/               # 11 image tools
-│   │   │   │   ├── pdf/                 # 27 PDF tools
-│   │   │   │   ├── audio/               # 5 audio tools
-│   │   │   │   ├── video/               # 5 video tools
-│   │   │   │   ├── document/            # 3 document/ebook tools
-│   │   │   │   ├── utility/             # 10 utility tools
-│   │   │   │   ├── archive/             # 2 archive tools
-│   │   │   │   └── index.js             # Tool registry
-│   │   │   ├── pages/                   # Home, ServicesHome, ToolPage
-│   │   │   ├── components/              # ModeToggle, Dropzone, etc.
-│   │   │   ├── shared/                  # Reusable UI (Button, ProgressBar, FileInfo)
-│   │   │   ├── services/                # Processing services
-│   │   │   ├── context/                 # ModeContext
-│   │   │   └── api/                     # compress, convert-video-to-mp3
-│   │   ├── clipboard/
-│   │       ├── pages/                   # Clipboard (public), ClipboardBoard (private)
-│   │       ├── api/                     # Clipboard API (CRUD + code assignment)
-│   │       └── services/               # GitHub storage (repo-separated)
-│   │   ├── split-expense/              # PaySplit pages and APIs
-│   │   ├── qr-tools/                   # QR generator, scanner, dynamic codes
-│   │   └── compiler/                   # Online compiler UI and API proxy
-│   ├── App.jsx                          # Root layout, routing, navigation
-│   ├── main.jsx                         # Entry point
-│   └── index.css                        # Global styles
-├── supabase/                            # Database schema (clipboard_tables.sql)
-├── vercel.json                          # Rewrite rules
+│   ├── auth/                            # Supabase auth provider and profile helpers
+│   ├── components/                      # Global UI, command bar, search, sheets, panels
+│   ├── config/                          # Runtime-style frontend config
+│   ├── hooks/                           # Shared React hooks
+│   ├── lib/                             # Intent engine, sessions, suggestions, Supabase client
+│   ├── pages/                           # App-level pages: auth, profile, contact, privacy
+│   └── services/
+│       ├── clipboard/                   # Clipboard pages, APIs, CLI commands, GitHub storage
+│       ├── compiler/                    # Online compiler UI, language data, execution API
+│       ├── qr-tools/                    # QR generator, scanner, dynamic codes, analytics
+│       ├── split-expense/               # PaySplit pages, APIs, shared split logic
+│       └── toolbox/                     # Unified converter, PDF tools, utilities, processors
+├── supabase/                            # SQL schemas for profiles, clipboard, PaySplit, QR tools
+├── vercel.json                          # API rewrites and SPA fallback
+├── vite.config.js
 └── package.json
 ```
 
----
+## Routes
+
+| Route | Purpose |
+|-------|---------|
+| `/` | Command-first services home |
+| `/toolbox` | Unified file converter and utility hub |
+| `/:toolId` | Dedicated toolbox tools, such as `/merge-pdf` or `/protect-pdf` |
+| `/compiler` | Online compiler |
+| `/clipboard` | Quick Share and private board entry |
+| `/clipboard/:boardId` | Private clipboard board |
+| `/c/:code` | Public clipboard retrieval link |
+| `/cli` | Clipboard CLI docs |
+| `/split-expense` | PaySplit groups home |
+| `/split-expense/:groupId` | PaySplit group workspace |
+| `/qr-tools` | QR tools hub |
+| `/qr-tools/generator` | QR code generator |
+| `/qr-tools/scanner` | QR scanner |
+| `/qr-tools/validator` | QR validator |
+| `/qr-tools/bulk` | Bulk QR generator |
+| `/qr-tools/dynamic` | Dynamic QR manager |
+| `/qr-tools/analytics` | QR analytics dashboard |
+| `/qr/r/:code` | Dynamic QR redirect endpoint |
+| `/login`, `/signup`, `/reset-password`, `/profile` | Account flows |
+| `/privacy`, `/contact` | Static support pages |
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 18+
+- npm
+- Supabase project for auth and persisted metadata
+- Optional GitHub repositories for clipboard board storage and PaySplit receipt uploads
 
-### Installation
+### Install
 
 ```bash
-# Clone the repo
 git clone https://github.com/sakethdevx/uvero.git
 cd uvero
-
-# Install dependencies
 npm install
-
-# Set up environment variables
 cp .env.example .env
-# Fill in your Supabase, GitHub, and Hugging Face credentials
-
-# Start development server
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`
+The development server runs at `http://localhost:5173`.
 
-### Environment Variables
-
-Copy `.env.example` to `.env` and fill in the required credentials. See the example file for all available variables.
-
-For clipboard storage, the recommended setup is:
-
-```bash
-CLIPBOARD_PUBLIC_STORAGE_GITHUB_TOKEN=...
-CLIPBOARD_PUBLIC_STORAGE_GITHUB_OWNER=...
-CLIPBOARD_PUBLIC_STORAGE_GITHUB_REPO=clipboard-public-storage
-
-CLIPBOARD_PRIVATE_STORAGE_GITHUB_TOKEN=...
-CLIPBOARD_PRIVATE_STORAGE_GITHUB_OWNER=...
-CLIPBOARD_PRIVATE_STORAGE_GITHUB_REPO=clipboard-private-storage
-```
-
-For PaySplit receipt uploads, configure a dedicated repository:
-
-```bash
-PAYSPLIT_RECEIPTS_GITHUB_TOKEN=...
-PAYSPLIT_RECEIPTS_GITHUB_OWNER=...
-PAYSPLIT_RECEIPTS_GITHUB_REPO=uvero-paysplit-receipts-storage
-PAYSPLIT_RECEIPTS_GITHUB_BRANCH=main
-
-# Optional (default is 5MB)
-PAYSPLIT_RECEIPT_MAX_UPLOAD_BYTES=5242880
-```
-
-Legacy `TRIPSPLIT_RECEIPTS_*` and `GITHUB_RECEIPTS_*` variables are still supported for backward compatibility.
-
-If these variables are not set, users can still attach external receipt URLs (link mode).
-
-### Maintenance Mode
-
-If you need to pause the product during database or storage work, enable maintenance mode before deploying:
-
-```bash
-VITE_MAINTENANCE_MODE=true
-VITE_MAINTENANCE_TITLE="Uvero is getting a careful tune-up"
-VITE_MAINTENANCE_MESSAGE="We are updating core systems right now so your next session feels stable and smooth."
-VITE_MAINTENANCE_ETA="Back in about 15 minutes"
-VITE_MAINTENANCE_DETAILS="New sessions, uploads, clipboard updates, and data changes are temporarily paused during maintenance."
-MAINTENANCE_RETRY_AFTER=300
-```
-
-This shows a dedicated maintenance page in the web app and makes the shared API router return `503 Service Unavailable` with a `Retry-After` header.
-
-Operational note:
-`VITE_*` values are baked into the frontend build, so the simplest env-var approach works best when you redeploy with the flag enabled or disabled. If you later want instant toggles without a rebuild, move the maintenance flag to a runtime config source.
-
-### Build for Production
+### Build
 
 ```bash
 npm run build
 npm run preview
 ```
 
----
+The production build runs the toolbox consistency checks, route smoke test, and sitemap generation before Vite builds the app.
 
-## Routes
+## Environment Variables
 
-| Path | Page |
-|------|------|
-| `/` | Services home (landing page) |
-| `/toolbox` | Uvero Toolbox hub |
-| `/:toolId` | Individual tool (e.g. `/compress-image`, `/merge-pdf`) |
-| `/clipboard` | Online Clipboard (quick share + board entry) |
-| `/clipboard/:boardId` | Private clipboard board |
-| `/split-expense` | PaySplit groups home |
-| `/split-expense/:groupId` | PaySplit group details |
-| `/login` | Sign in |
-| `/signup` | Sign up |
-| `/reset-password` | Password reset |
-| `/profile` | User profile |
-| `/privacy` | Privacy policy |
+Start with `.env.example`, then fill only the services you need.
 
----
+### Supabase
 
-## Architecture
+```env
+VITE_SUPABASE_URL=your_project_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_URL=your_project_url
+SUPABASE_SERVICE_KEY=your_service_role_key
+```
 
-- **Feature-based structure** — Each service is self-contained under `src/services/`
-- **Client-side Toolbox flows** — Web Workers, Canvas API, and WASM keep the main thread free
-- **Serverless API** — Vercel functions with a single router dispatching to feature-specific handlers
-- **GitHub as storage** — Clipboard boards and PaySplit receipts can be stored via the GitHub Contents API
-- **Supabase for metadata & auth** — Board metadata, PaySplit data, QR analytics, and user auth managed through Supabase
-- **Dark mode** — Full dark/light theme support with ThemeToggle
-- **Responsive** — Mobile-first design with mega-menu navigation on desktop
+### Clipboard Storage
 
----
+```env
+CLIPBOARD_PUBLIC_STORAGE_GITHUB_TOKEN=
+CLIPBOARD_PUBLIC_STORAGE_GITHUB_OWNER=
+CLIPBOARD_PUBLIC_STORAGE_GITHUB_REPO=clipboard-public-storage
+
+CLIPBOARD_PRIVATE_STORAGE_GITHUB_TOKEN=
+CLIPBOARD_PRIVATE_STORAGE_GITHUB_OWNER=
+CLIPBOARD_PRIVATE_STORAGE_GITHUB_REPO=clipboard-private-storage
+```
+
+### PaySplit Receipt Storage
+
+```env
+PAYSPLIT_RECEIPTS_GITHUB_TOKEN=
+PAYSPLIT_RECEIPTS_GITHUB_OWNER=
+PAYSPLIT_RECEIPTS_GITHUB_REPO=uvero-paysplit-receipts-storage
+PAYSPLIT_RECEIPTS_GITHUB_BRANCH=main
+PAYSPLIT_RECEIPT_MAX_UPLOAD_BYTES=5242880
+```
+
+Users can still attach external receipt URLs when upload storage is not configured.
+
+### Compiler And Toolbox APIs
+
+```env
+HF_COMPILER_TOKEN=
+HF_COMPILER_URL=
+RAR_TO_ZIP_MAX_UPLOAD_BYTES=52428800
+EPUB_TO_MOBI_MAX_UPLOAD_BYTES=52428800
+EPUB_TO_MOBI_BINARY_PATH=
+```
+
+### Maintenance Mode
+
+```env
+VITE_MAINTENANCE_MODE=false
+VITE_MAINTENANCE_TITLE=Uvero is getting a careful tune-up
+VITE_MAINTENANCE_MESSAGE=We are updating core systems right now so your next session feels stable and smooth.
+VITE_MAINTENANCE_ETA=We will be back soon
+VITE_MAINTENANCE_DETAILS=New sessions, uploads, clipboard updates, and data changes are temporarily paused during maintenance.
+MAINTENANCE_RETRY_AFTER=300
+```
+
+### Contact Form
+
+```env
+VITE_FORMSUBMIT_EMAIL=
+```
+
+## Supabase Setup
+
+Run the SQL files in `supabase/` in this order:
+
+1. `profiles_table.sql`
+2. `clipboard_tables.sql`
+3. `split_expense_tables.sql`
+4. `qr_tools_tables.sql`
+
+Row Level Security is enabled in the schemas. Keep `SUPABASE_SERVICE_KEY` server-only.
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start Vite in development mode |
+| `npm run build` | Run prebuild checks and build production assets |
+| `npm run preview` | Preview the production build |
+| `npm run lint` | Run ESLint |
+| `npm run generate:sitemap` | Rebuild `public/sitemap.xml` and `public/robots.txt` |
+| `npm run check:toolbox` | Validate toolbox registry consistency |
+| `npm run test:toolbox-routes` | Smoke test representative toolbox routes |
+| `npm run test:toolbox-runtime-status` | Check toolbox runtime status handling |
+| `npm run test:toolbox-api` | Exercise toolbox API behavior |
+| `npm run test:rar-to-zip` | Exercise RAR-to-ZIP API behavior |
+
+## Architecture Notes
+
+- **Command-first UX**: homepage suggestions, command bar, universal search, history, and favorites are designed around quickly launching tasks.
+- **Client-heavy processing**: many conversions run in the browser with workers and WASM to reduce server dependency.
+- **Serverless where needed**: Vercel functions handle auth-backed APIs, storage integration, compiler proxying, and heavyweight server tasks.
+- **Feature isolation**: each product area lives under `src/services/` with its own pages, APIs, and supporting logic.
+- **Storage separation**: clipboard public and private boards can use separate GitHub repositories.
+- **Safety controls**: Supabase RLS, password-protected boards, expiring clipboard content, maintenance mode, and server-only secrets are part of the default shape.
 
 ## License
 
@@ -237,4 +287,4 @@ MIT License
 
 ---
 
-**Made with ❤️ for privacy-conscious users**
+Built for fast, focused, privacy-conscious work.
