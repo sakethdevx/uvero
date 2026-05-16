@@ -23,6 +23,7 @@ import DeletePdfTool, { metadata as deletePdfMetadata } from './document/delete-
 import ReorderPdfTool, { metadata as reorderPdfMetadata } from './document/reorder-pdf/index.jsx';
 import ExtractPdfTool, { metadata as extractPdfMetadata } from './document/extract-pdf/index.jsx';
 import CompressPdfTool, { metadata as compressPdfMetadata } from './document/compress-pdf/index.jsx';
+import DecryptPdfTool, { metadata as decryptPdfMetadata } from './document/decrypt-pdf/index.jsx';
 
 export const tools = {
     // Document Tools
@@ -94,6 +95,16 @@ export const tools = {
         seo: {
             title: "Compress PDF | Uvero",
             description: "Compress PDF files to reduce size while maintaining readability, all locally in your browser."
+        }
+    },
+    'decrypt-pdf': {
+        ...decryptPdfMetadata,
+        description: 'Unlock a password-protected PDF file.',
+        component: DecryptPdfTool,
+        popular: true,
+        seo: {
+            title: "Unlock PDF | Uvero",
+            description: "Remove password protection from PDF files securely in your browser."
         }
     },
 
