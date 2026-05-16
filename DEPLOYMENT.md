@@ -1,523 +1,188 @@
-# 🚀 Deployment Guide - Uvero
+# Uvero Deployment Guide
 
-## Quick Deploy Options
+Uvero is designed for Vercel. The app is a Vite SPA with serverless API routes behind a shared dispatcher at `api/index.js`.
 
-### Option 1: Vercel (Recommended - Easiest)
+## Recommended Host
 
-1. Install Vercel CLI:
+Use Vercel unless you are intentionally separating the frontend and API.
 
-```bash
-npm install -g vercel
-```
+Why Vercel fits this repo:
 
-1. Deploy:
-
-```bash
-cd uvero
-vercel
-```
-
-1. Follow the prompts:
-   - Link to Vercel account
-   - Set project name
-   - Use default settings
-   - Deploy!
-
-**Result**: Your app will be live at `https://your-project.vercel.app`
-
-### Option 2: Netlify
-
-1. Build the project:
-
-```bash
-npm run build
-```
-
-1. Install Netlify CLI:
-
-```bash
-npm install -g netlify-cli
-```
-
-1. Deploy:
-
-```bash
-netlify deploy --prod --dir=dist
-```
-
-**Or use Netlify Drop**:
-
-- Go to <https://app.netlify.com/drop>
-- Drag your `dist` folder
-- Done!
-
-### Option 3: GitHub Pages
-
-1. Install gh-pages:
-
-```bash
-npm install -D gh-pages
-```
-
-1. Add to `package.json`:
-
-```json
-{
-  "scripts": {
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
-  },
-  "homepage": "https://yourusername.github.io/uvero"
-}
-```
-
-1. Update `vite.config.js`:
-
-```javascript
-export default defineConfig({
-  base: '/uvero/', // Your repo name
-  plugins: [react()],
-})
-```
-
-1. Deploy:
-
-```bash
-npm run deploy
-```
-
-### Option 4: Cloudflare Pages
-
-1. Build the project:
-
-```bash
-npm run build
-```
-
-1. Go to Cloudflare Pages dashboard
-2. Create new project
-3. Connect to Git or upload `dist` folder
-4. Set build command: `npm run build`
-5. Set output directory: `dist`
-6. Deploy!
-
----
+- `vercel.json` already rewrites `/api/:path*` to the serverless router.
+- SPA fallback is already configured.
+- Preview deployments work naturally for feature branches.
+- Environment variables can be scoped per environment.
 
 ## Pre-Deployment Checklist
 
-### ✅ Must Do Before Deploying
+1. Install dependencies:
 
-1. **Update URLs in index.html**:
-   - Change `https://uvero.app/` to your actual domain
-   - Update Open Graph URLs
-   - Update Twitter card URLs
+```bash
+npm install
+```
 
-2. **Add Favicon**:
-   - Replace `/vite.svg` with your own favicon
-   - Add multiple sizes (16x16, 32x32, etc.)
-   - Add Apple touch icon
-
-3. **Add Social Media Images**:
-   - Create `/public/og-image.jpg` (1200x630px)
-   - Update reference in index.html
-
-4. **Environment Variables** (if needed):
-   - Create `.env.production`
-   - Add any API keys for analytics
-
-5. **Test Production Build Locally**:
+2. Run the production build:
 
 ```bash
 npm run build
-npm run preview
 ```
 
-- Visit <http://localhost:4173>
-- Test all routes
-- Test image compressor
-- Check console for errors
-
-1. **Optimize Images**:
-   - Compress any images in `/public`
-   - Use WebP format where possible
-
-2. **Security Headers** (add to hosting config):
-
-```
-X-Frame-Options: SAMEORIGIN
-X-Content-Type-Options: nosniff
-Referrer-Policy: strict-origin-when-cross-origin
-```
-
----
-
-## Post-Deployment Setup
-
-### 1. Custom Domain (Optional)
-
-**Vercel**:
+3. Confirm the generated sitemap:
 
 ```bash
-vercel domains add yourdomain.com
+npm run generate:sitemap
 ```
 
-**Netlify**:
+4. Review required environment variables.
 
-- Go to Domain settings
-- Add custom domain
-- Follow DNS instructions
+## Required Environment Variables
 
-### 2. Analytics (Optional)
+### Supabase
 
-Add Google Analytics to `index.html` before `</head>`:
-
-```html
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'GA_MEASUREMENT_ID');
-</script>
+```env
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+SUPABASE_URL=
+SUPABASE_SERVICE_KEY=
 ```
 
-### 3. Search Console
+`VITE_*` values are baked into frontend builds. Backend-only secrets such as `SUPABASE_SERVICE_KEY` must stay server-side.
 
-1. Go to <https://search.google.com/search-console>
-2. Add your property
-3. Verify ownership
-4. Submit sitemap (create one first)
+### Clipboard Storage
 
-### 4. Create Sitemap
+Optional, but recommended for persistent clipboard boards:
 
-Create `public/sitemap.xml`:
+```env
+CLIPBOARD_PUBLIC_STORAGE_GITHUB_TOKEN=
+CLIPBOARD_PUBLIC_STORAGE_GITHUB_OWNER=
+CLIPBOARD_PUBLIC_STORAGE_GITHUB_REPO=clipboard-public-storage
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://yourdomain.com/</loc>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://yourdomain.com/compress-image</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://yourdomain.com/privacy</loc>
-    <priority>0.5</priority>
-  </url>
-</urlset>
+CLIPBOARD_PRIVATE_STORAGE_GITHUB_TOKEN=
+CLIPBOARD_PRIVATE_STORAGE_GITHUB_OWNER=
+CLIPBOARD_PRIVATE_STORAGE_GITHUB_REPO=clipboard-private-storage
 ```
 
-### 5. robots.txt
+### Compiler API
 
-Create `public/robots.txt`:
-
-```
-User-agent: *
-Allow: /
-Sitemap: https://yourdomain.com/sitemap.xml
+```env
+HF_COMPILER_TOKEN=
+HF_COMPILER_URL=
 ```
 
----
+### Toolbox API Limits
 
-## Performance Optimization
+```env
+RAR_TO_ZIP_MAX_UPLOAD_BYTES=52428800
+EPUB_TO_MOBI_MAX_UPLOAD_BYTES=52428800
+EPUB_TO_MOBI_BINARY_PATH=
+```
 
-### Already Implemented ✅
+### Maintenance Mode
 
-- Vite optimized build
-- Tailwind CSS purging
-- Code splitting via React Router
-- Web Worker for heavy processing
+```env
+VITE_MAINTENANCE_MODE=false
+VITE_MAINTENANCE_TITLE=Uvero is getting a careful tune-up
+VITE_MAINTENANCE_MESSAGE=We are updating core systems right now so your next session feels stable and smooth.
+VITE_MAINTENANCE_ETA=We will be back soon
+VITE_MAINTENANCE_DETAILS=New sessions, uploads, clipboard updates, and data changes are temporarily paused during maintenance.
+MAINTENANCE_RETRY_AFTER=300
+```
 
-### Additional Optimizations
+### Contact Form
 
-1. **Enable Compression** (on hosting):
-   - Gzip/Brotli compression
-   - Most hosts enable this by default
+```env
+VITE_FORMSUBMIT_EMAIL=
+```
 
-2. **CDN** (automatically with Vercel/Netlify):
-   - Global edge network
-   - Automatic SSL
-   - DDoS protection
+## Supabase Setup
 
-3. **Caching Headers**:
-   Add to hosting config:
+Run these files in Supabase SQL Editor:
 
-   ```
-   /assets/*
-     Cache-Control: public, max-age=31536000, immutable
-   
-   /*.js
-     Cache-Control: public, max-age=31536000, immutable
-   
-   /*.css
-     Cache-Control: public, max-age=31536000, immutable
-   ```
+1. `supabase/profiles_table.sql`
+2. `supabase/clipboard_tables.sql`
+3. `supabase/qr_tools_tables.sql`
 
----
+Do not expose service-role keys in frontend code.
 
-## Monitoring
+## Deploy To Vercel
 
-### 1. Uptime Monitoring
+Using the Vercel dashboard:
 
-- UptimeRobot (free)
-- Pingdom
-- StatusCake
+1. Import the GitHub repository.
+2. Set framework preset to Vite if it is not detected.
+3. Add environment variables.
+4. Deploy.
 
-### 2. Error Tracking
-
-Add Sentry (optional):
+Using the Vercel CLI:
 
 ```bash
-npm install @sentry/react
+npm install -g vercel
+vercel
 ```
 
-### 3. Analytics Dashboard
-
-- Google Analytics
-- Plausible (privacy-friendly)
-- Fathom Analytics
-
----
-
-## Cost Breakdown
-
-### Free Tier Limits (More than enough for starting)
-
-**Vercel Free**:
-
-- 100 GB bandwidth/month
-- Unlimited websites
-- Automatic SSL
-- Global CDN
-
-**Netlify Free**:
-
-- 100 GB bandwidth/month
-- 300 build minutes/month
-- Automatic SSL
-- Global CDN
-
-**Cloudflare Pages**:
-
-- Unlimited bandwidth
-- 500 builds/month
-- Automatic SSL
-- Global CDN
-
-**GitHub Pages**:
-
-- 100 GB bandwidth/month
-- 100 GB storage
-- Free SSL
-- No custom build process
-
----
-
-## Recommended: Vercel Deployment
-
-**Why Vercel?**
-
-- Instant deployments
-- Automatic SSL
-- Global CDN
-- Zero configuration
-- Preview deployments for Git branches
-- Great DX
-
-**Steps**:
-
-1. Push code to GitHub
-2. Go to vercel.com
-3. Import repository
-4. Click Deploy
-5. Done! ✅
-
----
-
-## Testing Production Deployment
-
-After deploying, test:
-
-1. **All Routes Work**:
-   - Home page
-   - /compress-image
-   - /privacy
-   - Invalid routes (should redirect)
-
-2. **Image Compressor Works**:
-   - Upload image
-   - Compress
-   - Download
-   - Check different formats
-
-3. **Performance**:
-   - Check load time (should be < 3s)
-   - Test on mobile
-   - Test on slow connection
-
-4. **SEO**:
-   - Check meta tags with view-source
-   - Test with <https://cards-dev.twitter.com/validator>
-   - Test with Facebook Debugger
-
-5. **Console**:
-   - No errors in browser console
-   - No 404s in Network tab
-
----
-
-## Continuous Deployment
-
-### Git-based Deployment (Recommended)
-
-1. Push to GitHub:
+For production:
 
 ```bash
-git add .
-git commit -m "Initial deployment"
-git push origin main
+vercel --prod
 ```
 
-1. Connect to Vercel/Netlify:
-   - Auto-deploys on every push
-   - Preview deployments for PRs
-   - Rollback capability
+## Post-Deployment Smoke Test
 
-### Manual Deployment
+After deployment, test:
 
-If you prefer manual control:
+- `/`
+- `/toolbox`
+- `/merge-pdf`
+- `/protect-pdf`
+- `/clipboard`
+- `/cli`
+- `/qr-tools`
+- `/compiler`
+- `/privacy`
+- `/contact`
+- `/api/toolbox/runtime-status`
 
-```bash
-# Build
-npm run build
+Also check:
 
-# Deploy dist folder to your hosting
-```
+- Browser console for route or asset errors
+- Network tab for missing workers or WASM files
+- Supabase auth flows
+- Clipboard API behavior if storage env vars are configured
+- QR dynamic redirect routes if QR tables are installed
 
----
+## Notes For Other Hosts
 
-## Domain Setup
+Static-only hosts are not enough for the full product because clipboard, compiler, QR analytics/dynamic codes, auth helpers, and toolbox server transforms use API routes.
 
-### 1. Buy Domain
+If deploying elsewhere, configure equivalents for:
 
-- Namecheap
-- Google Domains
-- Cloudflare Registrar
-
-### 2. Configure DNS
-
-Point to your hosting:
-
-**Vercel**:
-
-```
-A record: 76.76.21.21
-CNAME: cname.vercel-dns.com
-```
-
-**Netlify**:
-
-```
-Follow instructions in Netlify dashboard
-```
-
-### 3. Enable HTTPS
-
-- Automatic with all modern hosts
-- Free Let's Encrypt SSL
-
----
+- `/api/:path*` serverless routing
+- SPA fallback to `/index.html`
+- WASM content type: `application/wasm`
+- Environment variables for server routes
 
 ## Troubleshooting
 
 ### Build Fails
 
 ```bash
-# Clear cache
-rm -rf node_modules package-lock.json
+rm -rf node_modules
 npm install
-
-# Try build
 npm run build
 ```
 
-### Routes Don't Work After Deploy
+### API Routes Return 404
 
-Add `_redirects` file to `public/`:
+Check that `/api/:path*` rewrites to `/api?path=:path*`, matching `vercel.json`.
 
-```
-/*    /index.html   200
-```
+### Browser Cannot Load WASM
 
-### 404 on Refresh
+Confirm the host serves `.wasm` files with:
 
-Configure hosting for SPA routing:
-
-**Vercel** - Add `vercel.json`:
-
-```json
-{
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
-  ]
-}
+```text
+Content-Type: application/wasm
 ```
 
-**Netlify** - Already handled by `_redirects`
+### Frontend Env Changes Do Not Apply
 
----
-
-## Security Checklist
-
-✅ HTTPS enabled (auto with hosting)  
-✅ No API keys in frontend code  
-✅ Content Security Policy (optional)  
-✅ Security headers configured  
-✅ Dependencies up to date  
-✅ No console.logs in production  
-
----
-
-## Launch Checklist
-
-Before announcing your site:
-
-- [ ] All features tested
-- [ ] Mobile responsive verified
-- [ ] Fast load time confirmed
-- [ ] SEO meta tags complete
-- [ ] Privacy policy reviewed
-- [ ] Analytics installed (optional)
-- [ ] Custom domain configured (optional)
-- [ ] SSL certificate active
-- [ ] Social media cards tested
-- [ ] Console errors cleared
-- [ ] 404 page works
-- [ ] All links functional
-
----
-
-## 🎉 You're Ready to Deploy
-
-**Recommended Quick Start**:
-
-```bash
-# 1. Build
-npm run build
-
-# 2. Test locally
-npm run preview
-
-# 3. Deploy to Vercel
-vercel
-```
-
-**That's it! Your app is live!** 🚀
-
----
-
-**Need help?** Check the main README.md or hosting provider docs.
+Redeploy after changing `VITE_*` values. They are embedded at build time.
