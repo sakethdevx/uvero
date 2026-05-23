@@ -15,7 +15,7 @@ Uvero brings everyday digital utilities into one focused app: convert files, wor
 | Area | What is available now |
 |------|------------------------|
 | Toolbox | Unified image, document, audio, and video conversion plus dedicated PDF/security/unit tools |
-| PDF Tools | Merge, split, rotate, delete pages, reorder pages, extract pages, compress, unlock, protect, watermark, clean metadata, and convert images to PDF |
+| PDF Tools | Merge, split, rotate, delete pages, reorder pages, extract pages, compress, unlock, protect, watermark, clean metadata, convert images to PDF, and export PDF pages as images |
 | QR Tools | Generator, scanner, validator, bulk generator, dynamic QR manager, redirects, and analytics |
 | Clipboard | Quick text share, private boards, password locks, expiry, burn-after-read, QR sharing, and CLI routes |
 | Compiler | Monaco-powered online editor for 19 languages with templates, stdin, output panels, and execution history |
@@ -30,7 +30,8 @@ The Toolbox combines a broad drag-and-drop converter with dedicated task pages.
 - **Image operations** include format conversion, crop, resize, watermark, and AI background removal.
 - **Document conversion** supports formats such as DOCX, DOC, Markdown, HTML, RTF, CSV, TSV, JSON, EPUB, ODT, and DocBook.
 - **Audio/video conversion** runs through browser-first FFmpeg workflows where supported.
-- **Dedicated PDF tools** include merge, split, rotate, delete, reorder, extract, compress, unlock, protect, watermark, clean metadata, and image to PDF.
+- **Dedicated PDF tools** include merge, split, rotate, delete, reorder, extract, compress, unlock, protect, watermark, clean metadata, image to PDF, and PDF to image.
+- **PDF rasterization** exports selected pages or page ranges as PNG, JPG, or WEBP, using local PDF.js workers, standard fonts, and CMaps for offline rendering.
 - **Utility tools** include password generation, hash generation, and unit conversion.
 
 ### QR Tools
@@ -88,7 +89,7 @@ uvero/
 │   ├── index.js                         # Vercel API dispatcher
 │   └── maintenance.js                   # Shared maintenance response helpers
 ├── public/
-│   ├── workers/                         # Heavy browser workers and WASM helpers
+│   ├── workers/                         # Heavy browser workers, PDF.js assets, and WASM helpers
 │   └── sitemap.xml
 ├── scripts/
 │   ├── generate-sitemap.mjs
