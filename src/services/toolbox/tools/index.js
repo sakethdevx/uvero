@@ -28,6 +28,7 @@ import ProtectPdfTool, { metadata as protectPdfMetadata } from './document/prote
 import WatermarkPdfTool, { metadata as watermarkPdfMetadata } from './document/watermark-pdf/index.jsx';
 import CleanMetadataPdfTool, { metadata as cleanMetadataPdfMetadata } from './document/clean-metadata-pdf/index.jsx';
 import ImageToPdfTool, { metadata as imageToPdfMetadata } from './document/image-to-pdf/index.jsx';
+import PdfToImageTool, { metadata as pdfToImageMetadata } from './document/pdf-to-image/index.jsx';
 
 export const tools = {
     // Document Tools
@@ -149,6 +150,16 @@ export const tools = {
         seo: {
             title: "Image to PDF | Uvero",
             description: "Securely convert and combine JPG, PNG, and other images into PDF files offline in your browser."
+        }
+    },
+    'pdf-to-image': {
+        ...pdfToImageMetadata,
+        description: 'Export PDF pages as PNG, JPG, or WEBP images.',
+        component: PdfToImageTool,
+        popular: true,
+        seo: {
+            title: "PDF to Image | Uvero",
+            description: "Securely export PDF pages as PNG, JPG, or WEBP images offline in your browser."
         }
     },
 

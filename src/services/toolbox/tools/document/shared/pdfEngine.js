@@ -6,7 +6,7 @@ let workerConfigured = false;
 
 const configurePdfjsWorker = () => {
     if (workerConfigured) return;
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' || typeof self !== 'undefined') {
         pdfjsLib.GlobalWorkerOptions.workerSrc = '/workers/pdf.worker.min.mjs';
         workerConfigured = true;
     }
