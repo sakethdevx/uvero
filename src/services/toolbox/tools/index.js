@@ -26,6 +26,7 @@ import CompressPdfTool, { metadata as compressPdfMetadata } from './document/com
 import DecryptPdfTool, { metadata as decryptPdfMetadata } from './document/decrypt-pdf/index.jsx';
 import ProtectPdfTool, { metadata as protectPdfMetadata } from './document/protect-pdf/index.jsx';
 import WatermarkPdfTool, { metadata as watermarkPdfMetadata } from './document/watermark-pdf/index.jsx';
+import CleanMetadataPdfTool, { metadata as cleanMetadataPdfMetadata } from './document/clean-metadata-pdf/index.jsx';
 
 export const tools = {
     // Document Tools
@@ -127,6 +128,16 @@ export const tools = {
         seo: {
             title: "Watermark PDF | Uvero",
             description: "Add custom text watermarks to your PDF files securely in your browser."
+        }
+    },
+    'clean-metadata-pdf': {
+        ...cleanMetadataPdfMetadata,
+        description: 'Remove and sanitize metadata from a PDF file.',
+        component: CleanMetadataPdfTool,
+        popular: true,
+        seo: {
+            title: "Clean PDF Metadata | Uvero",
+            description: "Securely view and remove metadata, author info, and properties from PDF files in your browser."
         }
     },
 
