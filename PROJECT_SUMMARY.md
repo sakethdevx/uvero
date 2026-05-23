@@ -7,7 +7,7 @@ Uvero is a multi-service digital tools workspace focused on private file workflo
 | Service | Summary |
 |---------|---------|
 | Toolbox | Unified image, document, audio, and video conversion plus PDF and utility tools |
-| PDF Tools | Merge, split, rotate, delete, reorder, extract, compress, unlock, and protect PDFs |
+| PDF Tools | Merge, split, rotate, delete, reorder, extract, compress, unlock, protect, and watermark PDFs |
 | QR Tools | Generator, scanner, validator, bulk generator, dynamic QR manager, redirects, and analytics |
 | Clipboard | Quick text share, private boards, password locks, expiry, burn-after-read, QR sharing, and CLI routes |
 | Compiler | Monaco editor, templates, stdin/stdout panels, execution history, and server-backed code execution |

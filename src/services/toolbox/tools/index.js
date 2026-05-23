@@ -25,6 +25,7 @@ import ExtractPdfTool, { metadata as extractPdfMetadata } from './document/extra
 import CompressPdfTool, { metadata as compressPdfMetadata } from './document/compress-pdf/index.jsx';
 import DecryptPdfTool, { metadata as decryptPdfMetadata } from './document/decrypt-pdf/index.jsx';
 import ProtectPdfTool, { metadata as protectPdfMetadata } from './document/protect-pdf/index.jsx';
+import WatermarkPdfTool, { metadata as watermarkPdfMetadata } from './document/watermark-pdf/index.jsx';
 
 export const tools = {
     // Document Tools
@@ -116,6 +117,16 @@ export const tools = {
         seo: {
             title: "Protect PDF | Uvero",
             description: "Encrypt and password protect PDF files securely in your browser."
+        }
+    },
+    'watermark-pdf': {
+        ...watermarkPdfMetadata,
+        description: 'Add a text watermark to a PDF document.',
+        component: WatermarkPdfTool,
+        popular: true,
+        seo: {
+            title: "Watermark PDF | Uvero",
+            description: "Add custom text watermarks to your PDF files securely in your browser."
         }
     },
 
