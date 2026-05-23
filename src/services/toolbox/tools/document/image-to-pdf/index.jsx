@@ -29,8 +29,11 @@ export default function ImageToPdfTool() {
 
     const { isProcessing, progress, error, resultPdf, generatePdf, clearResult } = useImageToPdf();
 
-    const handleDrop = useCallback((acceptedFiles) => {
-        setFiles(prev => [...prev, ...acceptedFiles].slice(0, MAX_FILES));
+    const handleFileSelect = useCallback((file) => {
+        setFiles(prev => {
+            if (prev.length >= MAX_FILES) return prev;
+            return [...prev, file];
+        });
         clearResult();
     }, [clearResult]);
 
@@ -97,7 +100,7 @@ export default function ImageToPdfTool() {
         <div className="space-y-6">
             {!isProcessing && (
                 <Dropzone
-                    onDrop={handleDrop}
+                    onFileSelect={handleFileSelect}
                     accept={SUPPORTED_IMAGE_TYPES.join(',')}
                     multiple={true}
                     disabled={files.length >= MAX_FILES}
