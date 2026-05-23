@@ -27,6 +27,7 @@ import DecryptPdfTool, { metadata as decryptPdfMetadata } from './document/decry
 import ProtectPdfTool, { metadata as protectPdfMetadata } from './document/protect-pdf/index.jsx';
 import WatermarkPdfTool, { metadata as watermarkPdfMetadata } from './document/watermark-pdf/index.jsx';
 import CleanMetadataPdfTool, { metadata as cleanMetadataPdfMetadata } from './document/clean-metadata-pdf/index.jsx';
+import ImageToPdfTool, { metadata as imageToPdfMetadata } from './document/image-to-pdf/index.jsx';
 
 export const tools = {
     // Document Tools
@@ -138,6 +139,16 @@ export const tools = {
         seo: {
             title: "Clean PDF Metadata | Uvero",
             description: "Securely view and remove metadata, author info, and properties from PDF files in your browser."
+        }
+    },
+    'image-to-pdf': {
+        ...imageToPdfMetadata,
+        description: 'Convert and combine images into a PDF file.',
+        component: ImageToPdfTool,
+        popular: true,
+        seo: {
+            title: "Image to PDF | Uvero",
+            description: "Securely convert and combine JPG, PNG, and other images into PDF files offline in your browser."
         }
     },
 
