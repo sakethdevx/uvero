@@ -25,6 +25,9 @@ import ExtractPdfTool, { metadata as extractPdfMetadata } from './document/extra
 import CompressPdfTool, { metadata as compressPdfMetadata } from './document/compress-pdf/index.jsx';
 import DecryptPdfTool, { metadata as decryptPdfMetadata } from './document/decrypt-pdf/index.jsx';
 import ProtectPdfTool, { metadata as protectPdfMetadata } from './document/protect-pdf/index.jsx';
+import WatermarkPdfTool, { metadata as watermarkPdfMetadata } from './document/watermark-pdf/index.jsx';
+import CleanMetadataPdfTool, { metadata as cleanMetadataPdfMetadata } from './document/clean-metadata-pdf/index.jsx';
+import ImageToPdfTool, { metadata as imageToPdfMetadata } from './document/image-to-pdf/index.jsx';
 
 export const tools = {
     // Document Tools
@@ -116,6 +119,36 @@ export const tools = {
         seo: {
             title: "Protect PDF | Uvero",
             description: "Encrypt and password protect PDF files securely in your browser."
+        }
+    },
+    'watermark-pdf': {
+        ...watermarkPdfMetadata,
+        description: 'Add a text watermark to a PDF document.',
+        component: WatermarkPdfTool,
+        popular: true,
+        seo: {
+            title: "Watermark PDF | Uvero",
+            description: "Add custom text watermarks to your PDF files securely in your browser."
+        }
+    },
+    'clean-metadata-pdf': {
+        ...cleanMetadataPdfMetadata,
+        description: 'Remove and sanitize metadata from a PDF file.',
+        component: CleanMetadataPdfTool,
+        popular: true,
+        seo: {
+            title: "Clean PDF Metadata | Uvero",
+            description: "Securely view and remove metadata, author info, and properties from PDF files in your browser."
+        }
+    },
+    'image-to-pdf': {
+        ...imageToPdfMetadata,
+        description: 'Convert and combine images into a PDF file.',
+        component: ImageToPdfTool,
+        popular: true,
+        seo: {
+            title: "Image to PDF | Uvero",
+            description: "Securely convert and combine JPG, PNG, and other images into PDF files offline in your browser."
         }
     },
 
