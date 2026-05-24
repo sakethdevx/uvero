@@ -118,7 +118,7 @@ export default function CleanMetadataPdfTool({ initialFiles = [] }) {
             )}
 
             {files.length > 0 && !result && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 space-y-6">
+                <div className="tool-workspace-panel space-y-6">
                     <div className="flex justify-between items-center pb-4 border-b border-gray-100 dark:border-gray-700">
                         <h3 className="font-medium text-lg">Clean Metadata</h3>
                         <div className="text-sm text-gray-500">
@@ -134,7 +134,7 @@ export default function CleanMetadataPdfTool({ initialFiles = [] }) {
                                     Sanitization Profile
                                 </label>
                                 <select
-                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                                    className="tool-workspace-input px-3 py-2"
                                     value={profile}
                                     onChange={(e) => setProfile(e.target.value)}
                                 >
@@ -155,7 +155,7 @@ export default function CleanMetadataPdfTool({ initialFiles = [] }) {
                                                     type="checkbox"
                                                     checked={customFields.includes(field)}
                                                     onChange={() => handleCustomFieldToggle(field)}
-                                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                    className="rounded tool-workspace-check"
                                                 />
                                                 <span className="capitalize">{field.replace(/([A-Z])/g, ' $1').trim()}</span>
                                             </label>
@@ -166,12 +166,12 @@ export default function CleanMetadataPdfTool({ initialFiles = [] }) {
                         </div>
 
                         {/* Right column: Preview */}
-                        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 text-sm overflow-hidden flex flex-col">
-                            <h4 className="font-medium mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">Current Metadata Overview</h4>
+                        <div className="tool-workspace-section text-sm overflow-hidden flex flex-col">
+                            <h4 className="font-medium mb-3 pb-2 border-b border-gray-200/70 dark:border-white/10">Current Metadata Overview</h4>
 
                             {isPreviewLoading ? (
                                 <div className="flex justify-center items-center h-32 text-gray-400">
-                                    <div className="animate-spin mr-2 h-4 w-4 border-2 border-blue-500 rounded-full border-t-transparent"></div>
+                                    <div className="animate-spin mr-2 h-4 w-4 border-2 border-indigo-500 rounded-full border-t-transparent"></div>
                                     Loading preview...
                                 </div>
                             ) : previewMetadata ? (
@@ -213,7 +213,7 @@ export default function CleanMetadataPdfTool({ initialFiles = [] }) {
             )}
 
             {isProcessing && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="tool-workspace-panel">
                     <ProgressBar
                         progress={progress}
                         message={progressMessage}
@@ -223,7 +223,7 @@ export default function CleanMetadataPdfTool({ initialFiles = [] }) {
             )}
 
             {result && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 text-center space-y-6">
+                <div className="tool-workspace-panel text-center space-y-6">
                     <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -237,7 +237,7 @@ export default function CleanMetadataPdfTool({ initialFiles = [] }) {
                         </p>
                     </div>
 
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 max-w-md mx-auto text-left text-sm border border-gray-200 dark:border-gray-700">
+                    <div className="tool-workspace-section max-w-md mx-auto text-left text-sm">
                         <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Cleanup Summary</h4>
                         <div className="space-y-1">
                             <div className="flex justify-between">
@@ -252,7 +252,7 @@ export default function CleanMetadataPdfTool({ initialFiles = [] }) {
                                 <span className="text-gray-500">Cleaned Size:</span>
                                 <span className="font-medium">{formatBytes(result.metadata.newSize)}</span>
                             </div>
-                            <div className="flex justify-between mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                            <div className="flex justify-between mt-2 pt-2 border-t border-gray-200/70 dark:border-white/10">
                                 <span className="text-gray-500 text-xs">Removed:</span>
                                 <span className="text-xs text-gray-600 dark:text-gray-400 font-mono">
                                     {result.metadata.removedFields.length > 0 ? result.metadata.removedFields.join(', ') : 'None'}

@@ -91,7 +91,7 @@ export default function SplitPdfTool({ initialFiles = [] }) {
             )}
 
             {files.length > 0 && !result && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="tool-workspace-panel">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="font-medium text-lg">Split Options ({files.length} {files.length === 1 ? 'file' : 'files'})</h3>
                         <p className="text-sm text-gray-500">Only one file can be processed at a time</p>
@@ -151,7 +151,7 @@ export default function SplitPdfTool({ initialFiles = [] }) {
                                     value={pageRanges}
                                     onChange={(e) => setPageRanges(e.target.value)}
                                     placeholder="Enter page ranges (e.g., 1-3,5,7-10)"
-                                    className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700"
+                                    className="tool-workspace-input px-3 py-2"
                                     disabled={isProcessing}
                                 />
                             </div>
@@ -165,7 +165,7 @@ export default function SplitPdfTool({ initialFiles = [] }) {
                                     min="1"
                                     value={everyNPages}
                                     onChange={(e) => setEveryNPages(parseInt(e.target.value) || 1)}
-                                    className="w-full px-3 py-2 rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700"
+                                    className="tool-workspace-input px-3 py-2"
                                     disabled={isProcessing}
                                 />
                             </div>
@@ -211,7 +211,7 @@ export default function SplitPdfTool({ initialFiles = [] }) {
             )}
 
             {result && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm border border-green-200 dark:border-green-800 text-center space-y-6">
+                <div className="tool-workspace-result space-y-6">
                     <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center">
                         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

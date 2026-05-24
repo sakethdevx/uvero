@@ -96,7 +96,7 @@ export default function ProtectPdfTool({ initialFiles = [] }) {
             )}
 
             {files.length > 0 && !result && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="tool-workspace-panel">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="font-medium text-lg">Protect PDF ({files.length} file)</h3>
                         <p className="text-sm text-gray-500">Only one file can be processed at a time</p>
@@ -112,7 +112,7 @@ export default function ProtectPdfTool({ initialFiles = [] }) {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="Enter secure password"
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="tool-workspace-input px-4 py-3"
                                     disabled={isProcessing}
                                 />
                             </div>
@@ -123,7 +123,7 @@ export default function ProtectPdfTool({ initialFiles = [] }) {
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     placeholder="Confirm password"
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="tool-workspace-input px-4 py-3"
                                     disabled={isProcessing}
                                 />
                                 {password && confirmPassword && !passwordsMatch && (
@@ -142,7 +142,7 @@ export default function ProtectPdfTool({ initialFiles = [] }) {
                                         checked={allowPrint}
                                         onChange={(e) => setAllowPrint(e.target.checked)}
                                         disabled={isProcessing}
-                                        className="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300"
+                                        className="form-checkbox h-5 w-5 tool-workspace-check rounded"
                                     />
                                     <span>Allow Printing</span>
                                 </label>
@@ -152,7 +152,7 @@ export default function ProtectPdfTool({ initialFiles = [] }) {
                                         checked={allowCopy}
                                         onChange={(e) => setAllowCopy(e.target.checked)}
                                         disabled={isProcessing}
-                                        className="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300"
+                                        className="form-checkbox h-5 w-5 tool-workspace-check rounded"
                                     />
                                     <span>Allow Copying Text/Images</span>
                                 </label>
@@ -162,7 +162,7 @@ export default function ProtectPdfTool({ initialFiles = [] }) {
                                         checked={allowModify}
                                         onChange={(e) => setAllowModify(e.target.checked)}
                                         disabled={isProcessing}
-                                        className="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300"
+                                        className="form-checkbox h-5 w-5 tool-workspace-check rounded"
                                     />
                                     <span>Allow Modifying</span>
                                 </label>
@@ -175,7 +175,7 @@ export default function ProtectPdfTool({ initialFiles = [] }) {
                                 value={encryptionLevel}
                                 onChange={(e) => setEncryptionLevel(e.target.value)}
                                 disabled={isProcessing}
-                                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="tool-workspace-input px-4 py-3"
                             >
                                 <option value={ENCRYPTION_ALGORITHMS.AES_256}>256-bit AES (Recommended, Highly Secure)</option>
                                 <option value={ENCRYPTION_ALGORITHMS.AES_128}>128-bit AES (Standard)</option>
@@ -218,7 +218,7 @@ export default function ProtectPdfTool({ initialFiles = [] }) {
             )}
 
             {result && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm border border-green-200 dark:border-green-800 text-center space-y-6">
+                <div className="tool-workspace-result space-y-6">
                     <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center">
                         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />

@@ -203,6 +203,61 @@
     box-shadow: var(--glass-shadow-soft);
   }
 
+  .tool-workspace-panel {
+    background:
+      linear-gradient(145deg, var(--surface-glass), var(--surface-glass-soft)),
+      var(--surface-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: 0.875rem;
+    box-shadow: var(--glass-shadow-soft);
+    padding: 1rem;
+  }
+
+  .tool-workspace-section {
+    background: color-mix(in srgb, var(--surface-2) 72%, transparent);
+    border: 1px solid var(--border-glass);
+    border-radius: 0.875rem;
+    padding: 1rem;
+  }
+
+  .tool-workspace-row {
+    background: color-mix(in srgb, var(--surface-2) 76%, transparent);
+    border: 1px solid var(--border-glass);
+    border-radius: 0.75rem;
+  }
+
+  .tool-workspace-input {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-glass);
+    background: color-mix(in srgb, var(--surface-1) 82%, transparent);
+    color: var(--text-primary);
+    box-shadow: var(--glass-shadow-soft);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+
+  .tool-workspace-input:focus {
+    border-color: color-mix(in srgb, var(--accent) 52%, var(--border-glass));
+    box-shadow: 0 0 0 3px var(--accent-subtle), var(--glass-shadow-soft);
+  }
+
+  .tool-workspace-check {
+    color: var(--accent);
+    accent-color: var(--accent);
+  }
+
+  .tool-workspace-result {
+    background:
+      linear-gradient(145deg, color-mix(in srgb, #22c55e 10%, var(--surface-glass)), var(--surface-glass-soft)),
+      var(--surface-glass);
+    border: 1px solid color-mix(in srgb, #22c55e 34%, var(--border-glass));
+    border-radius: 0.875rem;
+    box-shadow: var(--glass-shadow-soft);
+    padding: 2rem;
+    text-align: center;
+  }
+
   /* ── Legacy components (kept for backward compat) ── */
   .site-header {
     @apply bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800;
