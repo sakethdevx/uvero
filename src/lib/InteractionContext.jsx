@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useCallback, useMemo } from 'react
 const InteractionContext = createContext(null);
 
 export function InteractionProvider({ children }) {
-  // states: 'idle', 'focused', 'processing', 'result'
+  // states: 'idle', 'focused', 'processing', 'result', 'action'
   const [interactionState, setInteractionState] = useState('idle');
 
   const value = useMemo(() => ({

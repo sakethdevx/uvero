@@ -51,7 +51,7 @@ function AppContent() {
   const location = useLocation();
   const { interactionState } = useInteraction();
 
-  const isFaded = interactionState !== 'idle';
+  const isFaded = interactionState === 'action';
   const fadeClass = isFaded ? 'ui-faded' : '';
 
   // Handle Cmd+K / Ctrl+K
