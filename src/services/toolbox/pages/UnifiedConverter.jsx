@@ -45,7 +45,7 @@ const isBrowserSupportedVideo = (fileName) => {
 
 export default function UnifiedConverter() {
     const [searchParams] = useSearchParams();
-    const [file, setFile] = useState(null);
+    const [files, setFiles] = useState([]);
     const [category, setCategory] = useState(null);
     const [outputFormats, setOutputFormats] = useState([]);
     const [selectedFormat, setSelectedFormat] = useState(null);
@@ -79,6 +79,16 @@ export default function UnifiedConverter() {
     });
 
     const [engineStatus, setEngineStatus] = useState(unifiedProcessor.engineStatus);
+    const file = files[0] || null;
+    const targetFormat = searchParams.get('to');
+    const targetTool = tools[targetFormat];
+    const selectedTool = tools[selectedFormat];
+    const uploadTool = selectedTool || targetTool;
+    const acceptsMultipleFiles = Boolean(uploadTool?.processing === 'local-react' && uploadTool?.multiFile);
+    const uploadAccept = uploadTool?.accepts?.length
+        ? uploadTool.accepts.join(',')
+        : 'image/*,video/*,audio/*,.doc,.docx,.pdf,.epub,.odt,.html,.md,.txt,.rst,.csv,.tsv,.json,.docbook';
+    const fileSelectionKey = files.map(item => `${item.name}:${item.size}:${item.lastModified}`).join('|');
 
     useEffect(() => {
         // Start preloading the engine in the background
@@ -119,27 +129,38 @@ export default function UnifiedConverter() {
         }
     }, [outputFormats, searchParams]);
 
-    const handleFileSelect = (selectedFile) => {
-        setFile(selectedFile);
+    const handleFilesSelect = (selectedFiles) => {
+        const nextFiles = acceptsMultipleFiles
+            ? [...files, ...selectedFiles].filter((candidate, index, list) => (
+                index === list.findIndex(fileItem => fileItem.name === candidate.name && fileItem.size === candidate.size)
+            )).slice(0, uploadTool?.maxFiles || 100)
+            : [selectedFiles[0]];
+
+        const primaryFile = nextFiles[0];
+        if (!primaryFile) return;
+
+        setFiles(nextFiles);
         setResult(null);
         setError('');
         setProgress(0);
-        setSelectedFormat(null);
+        if (!acceptsMultipleFiles) {
+            setSelectedFormat(null);
+        }
         setCropArea(null);
         setOriginalDimensions(null);
         setResizeWidth('');
         setResizeHeight('');
 
         // Detect category and available outputs
-        const cat = unifiedProcessor.detectCategory(selectedFile);
+        const cat = unifiedProcessor.detectCategory(primaryFile);
         setCategory(cat);
         if (cat) {
-            setOutputFormats(unifiedProcessor.getSupportedOutputs(selectedFile));
+            setOutputFormats(unifiedProcessor.getSupportedOutputs(primaryFile));
 
             // If image, get dimensions for resizing
             if (cat === 'image') {
                 const img = new Image();
-                img.src = URL.createObjectURL(selectedFile);
+                img.src = URL.createObjectURL(primaryFile);
                 img.onload = () => {
                     setOriginalDimensions({ width: img.width, height: img.height });
                     setResizeWidth(img.width.toString());
@@ -151,6 +172,10 @@ export default function UnifiedConverter() {
             setOutputFormats([]);
             setError('Unsupported file type. Please upload an image, audio file, or document.');
         }
+    };
+
+    const handleFileSelect = (selectedFile) => {
+        handleFilesSelect([selectedFile]);
     };
 
     const handleWidthChange = (value) => {
@@ -236,7 +261,7 @@ export default function UnifiedConverter() {
     };
 
     const handleReset = () => {
-        setFile(null);
+        setFiles([]);
         setResult(null);
         setError('');
         setProgress(0);
@@ -299,9 +324,13 @@ export default function UnifiedConverter() {
                             <div className="relative">
                                 <Dropzone
                                     onFileSelect={handleFileSelect}
-                                    accept="image/*,video/*,audio/*,.doc,.docx,.pdf,.epub,.odt,.html,.md,.txt,.rst,.csv,.tsv,.json,.docbook"
+                                    onFilesSelect={handleFilesSelect}
+                                    accept={uploadAccept}
+                                    multiple={acceptsMultipleFiles}
                                     disabled={isProcessing}
                                     minimized={!!file}
+                                    label={acceptsMultipleFiles ? 'Add Files' : undefined}
+                                    description={acceptsMultipleFiles ? `Drop ${uploadTool.name} files here or tap to browse` : undefined}
                                 />
                             </div>
                         </div>
@@ -311,7 +340,7 @@ export default function UnifiedConverter() {
                                 {/* Input Preview */}
                                 <div className="glass-subtle min-w-0 p-3 sm:p-5 flex flex-col bg-white/5 dark:bg-black/20 border-gray-200/50 dark:border-white/5 lg:col-span-2 xl:col-span-1 lg:mx-auto lg:max-w-[1100px]">
                                     <h3 className="mb-3 sm:mb-4 text-[10px] font-black uppercase tracking-[0.25em] text-gray-400 dark:text-gray-500">
-                                        Uploaded File
+                                        {files.length > 1 ? 'Uploaded Files' : 'Uploaded File'}
                                     </h3>
                                     <div
                                         className="w-full max-w-full box-border overflow-hidden rounded-xl sm:rounded-2xl bg-gray-100 dark:bg-black/40 flex items-center justify-center border border-gray-200 dark:border-white/10 shadow-inner lg:mx-auto lg:max-w-[1100px]"
@@ -341,16 +370,24 @@ export default function UnifiedConverter() {
                                             <div className="text-center">
                                                 <div className="text-4xl mb-2">{categoryInfo.icon}</div>
                                                 <p className="text-sm text-gray-600 dark:text-gray-400 break-words px-2">
-                                                    {file.name}
+                                                    {files.length > 1 ? `${files.length} files selected` : file.name}
                                                 </p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                                                    {(file.size / 1024).toFixed(1)} KB
+                                                    {(files.reduce((sum, item) => sum + item.size, 0) / 1024).toFixed(1)} KB
                                                 </p>
                                             </div>
                                         )}
                                     </div>
                                     <div className="mt-3 min-w-0 pt-3 border-t border-gray-100 dark:border-white/5">
-                                        <FileInfo file={file} variant="ghost" />
+                                        {files.length === 1 ? (
+                                            <FileInfo file={file} variant="ghost" />
+                                        ) : (
+                                            <div className="space-y-2">
+                                                {files.map((uploadedFile, index) => (
+                                                    <FileInfo key={`${uploadedFile.name}-${uploadedFile.size}-${index}`} file={uploadedFile} variant="ghost" />
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -390,7 +427,14 @@ export default function UnifiedConverter() {
                                                             <button
                                                                 key={fmt.value}
                                                                 type="button"
-                                                                onClick={() => { setSelectedFormat(fmt.value); if (fmt.value !== 'crop') setCropArea(null); }}
+                                                                onClick={() => {
+                                                                    const nextTool = tools[fmt.value];
+                                                                    setSelectedFormat(fmt.value);
+                                                                    if (fmt.value !== 'crop') setCropArea(null);
+                                                                    if (!nextTool?.multiFile) {
+                                                                        setFiles((previousFiles) => previousFiles.slice(0, 1));
+                                                                    }
+                                                                }}
                                                                 disabled={isProcessing}
                                                                 className={`relative min-w-0 overflow-hidden rounded-xl border p-3 sm:p-2.5 text-left transition-all duration-300 ease-apple group/fmt flex flex-col justify-between min-h-[68px] sm:min-h-[72px] ${isSelected
                                                                     ? isSpecial
@@ -439,7 +483,7 @@ export default function UnifiedConverter() {
                                             const ToolComponent = tool.component;
                                             return (
                                                 <div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/5">
-                                                    <ToolComponent initialFiles={[file]} />
+                                                    <ToolComponent key={`${tool.id}-${fileSelectionKey}`} initialFiles={files} embedded />
                                                 </div>
                                             );
                                         }

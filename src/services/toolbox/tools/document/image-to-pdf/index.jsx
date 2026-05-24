@@ -24,7 +24,7 @@ export const metadata = {
     maxFiles: 100
 };
 
-export default function ImageToPdfTool({ initialFiles = [] }) {
+export default function ImageToPdfTool({ initialFiles = [], embedded = false }) {
     const [files, setFiles] = useState(initialFiles);
     const [options, setOptions] = useState({
         pageSize: 'A4',
@@ -105,7 +105,7 @@ export default function ImageToPdfTool({ initialFiles = [] }) {
 
     return (
         <div className="space-y-6">
-            {!isProcessing && (
+            {!embedded && !isProcessing && (
                 <Dropzone
                     onFileSelect={handleFileSelect}
                     accept={SUPPORTED_IMAGE_TYPES.join(',')}

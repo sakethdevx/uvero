@@ -22,7 +22,7 @@ export const metadata = {
     maxFiles: MAX_FILES
 };
 
-export default function MergePdfTool({ initialFiles = [] }) {
+export default function MergePdfTool({ initialFiles = [], embedded = false }) {
     const [files, setFiles] = useState(initialFiles);
     const [draggedIdx, setDraggedIdx] = useState(null);
 
@@ -71,7 +71,7 @@ export default function MergePdfTool({ initialFiles = [] }) {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {!embedded && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}

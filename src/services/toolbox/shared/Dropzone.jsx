@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
  * Reusable Dropzone component for file uploads
  * Supports drag & drop and click-to-upload
  */
-export default function Dropzone({ accept, onFileSelect, maxSize = 100 * 1024 * 1024, multiple = false, label, description, minimized = false }) {
+export default function Dropzone({ accept, onFileSelect, onFilesSelect, maxSize = 100 * 1024 * 1024, multiple = false, label, description, minimized = false }) {
     const [isDragging, setIsDragging] = useState(false);
     const [error, setError] = useState('');
 
@@ -59,7 +59,11 @@ export default function Dropzone({ accept, onFileSelect, maxSize = 100 * 1024 * 
                 // Validate and pass all valid files
                 const validFiles = files.filter(file => validateFile(file));
                 if (validFiles.length > 0) {
-                    validFiles.forEach(file => onFileSelect(file));
+                    if (onFilesSelect) {
+                        onFilesSelect(validFiles);
+                    } else {
+                        validFiles.forEach(file => onFileSelect(file));
+                    }
                 }
             } else {
                 // Single file mode - only take first file
@@ -77,7 +81,11 @@ export default function Dropzone({ accept, onFileSelect, maxSize = 100 * 1024 * 
                 // Validate and pass all valid files
                 const validFiles = files.filter(file => validateFile(file));
                 if (validFiles.length > 0) {
-                    validFiles.forEach(file => onFileSelect(file));
+                    if (onFilesSelect) {
+                        onFilesSelect(validFiles);
+                    } else {
+                        validFiles.forEach(file => onFileSelect(file));
+                    }
                 }
             } else {
                 // Single file mode - only take first file
@@ -153,7 +161,7 @@ export default function Dropzone({ accept, onFileSelect, maxSize = 100 * 1024 * 
                         )}
                         {minimized && (
                             <p className="text-xs text-gray-400 dark:text-gray-500 font-medium truncate">
-                                Tap here to replace the current selection
+                                {multiple ? 'Tap here to add more files' : 'Tap here to replace the current selection'}
                             </p>
                         )}
                     </div>
