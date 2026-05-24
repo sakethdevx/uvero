@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase/client'
 import { normalizeUsernameInput } from './usernameRules'
+import { interpretUsernameAvailability } from './usernameAvailability'
 
 function buildAuthHeaders(accessToken) {
     if (!accessToken) return {}
@@ -8,19 +9,39 @@ function buildAuthHeaders(accessToken) {
 
 export async function checkUsernameAvailability(username, accessToken) {
     const normalized = normalizeUsernameInput(username)
+    if (!normalized) {
+        return {
+            username: '',
+            valid: false,
+            available: false,
+            message: 'Username is required.',
+        }
+    }
+
     const response = await fetch(`/api/username-availability?username=${encodeURIComponent(normalized)}`, {
         headers: {
-            ...buildAuthHeaders(accessToken)
-        }
+            ...buildAuthHeaders(accessToken),
+            Accept: 'application/json',
+        },
     })
 
-    const payload = await response.json().catch(() => ({}))
+    const contentType = response.headers.get('content-type') || ''
+    const payload = contentType.includes('application/json')
+        ? await response.json().catch(() => null)
+        : null
+
     if (!response.ok) {
         throw new Error(payload?.error || 'Could not check username availability')
     }
 
+    if (!payload || typeof payload.available !== 'boolean') {
+        throw new Error('Invalid username availability response')
+    }
+
     return payload
 }
+
+export { interpretUsernameAvailability }
 
 export async function updateMyUsername(username, accessToken) {
     const normalized = normalizeUsernameInput(username)

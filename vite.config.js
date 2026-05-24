@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { writeFileSync, mkdirSync } from 'fs'
 import { resolve } from 'path'
+import { apiDevPlugin } from './scripts/vite-api-dev.js'
 
 /**
  * Vite plugin that writes dist/version.json with a unique build timestamp
@@ -25,6 +26,7 @@ const versionJsonPlugin = () => ({
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    apiDevPlugin(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',

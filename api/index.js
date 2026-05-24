@@ -5,7 +5,19 @@ import { getMaintenanceConfig, sendMaintenanceResponse } from './maintenance.js'
 
 export default async function handler(req, res) {
     try {
-        const url = new URL(req.url, `http://${req.headers.host}`)
+        const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost'
+        const protocol = req.headers['x-forwarded-proto'] || 'http'
+        const url = new URL(req.url || '/', `${protocol}://${host}`)
+
+        // Ensure child handlers receive query params (Vercel rewrites can omit req.query)
+        const mergedQuery = { ...(req.query || {}) }
+        for (const [key, value] of url.searchParams.entries()) {
+            if (mergedQuery[key] == null || mergedQuery[key] === '') {
+                mergedQuery[key] = value
+            }
+        }
+        req.query = mergedQuery
+
         const forwarded = url.searchParams.get('path') || '' // original subpath from rewrite
         const originalPath = forwarded ? `/api/${forwarded}` : '/api'
         const maintenance = getMaintenanceConfig()
@@ -22,6 +34,11 @@ export default async function handler(req, res) {
 
         if (originalPath === '/api/username-availability') {
             const mod = await import('../src/services/auth/api/username-availability.js')
+            return mod.default(req, res)
+        }
+
+        if (originalPath === '/api/check-email') {
+            const mod = await import('../src/services/auth/api/check-email.js')
             return mod.default(req, res)
         }
 
