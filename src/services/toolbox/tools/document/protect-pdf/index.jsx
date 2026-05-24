@@ -13,11 +13,18 @@ export const metadata = {
     keywords: ['protect', 'encrypt', 'password', 'security', 'permissions', 'pdf'],
     icon: '🔒',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: false,
+    securityTool: true,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: 100
 };
 
-export default function ProtectPdfTool() {
-    const [files, setFiles] = useState([]);
+export default function ProtectPdfTool({ initialFiles = [] }) {
+    const [files, setFiles] = useState(initialFiles);
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -79,7 +86,7 @@ export default function ProtectPdfTool() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {files.length === 0 && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}

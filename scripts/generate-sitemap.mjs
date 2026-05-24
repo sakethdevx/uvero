@@ -36,16 +36,17 @@ async function collectSeoFiles(dir) {
 async function collectToolRoutes() {
     const toolIndex = await readFile(TOOL_INDEX_PATH, 'utf8')
     const toolIdMatches = [...toolIndex.matchAll(/^\s*'([^']+)':\s*{/gm)]
-    const routeMap = new Map(
-        toolIdMatches.map(([, toolId]) => [
-            `/${toolId}`,
-            {
-                path: `/${toolId}`,
-                changefreq: 'monthly',
-                priority: '0.8'
-            }
-        ])
-    )
+    const PDF_TOOLS = ['merge-pdf', 'split-pdf', 'rotate-pdf', 'delete-pdf', 'reorder-pdf', 'extract-pdf', 'compress-pdf', 'decrypt-pdf', 'protect-pdf', 'watermark-pdf', 'clean-metadata-pdf', 'image-to-pdf', 'pdf-to-image'];
+    
+    const routeMap = new Map();
+    toolIdMatches.forEach(([, toolId]) => {
+        if (PDF_TOOLS.includes(toolId)) return;
+        routeMap.set(`/${toolId}`, {
+            path: `/${toolId}`,
+            changefreq: 'monthly',
+            priority: '0.8'
+        });
+    });
 
     const seoFiles = await collectSeoFiles(TOOLS_DIR)
     for (const seoFile of seoFiles) {

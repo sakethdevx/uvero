@@ -17,11 +17,18 @@ export const metadata = {
     keywords: ['clean', 'metadata', 'remove', 'pdf', 'offline', 'local', 'privacy', 'sanitize'],
     icon: '🧹',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: false,
+    securityTool: true,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: 100
 };
 
-export default function CleanMetadataPdfTool() {
-    const [files, setFiles] = useState([]);
+export default function CleanMetadataPdfTool({ initialFiles = [] }) {
+    const [files, setFiles] = useState(initialFiles);
     const [profile, setProfile] = useState(METADATA_PROFILES.FULL_CLEAN);
     const [customFields, setCustomFields] = useState([]);
     const [previewMetadata, setPreviewMetadata] = useState(null);
@@ -44,6 +51,12 @@ export default function CleanMetadataPdfTool() {
             setIsPreviewLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (initialFiles.length > 0 && !previewMetadata && !isPreviewLoading) {
+            loadMetadataPreview(initialFiles[0]);
+        }
+    }, [initialFiles]);
 
     const handleFileSelect = useCallback((newFile) => {
         setFiles([newFile]); // Intentionally overwrite to support single file processing easily
@@ -95,7 +108,7 @@ export default function CleanMetadataPdfTool() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {files.length === 0 && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}

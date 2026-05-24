@@ -12,11 +12,18 @@ export const metadata = {
     keywords: ['extract', 'pages', 'pdf', 'offline', 'local'],
     icon: '📄',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: true,
+    securityTool: false,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: 100
 };
 
-export default function ExtractPdfTool() {
-    const [files, setFiles] = useState([]);
+export default function ExtractPdfTool({ initialFiles = [] }) {
+    const [files, setFiles] = useState(initialFiles);
     const [pageRanges, setPageRanges] = useState('');
     const [draggedIdx, setDraggedIdx] = useState(null);
 
@@ -55,8 +62,8 @@ export default function ExtractPdfTool() {
     const handleDragEnd = () => setDraggedIdx(null);
 
     const handleExtract = () => {
-        extract(files, { 
-            pageRanges 
+        extract(files, {
+            pageRanges
         });
     };
 
@@ -68,7 +75,7 @@ export default function ExtractPdfTool() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {files.length === 0 && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}
@@ -126,8 +133,8 @@ export default function ExtractPdfTool() {
                                     onClick={handleExtract}
                                     disabled={files.length === 0 || !pageRanges.trim()}
                                     className={
-                                        (files.length === 0 || !pageRanges.trim()) 
-                                            ? 'opacity-50 cursor-not-allowed' 
+                                        (files.length === 0 || !pageRanges.trim())
+                                            ? 'opacity-50 cursor-not-allowed'
                                             : ''
                                     }
                                 >
@@ -147,12 +154,12 @@ export default function ExtractPdfTool() {
                         </svg>
                     </div>
 
-                     <div>
-                         <h2 className="text-2xl font-bold mb-2">Extraction Complete!</h2>
-                         <p className="text-gray-500">
-                             Successfully extracted {result.metadata.pageCount} pages.
-                         </p>
-                     </div>
+                    <div>
+                        <h2 className="text-2xl font-bold mb-2">Extraction Complete!</h2>
+                        <p className="text-gray-500">
+                            Successfully extracted {result.metadata.pageCount} pages.
+                        </p>
+                    </div>
 
                     <div className="flex justify-center gap-4 flex-wrap">
                         <Button onClick={handleRestart} variant="outline">

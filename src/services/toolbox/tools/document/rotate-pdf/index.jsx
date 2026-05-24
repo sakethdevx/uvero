@@ -12,11 +12,18 @@ export const metadata = {
     keywords: ['rotate', 'pdf', 'offline', 'local'],
     icon: '📄',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: true,
+    securityTool: false,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: 100
 };
 
-export default function RotatePdfTool() {
-    const [files, setFiles] = useState([]);
+export default function RotatePdfTool({ initialFiles = [] }) {
+    const [files, setFiles] = useState(initialFiles);
     const [rotation, setRotation] = useState(90);
     const [pageRanges, setPageRanges] = useState('');
     const [rotateAll, setRotateAll] = useState(false);
@@ -57,10 +64,10 @@ export default function RotatePdfTool() {
     const handleDragEnd = () => setDraggedIdx(null);
 
     const handleRotate = () => {
-        rotate(files, { 
-            rotation, 
-            pageRanges, 
-            rotateAll 
+        rotate(files, {
+            rotation,
+            pageRanges,
+            rotateAll
         });
     };
 
@@ -74,7 +81,7 @@ export default function RotatePdfTool() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {files.length === 0 && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}
@@ -206,15 +213,15 @@ export default function RotatePdfTool() {
                                 <Button
                                     onClick={handleRotate}
                                     disabled={
-                                        files.length === 0 || 
+                                        files.length === 0 ||
                                         (!rotateAll && !pageRanges.trim()) ||
                                         (isNaN(rotation) || rotation % 90 !== 0)
                                     }
                                     className={
-                                        (files.length === 0 || 
-                                        (!rotateAll && !pageRanges.trim()) ||
-                                        (isNaN(rotation) || rotation % 90 !== 0)) 
-                                            ? 'opacity-50 cursor-not-allowed' 
+                                        (files.length === 0 ||
+                                            (!rotateAll && !pageRanges.trim()) ||
+                                            (isNaN(rotation) || rotation % 90 !== 0))
+                                            ? 'opacity-50 cursor-not-allowed'
                                             : ''
                                     }
                                 >

@@ -14,6 +14,13 @@ export const metadata = {
     icon: '🖼️',
     offline: true,
     experimental: false,
+    multiFile: true,
+    pageBased: true,
+    securityTool: false,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: 100
 };
 
 const FORMAT_OPTIONS = [
@@ -29,8 +36,8 @@ const QUALITY_OPTIONS = [
     { value: 'print-quality', label: 'Print', detail: '300 DPI' },
 ];
 
-export default function PdfToImageTool() {
-    const [files, setFiles] = useState([]);
+export default function PdfToImageTool({ initialFiles = [] }) {
+    const [file, setFile] = useState(initialFiles[0] || null);
     const [options, setOptions] = useState({
         format: PDF_IMAGE_FORMATS.PNG,
         qualityPreset: 'medium',
@@ -60,7 +67,7 @@ export default function PdfToImageTool() {
     };
 
     const handleExport = () => {
-        exportImages(files, options);
+        exportImages([file], options);
     };
 
     const handleRestart = () => {
@@ -85,13 +92,13 @@ export default function PdfToImageTool() {
     };
 
     const selectedPreset = RENDER_QUALITY_PRESETS[options.qualityPreset];
-    const canExport = files.length === 1 && (
+    const canExport = !!file && (
         options.pageMode === 'all' || options.pageRanges.trim().length > 0
     );
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {!file && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}
@@ -100,14 +107,14 @@ export default function PdfToImageTool() {
                 />
             )}
 
-            {files.length > 0 && !result && (
+            {file && !result && (
                 <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
                         <h3 className="font-medium text-lg">PDF Export Settings</h3>
                         <p className="text-sm text-gray-500">Pages render locally in a worker</p>
                     </div>
 
-                    <FileInfo file={files[0]} onRemove={() => { setFiles([]); reset(); }} />
+                    <FileInfo file={file} onRemove={() => { setFile(null); reset(); }} />
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
                         <div className="space-y-2">

@@ -12,11 +12,18 @@ export const metadata = {
     keywords: ['combine', 'join', 'pdf', 'offline', 'local'],
     icon: '📄',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: false,
+    securityTool: false,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: MAX_FILES
 };
 
-export default function MergePdfTool() {
-    const [files, setFiles] = useState([]);
+export default function MergePdfTool({ initialFiles = [] }) {
+    const [files, setFiles] = useState(initialFiles);
     const [draggedIdx, setDraggedIdx] = useState(null);
 
     const { merge, cancel, reset, isProcessing, progress, progressMessage, error, result } = usePdfMerge();
@@ -69,6 +76,7 @@ export default function MergePdfTool() {
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}
                     multiple={true}
+                    minimized={files.length > 0}
                     description="Drag & drop PDF files here or click to browse"
                 />
             )}

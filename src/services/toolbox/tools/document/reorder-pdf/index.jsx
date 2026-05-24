@@ -13,11 +13,18 @@ export const metadata = {
     keywords: ['reorder', 'sort', 'pdf', 'offline', 'local'],
     icon: '📄',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: true,
+    securityTool: false,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: 100
 };
 
-export default function ReorderPdfTool() {
-    const [files, setFiles] = useState([]);
+export default function ReorderPdfTool({ initialFiles = [] }) {
+    const [files, setFiles] = useState(initialFiles);
     const [pageOrder, setPageOrder] = useState([]);
     const [thumbnails, setThumbnails] = useState([]);
     const [draggedIndex, setDraggedIndex] = useState(null);
@@ -58,7 +65,7 @@ export default function ReorderPdfTool() {
                     const arrayBuffer = await loadFileAsArrayBuffer(file);
                     const pdf = await pdfLib.PDFDocument.load(arrayBuffer);
                     const totalPages = pdf.getPageCount();
-                    
+
                     // Set initial page order (0, 1, 2, ..., totalPages-1)
                     const initialOrder = Array.from({ length: totalPages }, (_, i) => i);
                     setPageOrder(initialOrder);
@@ -117,7 +124,7 @@ export default function ReorderPdfTool() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {files.length === 0 && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}
@@ -149,9 +156,8 @@ export default function ReorderPdfTool() {
                                             onDragStart={() => handleDragStart(displayIndex)}
                                             onDragOver={(e) => handleDragOver(e, displayIndex)}
                                             onDragEnd={handleDragEnd}
-                                            className={`border border-gray-200 dark:border-gray-700 rounded-lg p-2 cursor-move transition-colors ${
-                                                draggedIndex === displayIndex ? 'opacity-50 bg-blue-50 dark:bg-blue-900/20' : 'bg-gray-50 dark:bg-gray-700'
-                                            }`}
+                                            className={`border border-gray-200 dark:border-gray-700 rounded-lg p-2 cursor-move transition-colors ${draggedIndex === displayIndex ? 'opacity-50 bg-blue-50 dark:bg-blue-900/20' : 'bg-gray-50 dark:bg-gray-700'
+                                                }`}
                                         >
                                             <div className="aspect-[3/4] bg-gray-200 dark:bg-gray-600 rounded mb-2 overflow-hidden">
                                                 {thumbnail ? (
@@ -196,8 +202,8 @@ export default function ReorderPdfTool() {
                                         onClick={handleReorder}
                                         disabled={files.length === 0 || pageOrder.length === 0}
                                         className={
-                                            (files.length === 0 || pageOrder.length === 0) 
-                                                ? 'opacity-50 cursor-not-allowed' 
+                                            (files.length === 0 || pageOrder.length === 0)
+                                                ? 'opacity-50 cursor-not-allowed'
                                                 : ''
                                         }
                                     >

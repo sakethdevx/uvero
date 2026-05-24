@@ -12,11 +12,18 @@ export const metadata = {
     keywords: ['unlock', 'decrypt', 'password', 'security', 'pdf'],
     icon: '🔓',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: false,
+    securityTool: true,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: 100
 };
 
-export default function DecryptPdfTool() {
-    const [files, setFiles] = useState([]);
+export default function DecryptPdfTool({ initialFiles = [] }) {
+    const [files, setFiles] = useState(initialFiles);
     const [password, setPassword] = useState('');
 
     const { unlock, cancel, reset, isProcessing, progress, progressMessage, error, result } = usePdfUnlock();
@@ -52,7 +59,7 @@ export default function DecryptPdfTool() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {files.length === 0 && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}
@@ -120,8 +127,8 @@ export default function DecryptPdfTool() {
                                     onClick={handleUnlock}
                                     disabled={files.length === 0 || password.trim() === ''}
                                     className={
-                                        (files.length === 0 || password.trim() === '') 
-                                            ? 'opacity-50 cursor-not-allowed' 
+                                        (files.length === 0 || password.trim() === '')
+                                            ? 'opacity-50 cursor-not-allowed'
                                             : ''
                                     }
                                 >

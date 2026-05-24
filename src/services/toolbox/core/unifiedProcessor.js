@@ -4,6 +4,8 @@
  * Follows VERT pattern: single entry point for all file conversions
  */
 
+import { tools } from '../tools/index.js';
+
 // Format registry
 export const FORMAT_REGISTRY = {
     image: {
@@ -129,7 +131,7 @@ class UnifiedProcessor {
         this.cropProc = null;
         this.resizeProc = null;
         this.watermarkProc = null;
-        
+
         // Engine status: 'idle' | 'downloading' | 'ready' | 'error'
         this.engineStatus = 'idle';
         this.listeners = [];
@@ -194,7 +196,7 @@ class UnifiedProcessor {
 
     async preload() {
         if (this.engineStatus !== 'idle') return;
-        
+
         this.abortController = new AbortController();
         const signal = this.abortController.signal;
 
@@ -209,7 +211,7 @@ class UnifiedProcessor {
             // 2. Schedule heavy WASM downloads for idle time
             const schedulePreload = () => {
                 if (signal.aborted) return;
-                
+
                 // SEQUENTIAL loading to avoid saturating browser connection slots (max 6)
                 const runSequential = async () => {
                     try {
@@ -217,7 +219,7 @@ class UnifiedProcessor {
                         if (this.imageProc?.preload) {
                             await this.imageProc.preload(signal);
                         }
-                        
+
                         if (signal.aborted) return;
 
                         // Wait a bit before starting the next heavy one
@@ -239,7 +241,7 @@ class UnifiedProcessor {
                                 rej(new Error('Aborted'));
                             });
                         });
-                        
+
                         if (this.audioProc?.preload) await this.audioProc.preload(signal);
                         if (signal.aborted) return;
 
@@ -250,7 +252,7 @@ class UnifiedProcessor {
                                 rej(new Error('Aborted'));
                             });
                         });
-                        
+
                         if (this.videoProc?.preload) await this.videoProc.preload(signal);
 
                         if (!signal.aborted) {
@@ -377,9 +379,30 @@ class UnifiedProcessor {
 
         const ext = file.name.split('.').pop()?.toLowerCase();
 
-        return FORMAT_REGISTRY[category].outputs.filter(
-            output => output.value !== ext
-        );
+        let outputs = [];
+
+        if (FORMAT_REGISTRY[category]) {
+            outputs = FORMAT_REGISTRY[category].outputs.filter(
+                output => output.value !== ext
+            );
+        }
+
+        // Dynamically add outputs from tools that accept this file type
+        const extWithDot = '.' + ext;
+        Object.values(tools).forEach(tool => {
+            if (tool.accepts && tool.accepts.includes(extWithDot)) {
+                outputs.push({
+                    value: tool.id,
+                    label: tool.name,
+                    desc: tool.description || tool.name,
+                    icon: tool.icon,
+                    toolConfig: tool
+                });
+            }
+        });
+
+        // Deduplicate by value
+        return Array.from(new Map(outputs.map(o => [o.value, o])).values());
     }
 
     async convert(file, outputFormat, onProgress, options = {}) {
@@ -465,7 +488,7 @@ class UnifiedProcessor {
             if (options.type === 'image' && !options.watermarkImage) {
                 throw new Error('Watermark image is required.');
             }
-            
+
             const result = await this.watermarkProc.addWatermark(file, options, onProgress);
             const blob = await fetch(result.url).then(r => r.blob());
             URL.revokeObjectURL(result.url);

@@ -12,7 +12,14 @@ export const metadata = {
     keywords: ['compress', 'reduce', 'size', 'pdf', 'optimize'],
     icon: '🗜️',
     offline: true,
-    experimental: true  // Mark as experimental until stabilized
+    experimental: true,
+    multiFile: true,
+    pageBased: false,
+    securityTool: false,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: 100
 };
 
 const QUALITY_OPTIONS = [
@@ -21,8 +28,8 @@ const QUALITY_OPTIONS = [
     { value: 'high', label: 'High (Best quality)' }
 ];
 
-export default function CompressPdfTool() {
-    const [files, setFiles] = useState([]);
+export default function CompressPdfTool({ initialFiles = [] }) {
+    const [files, setFiles] = useState(initialFiles);
     const [compressionLevel, setCompressionLevel] = useState('medium');
 
     const { compress, cancel, reset, isProcessing, progress, progressMessage, error, result } = usePdfCompress();
@@ -68,7 +75,7 @@ export default function CompressPdfTool() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {files.length === 0 && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}
@@ -92,11 +99,10 @@ export default function CompressPdfTool() {
                                 {QUALITY_OPTIONS.map((opt) => (
                                     <label
                                         key={opt.value}
-                                        className={`flex items-center space-x-2 cursor-pointer p-3 rounded-lg border transition-colors ${
-                                            compressionLevel === opt.value
+                                        className={`flex items-center space-x-2 cursor-pointer p-3 rounded-lg border transition-colors ${compressionLevel === opt.value
                                                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                                                 : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
-                                        }`}
+                                            }`}
                                     >
                                         <input
                                             type="radio"

@@ -12,11 +12,18 @@ export const metadata = {
     keywords: ['delete', 'remove', 'pdf', 'offline', 'local'],
     icon: '📄',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: true,
+    securityTool: false,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: 100
 };
 
-export default function DeletePdfTool() {
-    const [files, setFiles] = useState([]);
+export default function DeletePdfTool({ initialFiles = [] }) {
+    const [files, setFiles] = useState(initialFiles);
     const [pageRanges, setPageRanges] = useState('');
     const [draggedIdx, setDraggedIdx] = useState(null);
 
@@ -55,8 +62,8 @@ export default function DeletePdfTool() {
     const handleDragEnd = () => setDraggedIdx(null);
 
     const handleDelete = () => {
-        deletePages(files, { 
-            pageRanges 
+        deletePages(files, {
+            pageRanges
         });
     };
 
@@ -68,7 +75,7 @@ export default function DeletePdfTool() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {files.length === 0 && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}
@@ -126,8 +133,8 @@ export default function DeletePdfTool() {
                                     onClick={handleDelete}
                                     disabled={files.length === 0 || !pageRanges.trim()}
                                     className={
-                                        (files.length === 0 || !pageRanges.trim()) 
-                                            ? 'opacity-50 cursor-not-allowed' 
+                                        (files.length === 0 || !pageRanges.trim())
+                                            ? 'opacity-50 cursor-not-allowed'
                                             : ''
                                     }
                                 >

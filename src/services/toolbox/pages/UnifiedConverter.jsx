@@ -8,6 +8,7 @@ import unifiedProcessor from '../core/unifiedProcessor.js';
 import InteractiveCropSelector from '../components/InteractiveCropSelector.jsx';
 import WatermarkSettings from '../components/WatermarkSettings.jsx';
 import AILoader from '../../../components/AILoader.jsx';
+import { tools } from '../tools/index.js';
 
 const SUPPORTED_CATEGORIES = {
     image: {
@@ -431,167 +432,183 @@ export default function UnifiedConverter() {
                                         </div>
                                     </div>
 
-                                    {/* Crop Selector - shown when crop format is selected */}
-                                    {selectedFormat === 'crop' && file && (
-                                        <div className="border-2 border-purple-200 dark:border-purple-800 rounded-xl p-4">
-                                            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                                                ✂️ Adjust Crop Area
-                                            </h3>
-                                            <InteractiveCropSelector
-                                                file={file}
-                                                onChange={setCropArea}
-                                            />
-                                        </div>
-                                    )}
-
-                                    {/* Resize Settings */}
-                                    {selectedFormat === 'resize' && originalDimensions && (
-                                        <div className="border-2 border-purple-200 dark:border-purple-800 rounded-xl p-4 space-y-4">
-                                            <div className="flex items-start justify-between">
-                                                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                                    📏 Resize Settings
-                                                </h3>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        if (originalDimensions) {
-                                                            setResizeMode('dimensions');
-                                                            setResizeWidth(originalDimensions.width.toString());
-                                                            setResizeHeight(originalDimensions.height.toString());
-                                                        }
-                                                    }}
-                                                    className="ml-3 shrink-0 px-2 py-1 text-[11px] font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-                                                >
-                                                    Auto
-                                                </button>
-                                            </div>
-
-                                            <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
-                                                <button
-                                                    onClick={() => setResizeMode('dimensions')}
-                                                    className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${resizeMode === 'dimensions' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
-                                                >
-                                                    Dimensions
-                                                </button>
-                                                <button
-                                                    onClick={() => setResizeMode('percentage')}
-                                                    className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${resizeMode === 'percentage' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
-                                                >
-                                                    Percentage
-                                                </button>
-                                            </div>
-
-                                            {resizeMode === 'dimensions' ? (
-                                                <div className="space-y-3">
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                        <div>
-                                                            <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 mb-1">Width</label>
-                                                            <input
-                                                                type="number"
-                                                                value={resizeWidth}
-                                                                onChange={(e) => handleWidthChange(e.target.value)}
-                                                                className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 outline-none"
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 mb-1">Height</label>
-                                                            <input
-                                                                type="number"
-                                                                value={resizeHeight}
-                                                                onChange={(e) => handleHeightChange(e.target.value)}
-                                                                className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 outline-none"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <label className="flex items-center gap-2 cursor-pointer group">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={maintainAspectRatio}
-                                                            onChange={(e) => setMaintainAspectRatio(e.target.checked)}
-                                                            className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                                    {/* Tool component injected here if it's a specialized React tool */}
+                                    {(() => {
+                                        const tool = tools[selectedFormat];
+                                        if (tool && tool.processing === 'local-react') {
+                                            const ToolComponent = tool.component;
+                                            return (
+                                                <div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/5">
+                                                    <ToolComponent initialFiles={[file]} />
+                                                </div>
+                                            );
+                                        }
+                                        return (
+                                            <>
+                                                {/* Crop Selector - shown when crop format is selected */}
+                                                {selectedFormat === 'crop' && file && (
+                                                    <div className="border-2 border-purple-200 dark:border-purple-800 rounded-xl p-4">
+                                                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                                                            ✂️ Adjust Crop Area
+                                                        </h3>
+                                                        <InteractiveCropSelector
+                                                            file={file}
+                                                            onChange={setCropArea}
                                                         />
-                                                        <span className="text-xs text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Maintain aspect ratio</span>
-                                                    </label>
-                                                </div>
-                                            ) : (
-                                                <div className="space-y-3">
-                                                    <div>
-                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 mb-1">Scale Percentage</label>
-                                                        <div className="flex items-center gap-3">
-                                                            <input
-                                                                type="range"
-                                                                min="1"
-                                                                max="200"
-                                                                value={resizePercentage}
-                                                                onChange={(e) => setResizePercentage(e.target.value)}
-                                                                className="flex-1 accent-purple-600"
-                                                            />
-                                                            <span className="text-sm font-mono w-12 text-right">{resizePercentage}%</span>
+                                                    </div>
+                                                )}
+
+                                                {/* Resize Settings */}
+                                                {selectedFormat === 'resize' && originalDimensions && (
+                                                    <div className="border-2 border-purple-200 dark:border-purple-800 rounded-xl p-4 space-y-4">
+                                                        <div className="flex items-start justify-between">
+                                                            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                                                📏 Resize Settings
+                                                            </h3>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    if (originalDimensions) {
+                                                                        setResizeMode('dimensions');
+                                                                        setResizeWidth(originalDimensions.width.toString());
+                                                                        setResizeHeight(originalDimensions.height.toString());
+                                                                    }
+                                                                }}
+                                                                className="ml-3 shrink-0 px-2 py-1 text-[11px] font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                                            >
+                                                                Auto
+                                                            </button>
+                                                        </div>
+
+                                                        <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+                                                            <button
+                                                                onClick={() => setResizeMode('dimensions')}
+                                                                className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${resizeMode === 'dimensions' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                                            >
+                                                                Dimensions
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setResizeMode('percentage')}
+                                                                className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${resizeMode === 'percentage' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                                            >
+                                                                Percentage
+                                                            </button>
+                                                        </div>
+
+                                                        {resizeMode === 'dimensions' ? (
+                                                            <div className="space-y-3">
+                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                                    <div>
+                                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 mb-1">Width</label>
+                                                                        <input
+                                                                            type="number"
+                                                                            value={resizeWidth}
+                                                                            onChange={(e) => handleWidthChange(e.target.value)}
+                                                                            className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                                                                        />
+                                                                    </div>
+                                                                    <div>
+                                                                        <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 mb-1">Height</label>
+                                                                        <input
+                                                                            type="number"
+                                                                            value={resizeHeight}
+                                                                            onChange={(e) => handleHeightChange(e.target.value)}
+                                                                            className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                                <label className="flex items-center gap-2 cursor-pointer group">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={maintainAspectRatio}
+                                                                        onChange={(e) => setMaintainAspectRatio(e.target.checked)}
+                                                                        className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                                                                    />
+                                                                    <span className="text-xs text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Maintain aspect ratio</span>
+                                                                </label>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="space-y-3">
+                                                                <div>
+                                                                    <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 mb-1">Scale Percentage</label>
+                                                                    <div className="flex items-center gap-3">
+                                                                        <input
+                                                                            type="range"
+                                                                            min="1"
+                                                                            max="200"
+                                                                            value={resizePercentage}
+                                                                            onChange={(e) => setResizePercentage(e.target.value)}
+                                                                            className="flex-1 accent-purple-600"
+                                                                        />
+                                                                        <span className="text-sm font-mono w-12 text-right">{resizePercentage}%</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    {[25, 50, 75, 100, 150, 200].map(p => (
+                                                                        <button
+                                                                            key={p}
+                                                                            onClick={() => setResizePercentage(p.toString())}
+                                                                            className={`px-2 py-1 text-[10px] font-bold rounded ${resizePercentage === p.toString() ? 'bg-purple-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                                                                        >
+                                                                            {p}%
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        <div className="pt-2 border-t border-purple-100 dark:border-purple-900/30">
+                                                            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                                                                New dimensions: <span className="font-bold text-gray-700 dark:text-gray-300">
+                                                                    {resizeMode === 'percentage'
+                                                                        ? `${Math.round(originalDimensions.width * parseInt(resizePercentage) / 100)} × ${Math.round(originalDimensions.height * parseInt(resizePercentage) / 100)}`
+                                                                        : `${resizeWidth || 0} × ${resizeHeight || 0}`
+                                                                    } px
+                                                                </span>
+                                                            </p>
                                                         </div>
                                                     </div>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {[25, 50, 75, 100, 150, 200].map(p => (
-                                                            <button
-                                                                key={p}
-                                                                onClick={() => setResizePercentage(p.toString())}
-                                                                className={`px-2 py-1 text-[10px] font-bold rounded ${resizePercentage === p.toString() ? 'bg-purple-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
-                                                            >
-                                                                {p}%
-                                                            </button>
-                                                        ))}
+                                                )}
+
+                                                {/* Watermark Settings */}
+                                                {selectedFormat === 'watermark' && (
+                                                    <WatermarkSettings
+                                                        options={watermarkOptions}
+                                                        onChange={setWatermarkOptions}
+                                                    />
+                                                )}
+
+                                                <Button
+                                                    onClick={handleConvert}
+                                                    disabled={!selectedFormat || isProcessing || (selectedFormat === 'crop' && !cropArea) || (selectedFormat === 'resize' && (!resizeWidth || !resizeHeight)) || (selectedFormat === 'watermark' && (watermarkOptions.type === 'text' ? !watermarkOptions.text : !watermarkOptions.watermarkImage))}
+                                                    loading={isProcessing}
+                                                    className="w-full"
+                                                >
+                                                    {isProcessing
+                                                        ? (selectedFormat === 'remove-background' ? 'Removing Background...' : selectedFormat === 'crop' ? 'Cropping...' : selectedFormat === 'resize' ? 'Resizing...' : selectedFormat === 'watermark' ? 'Watermarking...' : 'Converting...')
+                                                        : (selectedFormat === 'remove-background' ? 'Remove Background with AI' : selectedFormat === 'crop' ? 'Crop Image' : selectedFormat === 'resize' ? 'Resize Image' : selectedFormat === 'watermark' ? 'Add Watermark' : 'Convert')}
+                                                </Button>
+
+                                                {isProcessing && (
+                                                    <div className="space-y-3 pt-2">
+                                                        <AILoader mode="steps" steps={['Prepare', 'Process', 'Package']} currentStep={progress > 85 ? 2 : progress > 5 ? 1 : 0} />
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                                                                <span className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-widest">
+                                                                    {processingMessage}
+                                                                </span>
+                                                            </div>
+                                                            <span className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                                                                {Math.round(progress)}%
+                                                            </span>
+                                                        </div>
+                                                        <ProgressBar progress={progress} />
                                                     </div>
-                                                </div>
-                                            )}
-
-                                            <div className="pt-2 border-t border-purple-100 dark:border-purple-900/30">
-                                                <p className="text-[10px] text-gray-500 dark:text-gray-400">
-                                                    New dimensions: <span className="font-bold text-gray-700 dark:text-gray-300">
-                                                        {resizeMode === 'percentage'
-                                                            ? `${Math.round(originalDimensions.width * parseInt(resizePercentage) / 100)} × ${Math.round(originalDimensions.height * parseInt(resizePercentage) / 100)}`
-                                                            : `${resizeWidth || 0} × ${resizeHeight || 0}`
-                                                        } px
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Watermark Settings */}
-                                    {selectedFormat === 'watermark' && (
-                                        <WatermarkSettings
-                                            options={watermarkOptions}
-                                            onChange={setWatermarkOptions}
-                                        />
-                                    )}
-
-                                    <Button
-                                        onClick={handleConvert}
-                                        disabled={!selectedFormat || isProcessing || (selectedFormat === 'crop' && !cropArea) || (selectedFormat === 'resize' && (!resizeWidth || !resizeHeight)) || (selectedFormat === 'watermark' && (watermarkOptions.type === 'text' ? !watermarkOptions.text : !watermarkOptions.watermarkImage))}
-                                        loading={isProcessing}
-                                        className="w-full"
-                                    >
-                                        {isProcessing
-                                            ? (selectedFormat === 'remove-background' ? 'Removing Background...' : selectedFormat === 'crop' ? 'Cropping...' : selectedFormat === 'resize' ? 'Resizing...' : selectedFormat === 'watermark' ? 'Watermarking...' : 'Converting...')
-                                            : (selectedFormat === 'remove-background' ? 'Remove Background with AI' : selectedFormat === 'crop' ? 'Crop Image' : selectedFormat === 'resize' ? 'Resize Image' : selectedFormat === 'watermark' ? 'Add Watermark' : 'Convert')}
-                                    </Button>
-
-                                    {isProcessing && (
-                                        <div className="space-y-3 pt-2">
-                                            <AILoader mode="steps" steps={['Prepare', 'Process', 'Package']} currentStep={progress > 85 ? 2 : progress > 5 ? 1 : 0} />
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                                                    <span className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-widest">
-                                                        {processingMessage}
-                                                    </span>
-                                                </div>
-                                                <span className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400">
-                                                    {Math.round(progress)}%
-                                                </span>
-                                            </div>
-                                            <ProgressBar progress={progress} />
-                                        </div>
-                                    )}
+                                                )}
+                                            </>
+                                        );
+                                    })()}
                                 </div>
                             </div>
                         )}

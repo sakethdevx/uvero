@@ -14,11 +14,18 @@ export const metadata = {
     keywords: ['image', 'convert', 'pdf', 'offline', 'jpg', 'png', 'local'],
     icon: '🖼️',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: false,
+    securityTool: false,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: SUPPORTED_EXTENSIONS,
+    maxFiles: 100
 };
 
-export default function ImageToPdfTool() {
-    const [files, setFiles] = useState([]);
+export default function ImageToPdfTool({ initialFiles = [] }) {
+    const [files, setFiles] = useState(initialFiles);
     const [options, setOptions] = useState({
         pageSize: 'A4',
         margin: 0,
@@ -103,6 +110,7 @@ export default function ImageToPdfTool() {
                     onFileSelect={handleFileSelect}
                     accept={SUPPORTED_IMAGE_TYPES.join(',')}
                     multiple={true}
+                    minimized={files.length > 0}
                     disabled={files.length >= MAX_FILES}
                     description={`Drop images here (${SUPPORTED_EXTENSIONS.join(', ')}). Max ${MAX_FILES} files.`}
                 />

@@ -12,11 +12,18 @@ export const metadata = {
     keywords: ['split', 'extract', 'pdf', 'offline', 'local'],
     icon: '📄',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: true,
+    securityTool: false,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: 1
 };
 
-export default function SplitPdfTool() {
-    const [files, setFiles] = useState([]);
+export default function SplitPdfTool({ initialFiles = [] }) {
+    const [files, setFiles] = useState(initialFiles);
     const [splitMode, setSplitMode] = useState('ranges');
     const [pageRanges, setPageRanges] = useState('');
     const [everyNPages, setEveryNPages] = useState(2);
@@ -57,10 +64,10 @@ export default function SplitPdfTool() {
     const handleDragEnd = () => setDraggedIdx(null);
 
     const handleSplit = () => {
-        split(files, { 
-            splitMode, 
-            pageRanges, 
-            everyNPages 
+        split(files, {
+            splitMode,
+            pageRanges,
+            everyNPages
         });
     };
 
@@ -74,7 +81,7 @@ export default function SplitPdfTool() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {files.length === 0 && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}
@@ -190,8 +197,8 @@ export default function SplitPdfTool() {
                                     onClick={handleSplit}
                                     disabled={files.length === 0 || (splitMode === 'ranges' && !pageRanges.trim())}
                                     className={
-                                        (files.length === 0 || (splitMode === 'ranges' && !pageRanges.trim())) 
-                                            ? 'opacity-50 cursor-not-allowed' 
+                                        (files.length === 0 || (splitMode === 'ranges' && !pageRanges.trim()))
+                                            ? 'opacity-50 cursor-not-allowed'
                                             : ''
                                     }
                                 >

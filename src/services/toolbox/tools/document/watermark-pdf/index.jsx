@@ -13,11 +13,18 @@ export const metadata = {
     keywords: ['watermark', 'text', 'pdf', 'offline', 'local'],
     icon: '💧',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: false,
+    securityTool: false,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: 100
 };
 
-export default function WatermarkPdfTool() {
-    const [files, setFiles] = useState([]);
+export default function WatermarkPdfTool({ initialFiles = [] }) {
+    const [files, setFiles] = useState(initialFiles);
 
     // Watermark options state
     const [text, setText] = useState('');
@@ -76,7 +83,7 @@ export default function WatermarkPdfTool() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {files.length === 0 && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}
