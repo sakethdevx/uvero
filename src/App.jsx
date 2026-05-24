@@ -105,7 +105,7 @@ function AppContent() {
   }, [isHomepage, navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-x-hidden">
+    <div className="min-h-dvh flex flex-col relative overflow-x-hidden">
       <AmbientBackground state={interactionState} isHome={location.pathname === '/'} />
       {/* ══════ Glass Header ══════ */}
       <header className={`fixed top-0 left-0 right-0 z-50 glass-panel rounded-none transition-ui ${fadeClass}`}
@@ -171,7 +171,7 @@ function AppContent() {
       </header>
 
       {/* ══════ Main Content ══════ */}
-      <main id="main" className="flex-1 pb-20 md:pb-0" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}>
+      <main id="main" className="relative z-10 flex flex-1 flex-col min-h-0 pb-20 md:pb-0" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}>
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/" element={<ServicesHome />} />
@@ -222,9 +222,9 @@ function AppContent() {
         onRerun={triggerIntent}
       />
 
-      {/* ══════ Minimal Footer (hidden on mobile homepage) ══════ */}
-      <footer className={`mt-auto transition-ui ${fadeClass} ${isHomepage ? 'hidden md:block' : ''}`}>
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      {/* ══════ Minimal Footer (desktop only — mobile uses bottom nav) ══════ */}
+      <footer className="relative z-20 mt-auto shrink-0 hidden md:block">
+        <div className="max-w-7xl mx-auto px-4 py-5 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs"
             style={{ color: 'var(--text-secondary)' }}
           >

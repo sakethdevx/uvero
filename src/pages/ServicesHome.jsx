@@ -93,7 +93,7 @@ export default function ServicesHome() {
   const fadeClass = isFaded ? 'ui-faded' : '';
 
   return (
-    <div className={`premium-home ${isInteracting ? 'premium-home-interacting' : ''} relative flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] px-4 pb-24 md:pb-8`}>
+    <div className={`premium-home ${isInteracting ? 'premium-home-interacting' : ''} relative flex flex-1 flex-col items-center justify-center min-h-[calc(100dvh-8rem)] px-4 pb-24 md:min-h-0 md:pb-6`}>
 
       {/* ── Main content — vertically centered ── */}
       <div className={`premium-home-content relative z-10 w-full ${isInteracting ? 'max-w-3xl gap-4' : 'max-w-xl gap-5'} mx-auto flex flex-col items-center`}>
