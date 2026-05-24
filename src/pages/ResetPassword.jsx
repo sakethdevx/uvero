@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { resetPassword } from '../auth/authService'
 import AIPageLayout from '../components/AIPageLayout'
 
 export default function ResetPassword() {
-    const [email, setEmail] = useState('')
+    const location = useLocation()
+    const [email, setEmail] = useState(location.state?.email || '')
     const [status, setStatus] = useState(null)
     const [loading, setLoading] = useState(false)
 

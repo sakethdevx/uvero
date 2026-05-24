@@ -4,7 +4,7 @@ import RequireAuth from '../auth/RequireAuth'
 import { signOut } from '../auth/authService'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase/client'
-import { checkUsernameAvailability, updateMyUsername } from '../auth/usernameService'
+import { checkUsernameAvailability, interpretUsernameAvailability, updateMyUsername } from '../auth/usernameService'
 import { USERNAME_HELP_TEXT, isUsernameValid, normalizeUsernameInput } from '../auth/usernameRules'
 import ThemeToggle from '../components/ThemeToggle'
 import AIPageLayout from '../components/AIPageLayout'
@@ -117,25 +117,15 @@ function ProfileContent() {
         }
 
         let active = true
+        const checkedFor = validation.username
         const timer = setTimeout(async () => {
             try {
                 setUsernameChecking(true)
-                const result = await checkUsernameAvailability(validation.username, user?.access_token)
-                if (!active) return
-
-                if (result.available) {
-                    setUsernameStatus({
-                        tone: 'available',
-                        message: 'Username is available.'
-                    })
-                } else {
-                    setUsernameStatus({
-                        tone: 'taken',
-                        message: result.message || 'Username is already taken.'
-                    })
-                }
+                const result = await checkUsernameAvailability(checkedFor, user?.access_token)
+                if (!active || checkedFor !== normalizeUsernameInput(usernameInput)) return
+                setUsernameStatus(interpretUsernameAvailability(result))
             } catch {
-                if (!active) return
+                if (!active || checkedFor !== normalizeUsernameInput(usernameInput)) return
                 setUsernameStatus({
                     tone: 'invalid',
                     message: 'Could not check availability right now.'

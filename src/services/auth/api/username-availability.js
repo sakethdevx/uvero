@@ -8,6 +8,25 @@ function normalizeUsername(value) {
     return String(value || '').trim().toLowerCase()
 }
 
+function getQueryParam(req, key) {
+    const fromQuery = req.query?.[key]
+    if (fromQuery != null && fromQuery !== '') {
+        return Array.isArray(fromQuery) ? fromQuery[0] : String(fromQuery)
+    }
+
+    try {
+        const host = req.headers?.['x-forwarded-host'] || req.headers?.host || 'localhost'
+        const protocol = req.headers?.['x-forwarded-proto'] || 'http'
+        const url = new URL(req.url || '/', `${protocol}://${host}`)
+        const fromUrl = url.searchParams.get(key)
+        if (fromUrl) return fromUrl
+    } catch {
+        // ignore
+    }
+
+    return ''
+}
+
 function validateUsername(value) {
     const username = normalizeUsername(value)
 
@@ -19,7 +38,7 @@ function validateUsername(value) {
         return {
             valid: false,
             message: 'Use lowercase letters, numbers, dot (.) and underscore (_). Username must start and end with a letter or number.',
-            username
+            username,
         }
     }
     if (username.includes('..')) {
@@ -40,13 +59,7 @@ export default async function handler(req, res) {
         }
 
         const serverSupabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
-
-        const url = new URL(req.url, `http://${req.headers.host}`)
-        const requestedUsername =
-            req.query?.username ||
-            url.searchParams.get('username') ||
-            ''
-
+        const requestedUsername = getQueryParam(req, 'username')
         const validation = validateUsername(requestedUsername)
 
         if (!validation.valid) {
@@ -55,37 +68,39 @@ export default async function handler(req, res) {
                 valid: false,
                 available: false,
                 message: validation.message,
-                isCurrentUser: false
+                isCurrentUser: false,
             })
         }
 
         let currentUserId = null
         const authHeader = req.headers.authorization || ''
-        const token = authHeader.replace('Bearer ', '')
+        const token = authHeader.replace('Bearer ', '').trim()
 
         if (token) {
             const { data: userData } = await serverSupabase.auth.getUser(token)
             currentUserId = userData?.user?.id || null
         }
 
-        const { data: existing, error } = await serverSupabase
+        const { data: matches, error } = await serverSupabase
             .from('profiles')
             .select('id')
             .eq('username', validation.username)
-            .maybeSingle()
+            .limit(1)
 
         if (error) {
             return res.status(500).json({ error: error.message })
         }
 
+        const existing = matches?.[0] || null
         const isCurrentUser = !!(existing?.id && currentUserId && existing.id === currentUserId)
+        const available = !existing || isCurrentUser
 
         return res.status(200).json({
             username: validation.username,
             valid: true,
-            available: !existing || isCurrentUser,
+            available,
             isCurrentUser,
-            message: !existing || isCurrentUser ? 'Username is available.' : 'Username is already taken.'
+            message: available ? 'Username is available.' : 'Username is already taken.',
         })
     } catch (err) {
         return res.status(500).json({ error: String(err?.message || err) })

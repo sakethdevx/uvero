@@ -282,6 +282,27 @@ function RouteFallback() {
 }
 
 /* ── Auth Components ── */
+const headerSignInClass =
+  'flex items-center gap-1.5 text-sm font-medium py-1.5 px-3 rounded-xl border transition-all hover:bg-gray-100/80 dark:hover:bg-white/[0.06]'
+
+function HeaderSignInLink({ className = '' }) {
+  return (
+    <Link
+      to="/login"
+      className={`${headerSignInClass} ${className}`.trim()}
+      style={{
+        color: 'var(--text-primary)',
+        borderColor: 'var(--border)',
+      }}
+    >
+      <svg className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
+      Sign in
+    </Link>
+  )
+}
+
 function AuthStatus() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -323,18 +344,7 @@ function AuthStatus() {
   }
 
   if (!user) {
-    return (
-      <div className="flex items-center gap-2">
-        <Link to="/login" className="text-sm font-medium transition-colors hover:underline"
-          style={{ color: 'var(--text-secondary)' }}
-        >
-          Sign in
-        </Link>
-        <Link to="/signup" className="btn-accent text-sm py-1.5 px-3.5">
-          Sign up
-        </Link>
-      </div>
-    );
+    return <HeaderSignInLink />;
   }
 
   return (
@@ -369,14 +379,7 @@ function MobileAuthAvatar() {
   const { user } = useAuth();
 
   if (!user) {
-    return (
-      <Link to="/login"
-        className="text-xs font-bold px-3 py-1.5 rounded-xl text-white"
-        style={{ background: 'var(--accent)' }}
-      >
-        Sign in
-      </Link>
-    );
+    return <HeaderSignInLink className="text-xs py-1.5 px-2.5" />;
   }
 
   const displayName = user?.user_metadata?.username || user.email || 'U';
