@@ -24,13 +24,14 @@ Uvero brings everyday digital utilities into one focused app: convert files, wor
 
 ### Toolbox
 
-The Toolbox combines a broad drag-and-drop converter with dedicated task pages.
+The Toolbox combines a broad drag-and-drop converter with embedded task workspaces.
 
 - **Unified converter** for image, document, audio, and video formats.
 - **Image operations** include format conversion, crop, resize, watermark, and AI background removal.
 - **Document conversion** supports formats such as DOCX, DOC, Markdown, HTML, RTF, CSV, TSV, JSON, EPUB, ODT, and DocBook.
 - **Audio/video conversion** runs through browser-first FFmpeg workflows where supported.
-- **Dedicated PDF tools** include merge, split, rotate, delete, reorder, extract, compress, unlock, protect, watermark, clean metadata, image to PDF, and PDF to image.
+- **Embedded PDF tools** live inside the unified converter and include merge, split, rotate, delete, reorder, extract, compress, unlock, protect, watermark, clean metadata, image to PDF, and PDF to image.
+- **PDF tool deep links** use `/toolbox?to=<tool-id>`, for example `/toolbox?to=merge-pdf` and `/toolbox?to=pdf-to-image`. Legacy standalone PDF paths redirect into the toolbox workspace.
 - **PDF rasterization** exports selected pages or page ranges as PNG, JPG, or WEBP, using local PDF.js workers, standard fonts, and CMaps for offline rendering.
 - **Utility tools** include password generation, hash generation, and unit conversion.
 
@@ -118,8 +119,9 @@ uvero/
 | Route | Purpose |
 |-------|---------|
 | `/` | Command-first services home |
-| `/toolbox` | Unified file converter and utility hub |
-| `/:toolId` | Dedicated toolbox tools, such as `/merge-pdf` or `/protect-pdf` |
+| `/toolbox` | Unified file converter, embedded PDF workspaces, and utility hub |
+| `/toolbox?to=<tool-id>` | Deep link into a unified converter action, such as `/toolbox?to=merge-pdf` or `/toolbox?to=pdf-to-image` |
+| `/:toolId` | Standalone utility tools, such as `/password-generator`, `/hash-generator`, and `/unit-converter` |
 | `/compiler` | Online compiler |
 | `/clipboard` | Quick Share and private board entry |
 | `/clipboard/:boardId` | Private clipboard board |

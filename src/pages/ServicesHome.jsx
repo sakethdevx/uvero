@@ -81,14 +81,15 @@ export default function ServicesHome() {
   }, []);
 
   useEffect(() => {
-    const nextState = activeIntent ? 'processing' : 'idle';
-    if (interactionState !== nextState) {
-      setInteractionState(nextState);
+    if (activeIntent && interactionState !== 'action') {
+      setInteractionState('action');
+    } else if (!activeIntent && interactionState === 'action') {
+      setInteractionState('idle');
     }
   }, [activeIntent, setInteractionState, interactionState]);
 
-  const isInteracting = Boolean(activeIntent) || interactionState !== 'idle';
-  const isFaded = interactionState !== 'idle';
+  const isInteracting = Boolean(activeIntent);
+  const isFaded = Boolean(activeIntent);
   const fadeClass = isFaded ? 'ui-faded' : '';
 
   return (

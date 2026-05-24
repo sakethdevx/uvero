@@ -36,8 +36,10 @@ function buildFaqStructuredData(tool) {
  */
 export default function ToolPage() {
     const { toolId } = useParams();
+    const [searchParams] = useSearchParams();
     const tool = getToolById(toolId);
-    const shouldVerifyRuntime = Boolean(tool && requiresRuntimeVerification(toolId));
+    const isUnifiedPdfTool = tool?.workspace === 'pdf-tools';
+    const shouldVerifyRuntime = Boolean(tool && !isUnifiedPdfTool && requiresRuntimeVerification(toolId));
     const runtimeStatus = useToolRuntimeStatus(toolId, { enabled: shouldVerifyRuntime });
 
     // Scroll to top when tool changes
@@ -47,7 +49,7 @@ export default function ToolPage() {
 
     // Update document metadata for SEO
     useEffect(() => {
-        if (tool && tool.seo) {
+        if (tool && !isUnifiedPdfTool && tool.seo) {
             document.title = tool.seo.title;
 
             // Update meta description
@@ -125,14 +127,17 @@ export default function ToolPage() {
         return () => {
             document.title = 'Uvero Toolbox';
         };
-    }, [tool]);
+    }, [tool, isUnifiedPdfTool]);
 
     // Tool not found - redirect to home
     if (!tool) {
         return <Navigate to="/" replace />;
     }
 
-    const [searchParams] = useSearchParams();
+    if (isUnifiedPdfTool) {
+        return <Navigate to={`/toolbox?to=${tool.id}`} replace />;
+    }
+
     const queryParams = Object.fromEntries([...searchParams]);
     const ToolComponent = tool.component;
     const isRuntimeUnavailable = shouldVerifyRuntime && !runtimeStatus.isLoading && !runtimeStatus.isAvailable;

@@ -14,11 +14,18 @@ export const metadata = {
     keywords: ['image', 'convert', 'pdf', 'offline', 'jpg', 'png', 'local'],
     icon: '🖼️',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: false,
+    securityTool: false,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: SUPPORTED_EXTENSIONS,
+    maxFiles: 100
 };
 
-export default function ImageToPdfTool() {
-    const [files, setFiles] = useState([]);
+export default function ImageToPdfTool({ initialFiles = [], embedded = false }) {
+    const [files, setFiles] = useState(initialFiles);
     const [options, setOptions] = useState({
         pageSize: 'A4',
         margin: 0,
@@ -64,7 +71,7 @@ export default function ImageToPdfTool() {
                     </div>
                 </div>
 
-                <div className="flex justify-between items-center gap-4 border p-4 rounded-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                <div className="tool-workspace-row flex justify-between items-center gap-4 p-4">
                     <div className="flex flex-col">
                         <span className="font-medium text-gray-900 dark:text-gray-100">{resultPdf.name}</span>
                         <span className="text-sm text-gray-500">{(resultPdf.size / 1024 / 1024).toFixed(2)} MB</span>
@@ -75,7 +82,7 @@ export default function ImageToPdfTool() {
                         download={resultPdf.name}
                         target="_blank"
                         rel="noreferrer"
-                        className="bg-blue-600 hover:bg-blue-700 text-white !py-2 !px-4"
+                        className="!py-2 !px-4"
                     >
                         Download PDF
                     </Button>
@@ -98,11 +105,12 @@ export default function ImageToPdfTool() {
 
     return (
         <div className="space-y-6">
-            {!isProcessing && (
+            {!embedded && !isProcessing && (
                 <Dropzone
                     onFileSelect={handleFileSelect}
                     accept={SUPPORTED_IMAGE_TYPES.join(',')}
                     multiple={true}
+                    minimized={files.length > 0}
                     disabled={files.length >= MAX_FILES}
                     description={`Drop images here (${SUPPORTED_EXTENSIONS.join(', ')}). Max ${MAX_FILES} files.`}
                 />
@@ -113,13 +121,13 @@ export default function ImageToPdfTool() {
                     <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                         Composition Options
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-800">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 tool-workspace-section">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Page Size
                             </label>
                             <select
-                                className="w-full rounded-md border text-black border-gray-300 shadow-sm px-3 py-2 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                                className="tool-workspace-input px-3 py-2"
                                 value={options.pageSize}
                                 onChange={(e) => handleOptionChange('pageSize', e.target.value)}
                             >
@@ -136,7 +144,7 @@ export default function ImageToPdfTool() {
                                     Orientation
                                 </label>
                                 <select
-                                    className="w-full rounded-md border text-black border-gray-300 shadow-sm px-3 py-2 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                                    className="tool-workspace-input px-3 py-2"
                                     value={options.orientation}
                                     onChange={(e) => handleOptionChange('orientation', e.target.value)}
                                 >
@@ -153,7 +161,7 @@ export default function ImageToPdfTool() {
                                     type="checkbox"
                                     checked={options.scaleToFit}
                                     onChange={(e) => handleOptionChange('scaleToFit', e.target.checked)}
-                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    className="h-4 w-4 tool-workspace-check rounded"
                                 />
                                 <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                                     Scale to fit page (preserve aspect ratio)
@@ -164,7 +172,7 @@ export default function ImageToPdfTool() {
                                     type="checkbox"
                                     checked={options.centerImage}
                                     onChange={(e) => handleOptionChange('centerImage', e.target.checked)}
-                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    className="h-4 w-4 tool-workspace-check rounded"
                                 />
                                 <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                                     Center image on page
@@ -214,7 +222,6 @@ export default function ImageToPdfTool() {
                     </Button>
                     <Button
                         onClick={handleProcess}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
                         Generate PDF
                     </Button>

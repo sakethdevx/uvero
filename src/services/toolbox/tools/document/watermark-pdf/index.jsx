@@ -13,11 +13,18 @@ export const metadata = {
     keywords: ['watermark', 'text', 'pdf', 'offline', 'local'],
     icon: '💧',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: false,
+    securityTool: false,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: 100
 };
 
-export default function WatermarkPdfTool() {
-    const [files, setFiles] = useState([]);
+export default function WatermarkPdfTool({ initialFiles = [] }) {
+    const [files, setFiles] = useState(initialFiles);
 
     // Watermark options state
     const [text, setText] = useState('');
@@ -76,7 +83,7 @@ export default function WatermarkPdfTool() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {files.length === 0 && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}
@@ -86,11 +93,11 @@ export default function WatermarkPdfTool() {
             )}
 
             {files.length > 0 && !result && !isProcessing && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="tool-workspace-panel">
                     <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
                         <div className="flex items-center space-x-3">
                             <h3 className="font-medium text-lg truncate max-w-sm">{files[0].name}</h3>
-                            <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-gray-500">
+                            <span className="suggestion-chip !animate-none !opacity-100 !py-1 text-gray-500">
                                 {(files[0].size / 1024 / 1024).toFixed(2)} MB
                             </span>
                         </div>
@@ -107,7 +114,7 @@ export default function WatermarkPdfTool() {
                             <label className="block text-sm font-medium">Watermark Text</label>
                             <input
                                 type="text"
-                                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-900 dark:border-gray-700"
+                                className="tool-workspace-input px-3 py-2"
                                 placeholder="E.g. CONFIDENTIAL"
                                 value={text}
                                 onChange={(e) => setText(e.target.value)}
@@ -118,7 +125,7 @@ export default function WatermarkPdfTool() {
                             <div className="space-y-2">
                                 <label className="block text-sm font-medium">Position</label>
                                 <select
-                                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-900 dark:border-gray-700"
+                                    className="tool-workspace-input px-3 py-2"
                                     value={position}
                                     onChange={(e) => setPosition(e.target.value)}
                                 >
@@ -133,7 +140,7 @@ export default function WatermarkPdfTool() {
                             <div className="space-y-2">
                                 <label className="block text-sm font-medium">Rotation</label>
                                 <select
-                                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-900 dark:border-gray-700"
+                                    className="tool-workspace-input px-3 py-2"
                                     value={rotation}
                                     onChange={(e) => setRotation(parseFloat(e.target.value))}
                                 >
@@ -176,7 +183,7 @@ export default function WatermarkPdfTool() {
                             <label className="block text-sm font-medium">Page Range (Optional)</label>
                             <input
                                 type="text"
-                                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-900 dark:border-gray-700"
+                                className="tool-workspace-input px-3 py-2"
                                 placeholder="E.g. 1-3, 5 (Leave empty for all pages)"
                                 value={pages}
                                 onChange={(e) => setPages(e.target.value)}
@@ -202,7 +209,7 @@ export default function WatermarkPdfTool() {
             )}
 
             {isProcessing && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm border border-gray-200 dark:border-gray-700 text-center space-y-6">
+                <div className="tool-workspace-result space-y-6">
                     <ProgressBar progress={progress} />
                     <p className="text-gray-600 dark:text-gray-300">
                         {progressMessage || 'Processing...'}
@@ -212,7 +219,7 @@ export default function WatermarkPdfTool() {
             )}
 
             {result && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm border border-gray-200 dark:border-gray-700 text-center space-y-6">
+                <div className="tool-workspace-result space-y-6">
                     <div className="w-16 h-16 mx-auto bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center text-2xl">
                         ✓
                     </div>

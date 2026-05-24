@@ -6,17 +6,17 @@ import { FORMAT_REGISTRY } from '../../services/toolbox/core/unifiedProcessor.js
  */
 const generateDynamicConverters = () => {
     const dynamicItems = [];
-    
+
     Object.entries(FORMAT_REGISTRY).forEach(([category, config]) => {
         const catIcon = category === 'image' ? '🖼️' : category === 'document' ? '📄' : category === 'audio' ? '🎵' : '🎥';
-        
+
         // 1. Add generic "Convert to [Format]" for all outputs
         config.outputs.forEach(output => {
             const labelLower = output.label.toLowerCase();
-            const isSpecialTool = labelLower.includes('remover') || 
-                                 labelLower.includes('image') || 
-                                 labelLower.includes('watermark') ||
-                                 labelLower.includes('crop');
+            const isSpecialTool = labelLower.includes('remover') ||
+                labelLower.includes('image') ||
+                labelLower.includes('watermark') ||
+                labelLower.includes('crop');
 
             dynamicItems.push({
                 id: `convert-to-${output.value}`,
@@ -37,7 +37,7 @@ const generateDynamicConverters = () => {
         primaryInputs.forEach(input => {
             primaryOutputs.forEach(output => {
                 if (input.toLowerCase() === output.value.toLowerCase()) return;
-                
+
                 dynamicItems.push({
                     id: `convert-${input}-to-${output.value}`,
                     title: `${input.toUpperCase()} to ${output.label} Converter`,
@@ -50,7 +50,7 @@ const generateDynamicConverters = () => {
             });
         });
     });
-    
+
     return dynamicItems;
 };
 
@@ -165,8 +165,8 @@ export const SEARCH_INDEX = [
         title: tool.name,
         description: tool.description,
         icon: tool.icon || '🔧',
-        path: `/${tool.id}`, // Toolbox tools are at the root path, e.g. /qr-generator
-        category: 'Utilities',
+        path: tool.workspace === 'pdf-tools' ? `/toolbox?to=${tool.id}` : `/${tool.id}`,
+        category: tool.workspace === 'pdf-tools' ? 'Document Tools' : 'Utilities',
         keywords: [tool.name.toLowerCase(), tool.category, ...tool.name.toLowerCase().split(' ')],
     })),
 

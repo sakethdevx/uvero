@@ -12,11 +12,18 @@ export const metadata = {
     keywords: ['combine', 'join', 'pdf', 'offline', 'local'],
     icon: '📄',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: false,
+    securityTool: false,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: MAX_FILES
 };
 
-export default function MergePdfTool() {
-    const [files, setFiles] = useState([]);
+export default function MergePdfTool({ initialFiles = [], embedded = false }) {
+    const [files, setFiles] = useState(initialFiles);
     const [draggedIdx, setDraggedIdx] = useState(null);
 
     const { merge, cancel, reset, isProcessing, progress, progressMessage, error, result } = usePdfMerge();
@@ -64,17 +71,18 @@ export default function MergePdfTool() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {!embedded && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}
                     multiple={true}
+                    minimized={files.length > 0}
                     description="Drag & drop PDF files here or click to browse"
                 />
             )}
 
             {files.length > 0 && !result && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="tool-workspace-panel">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="font-medium text-lg">Arrangement Output ({files.length} {files.length === 1 ? 'file' : 'files'})</h3>
                         {files.length > 1 && !isProcessing && (
@@ -90,7 +98,7 @@ export default function MergePdfTool() {
                                 onDragStart={() => handleDragStart(idx)}
                                 onDragOver={(e) => handleDragOver(e, idx)}
                                 onDragEnd={handleDragEnd}
-                                className={`flex justify-between items-center p-3 rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 transition-colors ${isProcessing ? 'opacity-50' : 'cursor-grab hover:bg-gray-100 dark:hover:bg-gray-700'
+                                className={`tool-workspace-row flex justify-between items-center p-3 transition-colors ${isProcessing ? 'opacity-50' : 'cursor-grab hover:bg-white/70 dark:hover:bg-white/[0.04]'
                                     }`}
                             >
                                 <div className="flex items-center space-x-3 overflow-hidden">
@@ -154,7 +162,7 @@ export default function MergePdfTool() {
             )}
 
             {result && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm border border-green-200 dark:border-green-800 text-center space-y-6">
+                <div className="tool-workspace-result space-y-6">
                     <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center">
                         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

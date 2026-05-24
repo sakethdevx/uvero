@@ -13,11 +13,18 @@ export const metadata = {
     keywords: ['reorder', 'sort', 'pdf', 'offline', 'local'],
     icon: '📄',
     offline: true,
-    experimental: false
+    experimental: false,
+    multiFile: true,
+    pageBased: true,
+    securityTool: false,
+    workspace: 'pdf-tools',
+    processing: 'local-react',
+    accepts: ['.pdf'],
+    maxFiles: 100
 };
 
-export default function ReorderPdfTool() {
-    const [files, setFiles] = useState([]);
+export default function ReorderPdfTool({ initialFiles = [] }) {
+    const [files, setFiles] = useState(initialFiles);
     const [pageOrder, setPageOrder] = useState([]);
     const [thumbnails, setThumbnails] = useState([]);
     const [draggedIndex, setDraggedIndex] = useState(null);
@@ -58,7 +65,7 @@ export default function ReorderPdfTool() {
                     const arrayBuffer = await loadFileAsArrayBuffer(file);
                     const pdf = await pdfLib.PDFDocument.load(arrayBuffer);
                     const totalPages = pdf.getPageCount();
-                    
+
                     // Set initial page order (0, 1, 2, ..., totalPages-1)
                     const initialOrder = Array.from({ length: totalPages }, (_, i) => i);
                     setPageOrder(initialOrder);
@@ -117,7 +124,7 @@ export default function ReorderPdfTool() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            {!result && !isProcessing && (
+            {files.length === 0 && !result && !isProcessing && (
                 <Dropzone
                     accept="application/pdf"
                     onFileSelect={handleFileSelect}
@@ -127,7 +134,7 @@ export default function ReorderPdfTool() {
             )}
 
             {files.length > 0 && !result && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="tool-workspace-panel">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="font-medium text-lg">Reorder Pages ({files.length} file)</h3>
                         <p className="text-sm text-gray-500">Drag thumbnails to reorder</p>
@@ -149,9 +156,8 @@ export default function ReorderPdfTool() {
                                             onDragStart={() => handleDragStart(displayIndex)}
                                             onDragOver={(e) => handleDragOver(e, displayIndex)}
                                             onDragEnd={handleDragEnd}
-                                            className={`border border-gray-200 dark:border-gray-700 rounded-lg p-2 cursor-move transition-colors ${
-                                                draggedIndex === displayIndex ? 'opacity-50 bg-blue-50 dark:bg-blue-900/20' : 'bg-gray-50 dark:bg-gray-700'
-                                            }`}
+                                            className={`tool-workspace-row p-2 cursor-move transition-colors ${draggedIndex === displayIndex ? 'opacity-50 bg-indigo-50 dark:bg-indigo-500/10' : 'hover:bg-white/70 dark:hover:bg-white/[0.04]'
+                                                }`}
                                         >
                                             <div className="aspect-[3/4] bg-gray-200 dark:bg-gray-600 rounded mb-2 overflow-hidden">
                                                 {thumbnail ? (
@@ -196,8 +202,8 @@ export default function ReorderPdfTool() {
                                         onClick={handleReorder}
                                         disabled={files.length === 0 || pageOrder.length === 0}
                                         className={
-                                            (files.length === 0 || pageOrder.length === 0) 
-                                                ? 'opacity-50 cursor-not-allowed' 
+                                            (files.length === 0 || pageOrder.length === 0)
+                                                ? 'opacity-50 cursor-not-allowed'
                                                 : ''
                                         }
                                     >
@@ -211,7 +217,7 @@ export default function ReorderPdfTool() {
             )}
 
             {result && (
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm border border-green-200 dark:border-green-800 text-center space-y-6">
+                <div className="tool-workspace-result space-y-6">
                     <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center">
                         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
