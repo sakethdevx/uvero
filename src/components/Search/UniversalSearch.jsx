@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SEARCH_INDEX } from './searchIndex';
+import { SEARCH_INDEX, SEARCH_KIND } from './searchIndex';
 
 export default function UniversalSearch({ isOpen, onClose }) {
     const [query, setQuery] = useState('');
@@ -12,9 +12,9 @@ export default function UniversalSearch({ isOpen, onClose }) {
     // Filter results based on query
     const filteredResults = React.useMemo(() => {
         if (!query.trim()) return SEARCH_INDEX;
-        
+
         const lowercaseQuery = query.toLowerCase();
-        
+
         return SEARCH_INDEX.filter((item) => {
             const matchesTitle = item.title.toLowerCase().includes(lowercaseQuery);
             const matchesDesc = item.description.toLowerCase().includes(lowercaseQuery);
@@ -39,9 +39,16 @@ export default function UniversalSearch({ isOpen, onClose }) {
     // Group results by category
     const groupedResults = React.useMemo(() => {
         const groups = {};
+        const labelMap = {
+            [SEARCH_KIND.QUICK]: 'Quick Tools',
+            [SEARCH_KIND.TOOL]: 'Tools',
+            [SEARCH_KIND.PAGE]: 'Pages',
+        };
+
         filteredResults.forEach(item => {
-            if (!groups[item.category]) groups[item.category] = [];
-            groups[item.category].push(item);
+            const groupLabel = labelMap[item.kind] || 'Other';
+            if (!groups[groupLabel]) groups[groupLabel] = [];
+            groups[groupLabel].push(item);
         });
         return groups;
     }, [filteredResults]);
@@ -112,14 +119,14 @@ export default function UniversalSearch({ isOpen, onClose }) {
     return (
         <div className="fixed inset-0 z-[100] flex items-start justify-center pt-16 sm:pt-24 px-4 pb-4">
             {/* Backdrop */}
-            <div 
+            <div
                 className="fixed inset-0 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm transition-opacity"
                 onClick={onClose}
             ></div>
 
             {/* Modal */}
             <div className="relative w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-800 flex flex-col max-h-[80vh] sm:max-h-[70vh]">
-                
+
                 {/* Search Input */}
                 <div className="relative border-b border-gray-200 dark:border-gray-800 shrink-0">
                     <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,7 +146,7 @@ export default function UniversalSearch({ isOpen, onClose }) {
                 </div>
 
                 {/* Results List */}
-                <div 
+                <div
                     ref={listRef}
                     className="overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800"
                 >
@@ -159,7 +166,7 @@ export default function UniversalSearch({ isOpen, onClose }) {
                                     {items.map((item) => {
                                         const globalIndex = flatResults.findIndex(r => r.id === item.id);
                                         const isSelected = selectedIndex === globalIndex;
-                                        
+
                                         return (
                                             <li key={item.id}>
                                                 <button
@@ -167,14 +174,14 @@ export default function UniversalSearch({ isOpen, onClose }) {
                                                     onMouseEnter={() => setSelectedIndex(globalIndex)}
                                                     data-selected={isSelected}
                                                     className={`w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-colors outline-none text-left
-                                                        ${isSelected 
-                                                            ? 'bg-primary-50 dark:bg-primary-500/10' 
+                                                        ${isSelected
+                                                            ? 'bg-primary-50 dark:bg-primary-500/10'
                                                             : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
                                                         }`}
                                                 >
                                                     <div className={`flex items-center justify-center w-10 h-10 rounded-lg text-xl shrink-0 transition-colors
-                                                        ${isSelected 
-                                                            ? 'bg-white dark:bg-gray-800 shadow-sm border border-primary-100 dark:border-primary-500/20' 
+                                                        ${isSelected
+                                                            ? 'bg-white dark:bg-gray-800 shadow-sm border border-primary-100 dark:border-primary-500/20'
                                                             : 'bg-gray-100 dark:bg-gray-800/50 border border-transparent'
                                                         }`}
                                                     >
@@ -186,9 +193,14 @@ export default function UniversalSearch({ isOpen, onClose }) {
                                                         >
                                                             {item.title}
                                                         </h4>
-                                                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
-                                                            {item.description}
-                                                        </p>
+                                                        <div className="flex items-center gap-2 mt-0.5 min-w-0">
+                                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 shrink-0">
+                                                                {item.kind === SEARCH_KIND.PAGE ? 'Page' : item.kind === SEARCH_KIND.QUICK ? 'Quick' : 'Tool'}
+                                                            </span>
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                                                {item.description}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                     {isSelected && (
                                                         <svg className="w-5 h-5 text-primary-500 shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">

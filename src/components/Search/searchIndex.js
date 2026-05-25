@@ -1,16 +1,32 @@
 import { tools as toolboxTools } from '../../services/toolbox/tools/index.js';
 import { FORMAT_REGISTRY } from '../../services/toolbox/core/unifiedProcessor.js';
+import { LANGUAGES } from '../../services/compiler/data/languages.js';
 
-/**
- * Generate specific conversion tools based on the unified processor registry
- */
-const generateDynamicConverters = () => {
+const KIND = {
+    QUICK: 'quick',
+    TOOL: 'tool',
+    PAGE: 'page',
+};
+
+const toKeywords = (...values) => {
+    const flattened = values.flat().filter(Boolean).map((val) => String(val).toLowerCase());
+    return Array.from(new Set(flattened));
+};
+
+const unitLabel = (unit) => {
+    if (!unit) return '';
+    if (unit.includes('/')) {
+        return unit.split('/').pop().replace(/_/g, ' ').toUpperCase();
+    }
+    return unit.length <= 4 ? unit.toUpperCase() : unit.charAt(0).toUpperCase() + unit.slice(1);
+};
+
+const generateFileConverterItems = () => {
     const dynamicItems = [];
 
     Object.entries(FORMAT_REGISTRY).forEach(([category, config]) => {
         const catIcon = category === 'image' ? '🖼️' : category === 'document' ? '📄' : category === 'audio' ? '🎵' : '🎥';
 
-        // 1. Add generic "Convert to [Format]" for all outputs
         config.outputs.forEach(output => {
             const labelLower = output.label.toLowerCase();
             const isSpecialTool = labelLower.includes('remover') ||
@@ -24,13 +40,11 @@ const generateDynamicConverters = () => {
                 description: `Convert files to ${output.label} (${output.desc}) entirely in your browser.`,
                 icon: catIcon,
                 path: `/toolbox?to=${output.value}`,
-                category: 'Converters',
-                keywords: ['convert', 'to', output.value, output.label, category, output.desc.toLowerCase()]
+                kind: KIND.TOOL,
+                keywords: toKeywords('convert', 'converter', 'to', output.value, output.label, category, output.desc)
             });
         });
 
-        // 2. Add common "From X to Y" combinations for the top inputs
-        // This makes the search feel very intelligent for common tasks
         const primaryInputs = config.inputs.slice(0, 6);
         const primaryOutputs = config.outputs.slice(0, 6);
 
@@ -44,8 +58,8 @@ const generateDynamicConverters = () => {
                     description: `Instantly convert ${input.toUpperCase()} files to ${output.label} format.`,
                     icon: catIcon,
                     path: `/toolbox?to=${output.value}`,
-                    category: 'Converters',
-                    keywords: [input, 'to', output.value, 'convert', 'transformer']
+                    kind: KIND.TOOL,
+                    keywords: toKeywords(input, 'to', output.value, output.label, 'convert', 'converter', category)
                 });
             });
         });
@@ -54,16 +68,134 @@ const generateDynamicConverters = () => {
     return dynamicItems;
 };
 
+const UNIT_CATEGORIES = {
+    weight: {
+        label: 'Weight',
+        keywords: ['mass', 'scale', 'weight'],
+        pairs: [['kg', 'lbs'], ['lbs', 'kg'], ['g', 'oz'], ['ton', 'kg']],
+    },
+    length: {
+        label: 'Length',
+        keywords: ['distance', 'length'],
+        pairs: [['m', 'ft'], ['ft', 'm'], ['km', 'mi'], ['mi', 'km']],
+    },
+    temperature: {
+        label: 'Temperature',
+        keywords: ['temp', 'temperature'],
+        pairs: [['c', 'f'], ['f', 'c'], ['c', 'k']],
+    },
+    volume: {
+        label: 'Volume',
+        keywords: ['liquid', 'volume'],
+        pairs: [['l', 'gal'], ['gal', 'l'], ['ml', 'cup'], ['floz', 'ml']],
+    },
+    area: {
+        label: 'Area',
+        keywords: ['area', 'surface'],
+        pairs: [['ft2', 'm2'], ['m2', 'ft2'], ['acre', 'hectare']],
+    },
+    speed: {
+        label: 'Speed',
+        keywords: ['speed', 'velocity'],
+        pairs: [['mph', 'kph'], ['kph', 'mph'], ['mps', 'fps']],
+    },
+    time: {
+        label: 'Time',
+        keywords: ['time', 'duration'],
+        pairs: [['hr', 'min'], ['day', 'hr'], ['week', 'day']],
+    },
+    timezone: {
+        label: 'Timezone',
+        keywords: ['timezone', 'time zone', 'tz'],
+        pairs: [['America/New_York', 'America/Los_Angeles'], ['UTC', 'America/New_York']],
+    },
+};
+
+const generateUnitConverterItems = () => {
+    const items = [
+        {
+            id: 'unit-converter',
+            title: 'Unit Converter',
+            description: 'Convert weight, length, temperature, timezones, and more.',
+            icon: '📏',
+            path: '/unit-converter',
+            kind: KIND.TOOL,
+            keywords: toKeywords('unit', 'converter', 'convert', 'measurements', 'weight', 'length', 'temperature', 'timezone'),
+        },
+    ];
+
+    Object.entries(UNIT_CATEGORIES).forEach(([cat, config]) => {
+        items.push({
+            id: `unit-${cat}`,
+            title: `${config.label} Converter`,
+            description: `Convert ${config.label.toLowerCase()} units instantly.`,
+            icon: '📏',
+            path: `/unit-converter?cat=${cat}`,
+            kind: KIND.TOOL,
+            keywords: toKeywords(cat, 'converter', 'convert', config.label, config.keywords),
+        });
+
+        config.pairs.forEach(([from, to]) => {
+            items.push({
+                id: `unit-${cat}-${from}-${to}`,
+                title: `${unitLabel(from)} to ${unitLabel(to)}`,
+                description: `Convert ${unitLabel(from)} to ${unitLabel(to)}.`,
+                icon: '📏',
+                path: `/unit-converter?cat=${cat}&from=${from}&to=${to}`,
+                kind: KIND.TOOL,
+                keywords: toKeywords(from, to, 'to', cat, 'unit', 'convert', config.keywords),
+            });
+        });
+    });
+
+    return items;
+};
+
+const generateCompilerLanguageItems = () => {
+    return LANGUAGES.map((lang) => ({
+        id: `compiler-${lang.id}`,
+        title: `Run ${lang.name} code`,
+        description: `Open the compiler with ${lang.name} selected.`,
+        icon: lang.icon || '💻',
+        path: `/compiler?lang=${lang.id}`,
+        kind: KIND.TOOL,
+        keywords: toKeywords('run', 'code', 'compiler', 'online compiler', 'execute', lang.name, lang.id, lang.aliases || []),
+    }));
+};
+
 export const SEARCH_INDEX = [
-    // Main Apps
+    // Quick tools
+    {
+        id: 'quick-qr',
+        title: 'Generate QR Code',
+        description: 'Quick QR generator for text, links, and WiFi.',
+        icon: '🔳',
+        path: '/qr-tools/generator',
+        kind: KIND.QUICK,
+        keywords: toKeywords('qr', 'quick', 'generate', 'wifi', 'link', 'url', 'text'),
+        priority: 90,
+    },
+    {
+        id: 'quick-clipboard',
+        title: 'Quick Share Clipboard',
+        description: 'Share text with a 4-digit code.',
+        icon: '📋',
+        path: '/clipboard',
+        kind: KIND.QUICK,
+        keywords: toKeywords('clipboard', 'share', 'quick', 'code', 'paste', 'send'),
+        priority: 80,
+    },
+
+    // Core tools & apps
     {
         id: 'app-compiler',
         title: 'Online Compiler',
         description: 'Run code in 50+ languages instantly in your browser.',
         icon: '💻',
         path: '/compiler',
-        category: 'Apps',
-        keywords: ['ide', 'code', 'python', 'javascript', 'java', 'c++'],
+        kind: KIND.TOOL,
+        keywords: toKeywords('compiler', 'ide', 'code', 'python', 'javascript', 'java', 'c++', 'run', 'execute'),
+        priority: 95,
     },
     {
         id: 'app-clipboard',
@@ -71,8 +203,9 @@ export const SEARCH_INDEX = [
         description: 'Secure, real-time shared clipboard.',
         icon: '📋',
         path: '/clipboard',
-        category: 'Apps',
-        keywords: ['copy', 'paste', 'text', 'share'],
+        kind: KIND.TOOL,
+        keywords: toKeywords('clipboard', 'copy', 'paste', 'text', 'share'),
+        priority: 90,
     },
     {
         id: 'app-qrtools',
@@ -80,8 +213,9 @@ export const SEARCH_INDEX = [
         description: 'Generate, scan, and manage dynamic QR codes.',
         icon: '🔳',
         path: '/qr-tools',
-        category: 'Apps',
-        keywords: ['qr', 'code', 'scan', 'generator'],
+        kind: KIND.TOOL,
+        keywords: toKeywords('qr', 'code', 'scan', 'generator', 'dynamic'),
+        priority: 85,
     },
     {
         id: 'qr-generator-advanced',
@@ -89,8 +223,8 @@ export const SEARCH_INDEX = [
         description: 'Create custom QR codes with logos, frames, and beautiful templates.',
         icon: '🎨',
         path: '/qr-tools/generator',
-        category: 'QR Tools',
-        keywords: ['qr', 'generator', 'custom', 'logo', 'design', 'frame'],
+        kind: KIND.TOOL,
+        keywords: toKeywords('qr', 'generator', 'custom', 'logo', 'design', 'frame', 'advanced'),
     },
     {
         id: 'qr-scanner',
@@ -98,8 +232,8 @@ export const SEARCH_INDEX = [
         description: 'Scan QR codes instantly using your camera or by uploading an image.',
         icon: '📷',
         path: '/qr-tools/scanner',
-        category: 'QR Tools',
-        keywords: ['qr', 'scan', 'reader', 'decode', 'camera'],
+        kind: KIND.TOOL,
+        keywords: toKeywords('qr', 'scan', 'reader', 'decode', 'camera'),
     },
     {
         id: 'qr-validator',
@@ -107,8 +241,8 @@ export const SEARCH_INDEX = [
         description: 'Check your QR code for print quality, contrast, and scan reliability.',
         icon: '✅',
         path: '/qr-tools/validator',
-        category: 'QR Tools',
-        keywords: ['qr', 'validate', 'check', 'quality', 'print'],
+        kind: KIND.TOOL,
+        keywords: toKeywords('qr', 'validate', 'check', 'quality', 'print'),
     },
     {
         id: 'qr-bulk',
@@ -116,8 +250,8 @@ export const SEARCH_INDEX = [
         description: 'Generate hundreds of QR codes at once from a CSV or list.',
         icon: '📦',
         path: '/qr-tools/bulk',
-        category: 'QR Tools',
-        keywords: ['qr', 'bulk', 'batch', 'csv', 'mass'],
+        kind: KIND.TOOL,
+        keywords: toKeywords('qr', 'bulk', 'batch', 'csv', 'mass'),
     },
     {
         id: 'qr-dynamic',
@@ -125,8 +259,8 @@ export const SEARCH_INDEX = [
         description: 'Create editable QR codes and track scan performance.',
         icon: '🔄',
         path: '/qr-tools/dynamic',
-        category: 'QR Tools',
-        keywords: ['qr', 'dynamic', 'editable', 'track', 'analytics'],
+        kind: KIND.TOOL,
+        keywords: toKeywords('qr', 'dynamic', 'editable', 'track', 'analytics'),
     },
     {
         id: 'qr-analytics',
@@ -134,8 +268,8 @@ export const SEARCH_INDEX = [
         description: 'View scan trends, country breakdowns, and performance data.',
         icon: '📊',
         path: '/qr-tools/analytics',
-        category: 'QR Tools',
-        keywords: ['qr', 'analytics', 'data', 'stats', 'performance'],
+        kind: KIND.TOOL,
+        keywords: toKeywords('qr', 'analytics', 'data', 'stats', 'performance'),
     },
     {
         id: 'app-toolbox',
@@ -143,8 +277,9 @@ export const SEARCH_INDEX = [
         description: 'Collection of handy browser-based utilities.',
         icon: '🛠️',
         path: '/toolbox',
-        category: 'Apps',
-        keywords: ['tools', 'utilities', 'converter'],
+        kind: KIND.TOOL,
+        keywords: toKeywords('tools', 'utilities', 'converter'),
+        priority: 80,
     },
     {
         id: 'app-cli',
@@ -152,12 +287,18 @@ export const SEARCH_INDEX = [
         description: 'Access Uvero services directly from your terminal.',
         icon: '⌨️',
         path: '/cli',
-        category: 'Apps',
-        keywords: ['terminal', 'command', 'cli', 'api'],
+        kind: KIND.TOOL,
+        keywords: toKeywords('terminal', 'command', 'cli', 'api'),
     },
 
-    // Dynamic Converters from Unified Processor
-    ...generateDynamicConverters(),
+    // Compiler language shortcuts
+    ...generateCompilerLanguageItems(),
+
+    // File converters
+    ...generateFileConverterItems(),
+
+    // Unit converters
+    ...generateUnitConverterItems(),
 
     // Utilities (from Toolbox)
     ...Object.values(toolboxTools).map((tool) => ({
@@ -166,19 +307,19 @@ export const SEARCH_INDEX = [
         description: tool.description,
         icon: tool.icon || '🔧',
         path: tool.workspace === 'pdf-tools' ? `/toolbox?to=${tool.id}` : `/${tool.id}`,
-        category: tool.workspace === 'pdf-tools' ? 'Document Tools' : 'Utilities',
-        keywords: [tool.name.toLowerCase(), tool.category, ...tool.name.toLowerCase().split(' ')],
+        kind: KIND.TOOL,
+        keywords: toKeywords(tool.name, tool.category, tool.id, tool.name.toLowerCase().split(' ')),
     })),
 
-    // Documentation & Pages
+    // Pages
     {
         id: 'page-privacy',
         title: 'Privacy Policy',
         description: 'Learn how we protect your data.',
         icon: '🛡️',
         path: '/privacy',
-        category: 'Pages',
-        keywords: ['privacy', 'terms', 'data', 'security'],
+        kind: KIND.PAGE,
+        keywords: toKeywords('privacy', 'terms', 'data', 'security'),
     },
     {
         id: 'page-contact',
@@ -186,8 +327,8 @@ export const SEARCH_INDEX = [
         description: 'Get in touch with the Uvero team.',
         icon: '✉️',
         path: '/contact',
-        category: 'Pages',
-        keywords: ['contact', 'support', 'help', 'email'],
+        kind: KIND.PAGE,
+        keywords: toKeywords('contact', 'support', 'help', 'email'),
     },
     {
         id: 'page-profile',
@@ -195,8 +336,8 @@ export const SEARCH_INDEX = [
         description: 'Manage your account and settings.',
         icon: '👤',
         path: '/profile',
-        category: 'Pages',
-        keywords: ['account', 'settings', 'profile', 'login', 'signup'],
+        kind: KIND.PAGE,
+        keywords: toKeywords('account', 'settings', 'profile', 'login', 'signup'),
     },
     {
         id: 'page-home',
@@ -204,7 +345,9 @@ export const SEARCH_INDEX = [
         description: 'Navigate back to the Uvero main landing page.',
         icon: '🏠',
         path: '/',
-        category: 'Pages',
-        keywords: ['home', 'landing', 'main', 'start', 'index'],
+        kind: KIND.PAGE,
+        keywords: toKeywords('home', 'landing', 'main', 'start', 'index'),
     },
 ];
+
+export const SEARCH_KIND = KIND;
