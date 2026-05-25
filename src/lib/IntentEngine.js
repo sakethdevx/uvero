@@ -11,19 +11,20 @@
  */
 
 import { SEARCH_INDEX } from '../components/Search/searchIndex.js';
+import { FORMAT_REGISTRY } from '../services/toolbox/core/unifiedProcessor.js';
 
 // ─── Synonym map: user language → canonical verbs ───
 const SYNONYM_MAP = {
-  convert:   ['transform', 'change', 'turn into', 'make into', 'export as', 'save as', 'switch to'],
-  compress:  ['optimize', 'reduce', 'shrink', 'minify', 'make smaller', 'squeeze', 'compact'],
-  generate:  ['create', 'make', 'build', 'produce', 'get'],
-  share:     ['send', 'post', 'distribute', 'publish', 'transfer', 'paste'],
-  scan:      ['read', 'decode', 'detect', 'capture'],
-  split:     ['divide', 'share expense', 'calculate'],
-  run:       ['execute', 'compile', 'interpret', 'test'],
-  remove:    ['delete', 'strip', 'erase', 'clear'],
-  resize:    ['scale', 'enlarge', 'shrink', 'dimensions'],
-  crop:      ['trim', 'cut', 'clip', 'slice'],
+  convert: ['transform', 'change', 'turn into', 'make into', 'export as', 'save as', 'switch to'],
+  compress: ['optimize', 'reduce', 'shrink', 'minify', 'make smaller', 'squeeze', 'compact'],
+  generate: ['create', 'make', 'build', 'produce', 'get'],
+  share: ['send', 'post', 'distribute', 'publish', 'transfer', 'paste'],
+  scan: ['read', 'decode', 'detect', 'capture'],
+  split: ['divide', 'share expense', 'calculate'],
+  run: ['execute', 'compile', 'interpret', 'test'],
+  remove: ['delete', 'strip', 'erase', 'clear'],
+  resize: ['scale', 'enlarge', 'shrink', 'dimensions'],
+  crop: ['trim', 'cut', 'clip', 'slice'],
 };
 
 // ─── Unit Conversion Constants ───
@@ -35,7 +36,7 @@ const UNIT_NORMALIZE_MAP = {
   pst: 'America/Los_Angeles', est: 'America/New_York', cst: 'America/Chicago', mst: 'America/Denver',
   liters: 'l', liter: 'l', millilitres: 'ml', milliliter: 'ml',
   gallons: 'gal', gallon: 'gal', quarts: 'qt', quart: 'qt', pints: 'pt', pint: 'pt', cups: 'cup',
-  acres: 'acre', hectares: 'hectare', sqft: 'ft2', 'sq ft': 'ft2', 'square feet': 'ft2', 'square foot': 'ft2', 
+  acres: 'acre', hectares: 'hectare', sqft: 'ft2', 'sq ft': 'ft2', 'square feet': 'ft2', 'square foot': 'ft2',
   sqmeters: 'm2', 'sq m': 'm2', 'square meters': 'm2', 'square meter': 'm2',
   'sq km': 'km2', 'square kilometers': 'km2', 'sq cm': 'cm2', 'square centimeters': 'cm2',
   'sq in': 'in2', 'square inches': 'in2', 'square inch': 'in2',
@@ -62,6 +63,69 @@ const UNIT_REGEX = new RegExp(`^(?:${unitKeywords.join('|')})(?:\\s+converter)?$
 const CATEGORIES = ['weight', 'length', 'temperature', 'volume', 'speed', 'area', 'timezone', 'time'];
 const CAT_REGEX = new RegExp(`^(?:${CATEGORIES.join('|')})(?:\\s+converter)?$`, 'i');
 
+const FILE_FORMAT_ALIASES = {
+  jpg: 'jpeg',
+  jpeg: 'jpeg',
+  tif: 'tiff',
+  tiff: 'tiff',
+  mpg: 'mpeg',
+  mpeg: 'mpeg',
+  htm: 'html',
+  html: 'html',
+  md: 'markdown',
+  markdown: 'markdown',
+  txt: 'txt',
+  text: 'txt',
+  heif: 'heic',
+  heic: 'heic',
+  webm: 'webm',
+};
+
+const FILE_FORMATS = (() => {
+  const formats = new Set();
+  Object.values(FORMAT_REGISTRY).forEach((config) => {
+    config.inputs.forEach((input) => formats.add(String(input).toLowerCase()));
+    config.outputs.forEach((output) => {
+      formats.add(String(output.value).toLowerCase());
+      formats.add(String(output.label).toLowerCase());
+    });
+  });
+  Object.values(FILE_FORMAT_ALIASES).forEach((alias) => formats.add(alias));
+  return formats;
+})();
+
+const getKindForPath = (path) => SEARCH_INDEX.find((item) => item.path === path)?.kind || null;
+
+const findBestSearchItem = (query, fallbackPath) => {
+  const normalized = query.toLowerCase();
+  const matches = SEARCH_INDEX.filter((item) => {
+    if (fallbackPath && item.path === fallbackPath) return true;
+    return item.title.toLowerCase().includes(normalized) || item.keywords.some((k) => k.includes(normalized));
+  });
+  return matches[0] || null;
+};
+
+const normalizeFormatToken = (token) => {
+  const normalized = String(token || '').toLowerCase();
+  return FILE_FORMAT_ALIASES[normalized] || normalized;
+};
+
+const parsePair = (query) => {
+  const match = query.match(/([\w/]+)\s+to\s+([\w/]+)/i);
+  if (!match) return null;
+  return {
+    from: normalizeFormatToken(match[1]),
+    to: normalizeFormatToken(match[2]),
+  };
+};
+
+const isFileFormat = (token) => FILE_FORMATS.has(normalizeFormatToken(token));
+
+const isUnitToken = (token) => {
+  const normalized = String(token || '').toLowerCase();
+  return Boolean(UNIT_NORMALIZE_MAP[normalized] || UNIT_TO_CAT[normalized] || CATEGORIES.includes(normalized));
+};
+
 // ─── Capability definitions with regex patterns ───
 const CAPABILITIES = [
   {
@@ -69,22 +133,31 @@ const CAPABILITIES = [
     tier: 3,
     handler: null,
     navigateTo: '/unit-converter',
-    label: 'Universal Converter',
+    label: 'Unit Converter',
     icon: '📏',
     patterns: [
-      /(\w+)\s+to\s+(\w+)/i,
-      /(\w+)\s+to\s*$/i,
-      /(?:convert|transform)\s+(\w+)\s+to\s+(\w+)/i,
-      /(?:convert|transform)\s+(\w+)\s+to\s*$/i,
+      /([\w/]+)\s+to\s+([\w/]+)/i,
+      /([\w/]+)\s+to\s*$/i,
+      /(?:convert|transform)\s+([\w/]+)\s+to\s+([\w/]+)/i,
+      /(?:convert|transform)\s+([\w/]+)\s+to\s*$/i,
       /(?:timezone|time)\s+converter/i,
       /(?:weight|length|temperature|volume|speed|area)\s+converter/i,
       UNIT_REGEX,
       CAT_REGEX,
     ],
+    guard: (query, params) => {
+      const pair = parsePair(query);
+      if (pair && isFileFormat(pair.from) && isFileFormat(pair.to)) {
+        return false;
+      }
+      if (params.cat) return true;
+      if ((params.from && isUnitToken(params.from)) || (params.to && isUnitToken(params.to))) return true;
+      return pair ? (isUnitToken(pair.from) || isUnitToken(pair.to)) : false;
+    },
     extractParams: (query) => {
       let from, to, catMatch;
-      const match = query.match(/(\w+)\s+to\s+(\w+)?/i);
-      
+      const match = query.match(/([\w/]+)\s+to\s+([\w/]+)?/i);
+
       if (match) {
         from = match[1].toLowerCase();
         to = (match[2] || '').toLowerCase();
@@ -115,9 +188,13 @@ const CAPABILITIES = [
         const finalFrom = UNIT_NORMALIZE_MAP[from] || from;
         const finalTo = to ? (UNIT_NORMALIZE_MAP[to] || to) : '';
 
+        if (!isUnitToken(finalFrom) && (!finalTo || !isUnitToken(finalTo))) {
+          return {};
+        }
+
         const catFrom = UNIT_TO_CAT[finalFrom.toLowerCase()];
         const catTo = finalTo ? UNIT_TO_CAT[finalTo.toLowerCase()] : null;
-        
+
         const cat = catFrom || catTo || 'weight';
         return { cat, from: finalFrom, to: finalTo || null };
       }
@@ -144,6 +221,7 @@ const CAPABILITIES = [
     label: 'Convert File',
     icon: '⚡',
     patterns: [
+      /([\w/]+)\s+to\s+([\w/]+)/i,
       /(?:convert|transform|change|export|save)\s+(?:.*?)\s+(?:to|into|as)\s+(\w+)/i,
       /(?:convert|compress|optimize|reduce|shrink)\s+(?:image|photo|picture|img|jpeg|jpg|png)/i,
       /(?:convert|transform)\s+(?:audio|video|document|pdf|doc|file)/i,
@@ -151,11 +229,21 @@ const CAPABILITIES = [
       /(?:compress|optimize|reduce)\s+(?:file|image|photo|video|audio)/i,
       /(?:make|get)\s+(?:.*?)\s+smaller/i,
     ],
+    guard: (query, params) => {
+      if (params.category) return true;
+      if (params.format && isFileFormat(params.format)) return true;
+      const pair = parsePair(query);
+      if (!pair) return false;
+      return isFileFormat(pair.from) && isFileFormat(pair.to);
+    },
     extractParams: (query) => {
       // Try to extract "to FORMAT"
-      const toMatch = query.match(/(?:to|into|as)\s+(\w+)/i);
-      const format = toMatch ? toMatch[1].toLowerCase() : null;
-      
+      const toMatch = query.match(/(?:to|into|as)\s+([\w/]+)/i);
+      const format = toMatch ? normalizeFormatToken(toMatch[1]) : null;
+      const pair = parsePair(query);
+      const from = pair?.from || null;
+      const to = pair?.to || null;
+
       // Try to detect category
       const categoryMap = {
         image: /image|photo|picture|img|jpeg|jpg|png|webp|gif|bmp|avif|heic|tiff|svg/i,
@@ -163,13 +251,18 @@ const CAPABILITIES = [
         video: /video|clip|movie|mp4|mkv|mov|avi|webm/i,
         document: /document|doc|pdf|docx|epub|markdown|md|txt|html|csv/i,
       };
-      
+
       let category = null;
       for (const [cat, regex] of Object.entries(categoryMap)) {
         if (regex.test(query)) { category = cat; break; }
       }
-      
-      return { format, category };
+
+      return {
+        format: to || format,
+        from: from ? normalizeFormatToken(from) : null,
+        to: to ? normalizeFormatToken(to) : null,
+        category,
+      };
     },
     description: (params) => {
       const cat = params.category ? `${params.category.charAt(0).toUpperCase() + params.category.slice(1)}` : 'File';
@@ -195,7 +288,7 @@ const CAPABILITIES = [
       if (/wifi/i.test(query)) {
         return { type: 'wifi' };
       }
-      
+
       // Try to extract a URL from the query
       const urlMatch = query.match(/(https?:\/\/[^\s]+)/i);
       const textMatch = query.match(/(?:for|of|with)\s+(.+)$/i);
@@ -411,11 +504,11 @@ function levenshtein(a, b) {
   const m = a.length, n = b.length;
   if (m === 0) return n;
   if (n === 0) return m;
-  
+
   const dp = Array.from({ length: m + 1 }, () => new Array(n + 1));
   for (let i = 0; i <= m; i++) dp[i][0] = i;
   for (let j = 0; j <= n; j++) dp[0][j] = j;
-  
+
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
       dp[i][j] = a[i - 1] === b[j - 1]
@@ -429,28 +522,28 @@ function levenshtein(a, b) {
 function calculateScore(query, target) {
   const q = query.toLowerCase().trim();
   const t = target.toLowerCase().trim();
-  
+
   if (!q || !t) return 0;
 
   // 1. Exact match (highest priority)
   if (q === t) return 1.0;
-  
+
   // 2. Starts-with match
   if (t.startsWith(q)) {
     // Prefer shorter strings that start with the query
     return 0.8 + (q.length / t.length) * 0.1; // Range: 0.8 - 0.9
   }
-  
+
   // 3. Includes match
   if (t.includes(q)) {
     return 0.6 + (q.length / t.length) * 0.1; // Range: 0.6 - 0.7
   }
-  
+
   // 4. Fuzzy match (fallback)
   const dist = levenshtein(q, t);
   const maxLen = Math.max(q.length, t.length);
   const fuzzy = Math.max(0, 1 - dist / maxLen);
-  
+
   return fuzzy * 0.4; // Range: 0.0 - 0.4
 }
 
@@ -470,7 +563,7 @@ function normalizeQuery(query) {
 // ─── Dynamic Unit Suggestion Generator ───
 function getDynamicUnitSuggestions(params) {
   if (!params.from && !params.cat) return [];
-  
+
   const COMMON_UNITS = {
     weight: ['kg', 'lbs', 'g', 'oz', 'ton'],
     length: ['m', 'ft', 'in', 'km', 'mi', 'cm', 'mm'],
@@ -483,10 +576,11 @@ function getDynamicUnitSuggestions(params) {
   };
 
   if (params.from) {
+    if (!isUnitToken(params.from)) return [];
     const cat = params.cat || 'weight';
     const from = params.from;
     const units = COMMON_UNITS[cat] || [];
-    
+
     return units
       .filter(u => u.toLowerCase() !== from.toLowerCase())
       .map(u => {
@@ -497,7 +591,7 @@ function getDynamicUnitSuggestions(params) {
           description: `Quickly convert ${from.toUpperCase()} to ${uLabel.toUpperCase()}`,
           icon: '📏',
           path: `/unit-converter?cat=${cat}&from=${from}&to=${u}`,
-          category: 'Converters' // Use 'Converters' to match CommandBar's Tier 2 fallback
+          kind: 'tool'
         };
       });
   } else if (params.cat) {
@@ -522,7 +616,7 @@ function getDynamicUnitSuggestions(params) {
         description: `Quickly convert ${fLabel.toUpperCase()} to ${tLabel.toUpperCase()}`,
         icon: '📏',
         path: `/unit-converter?cat=${cat}&from=${f}&to=${t}`,
-        category: 'Converters'
+        kind: 'tool'
       };
     });
   }
@@ -536,13 +630,23 @@ export function resolveIntent(rawQuery) {
   }
 
   const query = normalizeQuery(rawQuery);
-  
+
   // 1. Try regex patterns (highest confidence)
   for (const cap of CAPABILITIES) {
     for (const pattern of cap.patterns) {
       if (pattern.test(query)) {
         const params = cap.extractParams ? cap.extractParams(query) : {};
-        
+        if (cap.guard && !cap.guard(query, params)) {
+          continue;
+        }
+
+        let navigateTo = cap.navigateTo || null;
+        if (cap.id === 'run-code' && params.lang) {
+          navigateTo = `/compiler?lang=${params.lang}`;
+        }
+        const matchItem = findBestSearchItem(rawQuery, navigateTo || cap.navigateTo);
+        const kind = matchItem?.kind || getKindForPath(navigateTo || cap.navigateTo);
+
         const result = {
           capability: cap,
           params,
@@ -551,7 +655,8 @@ export function resolveIntent(rawQuery) {
           description: cap.description(params),
           tier: cap.tier,
           handler: cap.handler,
-          navigateTo: cap.navigateTo || null,
+          navigateTo,
+          kind,
           suggestions: getRelatedSuggestions(cap.id, rawQuery),
         };
 
@@ -572,19 +677,35 @@ export function resolveIntent(rawQuery) {
       const titleScore = calculateScore(rawQuery, item.title);
       const keywordScores = item.keywords.map(k => calculateScore(rawQuery, k));
       const bestKeyword = Math.max(...keywordScores, 0);
-      
+
       // Exact keyword matches should be as strong as exact title matches
       // but otherwise slightly prefer title matches
-      const score = Math.max(titleScore, bestKeyword === 1.0 ? 1.0 : bestKeyword * 0.9);
+      let score = Math.max(titleScore, bestKeyword === 1.0 ? 1.0 : bestKeyword * 0.9);
+
+      const shortQuery = rawQuery.trim().length <= 6 || rawQuery.trim().split(/\s+/).length <= 2;
+      const pair = parsePair(rawQuery);
+      const lowerTitle = item.title.toLowerCase();
+      const lowerKeywords = item.keywords.map((k) => k.toLowerCase());
+
+      if (shortQuery && item.kind === 'quick') score += 0.08;
+      if (item.kind === 'tool') score += 0.03;
+      if (item.kind === 'page') score -= 0.04;
+
+      if (pair) {
+        const from = pair.from.toLowerCase();
+        const to = pair.to.toLowerCase();
+        const matchesFrom = lowerTitle.includes(from) || lowerKeywords.some((k) => k.includes(from));
+        const matchesTo = lowerTitle.includes(to) || lowerKeywords.some((k) => k.includes(to));
+        if (matchesFrom && matchesTo) score += 0.12;
+      }
+
+      if (item.priority) score += item.priority / 1000;
+
       return { ...item, score };
     })
     .filter(item => item.score > 0.1)
     .sort((a, b) => b.score - a.score)
     .slice(0, 8);
-
-  // DEBUGGING: Log query, matched item, and score
-  console.log(`[Search Debug] Query: "${rawQuery}"`);
-  scored.slice(0, 4).forEach(item => console.log(`  - ${item.title}: score=${item.score.toFixed(3)}`));
 
   if (scored.length > 0 && scored[0].score > 0.6) {
     // High-confidence fuzzy match — find matching capability
@@ -592,7 +713,7 @@ export function resolveIntent(rawQuery) {
       if (c.navigateTo && scored[0].path === c.navigateTo) return true;
       return false;
     });
-    
+
     // Use matched capability or create a synthetic one for direct page matches
     const capability = matchedCap || {
       id: scored[0].id,
@@ -612,18 +733,29 @@ export function resolveIntent(rawQuery) {
       tier: capability.tier,
       handler: capability.handler || null,
       navigateTo: capability.navigateTo,
+      kind: scored[0].kind,
       suggestions: scored.slice(1).map(s => ({
         id: s.id,
         title: s.title,
         description: s.description,
         icon: s.icon,
         path: s.path,
+        kind: s.kind,
         score: s.score,
       })),
     };
   }
 
   // 3. Low confidence — return all fuzzy suggestions
+  const baseSuggestions = scored.map(s => ({
+    id: s.id,
+    title: s.title,
+    description: s.description,
+    icon: s.icon,
+    path: s.path,
+    kind: s.kind,
+    score: s.score,
+  }));
   return {
     capability: null,
     params: {},
@@ -633,14 +765,8 @@ export function resolveIntent(rawQuery) {
     tier: null,
     handler: null,
     navigateTo: null,
-    suggestions: scored.map(s => ({
-      id: s.id,
-      title: s.title,
-      description: s.description,
-      icon: s.icon,
-      path: s.path,
-      score: s.score,
-    })),
+    kind: null,
+    suggestions: baseSuggestions,
   };
 }
 
@@ -659,6 +785,7 @@ function getRelatedSuggestions(capId, query) {
       description: s.description,
       icon: s.icon,
       path: s.path,
+      kind: s.kind,
     }));
 }
 

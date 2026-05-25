@@ -1,6 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SEARCH_INDEX } from './searchIndex';
+import { SEARCH_INDEX, SEARCH_KIND } from './searchIndex';
+
+const RECENT_KEY = 'uvero_recent_searches';
+const MAX_RECENTS = 6;
+
+const loadRecentItems = () => {
+    try {
+        const stored = JSON.parse(localStorage.getItem(RECENT_KEY));
+        return Array.isArray(stored) ? stored : [];
+    } catch {
+        return [];
+    }
+};
+
+const persistRecentItems = (items) => {
+    try {
+        localStorage.setItem(RECENT_KEY, JSON.stringify(items.slice(0, MAX_RECENTS)));
+    } catch { }
+};
 
 export default function UniversalSearch({ isOpen, onClose }) {
     const [query, setQuery] = useState('');
@@ -8,29 +26,72 @@ export default function UniversalSearch({ isOpen, onClose }) {
     const inputRef = useRef(null);
     const listRef = useRef(null);
     const navigate = useNavigate();
+    const [recentItems, setRecentItems] = useState(() => loadRecentItems());
+
+    const saveRecentItem = (item) => {
+        if (!item?.title || !item?.path) return;
+        const nextItem = {
+            id: item.id || item.title,
+            title: item.title,
+            description: item.description || 'Recent search',
+            icon: item.icon || '🕘',
+            path: item.path,
+            kind: item.kind || null,
+        };
+        setRecentItems((prev) => {
+            const filtered = prev.filter((entry) => entry.path !== nextItem.path);
+            const updated = [nextItem, ...filtered].slice(0, MAX_RECENTS);
+            persistRecentItems(updated);
+            return updated;
+        });
+    };
 
     // Filter results based on query
     const filteredResults = React.useMemo(() => {
-        if (!query.trim()) return SEARCH_INDEX;
-        
+        if (!query.trim()) {
+            const recent = recentItems.map((item) => ({ ...item, isRecent: true }));
+            const recentPaths = new Set(recent.map((item) => item.path));
+            const rest = SEARCH_INDEX.filter((item) => !recentPaths.has(item.path));
+            return [...recent, ...rest];
+        }
+
         const lowercaseQuery = query.toLowerCase();
-        
+        const pairMatch = lowercaseQuery.match(/([\w/]+)\s+to\s+([\w/]+)/i);
+        const pairFrom = pairMatch ? pairMatch[1] : null;
+        const pairTo = pairMatch ? pairMatch[2] : null;
+
         return SEARCH_INDEX.filter((item) => {
             const matchesTitle = item.title.toLowerCase().includes(lowercaseQuery);
             const matchesDesc = item.description.toLowerCase().includes(lowercaseQuery);
             const matchesKeywords = item.keywords.some(k => k.includes(lowercaseQuery));
             return matchesTitle || matchesDesc || matchesKeywords;
         }).sort((a, b) => {
-            // Very basic scoring: title match > keyword match > description match
-            const aTitle = a.title.toLowerCase().includes(lowercaseQuery) ? 3 : 0;
-            const aKw = a.keywords.some(k => k.includes(lowercaseQuery)) ? 2 : 0;
-            const aDesc = a.description.toLowerCase().includes(lowercaseQuery) ? 1 : 0;
-            const scoreA = Math.max(aTitle, aKw, aDesc);
+            const scoreItem = (item) => {
+                const title = item.title.toLowerCase();
+                const desc = item.description.toLowerCase();
+                const keywordMatch = item.keywords.some(k => k.includes(lowercaseQuery));
+                let score = Math.max(
+                    title.includes(lowercaseQuery) ? 3 : 0,
+                    keywordMatch ? 2 : 0,
+                    desc.includes(lowercaseQuery) ? 1 : 0
+                );
 
-            const bTitle = b.title.toLowerCase().includes(lowercaseQuery) ? 3 : 0;
-            const bKw = b.keywords.some(k => k.includes(lowercaseQuery)) ? 2 : 0;
-            const bDesc = b.description.toLowerCase().includes(lowercaseQuery) ? 1 : 0;
-            const scoreB = Math.max(bTitle, bKw, bDesc);
+                if (item.kind === SEARCH_KIND.QUICK) score += 0.5;
+                if (item.kind === SEARCH_KIND.TOOL) score += 0.2;
+                if (item.kind === SEARCH_KIND.PAGE) score -= 0.1;
+                if (item.priority) score += item.priority / 100;
+
+                if (pairFrom && pairTo) {
+                    const matchesFrom = title.includes(pairFrom) || item.keywords.some(k => k.includes(pairFrom));
+                    const matchesTo = title.includes(pairTo) || item.keywords.some(k => k.includes(pairTo));
+                    if (matchesFrom && matchesTo) score += 0.6;
+                }
+
+                return score;
+            };
+
+            const scoreA = scoreItem(a);
+            const scoreB = scoreItem(b);
 
             return scoreB - scoreA;
         });
@@ -39,9 +100,16 @@ export default function UniversalSearch({ isOpen, onClose }) {
     // Group results by category
     const groupedResults = React.useMemo(() => {
         const groups = {};
+        const labelMap = {
+            [SEARCH_KIND.QUICK]: 'Quick Tools',
+            [SEARCH_KIND.TOOL]: 'Tools',
+            [SEARCH_KIND.PAGE]: 'Pages',
+        };
+
         filteredResults.forEach(item => {
-            if (!groups[item.category]) groups[item.category] = [];
-            groups[item.category].push(item);
+            const groupLabel = item.isRecent ? 'Recent' : (labelMap[item.kind] || 'Other');
+            if (!groups[groupLabel]) groups[groupLabel] = [];
+            groups[groupLabel].push(item);
         });
         return groups;
     }, [filteredResults]);
@@ -61,6 +129,7 @@ export default function UniversalSearch({ isOpen, onClose }) {
     // Focus input on open
     useEffect(() => {
         if (isOpen) {
+            setRecentItems(loadRecentItems());
             setTimeout(() => inputRef.current?.focus(), 10);
         } else {
             setQuery('');
@@ -106,20 +175,24 @@ export default function UniversalSearch({ isOpen, onClose }) {
         navigate(path);
         onClose();
     };
+    const handleSelectWithRecent = (item) => {
+        saveRecentItem(item);
+        handleSelect(item.path);
+    };
 
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-[100] flex items-start justify-center pt-16 sm:pt-24 px-4 pb-4">
             {/* Backdrop */}
-            <div 
+            <div
                 className="fixed inset-0 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm transition-opacity"
                 onClick={onClose}
             ></div>
 
             {/* Modal */}
             <div className="relative w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-800 flex flex-col max-h-[80vh] sm:max-h-[70vh]">
-                
+
                 {/* Search Input */}
                 <div className="relative border-b border-gray-200 dark:border-gray-800 shrink-0">
                     <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,7 +212,7 @@ export default function UniversalSearch({ isOpen, onClose }) {
                 </div>
 
                 {/* Results List */}
-                <div 
+                <div
                     ref={listRef}
                     className="overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800"
                 >
@@ -159,22 +232,22 @@ export default function UniversalSearch({ isOpen, onClose }) {
                                     {items.map((item) => {
                                         const globalIndex = flatResults.findIndex(r => r.id === item.id);
                                         const isSelected = selectedIndex === globalIndex;
-                                        
+
                                         return (
                                             <li key={item.id}>
                                                 <button
-                                                    onClick={() => handleSelect(item.path)}
+                                                    onClick={() => handleSelectWithRecent(item)}
                                                     onMouseEnter={() => setSelectedIndex(globalIndex)}
                                                     data-selected={isSelected}
                                                     className={`w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-colors outline-none text-left
-                                                        ${isSelected 
-                                                            ? 'bg-primary-50 dark:bg-primary-500/10' 
+                                                        ${isSelected
+                                                            ? 'bg-primary-50 dark:bg-primary-500/10'
                                                             : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
                                                         }`}
                                                 >
                                                     <div className={`flex items-center justify-center w-10 h-10 rounded-lg text-xl shrink-0 transition-colors
-                                                        ${isSelected 
-                                                            ? 'bg-white dark:bg-gray-800 shadow-sm border border-primary-100 dark:border-primary-500/20' 
+                                                        ${isSelected
+                                                            ? 'bg-white dark:bg-gray-800 shadow-sm border border-primary-100 dark:border-primary-500/20'
                                                             : 'bg-gray-100 dark:bg-gray-800/50 border border-transparent'
                                                         }`}
                                                     >
@@ -186,9 +259,14 @@ export default function UniversalSearch({ isOpen, onClose }) {
                                                         >
                                                             {item.title}
                                                         </h4>
-                                                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
-                                                            {item.description}
-                                                        </p>
+                                                        <div className="flex items-center gap-2 mt-0.5 min-w-0">
+                                                            <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 shrink-0">
+                                                                {item.kind === SEARCH_KIND.PAGE ? 'Page' : item.kind === SEARCH_KIND.QUICK ? 'Quick' : 'Tool'}
+                                                            </span>
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                                                {item.description}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                     {isSelected && (
                                                         <svg className="w-5 h-5 text-primary-500 shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">

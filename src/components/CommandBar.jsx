@@ -4,6 +4,23 @@ import { resolveIntent, PLACEHOLDER_INTENTS, getAllCapabilities } from '../lib/I
 import { useInteraction } from '../lib/InteractionContext';
 
 const allCapabilities = getAllCapabilities();
+const RECENT_KEY = 'uvero_recent_searches';
+const MAX_RECENTS = 6;
+
+const loadRecentItems = () => {
+  try {
+    const stored = JSON.parse(localStorage.getItem(RECENT_KEY));
+    return Array.isArray(stored) ? stored : [];
+  } catch {
+    return [];
+  }
+};
+
+const persistRecentItems = (items) => {
+  try {
+    localStorage.setItem(RECENT_KEY, JSON.stringify(items.slice(0, MAX_RECENTS)));
+  } catch { }
+};
 
 // Example prompts shown in the "Try:" row when the bar is focused and empty
 const QUICK_EXAMPLES = [
@@ -31,10 +48,29 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [placeholderVisible, setPlaceholderVisible] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
+  const [recentItems, setRecentItems] = useState(() => loadRecentItems());
   const inputRef = useRef(null);
   const navigate = useNavigate();
   const debounceRef = useRef(null);
   const { setInteractionState } = useInteraction();
+
+  const saveRecentItem = useCallback((item) => {
+    if (!item?.title || !item?.path) return;
+    const nextItem = {
+      id: item.id || item.title,
+      title: item.title,
+      description: item.description || 'Recent search',
+      icon: item.icon || '🕘',
+      path: item.path,
+      kind: item.kind || null,
+    };
+    setRecentItems((prev) => {
+      const filtered = prev.filter((entry) => entry.path !== nextItem.path);
+      const updated = [nextItem, ...filtered].slice(0, MAX_RECENTS);
+      persistRecentItems(updated);
+      return updated;
+    });
+  }, []);
 
   useEffect(() => {
     if (!isFocused && !query.trim()) {
@@ -80,8 +116,8 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
       inputRef.current?.focus();
       onExternalQueryConsumed?.();
     }
-  // handleQueryChange is stable (useCallback) — safe to include
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // handleQueryChange is stable (useCallback) — safe to include
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [externalQuery]);
 
   // ⌘K global listener (for embed mode only — modal handles its own)
@@ -146,7 +182,21 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
 
   // Build suggestion list
   const allSuggestions = useMemo(() => {
-    if (!result) return [];
+    if (!result) {
+      if (isFocused && !query.trim() && recentItems.length) {
+        return recentItems.map((entry, index) => ({
+          type: 'recent',
+          id: `recent-${entry.id || index}`,
+          icon: entry.icon || '🕘',
+          title: entry.title,
+          description: entry.description || 'Recent search',
+          path: entry.path,
+          kind: entry.kind || null,
+          tier: entry.kind === 'page' ? 3 : 2,
+        }));
+      }
+      return [];
+    }
     const items = [];
 
     // Best match (the resolved capability)
@@ -162,6 +212,7 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
         navigateTo: result.navigateTo,
         capability: result.capability,
         params: result.params,
+        kind: result.kind || null,
         isBestMatch: true,
       });
     }
@@ -170,18 +221,17 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
     if (result.suggestions) {
       result.suggestions.forEach(s => {
         if (items.some(i => i.id === s.id)) return;
-        
+
         // Try to find a matching capability to get the correct tier
-        const matchedCap = allCapabilities.find(c => 
-          (c.navigateTo && s.path === c.navigateTo) || 
+        const matchedCap = allCapabilities.find(c =>
+          (c.navigateTo && s.path === c.navigateTo) ||
           (c.id === s.id)
         );
 
         // Category-based fallback for tiering
         let tier = matchedCap ? matchedCap.tier : 3;
         if (!matchedCap) {
-          const toolCategories = ['Converters', 'Utilities', 'QR Tools'];
-          if (toolCategories.includes(s.category)) {
+          if (s.kind === 'tool' || s.kind === 'quick') {
             tier = 2;
           }
         }
@@ -195,8 +245,8 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
         }
 
         const params = matchedCap?.extractParams ? matchedCap.extractParams(query) : {};
-        const description = (matchedCap && typeof matchedCap.description === 'function') 
-          ? matchedCap.description(params) 
+        const description = (matchedCap && typeof matchedCap.description === 'function')
+          ? matchedCap.description(params)
           : (s.description || (matchedCap?.description && typeof matchedCap.description === 'string' ? matchedCap.description : ''));
 
         items.push({
@@ -210,15 +260,24 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
           handler,
           capability: matchedCap ? matchedCap : null,
           params,
+          kind: s.kind,
         });
       });
     }
 
     return items.slice(0, 6);
-  }, [result, query]);
+  }, [result, query, isFocused, recentItems]);
 
   const selectItem = useCallback((item) => {
     if (!item) return;
+
+    if (item.type === 'recent' && item.path) {
+      navigate(item.path);
+      setQuery('');
+      setResult(null);
+      if (mode === 'modal') onClose?.();
+      return;
+    }
 
     if ((item.tier === 1 || item.tier === 2) && item.handler) {
       // Inline execution — open ActionPanel
@@ -231,13 +290,21 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
         handler: item.handler,
         navigateTo: item.navigateTo,
       });
+      saveRecentItem({
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        icon: item.icon,
+        path: item.navigateTo || item.path,
+        kind: item.kind,
+      });
       setQuery('');
       setResult(null);
       if (mode === 'modal') onClose?.();
     } else {
       // Navigate to page
       let path = item.navigateTo || item.path;
-      
+
       // Append params as query string if present
       if (item.params && Object.keys(item.params).length > 0) {
         const urlParams = new URLSearchParams();
@@ -251,13 +318,21 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
       }
 
       if (path) {
+        saveRecentItem({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          icon: item.icon,
+          path,
+          kind: item.kind,
+        });
         navigate(path);
         setQuery('');
         setResult(null);
         if (mode === 'modal') onClose?.();
       }
     }
-  }, [navigate, onIntentResolved, onClose, mode]);
+  }, [navigate, onIntentResolved, onClose, mode, saveRecentItem]);
 
   // ── Render ──
   const isEmbed = mode === 'embed';
@@ -270,7 +345,7 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
         onClick={(e) => { if (e.target === e.currentTarget) onClose?.(); }}
       >
         {/* Backdrop */}
-        <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in" 
+        <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in"
           onClick={onClose}
         />
 
@@ -295,9 +370,7 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
     return (
       <>
         <div
-          className={`command-bar relative flex items-center gap-3.5 transition-all duration-[350ms] ease-apple glass-panel px-5 py-4 sm:px-6 sm:py-[1.05rem] ${
-            isFocused || query ? 'command-bar-active glass-glow' : ''} ${
-              query ? 'command-bar-processing is-typing' : ''
+          className={`command-bar relative flex items-center gap-3.5 transition-all duration-[350ms] ease-apple glass-panel px-5 py-4 sm:px-6 sm:py-[1.05rem] ${isFocused || query ? 'command-bar-active glass-glow' : ''} ${query ? 'command-bar-processing is-typing' : ''
             }`}
         >
           {/* Search icon / AI indicator */}
@@ -310,8 +383,8 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
               />
             ) : (
               <svg className="w-5 h-5 intelligence-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 3L13.8 9.6L20.4 11.4L13.8 13.2L12 19.8L10.2 13.2L3.6 11.4L10.2 9.6L12 3Z" stroke="url(#intel-grad)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M17.4 6.6L18.6 9L21 10.2L18.6 11.4L17.4 13.8L16.2 11.4L13.8 10.2L16.2 9L17.4 6.6Z" stroke="url(#intel-grad)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 3L13.8 9.6L20.4 11.4L13.8 13.2L12 19.8L10.2 13.2L3.6 11.4L10.2 9.6L12 3Z" stroke="url(#intel-grad)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M17.4 6.6L18.6 9L21 10.2L18.6 11.4L17.4 13.8L16.2 11.4L13.8 10.2L16.2 9L17.4 6.6Z" stroke="url(#intel-grad)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 <defs>
                   <linearGradient id="intel-grad" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
                     <stop offset="0%" stopColor="#ec4899" />
@@ -406,11 +479,10 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
             <button
               key={item.id}
               onClick={() => selectItem(item)}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all duration-200 ${
-                i === selectedIndex
-                  ? 'bg-gray-100/80 dark:bg-white/[0.06]'
-                  : 'hover:bg-gray-50 dark:hover:bg-white/[0.03]'
-              }`}
+              className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all duration-200 ${i === selectedIndex
+                ? 'bg-gray-100/80 dark:bg-white/[0.06]'
+                : 'hover:bg-gray-50 dark:hover:bg-white/[0.03]'
+                }`}
             >
               <span className="text-base shrink-0">{item.icon}</span>
               <div className="min-w-0 flex-1">
@@ -424,9 +496,24 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
                         Quick
                       </span>
                     )}
+                    {item.tier !== 1 && item.kind === 'quick' && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-100/50 dark:border-emerald-500/20">
+                        Quick
+                      </span>
+                    )}
                     {item.tier === 2 && (
                       <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-100/50 dark:border-blue-500/20">
                         Tool
+                      </span>
+                    )}
+                    {item.kind === 'page' && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-white/[0.08] dark:text-gray-300 border border-gray-200/70 dark:border-white/[0.12]">
+                        Page
+                      </span>
+                    )}
+                    {item.type === 'recent' && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-white/[0.08] dark:text-gray-300 border border-gray-200/70 dark:border-white/[0.12]">
+                        Recent
                       </span>
                     )}
                     {item.isBestMatch && (

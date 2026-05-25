@@ -192,7 +192,7 @@ export const tools = {
     // Measurements & Time
     'unit-converter': {
         id: 'unit-converter',
-        name: 'Universal Converter',
+        name: 'Unit Converter',
         description: 'Convert between length, weight, temperature, timezones, and other units',
         component: UnitConverter,
         category: 'measurements',
