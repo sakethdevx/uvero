@@ -45,8 +45,8 @@ export default function ClipboardBoard() {
     const [viewMode, setViewMode] = useState('edit') // 'edit' | 'preview' | 'split'
     const [darkEditor, setDarkEditor] = useState(true)
 
-    /* ── Settings (visible by default so all options are immediately accessible) ── */
-    const [showSettings, setShowSettings] = useState(true)
+    /* ── Settings ── */
+    const [showSettings, setShowSettings] = useState(false)
     const [password, setPassword] = useState('')
     const [burnAfterRead, setBurnAfterRead] = useState(false)
     const [expiresIn, setExpiresIn] = useState('24h')
@@ -385,44 +385,46 @@ export default function ClipboardBoard() {
                 )}
             </header>
 
-            {/* ── Editor ── */}
+            {/* ── Editor Card Container ── */}
             <div className="py-4">
                 {error && (
-                    <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400">
+                    <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400 animate-fade-in">
                         {error}
                     </div>
                 )}
 
-                <div className={`grid gap-0 ${viewMode === 'split' ? 'grid-cols-2' : ''}`} style={{ minHeight: 'calc(100vh - 180px)' }}>
-                    {/* Editor Pane */}
-                    {(viewMode === 'edit' || viewMode === 'split') && (
-                        <div className={`relative ${viewMode === 'split' ? 'border-r border-gray-100 dark:border-white/5' : ''}`}>
-                            <textarea
-                                ref={textareaRef}
-                                value={content}
-                                onChange={e => handleContentChange(e.target.value)}
-                                placeholder={isNew ? 'Start typing... Your content will auto-save.' : 'Start typing...'}
-                                className={`w-full h-full min-h-[calc(100vh-220px)] p-6 text-sm font-mono resize-none focus:outline-none transition-colors bg-transparent text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-600`}
-                                spellCheck={false}
-                            />
-                        </div>
-                    )}
-
-                    {/* Preview Pane */}
-                    {(viewMode === 'preview' || viewMode === 'split') && (
-                        <div className="p-6 min-h-[calc(100vh-220px)] overflow-auto bg-gray-50/30 dark:bg-transparent">
-                            {language === 'markdown' ? (
-                                <div
-                                    className="prose dark:prose-invert prose-sm max-w-none text-gray-800 dark:text-gray-200"
-                                    dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
+                <div className="bg-white dark:bg-gray-900/30 border border-gray-200 dark:border-white/[0.08] rounded-2xl shadow-sm overflow-hidden focus-within:border-violet-500/50 dark:focus-within:border-violet-500/40 focus-within:ring-4 focus-within:ring-violet-500/5 transition-all duration-300">
+                    <div className={`grid gap-0 ${viewMode === 'split' ? 'grid-cols-2 divide-x divide-gray-100 dark:divide-white/[0.06]' : ''}`}>
+                        {/* Editor Pane */}
+                        {(viewMode === 'edit' || viewMode === 'split') && (
+                            <div className="relative bg-white/50 dark:bg-gray-950/20">
+                                <textarea
+                                    ref={textareaRef}
+                                    value={content}
+                                    onChange={e => handleContentChange(e.target.value)}
+                                    placeholder={isNew ? 'Start typing... Your content will auto-save.' : 'Start typing...'}
+                                    className="w-full min-h-[calc(100vh-320px)] p-5 sm:p-6 text-sm font-mono resize-none focus:outline-none bg-transparent text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-600 leading-relaxed"
+                                    spellCheck={false}
                                 />
-                            ) : (
-                                <pre className="text-sm font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">
-                                    {content || <span className="text-gray-400 dark:text-gray-600 italic">Nothing here yet...</span>}
-                                </pre>
-                            )}
-                        </div>
-                    )}
+                            </div>
+                        )}
+
+                        {/* Preview Pane */}
+                        {(viewMode === 'preview' || viewMode === 'split') && (
+                            <div className="p-5 sm:p-6 min-h-[calc(100vh-320px)] overflow-auto bg-gray-50/20 dark:bg-white/[0.01]">
+                                {language === 'markdown' ? (
+                                    <div
+                                        className="prose dark:prose-invert prose-sm max-w-none text-gray-800 dark:text-gray-200"
+                                        dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
+                                    />
+                                ) : (
+                                    <pre className="text-sm font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words leading-relaxed">
+                                        {content || <span className="text-gray-400 dark:text-gray-600 italic">Nothing here yet...</span>}
+                                    </pre>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="mt-4 rounded-2xl border border-gray-200/80 bg-gray-50/90 p-5 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
