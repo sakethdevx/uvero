@@ -63,6 +63,34 @@ export default function ClipboardBoard() {
     const saveTimer = useRef(null)
     const textareaRef = useRef(null)
 
+    /* ── Searchable Language Dropdown State ── */
+    const [showLangDropdown, setShowLangDropdown] = useState(false)
+    const [langSearchQuery, setLangSearchQuery] = useState('')
+    const langDropdownRef = useRef(null)
+    const isFirstRender = useRef(true)
+
+    // Close dropdown on click outside
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (langDropdownRef.current && !langDropdownRef.current.contains(event.target)) {
+                setShowLangDropdown(false)
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+
+    // Auto-save when language changes (skip initial render)
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false
+            return
+        }
+        if (!loading) {
+            saveBoard()
+        }
+    }, [language])
+
     /* ── Board URL ── */
     const boardUrl = typeof window !== 'undefined' ? `${window.location.origin}/clipboard/${boardId}` : ''
     const boardCliCommands = getBoardCliCommands(boardId)
@@ -341,23 +369,60 @@ export default function ClipboardBoard() {
                         {/* Left: Language Select & Editor View Tabs */}
                         <div className="flex items-center gap-3">
                             {/* Language Selection */}
-                            <div className="relative">
-                                <select
-                                    value={language}
-                                    onChange={e => setLanguage(e.target.value)}
-                                    className="appearance-none bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/[0.08] rounded-xl pl-3 pr-8 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 focus:outline-none focus:border-violet-500/50 transition-all cursor-pointer shadow-sm"
+                            <div className="relative" ref={langDropdownRef}>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowLangDropdown(!showLangDropdown)
+                                        setLangSearchQuery('')
+                                    }}
+                                    className="flex items-center gap-1.5 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/[0.08] rounded-xl px-3 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 focus:outline-none hover:bg-gray-50 dark:hover:bg-white/5 transition-all shadow-sm select-none"
                                 >
-                                    {LANGUAGES.map(l => (
-                                        <option key={l} value={l} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
-                                            {l === 'plaintext' ? 'Plain Text' : l.charAt(0).toUpperCase() + l.slice(1)}
-                                        </option>
-                                    ))}
-                                </select>
-                                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <span>{language === 'plaintext' ? 'Plain Text' : language.charAt(0).toUpperCase() + language.slice(1)}</span>
+                                    <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
                                     </svg>
-                                </div>
+                                </button>
+
+                                {showLangDropdown && (
+                                    <div className="absolute left-0 mt-1.5 w-48 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/[0.08] rounded-2xl shadow-xl z-50 p-2 animate-fade-in">
+                                        <div className="relative mb-2">
+                                            <input
+                                                type="text"
+                                                value={langSearchQuery}
+                                                onChange={e => setLangSearchQuery(e.target.value)}
+                                                placeholder="Search language..."
+                                                className="w-full bg-gray-50 dark:bg-white/[0.04] border border-gray-100 dark:border-white/[0.06] rounded-xl py-1.5 pl-7 pr-3 text-xs text-gray-800 dark:text-gray-200 placeholder-gray-400 focus:outline-none focus:border-violet-500/50 transition-all"
+                                                autoFocus
+                                            />
+                                            <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                        </div>
+                                        <div className="max-h-48 overflow-y-auto space-y-0.5 custom-scrollbar">
+                                            {LANGUAGES.filter(lang => 
+                                                lang.toLowerCase().includes(langSearchQuery.toLowerCase())
+                                            ).map(l => (
+                                                <button
+                                                    key={l}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setLanguage(l)
+                                                        setShowLangDropdown(false)
+                                                    }}
+                                                    className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${language === l ? 'bg-violet-600 text-white font-bold' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'}`}
+                                                >
+                                                    {l === 'plaintext' ? 'Plain Text' : l.charAt(0).toUpperCase() + l.slice(1)}
+                                                </button>
+                                            ))}
+                                            {LANGUAGES.filter(lang => 
+                                                lang.toLowerCase().includes(langSearchQuery.toLowerCase())
+                                            ).length === 0 && (
+                                                <div className="text-[10px] text-gray-400 dark:text-gray-600 text-center py-3">No matches found</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* View Mode Switcher (Edit, Preview, Split) */}
