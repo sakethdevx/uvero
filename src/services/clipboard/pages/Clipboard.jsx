@@ -153,21 +153,21 @@ export default function Clipboard() {
             />
 
             {/* ── Mode Tabs ── */}
-            <div className="relative mb-4 flex justify-center">
-                <div className="glass-panel relative inline-flex w-full max-w-md p-1.5 shadow-inner">
+            <div className="relative mb-6 flex justify-center">
+                <div className="glass-panel relative grid grid-cols-2 w-full max-w-lg p-1.5 shadow-sm rounded-2xl">
                     <button
                         onClick={() => setActiveMode('quick')}
-                        className={`relative flex items-center gap-2 px-6 sm:px-10 py-3 rounded-xl text-sm sm:text-base font-bold transition-colors duration-200 select-none ${activeMode === 'quick' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                        className={`relative flex items-center justify-center gap-1.5 py-2.5 sm:py-3 px-3 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 select-none whitespace-nowrap ${activeMode === 'quick' ? 'bg-emerald-600 text-white shadow-md' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'}`}
                     >
-                        <span className="text-base">⚡</span>
+                        <span className="text-sm sm:text-base">⚡</span>
                         <span>Quick Share</span>
                     </button>
                     <button
                         onClick={() => setActiveMode('private')}
-                        className={`relative flex items-center gap-2 px-6 sm:px-10 py-3 rounded-xl text-sm sm:text-base font-bold transition-colors duration-200 select-none ${activeMode === 'private' ? 'bg-violet-600 text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                        className={`relative flex items-center justify-center gap-1.5 py-2.5 sm:py-3 px-3 sm:px-6 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 select-none whitespace-nowrap ${activeMode === 'private' ? 'bg-violet-600 text-white shadow-md' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'}`}
                     >
-                        <span className="text-base">🔒</span>
-                        <span>Live Clipboard (Private)</span>
+                        <span className="text-sm sm:text-base">🔒</span>
+                        <span>Live Clipboard</span>
                     </button>
                 </div>
             </div>
