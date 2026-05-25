@@ -120,7 +120,7 @@ const generateUnitConverterItems = () => {
             icon: '📏',
             path: '/unit-converter',
             kind: KIND.TOOL,
-            keywords: toKeywords('unit', 'converter', 'convert', 'measurements', 'weight', 'length', 'temperature', 'timezone'),
+            keywords: toKeywords('unit', 'converter', 'convert', 'measurements', 'weight', 'length', 'temperature', 'timezone', 'universal converter'),
         },
     ];
 

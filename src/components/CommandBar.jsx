@@ -4,6 +4,23 @@ import { resolveIntent, PLACEHOLDER_INTENTS, getAllCapabilities } from '../lib/I
 import { useInteraction } from '../lib/InteractionContext';
 
 const allCapabilities = getAllCapabilities();
+const RECENT_KEY = 'uvero_recent_searches';
+const MAX_RECENTS = 6;
+
+const loadRecentItems = () => {
+  try {
+    const stored = JSON.parse(localStorage.getItem(RECENT_KEY));
+    return Array.isArray(stored) ? stored : [];
+  } catch {
+    return [];
+  }
+};
+
+const persistRecentItems = (items) => {
+  try {
+    localStorage.setItem(RECENT_KEY, JSON.stringify(items.slice(0, MAX_RECENTS)));
+  } catch { }
+};
 
 // Example prompts shown in the "Try:" row when the bar is focused and empty
 const QUICK_EXAMPLES = [
@@ -31,10 +48,29 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [placeholderVisible, setPlaceholderVisible] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
+  const [recentItems, setRecentItems] = useState(() => loadRecentItems());
   const inputRef = useRef(null);
   const navigate = useNavigate();
   const debounceRef = useRef(null);
   const { setInteractionState } = useInteraction();
+
+  const saveRecentItem = useCallback((item) => {
+    if (!item?.title || !item?.path) return;
+    const nextItem = {
+      id: item.id || item.title,
+      title: item.title,
+      description: item.description || 'Recent search',
+      icon: item.icon || '🕘',
+      path: item.path,
+      kind: item.kind || null,
+    };
+    setRecentItems((prev) => {
+      const filtered = prev.filter((entry) => entry.path !== nextItem.path);
+      const updated = [nextItem, ...filtered].slice(0, MAX_RECENTS);
+      persistRecentItems(updated);
+      return updated;
+    });
+  }, []);
 
   useEffect(() => {
     if (!isFocused && !query.trim()) {
@@ -146,7 +182,21 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
 
   // Build suggestion list
   const allSuggestions = useMemo(() => {
-    if (!result) return [];
+    if (!result) {
+      if (isFocused && !query.trim() && recentItems.length) {
+        return recentItems.map((entry, index) => ({
+          type: 'recent',
+          id: `recent-${entry.id || index}`,
+          icon: entry.icon || '🕘',
+          title: entry.title,
+          description: entry.description || 'Recent search',
+          path: entry.path,
+          kind: entry.kind || null,
+          tier: entry.kind === 'page' ? 3 : 2,
+        }));
+      }
+      return [];
+    }
     const items = [];
 
     // Best match (the resolved capability)
@@ -216,10 +266,18 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
     }
 
     return items.slice(0, 6);
-  }, [result, query]);
+  }, [result, query, isFocused, recentItems]);
 
   const selectItem = useCallback((item) => {
     if (!item) return;
+
+    if (item.type === 'recent' && item.path) {
+      navigate(item.path);
+      setQuery('');
+      setResult(null);
+      if (mode === 'modal') onClose?.();
+      return;
+    }
 
     if ((item.tier === 1 || item.tier === 2) && item.handler) {
       // Inline execution — open ActionPanel
@@ -231,6 +289,14 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
         tier: item.tier,
         handler: item.handler,
         navigateTo: item.navigateTo,
+      });
+      saveRecentItem({
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        icon: item.icon,
+        path: item.navigateTo || item.path,
+        kind: item.kind,
       });
       setQuery('');
       setResult(null);
@@ -252,13 +318,21 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
       }
 
       if (path) {
+        saveRecentItem({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          icon: item.icon,
+          path,
+          kind: item.kind,
+        });
         navigate(path);
         setQuery('');
         setResult(null);
         if (mode === 'modal') onClose?.();
       }
     }
-  }, [navigate, onIntentResolved, onClose, mode]);
+  }, [navigate, onIntentResolved, onClose, mode, saveRecentItem]);
 
   // ── Render ──
   const isEmbed = mode === 'embed';
@@ -406,8 +480,8 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
               key={item.id}
               onClick={() => selectItem(item)}
               className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all duration-200 ${i === selectedIndex
-                  ? 'bg-gray-100/80 dark:bg-white/[0.06]'
-                  : 'hover:bg-gray-50 dark:hover:bg-white/[0.03]'
+                ? 'bg-gray-100/80 dark:bg-white/[0.06]'
+                : 'hover:bg-gray-50 dark:hover:bg-white/[0.03]'
                 }`}
             >
               <span className="text-base shrink-0">{item.icon}</span>
@@ -435,6 +509,11 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
                     {item.kind === 'page' && (
                       <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-white/[0.08] dark:text-gray-300 border border-gray-200/70 dark:border-white/[0.12]">
                         Page
+                      </span>
+                    )}
+                    {item.type === 'recent' && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-white/[0.08] dark:text-gray-300 border border-gray-200/70 dark:border-white/[0.12]">
+                        Recent
                       </span>
                     )}
                     {item.isBestMatch && (

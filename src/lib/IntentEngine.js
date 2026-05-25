@@ -63,6 +63,24 @@ const UNIT_REGEX = new RegExp(`^(?:${unitKeywords.join('|')})(?:\\s+converter)?$
 const CATEGORIES = ['weight', 'length', 'temperature', 'volume', 'speed', 'area', 'timezone', 'time'];
 const CAT_REGEX = new RegExp(`^(?:${CATEGORIES.join('|')})(?:\\s+converter)?$`, 'i');
 
+const FILE_FORMAT_ALIASES = {
+  jpg: 'jpeg',
+  jpeg: 'jpeg',
+  tif: 'tiff',
+  tiff: 'tiff',
+  mpg: 'mpeg',
+  mpeg: 'mpeg',
+  htm: 'html',
+  html: 'html',
+  md: 'markdown',
+  markdown: 'markdown',
+  txt: 'txt',
+  text: 'txt',
+  heif: 'heic',
+  heic: 'heic',
+  webm: 'webm',
+};
+
 const FILE_FORMATS = (() => {
   const formats = new Set();
   Object.values(FORMAT_REGISTRY).forEach((config) => {
@@ -72,6 +90,7 @@ const FILE_FORMATS = (() => {
       formats.add(String(output.label).toLowerCase());
     });
   });
+  Object.values(FILE_FORMAT_ALIASES).forEach((alias) => formats.add(alias));
   return formats;
 })();
 
@@ -86,16 +105,24 @@ const findBestSearchItem = (query, fallbackPath) => {
   return matches[0] || null;
 };
 
+const normalizeFormatToken = (token) => {
+  const normalized = String(token || '').toLowerCase();
+  return FILE_FORMAT_ALIASES[normalized] || normalized;
+};
+
 const parsePair = (query) => {
   const match = query.match(/([\w/]+)\s+to\s+([\w/]+)/i);
   if (!match) return null;
-  return { from: match[1].toLowerCase(), to: match[2].toLowerCase() };
+  return {
+    from: normalizeFormatToken(match[1]),
+    to: normalizeFormatToken(match[2]),
+  };
 };
 
-const isFileFormat = (token) => FILE_FORMATS.has(String(token).toLowerCase());
+const isFileFormat = (token) => FILE_FORMATS.has(normalizeFormatToken(token));
 
 const isUnitToken = (token) => {
-  const normalized = String(token).toLowerCase();
+  const normalized = String(token || '').toLowerCase();
   return Boolean(UNIT_NORMALIZE_MAP[normalized] || UNIT_TO_CAT[normalized] || CATEGORIES.includes(normalized));
 };
 
@@ -124,7 +151,7 @@ const CAPABILITIES = [
         return false;
       }
       if (params.cat) return true;
-      if (params.from || params.to) return true;
+      if ((params.from && isUnitToken(params.from)) || (params.to && isUnitToken(params.to))) return true;
       return pair ? (isUnitToken(pair.from) || isUnitToken(pair.to)) : false;
     },
     extractParams: (query) => {
@@ -160,6 +187,10 @@ const CAPABILITIES = [
       if (from) {
         const finalFrom = UNIT_NORMALIZE_MAP[from] || from;
         const finalTo = to ? (UNIT_NORMALIZE_MAP[to] || to) : '';
+
+        if (!isUnitToken(finalFrom) && (!finalTo || !isUnitToken(finalTo))) {
+          return {};
+        }
 
         const catFrom = UNIT_TO_CAT[finalFrom.toLowerCase()];
         const catTo = finalTo ? UNIT_TO_CAT[finalTo.toLowerCase()] : null;
@@ -208,7 +239,7 @@ const CAPABILITIES = [
     extractParams: (query) => {
       // Try to extract "to FORMAT"
       const toMatch = query.match(/(?:to|into|as)\s+([\w/]+)/i);
-      const format = toMatch ? toMatch[1].toLowerCase() : null;
+      const format = toMatch ? normalizeFormatToken(toMatch[1]) : null;
       const pair = parsePair(query);
       const from = pair?.from || null;
       const to = pair?.to || null;
@@ -226,7 +257,12 @@ const CAPABILITIES = [
         if (regex.test(query)) { category = cat; break; }
       }
 
-      return { format: to || format, from, to, category };
+      return {
+        format: to || format,
+        from: from ? normalizeFormatToken(from) : null,
+        to: to ? normalizeFormatToken(to) : null,
+        category,
+      };
     },
     description: (params) => {
       const cat = params.category ? `${params.category.charAt(0).toUpperCase() + params.category.slice(1)}` : 'File';
@@ -540,6 +576,7 @@ function getDynamicUnitSuggestions(params) {
   };
 
   if (params.from) {
+    if (!isUnitToken(params.from)) return [];
     const cat = params.cat || 'weight';
     const from = params.from;
     const units = COMMON_UNITS[cat] || [];
@@ -643,7 +680,27 @@ export function resolveIntent(rawQuery) {
 
       // Exact keyword matches should be as strong as exact title matches
       // but otherwise slightly prefer title matches
-      const score = Math.max(titleScore, bestKeyword === 1.0 ? 1.0 : bestKeyword * 0.9);
+      let score = Math.max(titleScore, bestKeyword === 1.0 ? 1.0 : bestKeyword * 0.9);
+
+      const shortQuery = rawQuery.trim().length <= 6 || rawQuery.trim().split(/\s+/).length <= 2;
+      const pair = parsePair(rawQuery);
+      const lowerTitle = item.title.toLowerCase();
+      const lowerKeywords = item.keywords.map((k) => k.toLowerCase());
+
+      if (shortQuery && item.kind === 'quick') score += 0.08;
+      if (item.kind === 'tool') score += 0.03;
+      if (item.kind === 'page') score -= 0.04;
+
+      if (pair) {
+        const from = pair.from.toLowerCase();
+        const to = pair.to.toLowerCase();
+        const matchesFrom = lowerTitle.includes(from) || lowerKeywords.some((k) => k.includes(from));
+        const matchesTo = lowerTitle.includes(to) || lowerKeywords.some((k) => k.includes(to));
+        if (matchesFrom && matchesTo) score += 0.12;
+      }
+
+      if (item.priority) score += item.priority / 1000;
+
       return { ...item, score };
     })
     .filter(item => item.score > 0.1)
@@ -690,6 +747,15 @@ export function resolveIntent(rawQuery) {
   }
 
   // 3. Low confidence — return all fuzzy suggestions
+  const baseSuggestions = scored.map(s => ({
+    id: s.id,
+    title: s.title,
+    description: s.description,
+    icon: s.icon,
+    path: s.path,
+    kind: s.kind,
+    score: s.score,
+  }));
   return {
     capability: null,
     params: {},
@@ -700,15 +766,7 @@ export function resolveIntent(rawQuery) {
     handler: null,
     navigateTo: null,
     kind: null,
-    suggestions: scored.map(s => ({
-      id: s.id,
-      title: s.title,
-      description: s.description,
-      icon: s.icon,
-      path: s.path,
-      kind: s.kind,
-      score: s.score,
-    })),
+    suggestions: baseSuggestions,
   };
 }
 
