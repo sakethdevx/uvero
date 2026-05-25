@@ -506,12 +506,21 @@ export default function ClipboardBoard() {
 
                         {/* Preview Pane */}
                         {(viewMode === 'preview' || viewMode === 'split') && (
-                            <div className="p-5 sm:p-6 min-h-[calc(100vh-320px)] overflow-auto bg-gray-50/20 dark:bg-white/[0.01]">
+                            <div className="p-5 sm:p-6 min-h-[calc(100vh-320px)] overflow-auto bg-gray-50/20 dark:bg-white/[0.01] flex flex-col">
                                 {language === 'markdown' ? (
                                     <div
                                         className="prose dark:prose-invert prose-sm max-w-none text-gray-800 dark:text-gray-200"
                                         dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
                                     />
+                                ) : language === 'html' ? (
+                                    <div className="w-full flex-1 min-h-[calc(100vh-360px)] rounded-xl overflow-hidden border border-gray-200 dark:border-white/[0.08] shadow-sm">
+                                        <iframe
+                                            title="HTML Preview"
+                                            srcDoc={content}
+                                            className="w-full h-full min-h-[calc(100vh-360px)] border-0 bg-white"
+                                            sandbox="allow-scripts"
+                                        />
+                                    </div>
                                 ) : (
                                     <pre className="text-sm font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words leading-relaxed">
                                         {content || <span className="text-gray-400 dark:text-gray-600 italic">Nothing here yet...</span>}
