@@ -7,7 +7,7 @@ import { AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../co
 const quickNotes = [
     'Share text straight from the terminal without opening the browser first.',
     'Read or open a quick-share code when someone sends it to you.',
-    'Create and update private boards from the CLI when you need named collaboration spaces.',
+    'Create and update Live Clipboards (Private) from the CLI when you need named collaboration spaces.',
 ]
 
 export default function ClipboardCli() {

@@ -2,7 +2,7 @@
 
 // GitHub storage service for Online Clipboard
 // Stores board content as text files in dedicated GitHub repos.
-// Public and private boards use separate repo configs.
+// Public and Live Clipboard (Private) boards use separate repo configs.
 
 import { Buffer } from 'buffer'
 
