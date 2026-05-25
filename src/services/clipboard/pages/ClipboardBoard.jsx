@@ -247,145 +247,86 @@ export default function ClipboardBoard() {
         <AIServiceShell>
             <header className="sticky top-0 z-40 bg-white/85 dark:bg-gray-950/85 backdrop-blur-xl border-b border-gray-200/60 dark:border-white/[0.06] -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
                 <div className="py-3 flex items-center justify-between gap-4">
+                    {/* Title & Status */}
                     <div className="flex items-center gap-3 min-w-0">
                         <AIBackLink to="/clipboard" />
                         <div className="min-w-0">
-                            <h1 className="text-lg font-bold truncate">/{boardId}</h1>
-                            <div className="flex items-center gap-2 text-xs text-gray-500">
-                                {isNew && <span className="text-emerald-400">New board</span>}
-                                {saving && <span className="text-yellow-400">Saving...</span>}
-                                {lastSaved && !saving && <span>Saved {lastSaved.toLocaleTimeString()}</span>}
+                            <div className="flex items-center gap-1.5">
+                                <span className="text-base select-none">📂</span>
+                                <h1 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white truncate">/{boardId}</h1>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                                {saving ? (
+                                    <span className="flex items-center gap-1 text-amber-500 font-semibold animate-pulse">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                        Saving changes...
+                                    </span>
+                                ) : isNew ? (
+                                    <span className="text-emerald-500 dark:text-emerald-400 font-semibold animate-fade-in">Draft Board</span>
+                                ) : lastSaved ? (
+                                    <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 animate-fade-in">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                        Saved at {lastSaved.toLocaleTimeString()}
+                                    </span>
+                                ) : (
+                                    <span>Syncing...</span>
+                                )}
                             </div>
                         </div>
                     </div>
 
+                    {/* Primary Actions */}
                     <div className="flex items-center gap-2 flex-shrink-0">
-                        {/* Language selector */}
-                        <select
-                            value={language}
-                            onChange={e => setLanguage(e.target.value)}
-                            className="bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/[0.08] rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-300 focus:outline-none focus:border-emerald-500/50 max-w-[120px] transition-all"
+                        {/* Copy URL */}
+                        <button
+                            onClick={copyUrl}
+                            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-sm select-none ${copiedUrl ? 'bg-emerald-600 text-white' : 'bg-violet-600 text-white hover:bg-violet-700'}`}
+                            title="Copy Board Share Link"
                         >
-                            {LANGUAGES.map(l => <option key={l} value={l} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">{l}</option>)}
-                        </select>
-
-                        {/* View mode toggle */}
-                        <div className="hidden sm:flex bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/[0.08] rounded-lg overflow-hidden">
-                            {['edit', 'preview', 'split'].map(m => (
-                                <button
-                                    key={m}
-                                    onClick={() => setViewMode(m)}
-                                    className={`px-2.5 py-1.5 text-xs font-semibold transition-all ${viewMode === m ? 'bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 shadow-inner' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'}`}
-                                >
-                                    {m.charAt(0).toUpperCase() + m.slice(1)}
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Actions */}
-                        <button onClick={copyContent} className="p-2 bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/[0.08] rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all" title="Copy All">
-                            {copied ? <svg className="w-4 h-4 text-emerald-500 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                                : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>}
+                            {copiedUrl ? (
+                                <>
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span>Shared!</span>
+                                </>
+                            ) : (
+                                <>
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                    </svg>
+                                    <span className="hidden sm:inline">Share Link</span>
+                                </>
+                            )}
                         </button>
 
-                        <button onClick={copyUrl} className="p-2 bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/[0.08] rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all" title="Copy URL">
-                            {copiedUrl ? <svg className="w-4 h-4 text-emerald-500 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                                : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>}
-                        </button>
-
-                        <button onClick={generateQR} className={`p-2 bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/[0.08] rounded-lg transition-all ${qrUrl ? 'text-emerald-600 dark:text-emerald-400 !bg-emerald-500/10 !border-emerald-500/30' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10'}`} title="QR Code">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
-                        </button>
-
-                        <button onClick={downloadContent} className="p-2 bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/[0.08] rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-all" title="Download">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                        </button>
-
-                        <button onClick={() => setShowSettings(!showSettings)} className={`p-2 bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/[0.08] rounded-lg transition-all ${showSettings ? 'text-purple-600 dark:text-purple-400 !bg-purple-500/10 !border-purple-500/30' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/10'}`} title="Settings">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        {/* Copy Content */}
+                        <button
+                            onClick={copyContent}
+                            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all shadow-sm select-none ${copied ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 text-emerald-700 dark:text-emerald-400' : 'bg-gray-50 hover:bg-gray-100 border-gray-200 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] dark:border-white/[0.08] text-gray-700 dark:text-gray-300'}`}
+                            title="Copy Board Content"
+                        >
+                            {copied ? (
+                                <>
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span>Copied!</span>
+                                </>
+                            ) : (
+                                <>
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    <span className="hidden sm:inline">Copy Text</span>
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>
-
-                {/* QR Code display */}
-                {qrUrl && (
-                    <div className="border-t border-gray-200/60 dark:border-white/[0.06] bg-gray-50/80 dark:bg-gray-900/60 py-4 flex items-center justify-center gap-6">
-                        <img src={qrUrl} alt="QR Code" className="w-32 h-32 rounded-xl bg-white p-2 shadow-xl" />
-                        <div className="text-sm">
-                            <p className="text-gray-500 dark:text-gray-400 mb-1 font-medium">Scan to access this board</p>
-                            <p className="text-xs text-gray-400 dark:text-gray-600 font-mono truncate max-w-[240px]">{boardUrl}</p>
-                        </div>
-                    </div>
-                )}
-
-                {/* Settings panel */}
-                {showSettings && (
-                    <div className="border-t border-gray-100 dark:border-white/5 bg-gray-50/80 dark:bg-gray-900/60 backdrop-blur-sm py-5 px-4 shadow-inner animate-fade-in-down -mx-4 sm:-mx-6 lg:-mx-8">
-                        <div>
-                            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                {/* Password */}
-                                <div>
-                                    <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
-                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                                        Password
-                                    </label>
-                                    <input
-                                        type="password"
-                                        value={password}
-                                        onChange={e => setPassword(e.target.value)}
-                                        placeholder="No password"
-                                        className="w-full bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.08] rounded-xl py-2.5 px-3 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-purple-400 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/10 transition-all"
-                                    />
-                                </div>
-
-                                {/* Expiration */}
-                                <div>
-                                    <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
-                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        Retention <span className="text-gray-400 dark:text-gray-600 font-normal normal-case">(max 30d)</span>
-                                    </label>
-                                    <select
-                                        value={expiresIn}
-                                        onChange={e => setExpiresIn(e.target.value)}
-                                        className="w-full bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.08] rounded-xl py-2.5 px-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-purple-400 dark:focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/10 transition-all"
-                                    >
-                                        {EXPIRE_OPTIONS.map(o => <option key={o.value} value={o.value} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">{o.label}</option>)}
-                                    </select>
-                                </div>
-
-                                {/* Burn After Read */}
-                                <div className="flex items-end">
-                                    <div className="w-full flex items-center justify-between bg-orange-50/60 dark:bg-orange-500/[0.05] border border-orange-200/50 dark:border-orange-500/10 rounded-xl px-3.5 py-2.5">
-                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                            🔥 Burn after read
-                                        </span>
-                                        <button
-                                            type="button"
-                                            onClick={() => setBurnAfterRead(!burnAfterRead)}
-                                            className={`relative w-10 h-5.5 rounded-full transition-all duration-300 flex-shrink-0 ${burnAfterRead ? 'bg-orange-500 shadow-lg shadow-orange-500/30' : 'bg-gray-300 dark:bg-gray-700'}`}
-                                            style={{ width: '40px', height: '22px' }}
-                                        >
-                                            <span className={`absolute top-[2px] w-[18px] h-[18px] bg-white rounded-full shadow transition-all duration-300 ${burnAfterRead ? 'left-[20px]' : 'left-[2px]'}`} />
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Save Button */}
-                                <div className="flex items-end">
-                                    <button
-                                        onClick={() => saveBoard()}
-                                        className="w-full px-4 py-2.5 bg-violet-600 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-violet-700 transition-colors"
-                                    >
-                                        Save Settings
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </header>
 
-            {/* ── Editor Card Container ── */}
+            {/* ── Editor Workspace Container ── */}
             <div className="py-4">
                 {error && (
                     <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400 animate-fade-in">
@@ -394,6 +335,160 @@ export default function ClipboardBoard() {
                 )}
 
                 <div className="bg-white dark:bg-gray-900/30 border border-gray-200 dark:border-white/[0.08] rounded-2xl shadow-sm overflow-hidden focus-within:border-violet-500/50 dark:focus-within:border-violet-500/40 focus-within:ring-4 focus-within:ring-violet-500/5 transition-all duration-300">
+                    
+                    {/* Card Toolbar */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-gray-50/50 dark:bg-white/[0.02] border-b border-gray-200/60 dark:border-white/[0.06]">
+                        {/* Left: Language Select & Editor View Tabs */}
+                        <div className="flex items-center gap-3">
+                            {/* Language Selection */}
+                            <div className="relative">
+                                <select
+                                    value={language}
+                                    onChange={e => setLanguage(e.target.value)}
+                                    className="appearance-none bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/[0.08] rounded-xl pl-3 pr-8 py-1.5 text-xs font-bold text-gray-700 dark:text-gray-300 focus:outline-none focus:border-violet-500/50 transition-all cursor-pointer shadow-sm"
+                                >
+                                    {LANGUAGES.map(l => (
+                                        <option key={l} value={l} className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+                                            {l === 'plaintext' ? 'Plain Text' : l.charAt(0).toUpperCase() + l.slice(1)}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            {/* View Mode Switcher (Edit, Preview, Split) */}
+                            <div className="flex bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/[0.08] rounded-xl p-0.5 shadow-sm">
+                                {['edit', 'preview', 'split'].map(m => (
+                                    <button
+                                        key={m}
+                                        onClick={() => setViewMode(m)}
+                                        className={`px-3 py-1 rounded-lg text-xs font-bold capitalize transition-all select-none ${viewMode === m ? 'bg-violet-600 text-white shadow-sm' : 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                    >
+                                        {m}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Right: Quick Utilities (QR Code, Download, Settings) */}
+                        <div className="flex items-center gap-2">
+                            {/* Download */}
+                            <button
+                                onClick={downloadContent}
+                                className="p-1.5 rounded-lg border border-gray-200 bg-white dark:border-white/[0.08] dark:bg-gray-950 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-all shadow-sm"
+                                title="Download Board File"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                            </button>
+
+                            {/* QR Code Toggle */}
+                            <button
+                                onClick={generateQR}
+                                className={`p-1.5 rounded-lg border transition-all shadow-sm ${qrUrl ? 'text-emerald-500 bg-emerald-50/80 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20' : 'border-gray-200 bg-white dark:border-white/[0.08] dark:bg-gray-950 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'}`}
+                                title="Share QR Code"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                </svg>
+                            </button>
+
+                            {/* Settings Toggle */}
+                            <button
+                                onClick={() => setShowSettings(!showSettings)}
+                                className={`p-1.5 rounded-lg border transition-all shadow-sm ${showSettings ? 'text-violet-500 bg-violet-50/80 border-violet-200 dark:bg-violet-500/10 dark:border-violet-500/20' : 'border-gray-200 bg-white dark:border-white/[0.08] dark:bg-gray-950 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'}`}
+                                title="Board Security Settings"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* QR Code Panel */}
+                    {qrUrl && (
+                        <div className="bg-emerald-500/[0.02] border-b border-gray-200/60 dark:border-white/[0.06] p-4 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in">
+                            <img src={qrUrl} alt="QR Code" className="w-24 h-24 rounded-xl bg-white p-1.5 shadow-md" />
+                            <div className="text-center sm:text-left">
+                                <p className="text-xs font-bold text-gray-700 dark:text-gray-300">Scan to Open Board</p>
+                                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-mono mt-0.5 max-w-[200px] truncate">{boardUrl}</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Settings Panel */}
+                    {showSettings && (
+                        <div className="bg-violet-500/[0.01] border-b border-gray-200/60 dark:border-white/[0.06] p-4 animate-fade-in">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                {/* Password Option */}
+                                <div>
+                                    <label className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
+                                        🔒 Board Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={password}
+                                        onChange={e => setPassword(e.target.value)}
+                                        placeholder="No protection"
+                                        className="w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/[0.08] rounded-xl py-2 px-3 text-xs text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-violet-500/50 transition-all shadow-sm"
+                                    />
+                                </div>
+
+                                {/* Expiry Option */}
+                                <div>
+                                    <label className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
+                                        ⏳ Expiration Limit
+                                    </label>
+                                    <select
+                                        value={expiresIn}
+                                        onChange={e => setExpiresIn(e.target.value)}
+                                        className="w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/[0.08] rounded-xl py-2 px-3 text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-violet-500/50 transition-all shadow-sm"
+                                    >
+                                        {EXPIRE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                                    </select>
+                                </div>
+
+                                {/* Burn Option */}
+                                <div className="flex flex-col justify-end">
+                                    <div className="flex items-center justify-between px-3 py-2 bg-orange-500/[0.03] border border-orange-500/10 rounded-xl">
+                                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">🔥 Burn after read</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setBurnAfterRead(!burnAfterRead)}
+                                            className={`relative w-8 h-4.5 rounded-full transition-all duration-200 flex-shrink-0 ${burnAfterRead ? 'bg-orange-500' : 'bg-gray-300 dark:bg-gray-700'}`}
+                                            style={{ width: '32px', height: '18px' }}
+                                        >
+                                            <span className={`absolute top-[2px] w-[14px] h-[14px] bg-white rounded-full shadow transition-all duration-200 ${burnAfterRead ? 'left-[16px]' : 'left-[2px]'}`} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="mt-3 flex items-center justify-between border-t border-gray-100 dark:border-white/[0.04] pt-3">
+                                <button
+                                    onClick={deleteBoard}
+                                    className="text-[10px] font-bold text-red-400 hover:text-red-500 transition-colors uppercase tracking-wider"
+                                >
+                                    Delete Board Permanently
+                                </button>
+                                <button
+                                    onClick={() => saveBoard()}
+                                    className="px-4 py-1.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all"
+                                >
+                                    Save Settings
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Textarea & Preview Areas */}
                     <div className={`grid gap-0 ${viewMode === 'split' ? 'grid-cols-2 divide-x divide-gray-100 dark:divide-white/[0.06]' : ''}`}>
                         {/* Editor Pane */}
                         {(viewMode === 'edit' || viewMode === 'split') && (
@@ -425,8 +520,23 @@ export default function ClipboardBoard() {
                             </div>
                         )}
                     </div>
+
+                    {/* Card Footer (Ide Stats Bar) */}
+                    <div className="flex items-center justify-between px-4 py-2.5 bg-gray-50/50 dark:bg-white/[0.02] border-t border-gray-200/60 dark:border-white/[0.06] text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-medium">
+                        <div className="flex items-center gap-3">
+                            <span>{lineCount} lines</span>
+                            <span>·</span>
+                            <span>{wordCount} words</span>
+                            <span>·</span>
+                            <span>{charCount} chars</span>
+                        </div>
+                        <span className="uppercase tracking-widest bg-gray-200/80 dark:bg-white/[0.06] px-2 py-0.5 rounded text-[9px] font-extrabold text-gray-500 dark:text-gray-400">
+                            {language}
+                        </span>
+                    </div>
                 </div>
 
+                {/* CLI Access card */}
                 <div className="mt-4 rounded-2xl border border-gray-200/80 bg-gray-50/90 p-5 shadow-sm dark:border-white/[0.08] dark:bg-white/[0.04]">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
@@ -457,19 +567,6 @@ export default function ClipboardBoard() {
                             <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-gray-400 dark:text-gray-500">Board commands</p>
                             <CliCommandList commands={boardCliCommands} />
                         </div>
-                    </div>
-                </div>
-
-                {/* ── Footer Stats ── */}
-                <div className="sticky bottom-0 bg-white/85 dark:bg-gray-950/85 backdrop-blur-xl border-t border-gray-200/60 dark:border-white/[0.06] py-2.5 px-4 flex items-center justify-between text-[10px] sm:text-xs text-gray-500 font-medium">
-                    <div className="flex items-center gap-4">
-                        <span>{lineCount} lines</span>
-                        <span>{wordCount} words</span>
-                        <span>{charCount} chars</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <span className="uppercase tracking-widest bg-gray-100 dark:bg-white/[0.06] px-2 py-0.5 rounded text-gray-600 dark:text-gray-400 font-bold">{language}</span>
-                        <button onClick={deleteBoard} className="text-red-400/70 hover:text-red-500 transition-colors font-bold uppercase tracking-wider">Delete Board</button>
                     </div>
                 </div>
             </div>
