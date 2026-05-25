@@ -55,7 +55,7 @@ export const CLIPBOARD_PROMO_COMMANDS = [
     },
     {
         id: 'promo-board',
-        label: 'Create a private board',
+        label: 'Create a Live Clipboard (Private)',
         command: 'uvero board create',
         description: 'Start a named board workflow directly from your shell.',
     },
@@ -88,14 +88,14 @@ export const CLI_PAGE_COMMANDS = [
     },
     {
         id: 'board-create',
-        label: 'Create a private board',
+        label: 'Create a Live Clipboard (Private)',
         command: 'uvero board create',
         description: 'Start a named board workflow from the terminal.',
     },
     {
         id: 'board-send',
-        label: 'Send to a private board',
+        label: 'Send to a Live Clipboard (Private)',
         command: 'uvero board send abcd-def',
-        description: 'Push terminal content into an existing private board.',
+        description: 'Push terminal content into an existing Live Clipboard (Private).',
     },
 ]

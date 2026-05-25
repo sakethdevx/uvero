@@ -167,7 +167,7 @@ export default function Clipboard() {
                         className={`relative flex items-center gap-2 px-6 sm:px-10 py-3 rounded-xl text-sm sm:text-base font-bold transition-colors duration-200 select-none ${activeMode === 'private' ? 'bg-violet-600 text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                     >
                         <span className="text-base">🔒</span>
-                        <span>Private Board</span>
+                        <span>Live Clipboard (Private)</span>
                     </button>
                 </div>
             </div>
@@ -341,7 +341,7 @@ export default function Clipboard() {
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-lg shadow-lg shadow-purple-500/20">🔒</div>
                             <div>
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Private Board</h2>
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Live Clipboard (Private)</h2>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">Named boards with full editing &amp; sharing features</p>
                             </div>
                         </div>

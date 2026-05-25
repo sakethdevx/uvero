@@ -25,7 +25,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ success: false, error: 'content exceeds 1 MB limit' })
         }
         if (type !== 'public') {
-            return res.status(400).json({ success: false, error: 'Use /api/clipboard/board/send for private boards' })
+            return res.status(400).json({ success: false, error: 'Use /api/clipboard/board/send for Live Clipboard (Private)' })
         }
 
         const code = await assignPublicCode()

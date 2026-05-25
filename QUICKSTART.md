@@ -27,7 +27,7 @@ SUPABASE_URL=
 SUPABASE_SERVICE_KEY=
 ```
 
-Clipboard GitHub storage is optional, but recommended if you want persistent public/private boards:
+Clipboard GitHub storage is optional, but recommended if you want persistent public and Live Clipboard (Private) boards:
 
 ```env
 CLIPBOARD_PUBLIC_STORAGE_GITHUB_TOKEN=

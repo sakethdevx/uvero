@@ -17,7 +17,7 @@ Uvero brings everyday digital utilities into one focused app: convert files, wor
 | Toolbox | Unified image, document, audio, and video conversion plus dedicated PDF/security/unit tools |
 | PDF Tools | Merge, split, rotate, delete pages, reorder pages, extract pages, compress, unlock, protect, watermark, clean metadata, convert images to PDF, and export PDF pages as images |
 | QR Tools | Generator, scanner, validator, bulk generator, dynamic QR manager, redirects, and analytics |
-| Clipboard | Quick text share, private boards, password locks, expiry, burn-after-read, QR sharing, and CLI routes |
+| Clipboard | Quick text share, Live Clipboard (Private), password locks, expiry, burn-after-read, QR sharing, and CLI routes |
 | Compiler | Monaco-powered online editor for 19 languages with templates, stdin, output panels, and execution history |
 
 ## Product Surface
@@ -49,7 +49,7 @@ Uvero includes a complete QR workflow rather than a single generator page.
 
 ### Online Clipboard
 
-Clipboard is built for quick sharing and richer private boards.
+Clipboard is built for quick sharing and richer Live Clipboard (Private) boards.
 
 - Quick Share creates short retrieval codes for text snippets.
 - Private boards support syntax highlighting, Markdown preview, split view, autosave, and file download.
@@ -123,7 +123,7 @@ uvero/
 | `/toolbox?to=<tool-id>` | Deep link into a unified converter action, such as `/toolbox?to=merge-pdf` or `/toolbox?to=pdf-to-image` |
 | `/:toolId` | Standalone utility tools, such as `/password-generator`, `/hash-generator`, and `/unit-converter` |
 | `/compiler` | Online compiler |
-| `/clipboard` | Quick Share and private board entry |
+| `/clipboard` | Quick Share and Live Clipboard (Private) entry |
 | `/clipboard/:boardId` | Private clipboard board |
 | `/c/:code` | Public clipboard retrieval link |
 | `/cli` | Clipboard CLI docs |
@@ -251,7 +251,7 @@ Row Level Security is enabled in the schemas. Keep `SUPABASE_SERVICE_KEY` server
 - **Client-heavy processing**: many conversions run in the browser with workers and WASM to reduce server dependency.
 - **Serverless where needed**: Vercel functions handle auth-backed APIs, storage integration, compiler proxying, and heavyweight server tasks.
 - **Feature isolation**: each product area lives under `src/services/` with its own pages, APIs, and supporting logic.
-- **Storage separation**: clipboard public and private boards can use separate GitHub repositories.
+- **Storage separation**: clipboard public and Live Clipboard (Private) boards can use separate GitHub repositories.
 - **Safety controls**: Supabase RLS, password-protected boards, expiring clipboard content, maintenance mode, and server-only secrets are part of the default shape.
 
 ## License
