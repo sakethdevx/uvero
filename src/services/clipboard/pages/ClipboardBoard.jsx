@@ -6,6 +6,9 @@ import AILoader from '../../../components/AILoader'
 import QRCode from 'qrcode'
 import CliCommandList from '../components/CliCommandList'
 import { CLI_INSTALL_COMMAND, getBoardCliCommands } from '../cliCommands'
+import { executeCode } from '../../compiler/api/executeCode'
+
+const RUNNABLE_LANGUAGES = ['python', 'javascript', 'typescript', 'c', 'cpp', 'java', 'go', 'rust', 'ruby', 'php', 'swift', 'kotlin', 'csharp', 'bash']
 
 const LANGUAGES = [
     'plaintext', 'javascript', 'typescript', 'python', 'java', 'c', 'cpp', 'csharp',
@@ -68,6 +71,32 @@ export default function ClipboardBoard() {
     const [langSearchQuery, setLangSearchQuery] = useState('')
     const langDropdownRef = useRef(null)
     const isFirstRender = useRef(true)
+
+    /* ── Online Compiler Integration ── */
+    const [stdin, setStdin] = useState('')
+    const [compilerOutput, setCompilerOutput] = useState(null)
+    const [executing, setExecuting] = useState(false)
+
+    const handleRunCode = async () => {
+        if (executing) return
+        setExecuting(true)
+        setCompilerOutput(null)
+        try {
+            const result = await executeCode(language, content, stdin, 10, { analyze: true })
+            setCompilerOutput(result)
+        } catch (error) {
+            setCompilerOutput({
+                status: 'error',
+                stdout: '',
+                stderr: error.message || 'Failed to execute code. Please try again.',
+                execution_time_ms: 0,
+                memory_used_kb: 0,
+                exit_code: null,
+            })
+        } finally {
+            setExecuting(false)
+        }
+    }
 
     // Close dropdown on click outside
     useEffect(() => {
@@ -433,7 +462,7 @@ export default function ClipboardBoard() {
                                         onClick={() => setViewMode(m)}
                                         className={`px-3 py-1 rounded-lg text-xs font-bold capitalize transition-all select-none ${viewMode === m ? 'bg-violet-600 text-white shadow-sm' : 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                                     >
-                                        {m}
+                                        {m === 'preview' && RUNNABLE_LANGUAGES.includes(language) ? 'Run' : m}
                                     </button>
                                 ))}
                             </div>
@@ -571,8 +600,110 @@ export default function ClipboardBoard() {
 
                         {/* Preview Pane */}
                         {(viewMode === 'preview' || viewMode === 'split') && (
-                            <div className="p-5 sm:p-6 min-h-[calc(100vh-320px)] overflow-auto bg-gray-50/20 dark:bg-white/[0.01] flex flex-col">
-                                {language === 'markdown' ? (
+                            <div className="p-5 sm:p-6 min-h-[calc(100vh-320px)] overflow-auto bg-gray-50/20 dark:bg-white/[0.01] flex flex-col gap-4">
+                                {RUNNABLE_LANGUAGES.includes(language) ? (
+                                    <div className="flex flex-col gap-4 flex-1">
+                                        {/* Stdin Area */}
+                                        <div className="bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/[0.06] rounded-xl overflow-hidden shadow-sm">
+                                            <div className="flex items-center justify-between px-3 py-2 bg-gray-50/50 dark:bg-white/[0.02] border-b border-gray-200/60 dark:border-white/[0.06]">
+                                                <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Standard Input</span>
+                                                <span className="text-[9px] text-gray-400 dark:text-gray-500 font-mono">stdin</span>
+                                            </div>
+                                            <textarea
+                                                value={stdin}
+                                                onChange={e => setStdin(e.target.value)}
+                                                placeholder="Enter inputs for your program here..."
+                                                className="w-full h-20 p-3 bg-transparent text-xs font-mono focus:outline-none resize-none text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-600"
+                                            />
+                                        </div>
+
+                                        {/* Run Button */}
+                                        <div>
+                                            <button
+                                                type="button"
+                                                onClick={handleRunCode}
+                                                disabled={executing}
+                                                className="flex items-center justify-center gap-1.5 w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-md transition-all active:scale-[0.98] disabled:opacity-50 select-none"
+                                            >
+                                                {executing ? (
+                                                    <>
+                                                        <svg className="animate-spin -ml-1 mr-1 h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                                        </svg>
+                                                        Executing...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                                                            <path d="M8 5v14l11-7z" />
+                                                        </svg>
+                                                        Run Code
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
+
+                                        {/* Output Panel */}
+                                        <div className="flex-1 bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/[0.06] rounded-xl overflow-hidden shadow-sm flex flex-col min-h-[180px]">
+                                            {!compilerOutput && !executing ? (
+                                                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-gray-400 dark:text-gray-600">
+                                                    <svg className="w-8 h-8 mb-2 opacity-55" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                    <span className="text-xs font-semibold">Console Output</span>
+                                                    <span className="text-[10px] mt-1 opacity-70">Run the code to see terminal execution output.</span>
+                                                </div>
+                                            ) : executing ? (
+                                                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-gray-400 dark:text-gray-600">
+                                                    <div className="flex items-center gap-1 mb-2">
+                                                        {[0, 1, 2].map(i => (
+                                                            <div
+                                                                key={i}
+                                                                className="w-1.5 h-1.5 rounded-full bg-violet-600 dark:bg-violet-400 animate-pulse"
+                                                                style={{ animationDelay: `${i * 0.15}s` }}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">Running on Cloud...</span>
+                                                </div>
+                                            ) : (
+                                                <div className="flex-1 flex flex-col">
+                                                    {/* Output header with metrics */}
+                                                    <div className="flex items-center justify-between px-3 py-2 bg-gray-50/50 dark:bg-white/[0.02] border-b border-gray-200/60 dark:border-white/[0.06] text-[10px] font-mono text-gray-500 dark:text-gray-400">
+                                                        <span className="font-bold flex items-center gap-1.5">
+                                                            {compilerOutput.status === 'success' ? '✅' : '❌'}
+                                                            <span className={compilerOutput.status === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}>
+                                                                {compilerOutput.status === 'success' ? 'Success' : 'Execution Error'}
+                                                            </span>
+                                                        </span>
+                                                        <div className="flex items-center gap-3">
+                                                            {compilerOutput.execution_time_ms !== undefined && (
+                                                                <span>{compilerOutput.execution_time_ms.toFixed(0)}ms</span>
+                                                            )}
+                                                            {compilerOutput.exit_code !== null && (
+                                                                <span>exit: {compilerOutput.exit_code}</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Output area */}
+                                                    <div className="flex-1 p-3 overflow-auto max-h-56">
+                                                        {compilerOutput.stderr ? (
+                                                            <pre className="text-xs font-mono text-red-600 dark:text-red-400 whitespace-pre-wrap break-all leading-relaxed">
+                                                                {compilerOutput.stderr}
+                                                            </pre>
+                                                        ) : (
+                                                            <pre className="text-xs font-mono text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all leading-relaxed">
+                                                                {compilerOutput.stdout || <span className="text-gray-400 dark:text-gray-600 italic">No output received (exit code 0)</span>}
+                                                            </pre>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : language === 'markdown' ? (
                                     <div
                                         className="prose dark:prose-invert prose-sm max-w-none text-gray-800 dark:text-gray-200"
                                         dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
