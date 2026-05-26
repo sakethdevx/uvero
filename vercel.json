@@ -19,11 +19,5 @@
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/compiler/keep-alive",
-      "schedule": "0 * * * *"
-    }
   ]
 }
