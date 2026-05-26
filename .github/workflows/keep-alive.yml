@@ -20,3 +20,15 @@ jobs:
           else
             echo "Success: Keep-alive ping completed successfully."
           fi
+
+      - name: Trigger Online Clipboard Expiry Cleanup
+        run: |
+          echo "Triggering clipboard cleanup..."
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://uvero.app/api/clipboard/cleanup)
+          echo "Response status code: $STATUS_CODE"
+          if [ "$STATUS_CODE" -ne 200 ]; then
+            echo "Error: Clipboard cleanup failed with status $STATUS_CODE"
+            exit 1
+          else
+            echo "Success: Clipboard expiry cleanup completed successfully."
+          fi
