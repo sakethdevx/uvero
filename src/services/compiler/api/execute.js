@@ -18,7 +18,12 @@ export default async function handler(req, res) {
         const url = new URL(req.url, `http://${req.headers.host}`);
         const fullPath = url.searchParams.get('path') || '';
         // Strip 'compiler/' prefix to get the HF endpoint path
-        const hfPath = fullPath.replace(/^compiler\/?/, '');
+        let hfPath = fullPath.replace(/^compiler\/?/, '');
+
+        // Map keep-alive to a lightweight languages check endpoint
+        if (hfPath === 'keep-alive') {
+            hfPath = 'languages';
+        }
 
         const targetUrl = `${HF_URL.replace(/\/$/, '')}/${hfPath}`;
 
