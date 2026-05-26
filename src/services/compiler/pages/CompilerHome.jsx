@@ -288,6 +288,21 @@ export default function CompilerHome() {
         navigator.clipboard.writeText(code);
     }, [code]);
 
+    // Download code as file
+    const handleDownload = useCallback(() => {
+        const ext = getLanguageById(language)?.extension || '.txt';
+        const filename = `main${ext}`;
+        const blob = new Blob([code], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }, [code, language]);
+
     const currentLang = getLanguageById(language);
     const monacoLang = currentLang?.monaco || 'plaintext';
     const lineCount = code.split('\n').length;
@@ -368,6 +383,7 @@ export default function CompilerHome() {
                                     onRun={handleRun}
                                     onReset={handleReset}
                                     onCopy={handleCopy}
+                                    onDownload={handleDownload}
                                     onShare={handleShare}
                                     onRetrieveClick={() => setShowRetrieveModal(true)}
                                     onHistoryToggle={() => setHistoryOpen(true)}

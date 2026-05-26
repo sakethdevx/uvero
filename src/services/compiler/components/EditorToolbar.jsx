@@ -1,7 +1,7 @@
 import LanguageSelector from './LanguageSelector';
 import ShareButton from './ShareButton';
 
-export default function EditorToolbar({ language, onLanguageChange, isLoading, isSharing, onRun, onReset, onCopy, onShare, onRetrieveClick, onHistoryToggle, fontSize, onFontSizeChange }) {
+export default function EditorToolbar({ language, onLanguageChange, isLoading, isSharing, onRun, onReset, onCopy, onDownload, onShare, onRetrieveClick, onHistoryToggle, fontSize, onFontSizeChange }) {
     return (
         <div className="flex items-center justify-between gap-1.5 sm:gap-3 px-2 sm:px-4 py-1.5 bg-white/90 dark:bg-[#161b22] border-b border-gray-200/70 dark:border-white/[0.06] backdrop-blur-sm shadow-sm z-30">
             {/* Left: Run + Language Selector */}
@@ -63,7 +63,17 @@ export default function EditorToolbar({ language, onLanguageChange, isLoading, i
                         className="p-1.5 sm:p-2 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/[0.06] rounded-lg transition-all"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012-2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                    </button>
+
+                    <button
+                        onClick={onDownload}
+                        title="Download file"
+                        className="p-1.5 sm:p-2 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/[0.06] rounded-lg transition-all group/download"
+                    >
+                        <svg className="w-4 h-4 group-hover/download:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                     </button>
 
@@ -75,7 +85,7 @@ export default function EditorToolbar({ language, onLanguageChange, isLoading, i
                         className="p-1.5 sm:p-2 text-gray-400 dark:text-gray-500 hover:text-violet-500 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-500/10 rounded-lg transition-all group/retrieve"
                     >
                         <svg className="w-4 h-4 group-hover/retrieve:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M12 15V3m0 12l-4-4m4 4l-4-4" />
                         </svg>
                     </button>
                 </div>
