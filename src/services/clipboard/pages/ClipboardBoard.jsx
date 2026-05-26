@@ -1,5 +1,6 @@
 /* eslint-disable */
 import React, { useState, useEffect, useRef, useCallback } from 'react'
+import ExpiryIndicator from '../components/ExpiryIndicator'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { AIServiceShell, AIBackLink } from '../../../components/AIServiceLayout'
 import AILoader from '../../../components/AILoader'
@@ -41,6 +42,7 @@ export default function ClipboardBoard() {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
+    const [boardInitialized, setBoardInitialized] = useState(false);
     const [isNew, setIsNew] = useState(false)
     const [lastSaved, setLastSaved] = useState(null)
     const [copied, setCopied] = useState(false)
@@ -52,7 +54,17 @@ export default function ClipboardBoard() {
     const [showSettings, setShowSettings] = useState(false)
     const [password, setPassword] = useState('')
     const [burnAfterRead, setBurnAfterRead] = useState(false)
-    const [expiresIn, setExpiresIn] = useState('24h')
+    const [expiresIn, setExpiresIn] = useState('24h');
+    const [expiresAt, setExpiresAt] = useState(null);
+    // Track if user manually changed expiry; only send expiresIn when true
+    const [expiresInTouched, setExpiresInTouched] = useState(false);
+    // Helper to convert expiry option (e.g., '1h', '24h', '7d') -> milliseconds
+    const parseExpiryToMs = (value) => {
+        const num = parseInt(value, 10);
+        if (value.endsWith('h')) return num * 60 * 60 * 1000;
+        if (value.endsWith('d')) return num * 24 * 60 * 60 * 1000;
+        return 0;
+    };
 
     /* ── Password prompt ── */
     const [needsPassword, setNeedsPassword] = useState(false)
@@ -109,16 +121,17 @@ export default function ClipboardBoard() {
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
 
-    // Auto-save when language changes (skip initial render)
+    // Auto-save when language changes (skip initial render and initial load)
     useEffect(() => {
+        if (!boardInitialized) return;
         if (isFirstRender.current) {
-            isFirstRender.current = false
-            return
+            isFirstRender.current = false;
+            return;
         }
         if (!loading) {
-            saveBoard()
+            saveBoard();
         }
-    }, [language])
+    }, [language, boardInitialized]);
 
     /* ── Board URL ── */
     const boardUrl = typeof window !== 'undefined' ? `${window.location.origin}/clipboard/${boardId}` : ''
@@ -142,15 +155,37 @@ export default function ClipboardBoard() {
                 setIsNew(true)
                 setContent('')
                 setLoading(false)
+                // Board initialized (new board) – allow future autosave
+                setBoardInitialized(true)
+                isFirstRender.current = true
                 return
             }
             if (!resp.ok) throw new Error(data.error || 'Failed to load board')
 
             setContent(data.data.content || '')
             setLanguage(data.data.language || 'plaintext')
-            setBurnAfterRead(data.data.burn_after_read || false)
+            setBurnAfterRead(data.data.burn_after_read || false);
+            const expiresAtValue = data.data.expires_at ? new Date(data.data.expires_at) : null;
+            setExpiresAt(expiresAtValue);
+            // Derive expiresIn option from the remaining time if we have an expiry
+            if (expiresAtValue) {
+                const now = new Date();
+                const diffMs = expiresAtValue - now;
+                if (diffMs <= 60 * 60 * 1000) {
+                    setExpiresIn('1h');
+                } else if (diffMs <= 24 * 60 * 60 * 1000) {
+                    setExpiresIn('24h');
+                } else if (diffMs <= 7 * 24 * 60 * 60 * 1000) {
+                    setExpiresIn('7d');
+                } else {
+                    setExpiresIn('30d');
+                }
+                setExpiresInTouched(false);
+            }
             setNeedsPassword(false)
             setIsNew(false)
+            setBoardInitialized(true)
+            isFirstRender.current = true
         } catch (err) {
             setError(err.message)
         } finally {
@@ -177,19 +212,34 @@ export default function ClipboardBoard() {
             const resp = await fetch('/api/clipboard', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    content: text,
-                    boardId,
-                    type: 'private',
-                    language,
-                    password: password || undefined,
-                    burnAfterRead,
-                    expiresIn: expiresIn || undefined,
-                })
+                body: JSON.stringify((() => {
+                    const payload = {
+                        content: text,
+                        boardId,
+                        type: 'private',
+                        language,
+                        password: password || undefined,
+                        burnAfterRead,
+                    };
+                    if (expiresInTouched) {
+                        payload.expiresIn = expiresIn;
+                    }
+                    return payload;
+                })())
             })
             const data = await resp.json()
             if (!resp.ok) throw new Error(data.error || 'Save failed')
+            // Update expiry timestamp: use API value if present, otherwise compute locally
+            if (data.data && data.data.expires_at) {
+                setExpiresAt(new Date(data.data.expires_at))
+            } else if (expiresInTouched) {
+                // Fallback: compute based on selected expiresIn relative to now
+                const ms = parseExpiryToMs(expiresIn)
+                if (ms) setExpiresAt(new Date(Date.now() + ms))
+            }
             setLastSaved(new Date())
+            // Reset touch flag after successful save
+            setExpiresInTouched(false)
             setIsNew(false)
         } catch (err) {
             setError(err.message)
@@ -333,6 +383,10 @@ export default function ClipboardBoard() {
                     </div>
 
                     {/* Primary Actions */}
+                    {/* Expiry Indicator on right */}
+                    <div className="flex items-center gap-2 mr-2">
+                        <ExpiryIndicator expiresAt={expiresAt || new Date(Date.now() + 24 * 60 * 60 * 1000)} expiresIn={expiresIn} />
+                    </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                         {/* Copy URL */}
                         <button
@@ -542,7 +596,7 @@ export default function ClipboardBoard() {
                                     </label>
                                     <select
                                         value={expiresIn}
-                                        onChange={e => setExpiresIn(e.target.value)}
+                                        onChange={e => { setExpiresIn(e.target.value); setExpiresInTouched(true); }}
                                         className="w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-white/[0.08] rounded-xl py-2 px-3 text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:border-violet-500/50 transition-all shadow-sm"
                                     >
                                         {EXPIRE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
