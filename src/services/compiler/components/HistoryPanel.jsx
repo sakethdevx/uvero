@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { getLanguageById } from '../data/languages';
 
 function timeAgo(ts) {
@@ -37,7 +38,9 @@ export default function HistoryPanel({ isOpen, onClose, runs, onLoadRun, onDelet
         }
     };
 
-    return (
+    if (typeof document === 'undefined') return null;
+
+    return createPortal(
         <>
             {/* Backdrop */}
             <div
@@ -211,6 +214,7 @@ export default function HistoryPanel({ isOpen, onClose, runs, onLoadRun, onDelet
                 .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.1); border-radius: 10px; }
                 .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.2); }
             `}</style>
-        </>
+        </>,
+        document.body
     );
 }
