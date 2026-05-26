@@ -69,7 +69,7 @@ export default function LanguageSelector({ selectedLanguage, onLanguageChange })
             {/* Compact Trigger for Status Bar */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`flex items-center gap-2 px-2 py-1 rounded-md transition-all duration-200 group ${
+                className={`flex items-center gap-1 sm:gap-2 px-1.5 sm:px-2 py-1 rounded-md transition-all duration-200 group ${
                     isOpen 
                         ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' 
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-white/5'

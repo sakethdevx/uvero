@@ -29,6 +29,39 @@ export default function CodeEditor({ language, value, onChange, isDark = true, f
         if (!window.matchMedia('(max-width: 1023px)').matches) {
             editor.focus();
         }
+
+        // Handle touch scroll propagation when editor is not scrollable
+        const editorDomNode = editor.getDomNode();
+        if (editorDomNode) {
+            let touchStartX = 0;
+            let touchStartY = 0;
+
+            editorDomNode.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                }
+            }, { capture: true, passive: true });
+
+            editorDomNode.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 1) {
+                    const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+                    const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+
+                    // Check if scroll gesture is vertical
+                    if (deltaY > deltaX && deltaY > 5) {
+                        const scrollHeight = editor.getScrollHeight();
+                        const layoutHeight = editor.getLayoutInfo().height;
+                        const isScrollable = scrollHeight > layoutHeight;
+
+                        if (!isScrollable) {
+                            // Prevent Monaco from capturing this scroll
+                            e.stopPropagation();
+                        }
+                    }
+                }
+            }, { capture: true, passive: true });
+        }
     }
 
     // Sync theme on dark mode change
@@ -83,6 +116,7 @@ export default function CodeEditor({ language, value, onChange, isDark = true, f
                         verticalScrollbarSize: 8,
                         horizontalScrollbarSize: 8,
                         useShadows: false,
+                        alwaysConsumeMouseWheel: false,
                     },
                 }}
             />

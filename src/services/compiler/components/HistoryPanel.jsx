@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { getLanguageById } from '../data/languages';
 
 function timeAgo(ts) {
@@ -37,7 +38,9 @@ export default function HistoryPanel({ isOpen, onClose, runs, onLoadRun, onDelet
         }
     };
 
-    return (
+    if (typeof document === 'undefined') return null;
+
+    return createPortal(
         <>
             {/* Backdrop */}
             <div
@@ -48,7 +51,10 @@ export default function HistoryPanel({ isOpen, onClose, runs, onLoadRun, onDelet
             {/* Panel */}
             <div className="fixed right-0 top-0 bottom-0 z-[70] w-full sm:w-[460px] bg-white dark:bg-[#0d1117] border-l border-gray-200 dark:border-white/[0.08] shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] flex flex-col animate-panel-in">
                 {/* Header */}
-                <div className="relative px-6 py-8 pb-6">
+                <div 
+                    className="relative px-6 pb-6"
+                    style={{ paddingTop: 'calc(2rem + env(safe-area-inset-top, 0px))' }}
+                >
                     {/* Abstract background effect */}
                     <div className="absolute top-0 right-0 w-32 h-32 bg-violet-600/10 blur-[60px] -z-10" />
                     <div className="absolute top-10 left-10 w-24 h-24 bg-blue-600/10 blur-[50px] -z-10" />
@@ -186,7 +192,10 @@ export default function HistoryPanel({ isOpen, onClose, runs, onLoadRun, onDelet
                 </div>
 
                 {/* Footer hint */}
-                <div className="p-6 pt-2 border-t border-gray-100 dark:border-white/[0.05] bg-gray-50/30 dark:bg-white/[0.01]">
+                <div 
+                    className="px-6 pt-2 border-t border-gray-100 dark:border-white/[0.05] bg-gray-50/30 dark:bg-white/[0.01]"
+                    style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
+                >
                     <p className="text-[11px] text-gray-400 dark:text-gray-600 leading-relaxed text-center">
                         History is stored in your browser's local cache. 
                         <br />Clearing cache will remove this data permanently.
@@ -205,6 +214,7 @@ export default function HistoryPanel({ isOpen, onClose, runs, onLoadRun, onDelet
                 .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.1); border-radius: 10px; }
                 .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.2); }
             `}</style>
-        </>
+        </>,
+        document.body
     );
 }
