@@ -4,7 +4,7 @@ import useSEO from '../hooks/useSEO';
 import CommandBar from '../components/CommandBar';
 import ActionPanel from '../components/ActionPanel';
 import OnboardingHint from '../components/OnboardingHint';
-import { resolveIntent } from '../lib/IntentEngine';
+import { resolveIntent, getAllCapabilities } from '../lib/IntentEngine';
 import { useInteraction } from '../lib/InteractionContext';
 
 /**
@@ -150,7 +150,7 @@ export default function ServicesHome() {
           <p className={`text-xs font-medium tracking-wide animate-fade-in transition-ui ${fadeClass}`}
             style={{ color: 'var(--text-secondary)' }}
           >
-            6 capabilities · 200+ actions · 100% private
+            {getAllCapabilities().length} capabilities · 200+ actions · 100% private
           </p>
         )}
       </div>
