@@ -128,6 +128,11 @@ export default async function handler(req, res) {
             return mod.default(req, res)
         }
 
+        if (originalPath === '/api/clipboard/cleanup') {
+            const mod = await import('../src/services/clipboard/api/cleanup.js')
+            return mod.default(req, res)
+        }
+
         if (originalPath === '/api/clipboard') {
             const mod = await import('../src/services/clipboard/api/index.js')
             return mod.default(req, res)
