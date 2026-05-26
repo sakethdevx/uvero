@@ -34,6 +34,7 @@ export default function Clipboard() {
     const [copiedLink, setCopiedLink] = useState(false)
 
     /* ── Private clipboard state ── */
+    const [showDetails, setShowDetails] = useState(false);
     const [boardName, setBoardName] = useState('')
 
     /* ── Code input refs for 4 digit boxes ── */
@@ -373,40 +374,44 @@ export default function Clipboard() {
                             <p className="text-xs text-gray-400 dark:text-gray-500">
                                 Enter a name to create or open a board. Share the URL with others to collaborate.
                             </p>
-                        </form>
-
-                        {/* Quick stats */}
-                        <div className="grid grid-cols-3 gap-3">
-                            <div className="bg-purple-50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-500/20 rounded-xl p-3 text-center">
+                            {/* Quick stats */}
+                            <div className="grid grid-cols-3 gap-3">
+                              <div className="bg-purple-50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-500/20 rounded-xl p-3 text-center">
                                 <div className="text-2xl mb-1">⏳</div>
                                 <div className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Max Retention</div>
                                 <div className="text-sm font-black text-purple-600 dark:text-purple-400 mt-0.5">30 Days</div>
-                            </div>
-                            <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-xl p-3 text-center">
+                              </div>
+                              <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-xl p-3 text-center">
                                 <div className="text-2xl mb-1">🔓</div>
                                 <div className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Login Required</div>
                                 <div className="text-sm font-black text-emerald-600 dark:text-emerald-400 mt-0.5">None</div>
-                            </div>
-                            <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl p-3 text-center">
+                              </div>
+                              <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-xl p-3 text-center">
                                 <div className="text-2xl mb-1">♾️</div>
                                 <div className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Board Limit</div>
                                 <div className="text-sm font-black text-blue-600 dark:text-blue-400 mt-0.5">Unlimited</div>
+                              </div>
                             </div>
-                        </div>
-
-                        {/* Features grid */}
-                        <div>
-                            <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Board Features</h3>
-                            <div className="grid grid-cols-2 gap-3">
+                            {/* Toggle features */}
+                            <button
+                              type="button"
+                              onClick={() => setShowDetails(!showDetails)}
+                              className="mt-2 self-start px-4 py-2 bg-gray-200 dark:bg-gray-700 text-sm rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                            >
+                              {showDetails ? 'Hide Features' : 'Show Features'}
+                            </button>
+                            {showDetails && (
+                              <div className="grid grid-cols-2 gap-3 mt-3">
                                 {PRIVATE_FEATURES.map((f, i) => (
-                                    <div key={i} className={`${f.classes} border rounded-xl p-4 hover:scale-[1.02] active:scale-[0.99] transition-all shadow-sm cursor-default`}>
-                                        <span className="text-2xl mb-2.5 block">{f.icon}</span>
-                                        <h4 className="text-sm font-bold text-gray-900 dark:text-white">{f.title}</h4>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-medium leading-snug">{f.desc}</p>
-                                    </div>
+                                  <div key={i} className={`${f.classes} border rounded-xl p-4 hover:scale-[1.02] active:scale-[0.99] transition-all shadow-sm cursor-default`}>
+                                    <span className="text-2xl mb-2.5 block">{f.icon}</span>
+                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white">{f.title}</h4>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-medium leading-snug">{f.desc}</p>
+                                  </div>
                                 ))}
-                            </div>
-                        </div>
+                              </div>
+                            )}
+                        </form>
                     </div>
                 )}
 
