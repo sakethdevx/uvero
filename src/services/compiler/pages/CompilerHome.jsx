@@ -11,7 +11,7 @@ import { LANGUAGES, getLanguageTemplate, getLanguageById } from '../data/languag
 import { executeCode } from '../api/executeCode';
 import useExecutionHistory from '../hooks/useExecutionHistory';
 import useShareableSnippet from '../hooks/useShareableSnippet';
-import { AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout';
+import { AIServiceShell, CompactServiceHeader, AIBackLink } from '../../../components/AIServiceLayout';
 
 const STORAGE_KEY = 'uvero_compiler_prefs';
 const CODE_STORAGE_KEY = 'uvero_compiler_codes';
@@ -189,6 +189,7 @@ export default function CompilerHome() {
 
     return (
         <AIServiceShell>
+            <AIBackLink to="/">Back to Hub</AIBackLink>
             <CompactServiceHeader
                 eyebrow="Compiler"
                 title="Run code"
