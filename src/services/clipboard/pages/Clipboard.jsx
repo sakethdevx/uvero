@@ -353,13 +353,13 @@ export default function Clipboard() {
                                 <label className="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-2">Board Name</label>
                                 <div className="flex gap-3">
                                     <div className="flex-1 relative">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm font-medium select-none">/clipboard/</span>
+                                        <span className="hidden sm:inline-block absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm font-medium select-none">/clipboard/</span>
                                         <input
                                             type="text"
                                             value={boardName}
                                             onChange={e => setBoardName(e.target.value)}
                                             placeholder="my-notes"
-                                            className="w-full bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-28 pr-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/25 transition-all shadow-sm"
+                                            className="w-full bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-white/10 rounded-xl py-3 pl-4 sm:pl-28 pr-4 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/25 transition-all shadow-sm"
                                         />
                                     </div>
                                     <button
