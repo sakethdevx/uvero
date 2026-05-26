@@ -44,17 +44,18 @@ export default function HistoryPanel({ isOpen, onClose, runs, onLoadRun, onDelet
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 z-[60] bg-[#0a0a0f]/60 backdrop-blur-md animate-fade-in"
+                className="fixed left-0 right-0 bottom-0 z-[60] bg-[#0a0a0f]/60 backdrop-blur-md animate-fade-in"
+                style={{ top: 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}
                 onClick={onClose}
             />
 
             {/* Panel */}
-            <div className="fixed right-0 top-0 bottom-0 z-[70] w-full sm:w-[460px] bg-white dark:bg-[#0d1117] border-l border-gray-200 dark:border-white/[0.08] shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] flex flex-col animate-panel-in">
+            <div 
+                className="fixed right-0 bottom-0 z-[70] w-full sm:w-[460px] bg-white dark:bg-[#0d1117] border-l border-gray-200 dark:border-white/[0.08] shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] flex flex-col animate-panel-in"
+                style={{ top: 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}
+            >
                 {/* Header */}
-                <div 
-                    className="relative px-6 pb-6"
-                    style={{ paddingTop: 'calc(2rem + env(safe-area-inset-top, 0px))' }}
-                >
+                <div className="relative px-6 pt-8 pb-6">
                     {/* Abstract background effect */}
                     <div className="absolute top-0 right-0 w-32 h-32 bg-violet-600/10 blur-[60px] -z-10" />
                     <div className="absolute top-10 left-10 w-24 h-24 bg-blue-600/10 blur-[50px] -z-10" />
