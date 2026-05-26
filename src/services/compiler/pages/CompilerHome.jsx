@@ -37,8 +37,9 @@ function saveCodes(codes) {
 }
 
 export default function CompilerHome() {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const urlLang = searchParams.get('lang');
+    const urlCode = searchParams.get('code');
     const prefs = loadPrefs();
     const savedCodes = useRef(loadCodes());
 
@@ -54,6 +55,15 @@ export default function CompilerHome() {
     const [isDark, setIsDark] = useState(true);
     const [historyOpen, setHistoryOpen] = useState(false);
 
+    // Share & fetch states
+    const [isSharing, setIsSharing] = useState(false);
+    const [shareError, setShareError] = useState('');
+    const [shareCode, setShareCode] = useState('');
+    const [showShareModal, setShowShareModal] = useState(false);
+    const [copiedLinkType, setCopiedLinkType] = useState(null); // null | 'compiler' | 'clipboard'
+    const [isFetchingCode, setIsFetchingCode] = useState(false);
+    const [fetchCodeError, setFetchCodeError] = useState('');
+
     // Execution history
     const { runs, addRun, deleteRun, clearHistory } = useExecutionHistory();
 
@@ -68,6 +78,47 @@ export default function CompilerHome() {
     }, []);
 
     const { generateShareLink } = useShareableSnippet(handleSnippetRestore);
+
+    // Fetch shared code on mount/param change
+    useEffect(() => {
+        if (!urlCode) return;
+
+        async function fetchSharedCode() {
+            setIsFetchingCode(true);
+            setFetchCodeError('');
+            try {
+                const res = await fetch(`/api/clipboard?code=${encodeURIComponent(urlCode)}`);
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed to load shared code');
+
+                if (data.data && data.data.content) {
+                    setCode(data.data.content);
+                    if (data.data.language) {
+                        const matched = getLanguageById(data.data.language);
+                        if (matched) {
+                            setLanguage(data.data.language);
+                        }
+                    }
+                }
+            } catch (err) {
+                setFetchCodeError(err.message);
+            } finally {
+                setIsFetchingCode(false);
+                // Clear the parameter so refreshing doesn't overwrite edits
+                const newParams = new URLSearchParams(searchParams);
+                newParams.delete('code');
+                setSearchParams(newParams, { replace: true });
+            }
+        }
+
+        fetchSharedCode();
+    }, [urlCode, searchParams, setSearchParams]);
+
+    const handleCopyLink = (text, type) => {
+        navigator.clipboard.writeText(text);
+        setCopiedLinkType(type);
+        setTimeout(() => setCopiedLinkType(null), 2000);
+    };
 
 
     // Detect system/site dark mode
@@ -171,10 +222,39 @@ export default function CompilerHome() {
     const lineCount = code.split('\n').length;
     const charCount = code.length;
 
-    // Share handler
-    const handleShare = useCallback(() => {
-        return generateShareLink(language, code, stdin);
-    }, [generateShareLink, language, code, stdin]);
+    // Share handler via clipboard API
+    const handleShare = useCallback(async () => {
+        setIsSharing(true);
+        setShareError('');
+        setShareCode('');
+        try {
+            const resp = await fetch('/api/clipboard', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    content: code,
+                    type: 'public',
+                    language: language
+                })
+            });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Failed to share code');
+
+            setShareCode(data.data.id);
+            setShowShareModal(true);
+        } catch (err) {
+            setShareError(err.message);
+            // Fallback to local url generation
+            const localUrl = generateShareLink(language, code, stdin);
+            if (localUrl) {
+                alert('Clipboard share failed, but a fallback share link has been copied to your clipboard!');
+            } else {
+                alert(`Failed to share: ${err.message}`);
+            }
+        } finally {
+            setIsSharing(false);
+        }
+    }, [code, language, stdin, generateShareLink]);
 
     // Load from history
     const handleLoadRun = useCallback((run) => {
@@ -212,6 +292,7 @@ export default function CompilerHome() {
                                     language={language}
                                     onLanguageChange={handleLanguageChange}
                                     isLoading={isLoading}
+                                    isSharing={isSharing}
                                     onRun={handleRun}
                                     onReset={handleReset}
                                     onCopy={handleCopy}
@@ -221,17 +302,31 @@ export default function CompilerHome() {
                                     onFontSizeChange={setFontSize}
                                 />
 
+                                {fetchCodeError && (
+                                    <div className="mx-4 mt-4 px-4 py-3 bg-red-500/10 border border-red-500/20 text-red-500 dark:text-red-400 text-xs rounded-xl flex items-center justify-between">
+                                        <span>Error loading shared code: {fetchCodeError}</span>
+                                        <button onClick={() => setFetchCodeError('')} className="font-bold hover:underline">Dismiss</button>
+                                    </div>
+                                )}
+
                                 {/* Monaco Editor */}
-                                <div className="h-[350px] lg:h-auto lg:flex-1 lg:min-h-[520px]">
-                                    <CodeEditor
-                                        language={monacoLang}
-                                        value={code}
-                                        onChange={setCode}
-                                        isDark={isDark}
-                                        fontSize={fontSize}
-                                        onRun={handleRun}
-                                    />
-                                </div>
+                                {isFetchingCode ? (
+                                    <div className="h-[350px] lg:h-auto lg:flex-1 lg:min-h-[520px] flex flex-col items-center justify-center bg-gray-50/50 dark:bg-white/[0.01]">
+                                        <div className="w-8 h-8 border-4 border-violet-500/30 border-t-violet-500 rounded-full animate-spin mb-4" />
+                                        <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Retrieving shared code from Clipboard...</p>
+                                    </div>
+                                ) : (
+                                    <div className="h-[350px] lg:h-auto lg:flex-1 lg:min-h-[520px]">
+                                        <CodeEditor
+                                            language={monacoLang}
+                                            value={code}
+                                            onChange={setCode}
+                                            isDark={isDark}
+                                            fontSize={fontSize}
+                                            onRun={handleRun}
+                                        />
+                                    </div>
+                                )}
 
                                 {/* Status bar */}
                                 <StatusBar
@@ -271,6 +366,103 @@ export default function CompilerHome() {
                 onClearHistory={clearHistory}
             />
 
+            {/* Share Modal */}
+            {showShareModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    {/* Backdrop */}
+                    <div 
+                        className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in"
+                        onClick={() => setShowShareModal(false)}
+                    />
+                    
+                    {/* Modal Content */}
+                    <div className="relative w-full max-w-md glass-panel p-6 shadow-2xl flex flex-col items-center text-center animate-scale-up">
+                        {/* Title */}
+                        <div 
+                            className="w-12 h-12 rounded-2xl flex items-center justify-center text-lg mb-4 shadow-md shadow-emerald-500/10 border"
+                            style={{ background: 'var(--surface-2)', borderColor: 'var(--border-glass)' }}
+                        >
+                            ⚡
+                        </div>
+                        <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1.5">Code Shared Successfully!</h3>
+                        <p className="text-xs mb-6" style={{ color: 'var(--text-secondary)' }}>
+                            Your code is stored in the public Uvero Clipboard. Anyone can access or load it.
+                        </p>
+
+                        {/* 4-digit code */}
+                        <div className="flex items-center justify-center gap-2.5 mb-6">
+                            {shareCode.split('').map((digit, i) => (
+                                <div 
+                                    key={i} 
+                                    className="w-12 h-14 bg-white/50 dark:bg-white/[0.02] border rounded-xl flex items-center justify-center text-2xl font-black text-emerald-600 dark:text-emerald-400 shadow-sm"
+                                    style={{ borderColor: 'var(--border-glass)' }}
+                                >
+                                    {digit}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Direct Link Input */}
+                        <div className="w-full space-y-4 mb-6">
+                            <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-left mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                                    Compiler Link (Run & Edit)
+                                </label>
+                                <div className="flex gap-2">
+                                    <input 
+                                        type="text" 
+                                        readOnly 
+                                        value={`${window.location.origin}/compiler?code=${shareCode}`} 
+                                        className="flex-1 bg-white/30 dark:bg-black/20 border text-xs rounded-xl px-3 py-2 font-mono text-gray-950 dark:text-gray-200 outline-none"
+                                        style={{ borderColor: 'var(--border-glass)' }}
+                                        onClick={(e) => e.target.select()}
+                                    />
+                                    <button
+                                        onClick={() => handleCopyLink(`${window.location.origin}/compiler?code=${shareCode}`, 'compiler')}
+                                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-colors min-w-[75px]"
+                                    >
+                                        {copiedLinkType === 'compiler' ? 'Copied!' : 'Copy'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-left mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+                                    Clipboard Link (Raw Text)
+                                </label>
+                                <div className="flex gap-2">
+                                    <input 
+                                        type="text" 
+                                        readOnly 
+                                        value={`${window.location.origin}/c/${shareCode}`} 
+                                        className="flex-1 bg-white/30 dark:bg-black/20 border text-xs rounded-xl px-3 py-2 font-mono text-gray-950 dark:text-gray-200 outline-none"
+                                        style={{ borderColor: 'var(--border-glass)' }}
+                                        onClick={(e) => e.target.select()}
+                                    />
+                                    <button
+                                        onClick={() => handleCopyLink(`${window.location.origin}/c/${shareCode}`, 'clipboard')}
+                                        className="px-4 py-2 bg-white/50 hover:bg-white/80 dark:bg-white/[0.05] dark:hover:bg-white/[0.1] border font-bold rounded-xl text-xs transition-colors min-w-[75px]"
+                                        style={{ borderColor: 'var(--border-glass)', color: 'var(--text-primary)' }}
+                                    >
+                                        {copiedLinkType === 'clipboard' ? 'Copied!' : 'Copy'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="flex w-full gap-2">
+                            <button
+                                onClick={() => setShowShareModal(false)}
+                                className="flex-1 py-2.5 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 transition-colors"
+                            >
+                                Done
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* CSS animations */}
             <style>{`
                 @keyframes fade-in-down {
@@ -302,6 +494,12 @@ export default function CompilerHome() {
                     50% { opacity: 1; transform: scale(1.1); }
                 }
                 .animate-slow-pulse { animation: slow-pulse 15s ease-in-out infinite; }
+
+                @keyframes scale-up {
+                    from { opacity: 0; transform: scale(0.95); }
+                    to   { opacity: 1; transform: scale(1); }
+                }
+                .animate-scale-up { animation: scale-up 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
             `}</style>
         </AIServiceShell>
     );

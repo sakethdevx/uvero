@@ -1,7 +1,7 @@
 import LanguageSelector from './LanguageSelector';
 import ShareButton from './ShareButton';
 
-export default function EditorToolbar({ language, onLanguageChange, isLoading, onRun, onReset, onCopy, onShare, onHistoryToggle, fontSize, onFontSizeChange }) {
+export default function EditorToolbar({ language, onLanguageChange, isLoading, isSharing, onRun, onReset, onCopy, onShare, onHistoryToggle, fontSize, onFontSizeChange }) {
     return (
         <div className="flex items-center justify-between gap-1.5 sm:gap-3 px-2 sm:px-4 py-1.5 bg-white/90 dark:bg-[#161b22] border-b border-gray-200/70 dark:border-white/[0.06] backdrop-blur-sm shadow-sm z-30">
             {/* Left: Run + Language Selector */}
@@ -67,7 +67,7 @@ export default function EditorToolbar({ language, onLanguageChange, isLoading, o
                         </svg>
                     </button>
 
-                    <ShareButton onShare={onShare} />
+                    <ShareButton onClick={onShare} isLoading={isSharing} />
                 </div>
             </div>
 
