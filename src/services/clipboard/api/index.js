@@ -90,7 +90,8 @@ export default async function handler(req, res) {
                     expires_at: meta.expires_at,
                     has_password: meta.has_password,
                     created_at: meta.created_at,
-                    updated_at: meta.updated_at
+                    updated_at: meta.updated_at,
+                    source: boardData.metadata?.source || null
                 }
             })
         }
@@ -98,7 +99,7 @@ export default async function handler(req, res) {
         // ── POST: Create or update a board ──
         if (req.method === 'POST') {
             const { content, boardId: requestedBoardId, type = 'public', language = 'plaintext',
-                password, burnAfterRead = false, expiresIn } = req.body || {}
+                password, burnAfterRead = false, expiresIn, source } = req.body || {}
 
             if (content === undefined || content === null) {
                 return res.status(400).json({ error: 'Missing content' })
@@ -162,7 +163,7 @@ export default async function handler(req, res) {
             }
 
             // Save content to GitHub
-            await saveBoard(boardId, content, { language, type: boardType }, boardType)
+            await saveBoard(boardId, content, { language, type: boardType, source }, boardType)
 
             // Upsert metadata in Supabase
             const metaRow = {
