@@ -150,7 +150,7 @@ export default function ServicesHome() {
           <p className={`text-xs font-medium tracking-wide animate-fade-in transition-ui ${fadeClass}`}
             style={{ color: 'var(--text-secondary)' }}
           >
-            6 capabilities · 200+ actions · 100% private
+            4 capabilities · 200+ actions · 100% private
           </p>
         )}
       </div>
