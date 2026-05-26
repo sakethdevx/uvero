@@ -13,7 +13,7 @@ jobs:
       - name: Ping Uvero Compiler Keep-Alive Endpoint
         run: |
           echo "Pinging Uvero keep-alive endpoint..."
-          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://uvero.vercel.app/api/compiler/keep-alive)
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://uvero.app/api/compiler/keep-alive)
           echo "Response status code: $STATUS_CODE"
           if [ "$STATUS_CODE" -ne 200 ]; then
             echo "Warning: Received HTTP $STATUS_CODE. HuggingFace instance might be waking up or having issues."
