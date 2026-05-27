@@ -255,8 +255,13 @@ export default function UnifiedConverter() {
         const url = URL.createObjectURL(result.file);
         const link = document.createElement('a');
         link.href = url;
-        link.download = result.file.name;
+        // Use the original file name if present, otherwise fallback to a generic name with extension
+        link.download = result.file.name || `downloaded.${result.file.type?.split('/')[1] || 'bin'}`;
+        // Append to body for better browser compatibility (e.g., Firefox)
+        document.body.appendChild(link);
         link.click();
+        // Clean up
+        document.body.removeChild(link);
         URL.revokeObjectURL(url);
     };
 

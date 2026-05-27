@@ -77,11 +77,14 @@ export default function ImageToPdfTool({ initialFiles = [], embedded = false }) 
                         <span className="text-sm text-gray-500">{(resultPdf.size / 1024 / 1024).toFixed(2)} MB</span>
                     </div>
                     <Button
-                        as="a"
-                        href={resultPdf.url}
-                        download={resultPdf.name}
-                        target="_blank"
-                        rel="noreferrer"
+                        onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = resultPdf.url;
+                            link.download = resultPdf.name;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        }}
                         className="!py-2 !px-4"
                     >
                         Download PDF
