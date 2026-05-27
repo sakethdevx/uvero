@@ -128,11 +128,17 @@ export default function FileConvertPanel({ params, onDismiss, onSuggestionSelect
 
   const handleDownload = useCallback(() => {
     if (!result?.file) return;
+    // Create a Blob URL for the file (File or Blob)
     const url = URL.createObjectURL(result.file);
     const a = document.createElement('a');
     a.href = url;
+    // Use the original file name if available, otherwise fallback to output format
     a.download = result.file.name || `converted.${outputFormat}`;
+    // Append to body to ensure Firefox compatibility
+    document.body.appendChild(a);
     a.click();
+    // Clean up
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }, [result, outputFormat]);
 
