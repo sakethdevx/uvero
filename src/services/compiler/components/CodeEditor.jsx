@@ -5,6 +5,11 @@ import { UVERO_DARK, UVERO_LIGHT, THEME_NAME_DARK, THEME_NAME_LIGHT } from '../d
 export default function CodeEditor({ language, value, onChange, isDark = true, fontSize = 14, onRun }) {
     const editorRef = useRef(null);
     const monacoRef = useRef(null);
+    const onRunRef = useRef(onRun);
+
+    useEffect(() => {
+        onRunRef.current = onRun;
+    }, [onRun]);
 
     function handleEditorDidMount(editor, monaco) {
         editorRef.current = editor;
@@ -17,7 +22,7 @@ export default function CodeEditor({ language, value, onChange, isDark = true, f
 
         // Keyboard shortcuts
         editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-            onRun?.();
+            onRunRef.current?.();
         });
 
         // Prevent Ctrl+S browser save dialog
