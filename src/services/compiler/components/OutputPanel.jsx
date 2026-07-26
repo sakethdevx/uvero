@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const STATUS_CONFIG = {
     success: { icon: '✅', label: 'Success', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50/80 dark:bg-emerald-500/10', border: 'border-emerald-200/50 dark:border-emerald-500/15', glow: 'shadow-emerald-500/5 dark:shadow-emerald-500/5' },
@@ -12,6 +12,23 @@ const STATUS_CONFIG = {
 export default function OutputPanel({ output, isLoading }) {
     const [activeTab, setActiveTab] = useState('output');
     const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+        if (output) {
+            const hasCompileOutput = output.compile_output && output.compile_output.trim();
+            const hasStderr = output.stderr && output.stderr.trim();
+
+            if (output.status === 'compilation_error' && hasCompileOutput) {
+                setActiveTab('compile');
+            } else if ((output.status === 'runtime_error' || output.status === 'error' || output.status === 'timeout') && hasStderr) {
+                setActiveTab('errors');
+            } else if (hasStderr && !(output.stdout && output.stdout.trim())) {
+                setActiveTab('errors');
+            } else {
+                setActiveTab('output');
+            }
+        }
+    }, [output]);
 
     // No output yet — empty state
     if (!output && !isLoading) {
