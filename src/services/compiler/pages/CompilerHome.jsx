@@ -52,7 +52,7 @@ export default function CompilerHome() {
     const [output, setOutput] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 1 });
-    const [isDark, setIsDark] = useState(true);
+    const [isDark, setIsDark] = useState(() => typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : true);
     const [historyOpen, setHistoryOpen] = useState(false);
 
     // Share & fetch states
