@@ -8,6 +8,7 @@ import { checkUsernameAvailability, interpretUsernameAvailability, updateMyUsern
 import { USERNAME_HELP_TEXT, isUsernameValid, normalizeUsernameInput } from '../auth/usernameRules'
 import ThemeToggle from '../components/ThemeToggle'
 import AIPageLayout from '../components/AIPageLayout'
+import { useHomepagePreference, HOMEPAGE_PREFS } from '../lib/useHomepagePreference'
 
 // guest session storage key removed
 
@@ -22,6 +23,7 @@ export default function Profile() {
 function ProfileContent() {
     const { user } = useAuth()
     const navigate = useNavigate()
+    const { preference: homepagePref, setPreference: setHomepagePref } = useHomepagePreference()
     const [usernameInput, setUsernameInput] = useState('')
     const [savedUsername, setSavedUsername] = useState('')
     const [isEditingUsername, setIsEditingUsername] = useState(false)
@@ -410,6 +412,71 @@ function ProfileContent() {
                                     <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Customize theme styling on this device.</p>
                                 </div>
                                 <ThemeToggle />
+                            </div>
+
+                            {/* Homepage Experience Setting Card */}
+                            <div className="p-4 rounded-xl border border-gray-100 bg-gray-50/40 dark:border-white/[0.04] dark:bg-white/[0.02] space-y-3 transition-all">
+                                <div>
+                                    <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                        <span>Default Homepage View</span>
+                                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-accent/10 text-accent dark:text-accent-blue">
+                                            Account & Guest
+                                        </span>
+                                    </h3>
+                                    <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
+                                        Choose your default landing page view when opening Uvero.
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                                    {/* Visual Catalog Option */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setHomepagePref(HOMEPAGE_PREFS.VISUAL)}
+                                        className={`p-3 rounded-xl border text-left flex flex-col gap-1.5 transition-all ${
+                                            homepagePref === HOMEPAGE_PREFS.VISUAL
+                                                ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10 dark:border-indigo-400 ring-2 ring-indigo-500/20'
+                                                : 'border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 hover:border-gray-300 dark:hover:border-white/20'
+                                        }`}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-base">🗂️</span>
+                                            {homepagePref === HOMEPAGE_PREFS.VISUAL && (
+                                                <span className="w-2 h-2 rounded-full bg-indigo-500 shadow-sm" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold text-gray-900 dark:text-white">Visual Catalog</p>
+                                            <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-normal mt-0.5">
+                                                Full showcase of all 4 service pillars, popular tools & privacy features.
+                                            </p>
+                                        </div>
+                                    </button>
+
+                                    {/* Command Interface Option */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setHomepagePref(HOMEPAGE_PREFS.COMMAND)}
+                                        className={`p-3 rounded-xl border text-left flex flex-col gap-1.5 transition-all ${
+                                            homepagePref === HOMEPAGE_PREFS.COMMAND
+                                                ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-500/10 dark:border-indigo-400 ring-2 ring-indigo-500/20'
+                                                : 'border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/40 hover:border-gray-300 dark:hover:border-white/20'
+                                        }`}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-base">⚡</span>
+                                            {homepagePref === HOMEPAGE_PREFS.COMMAND && (
+                                                <span className="w-2 h-2 rounded-full bg-indigo-500 shadow-sm" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold text-gray-900 dark:text-white">Command Interface</p>
+                                            <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-normal mt-0.5">
+                                                Minimal single viewport with instant search command bar & action chips.
+                                            </p>
+                                        </div>
+                                    </button>
+                                </div>
                             </div>
                             
                             {/* Auto Sync Message */}
