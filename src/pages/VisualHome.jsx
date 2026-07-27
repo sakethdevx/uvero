@@ -9,7 +9,6 @@ export default function VisualHome() {
   const navigate = useNavigate();
   const { setPreference } = useHomepagePreference();
   const [activeIntent, setActiveIntent] = useState(null);
-  const [isCommandOpen, setIsCommandOpen] = useState(false);
 
   useSEO({
     title: 'Uvero — Intelligent Digital Workspace',
@@ -59,31 +58,12 @@ export default function VisualHome() {
           </p>
         </div>
 
-        {/* Command Launcher / Trigger */}
+        {/* Command Launcher */}
         <div className="w-full max-w-md mt-1">
-          {!isCommandOpen ? (
-            <button
-              onClick={() => setIsCommandOpen(true)}
-              className="w-full glass-panel px-4 py-3 rounded-xl border border-[var(--border)] shadow-sm flex items-center justify-between gap-3 text-left hover:border-primary-500/50 hover:shadow-md transition-all text-xs sm:text-sm group"
-            >
-              <div className="flex items-center gap-2.5 text-gray-500 dark:text-gray-400">
-                <svg className="w-4 h-4 group-hover:text-primary-500 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <span>Type any action or search tools...</span>
-              </div>
-              <kbd className="hidden sm:inline-flex items-center gap-0.5 px-2 py-0.5 text-[11px] font-semibold text-gray-400 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
-                ⌘K
-              </kbd>
-            </button>
-          ) : (
-            <div className="animate-state-in">
-              <CommandBar
-                mode="embed"
-                onIntentResolved={handleIntentResolved}
-              />
-            </div>
-          )}
+          <CommandBar
+            mode="embed"
+            onIntentResolved={handleIntentResolved}
+          />
         </div>
       </section>
 

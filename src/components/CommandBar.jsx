@@ -41,7 +41,7 @@ const QUICK_EXAMPLES = [
  * @param {function} onIntentResolved - Callback when a Tier 1/2 intent is resolved (opens ActionPanel)
  * @param {function} onIntentResolved - Callback when a Tier 1/2 intent is resolved (opens ActionPanel)
  */
-export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onIntentResolved, externalQuery, onExternalQueryConsumed }) {
+export default function CommandBar({ mode = 'embed', isOpen = true, autoFocus = false, onClose, onIntentResolved, externalQuery, onExternalQueryConsumed }) {
   const [query, setQuery] = useState('');
   const [result, setResult] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -102,12 +102,12 @@ export default function CommandBar({ mode = 'embed', isOpen = true, onClose, onI
     return () => clearInterval(interval);
   }, [isFocused, query]);
 
-  // Focus input when modal opens
+  // Focus input when modal opens or autoFocus is true
   useEffect(() => {
-    if (mode === 'modal' && isOpen) {
+    if ((mode === 'modal' && isOpen) || autoFocus) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [mode, isOpen]);
+  }, [mode, isOpen, autoFocus]);
 
   // Handle external query injection (from OnboardingHint chips)
   useEffect(() => {
