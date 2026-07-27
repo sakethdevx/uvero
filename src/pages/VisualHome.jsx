@@ -36,7 +36,7 @@ export default function VisualHome() {
       <section className="relative z-10 flex flex-col items-center text-center gap-4">
         
         {/* Preference Badge / Mode Switcher */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium glass-panel border border-[var(--border)] shadow-sm animate-fade-in mb-1">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium glass-panel border border-[var(--border)] shadow-sm animate-fade-in mb-1">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span style={{ color: 'var(--text-secondary)' }}>Visual Catalog Mode</span>
           <span className="text-gray-300 dark:text-gray-600">•</span>
@@ -87,7 +87,7 @@ export default function VisualHome() {
         </div>
       </section>
 
-      {/* Action Panel Modal (when user runs intent from embedded command) */}
+      {/* Action Panel Modal */}
       {activeIntent && (
         <section className="w-full max-w-2xl mx-auto z-20">
           <ActionPanel intent={activeIntent} onDismiss={handleDismissAction} />
@@ -95,131 +95,123 @@ export default function VisualHome() {
       )}
 
       {/* ── CORE SERVICES (2x2 Grid) ── */}
-      <section className="flex flex-col gap-3.5">
+      <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-sm font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+          <h2 className="text-sm sm:text-base font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>
             Service Pillars
           </h2>
-          <span className="text-[11px] font-medium" style={{ color: 'var(--text-secondary)' }}>
+          <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
             4 Pillars · 200+ Actions
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           
           {/* Pillar 1: Toolbox */}
           <Link
             to="/toolbox"
-            className="glass-panel p-4.5 rounded-xl border border-[var(--border)] hover:border-indigo-500/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group flex flex-col justify-between gap-3"
+            className="glass-panel p-5 sm:p-6 rounded-2xl border border-[var(--border)] hover:border-indigo-500/50 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group flex flex-col justify-between gap-4"
           >
-            <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform">
                 🛠️
               </div>
-              <div className="flex flex-col min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <h3 className="text-xs sm:text-sm font-semibold group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex items-center gap-1">
-                    Toolbox & PDF Suite
-                    <span className="text-[10px] text-gray-400 group-hover:translate-x-0.5 transition-transform">→</span>
-                  </h3>
-                </div>
-                <p className="text-[11px] leading-relaxed mt-1 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
-                  File converters for documents, media, plus merge, split, compress & protect PDFs.
+              <div className="flex flex-col min-w-0 flex-1">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors flex items-center gap-1.5">
+                  <span>Toolbox & PDF Suite</span>
+                  <span className="text-xs text-gray-400 group-hover:translate-x-1 transition-transform">→</span>
+                </h3>
+                <p className="text-xs leading-relaxed mt-1.5" style={{ color: 'var(--text-secondary)' }}>
+                  File converters for documents and media, plus full PDF suite to merge, split, compress & protect PDFs.
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 pt-1 border-t border-[var(--border-glass)]">
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+            <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-glass)]">
+              <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
                 PDF & Conversion
               </span>
-              <span className="text-[10px] text-gray-400">• Client-side WASM</span>
+              <span className="text-[11px] text-gray-400">• Client-side WASM</span>
             </div>
           </Link>
 
           {/* Pillar 2: QR Tools */}
           <Link
             to="/qr-tools"
-            className="glass-panel p-4.5 rounded-xl border border-[var(--border)] hover:border-violet-500/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group flex flex-col justify-between gap-3"
+            className="glass-panel p-5 sm:p-6 rounded-2xl border border-[var(--border)] hover:border-violet-500/50 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group flex flex-col justify-between gap-4"
           >
-            <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform">
                 🔳
               </div>
-              <div className="flex flex-col min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <h3 className="text-xs sm:text-sm font-semibold group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors flex items-center gap-1">
-                    QR Tools & Studio
-                    <span className="text-[10px] text-gray-400 group-hover:translate-x-0.5 transition-transform">→</span>
-                  </h3>
-                </div>
-                <p className="text-[11px] leading-relaxed mt-1 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
-                  Generate custom QRs with logos, scanner, bulk codes, dynamic redirects & analytics.
+              <div className="flex flex-col min-w-0 flex-1">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors flex items-center gap-1.5">
+                  <span>QR Tools & Studio</span>
+                  <span className="text-xs text-gray-400 group-hover:translate-x-1 transition-transform">→</span>
+                </h3>
+                <p className="text-xs leading-relaxed mt-1.5" style={{ color: 'var(--text-secondary)' }}>
+                  Generate custom QRs with logos, camera scanner, bulk generation, dynamic redirects & scan analytics.
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 pt-1 border-t border-[var(--border-glass)]">
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-violet-500/10 text-violet-600 dark:text-violet-400">
+            <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-glass)]">
+              <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-violet-500/10 text-violet-600 dark:text-violet-400">
                 Generator & Scanner
               </span>
-              <span className="text-[10px] text-gray-400">• Analytics & Bulk</span>
+              <span className="text-[11px] text-gray-400">• Analytics & Bulk</span>
             </div>
           </Link>
 
           {/* Pillar 3: Clipboard */}
           <Link
             to="/clipboard"
-            className="glass-panel p-4.5 rounded-xl border border-[var(--border)] hover:border-sky-500/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group flex flex-col justify-between gap-3"
+            className="glass-panel p-5 sm:p-6 rounded-2xl border border-[var(--border)] hover:border-sky-500/50 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group flex flex-col justify-between gap-4"
           >
-            <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform">
                 📋
               </div>
-              <div className="flex flex-col min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <h3 className="text-xs sm:text-sm font-semibold group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors flex items-center gap-1">
-                    Live Clipboard
-                    <span className="text-[10px] text-gray-400 group-hover:translate-x-0.5 transition-transform">→</span>
-                  </h3>
-                </div>
-                <p className="text-[11px] leading-relaxed mt-1 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
-                  Share text across devices privately with password lock, expiry & CLI access.
+              <div className="flex flex-col min-w-0 flex-1">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors flex items-center gap-1.5">
+                  <span>Live Clipboard</span>
+                  <span className="text-xs text-gray-400 group-hover:translate-x-1 transition-transform">→</span>
+                </h3>
+                <p className="text-xs leading-relaxed mt-1.5" style={{ color: 'var(--text-secondary)' }}>
+                  Share text across devices privately with password lock, burn-after-read, auto expiry & CLI access.
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 pt-1 border-t border-[var(--border-glass)]">
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-sky-500/10 text-sky-600 dark:text-sky-400">
+            <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-glass)]">
+              <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400">
                 Encrypted Sharing
               </span>
-              <span className="text-[10px] text-gray-400">• Terminal CLI</span>
+              <span className="text-[11px] text-gray-400">• Terminal CLI</span>
             </div>
           </Link>
 
           {/* Pillar 4: Compiler */}
           <Link
             to="/compiler"
-            className="glass-panel p-4.5 rounded-xl border border-[var(--border)] hover:border-emerald-500/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group flex flex-col justify-between gap-3"
+            className="glass-panel p-5 sm:p-6 rounded-2xl border border-[var(--border)] hover:border-emerald-500/50 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group flex flex-col justify-between gap-4"
           >
-            <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform">
                 💻
               </div>
-              <div className="flex flex-col min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <h3 className="text-xs sm:text-sm font-semibold group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors flex items-center gap-1">
-                    Code Compiler
-                    <span className="text-[10px] text-gray-400 group-hover:translate-x-0.5 transition-transform">→</span>
-                  </h3>
-                </div>
-                <p className="text-[11px] leading-relaxed mt-1 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
-                  Monaco IDE for running Python, JavaScript, C++, Go & Rust code online.
+              <div className="flex flex-col min-w-0 flex-1">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+                  <span>Code Compiler</span>
+                  <span className="text-xs text-gray-400 group-hover:translate-x-1 transition-transform">→</span>
+                </h3>
+                <p className="text-xs leading-relaxed mt-1.5" style={{ color: 'var(--text-secondary)' }}>
+                  Monaco editor for running Python, JavaScript, C++, Go, Rust, and HTML online with stdin/stdout.
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 pt-1 border-t border-[var(--border-glass)]">
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <div className="flex items-center gap-2 pt-2 border-t border-[var(--border-glass)]">
+              <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                 Monaco IDE
               </span>
-              <span className="text-[10px] text-gray-400">• 10+ Languages</span>
+              <span className="text-[11px] text-gray-400">• 10+ Languages</span>
             </div>
           </Link>
 
@@ -228,7 +220,7 @@ export default function VisualHome() {
 
       {/* ── POPULAR QUICK ACTIONS ── */}
       <section className="flex flex-col gap-3">
-        <h2 className="text-sm font-semibold tracking-tight px-1" style={{ color: 'var(--text-primary)' }}>
+        <h2 className="text-sm sm:text-base font-semibold tracking-tight px-1" style={{ color: 'var(--text-primary)' }}>
           Quick Actions
         </h2>
 
@@ -244,7 +236,7 @@ export default function VisualHome() {
             <button
               key={tool.label}
               onClick={() => navigate(tool.path)}
-              className="glass-panel px-3 py-2.5 rounded-xl border border-[var(--border)] hover:border-primary-500/40 hover:shadow-sm flex items-center gap-2 text-left transition-all group"
+              className="glass-panel px-3.5 py-2.5 rounded-xl border border-[var(--border)] hover:border-primary-500/40 hover:shadow-sm flex items-center gap-2.5 text-left transition-all group"
             >
               <span className="text-sm shrink-0 group-hover:scale-110 transition-transform">{tool.icon}</span>
               <span className="text-xs font-medium truncate" style={{ color: 'var(--text-primary)' }}>
@@ -256,18 +248,18 @@ export default function VisualHome() {
       </section>
 
       {/* ── PRIVACY BANNER ── */}
-      <section className="glass-panel p-4 rounded-xl border border-[var(--border)] flex items-center justify-between gap-4 text-xs shadow-sm">
+      <section className="glass-panel p-4.5 sm:p-5 rounded-2xl border border-[var(--border)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-sm">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-base shrink-0">
             🛡️
           </div>
-          <p className="truncate" style={{ color: 'var(--text-secondary)' }}>
+          <p className="leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
             <span className="font-semibold text-gray-900 dark:text-white">100% In-Browser Privacy:</span> Files & code process locally on your device via WASM.
           </p>
         </div>
         <Link
           to="/privacy"
-          className="text-primary-600 dark:text-primary-400 font-semibold hover:underline shrink-0 text-xs flex items-center gap-1"
+          className="text-primary-600 dark:text-primary-400 font-semibold hover:underline shrink-0 text-xs flex items-center gap-1 self-end sm:self-auto"
         >
           <span>Privacy Policy</span>
           <span>→</span>
