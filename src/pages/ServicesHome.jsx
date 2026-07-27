@@ -6,6 +6,7 @@ import ActionPanel from '../components/ActionPanel';
 import OnboardingHint from '../components/OnboardingHint';
 import { resolveIntent } from '../lib/IntentEngine';
 import { useInteraction } from '../lib/InteractionContext';
+import { useHomepagePreference, HOMEPAGE_PREFS } from '../lib/useHomepagePreference';
 
 /**
  * ServicesHome — The Intelligence Interface.
@@ -24,6 +25,7 @@ export default function ServicesHome() {
   const [activeIntent, setActiveIntent] = useState(null);
   const [externalQuery, setExternalQuery] = useState('');
   const [showDoneConfirm, setShowDoneConfirm] = useState(false);
+  const { setPreference } = useHomepagePreference();
   const { interactionState, setInteractionState } = useInteraction();
   const navigate = useNavigate();
 
@@ -97,6 +99,22 @@ export default function ServicesHome() {
 
       {/* ── Main content — vertically centered ── */}
       <div className={`premium-home-content relative z-10 w-full ${isInteracting ? 'max-w-3xl gap-4' : 'max-w-xl gap-5'} mx-auto flex flex-col items-center`}>
+        {/* Preference Badge / Quick Switcher */}
+        {!isInteracting && (
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium glass-panel border border-[var(--border)] shadow-sm mb-1 animate-fade-in">
+            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+            <span style={{ color: 'var(--text-secondary)' }}>Command Mode Active</span>
+            <span className="text-gray-300 dark:text-gray-600">•</span>
+            <button
+              onClick={() => setPreference(HOMEPAGE_PREFS.VISUAL)}
+              className="hover:underline flex items-center gap-1 font-semibold text-indigo-600 dark:text-indigo-400 transition-colors"
+              title="Switch to Visual Catalog Homepage"
+            >
+              <span>🗂️ Switch to Visual Catalog</span>
+            </button>
+          </div>
+        )}
+
         {/* Greeting */}
         <div className="hero-copy text-center max-w-sm mx-auto mb-4">
           <h1 className="text-xl sm:text-2xl font-semibold tracking-tight intelligence-text">

@@ -17,7 +17,9 @@ import { signOut } from './auth/authService';
 import { getMaintenanceConfig } from './config/maintenance';
 import { resolveIntent } from './lib/IntentEngine';
 import { InteractionProvider, useInteraction } from './lib/InteractionContext';
+import { useHomepagePreference } from './lib/useHomepagePreference';
 
+const VisualHome = lazy(() => import('./pages/VisualHome'));
 const CompilerHome = lazy(() => import('./services/compiler/pages/CompilerHome'));
 const ToolboxHome = lazy(() => import('./services/toolbox/pages/ToolboxHome'));
 const ToolPage = lazy(() => import('./services/toolbox/pages/ToolPage'));
@@ -39,6 +41,14 @@ const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const Profile = lazy(() => import('./pages/Profile'));
+
+/**
+ * HomeDispatcher — Dynamically resolves user preference for default homepage
+ */
+function HomeDispatcher() {
+  const { isVisualMode } = useHomepagePreference();
+  return isVisualMode ? <VisualHome /> : <ServicesHome />;
+}
 
 /**
  * Main App Content — Glass header + routes + minimal footer + bottom nav (mobile)
@@ -174,7 +184,7 @@ function AppContent() {
       <main id="main" className="relative z-10 flex flex-1 flex-col min-h-0 pb-20 md:pb-0" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}>
         <Suspense fallback={<RouteFallback />}>
           <Routes>
-            <Route path="/" element={<ServicesHome />} />
+            <Route path="/" element={<HomeDispatcher />} />
             <Route path="/compiler" element={<CompilerHome />} />
             <Route path="/toolbox" element={<ToolboxHome />} />
             <Route path="/clipboard" element={<Clipboard />} />
