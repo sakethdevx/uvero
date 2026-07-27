@@ -80,6 +80,7 @@ export default function VisualHome() {
             <div className="animate-state-in">
               <CommandBar
                 mode="embed"
+                autoFocus={true}
                 onIntentResolved={handleIntentResolved}
               />
             </div>
