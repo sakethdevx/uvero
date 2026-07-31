@@ -1,24 +1,20 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import jsQR from 'jsqr';
 import { LTDecoder } from '../lib/fountain';
-import { WebRTCReceiver } from '../lib/webrtcPeer';
+import { decodeRGBMatrixCanvas } from '../lib/rgbMatrixEngine';
 
 /**
- * QRReceiver — Optical Camera Scanner with Stealth Dark Mode & WebRTC Fallback
+ * QRReceiver — RGB Color Grid Matrix Receiver & Fountain Erasure Decoder
  */
 export default function QRReceiver({ onReset }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const overlayCanvasRef = useRef(null);
 
   const [stream, setStream] = useState(null);
   const [facingMode, setFacingMode] = useState('environment');
   const [isTorchOn, setIsTorchOn] = useState(false);
   const [isTorchSupported, setIsTorchSupported] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
   
-  const [scannerStatus, setScannerStatus] = useState('initializing'); // 'initializing', 'scanning', 'webrtc', 'complete', 'error'
-  const [webrtcProgress, setWebrtcProgress] = useState(0);
+  const [scannerStatus, setScannerStatus] = useState('initializing'); // 'initializing', 'scanning', 'complete', 'error'
 
   const [progressState, setProgressState] = useState({
     fileName: '',
@@ -27,18 +23,14 @@ export default function QRReceiver({ onReset }) {
     totalBlocks: 0,
     progressRatio: 0,
     totalDroplets: 0,
-    usefulDroplets: 0,
-    duplicateDroplets: 0,
     scanFps: 0,
   });
 
   const [assembledFile, setAssembledFile] = useState(null);
 
   const decoderRef = useRef(new LTDecoder());
-  const webrtcReceiverRef = useRef(null);
   const animFrameIdRef = useRef(null);
   const fpsWindowRef = useRef([]);
-  const webrtcTimeoutRef = useRef(null);
 
   const startCamera = useCallback(async () => {
     setScannerStatus('initializing');
@@ -97,108 +89,51 @@ export default function QRReceiver({ onReset }) {
   };
 
   const scanLoop = useCallback(() => {
-    if (scannerStatus === 'complete' || scannerStatus === 'webrtc' || !videoRef.current || videoRef.current.readyState !== 4) {
+    if (scannerStatus === 'complete' || !videoRef.current || videoRef.current.readyState !== 4) {
       animFrameIdRef.current = requestAnimationFrame(scanLoop);
       return;
     }
 
     const video = videoRef.current;
     const canvas = canvasRef.current || document.createElement('canvas');
-    const overlayCanvas = overlayCanvasRef.current;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    canvas.width = 340;
+    canvas.height = 340;
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    // Decode RGB Matrix Frame
+    const decodedFrame = decodeRGBMatrixCanvas(canvas, 14);
 
-    // Try scanning both normal and inverted colors (for dark mode soft cyan QR codes)
-    let code = jsQR(imageData.data, imageData.width, imageData.height, {
-      inversionAttempts: 'attemptBoth',
-    });
-
-    if (overlayCanvas) {
-      overlayCanvas.width = video.videoWidth;
-      overlayCanvas.height = video.videoHeight;
-      const oCtx = overlayCanvas.getContext('2d');
-      oCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-
-      if (code) {
-        oCtx.strokeStyle = '#38bdf8';
-        oCtx.lineWidth = 4;
-        oCtx.beginPath();
-        oCtx.moveTo(code.location.topLeftCorner.x, code.location.topLeftCorner.y);
-        oCtx.lineTo(code.location.topRightCorner.x, code.location.topRightCorner.y);
-        oCtx.lineTo(code.location.bottomRightCorner.x, code.location.bottomRightCorner.y);
-        oCtx.lineTo(code.location.bottomLeftCorner.x, code.location.bottomLeftCorner.y);
-        oCtx.closePath();
-        oCtx.stroke();
-      }
-    }
-
-    if (code && code.data) {
-      // Check if scanned QR is a WebRTC Offer
+    if (decodedFrame && decodedFrame.payloadBytes && decodedFrame.payloadBytes.length > 0) {
       try {
-        const parsed = JSON.parse(code.data);
-        if (parsed && parsed.w === 1 && parsed.s) {
-          setScannerStatus('webrtc');
+        const payloadStr = new TextDecoder().decode(decodedFrame.payloadBytes);
+        const res = decoderRef.current.processPacket(payloadStr);
 
-          const receiver = new WebRTCReceiver(
-            parsed.s,
-            () => {},
-            (progress) => {
-              setWebrtcProgress(progress);
-            },
-            (fileObj) => {
-              if (webrtcTimeoutRef.current) clearTimeout(webrtcTimeoutRef.current);
-              setScannerStatus('complete');
-              setAssembledFile(fileObj);
-            },
-            () => {
-              if (webrtcTimeoutRef.current) clearTimeout(webrtcTimeoutRef.current);
-              setScannerStatus('scanning');
-            }
-          );
-          webrtcReceiverRef.current = receiver;
-
-          // Auto-fallback to optical stream if WebRTC P2P times out in 2.5s
-          webrtcTimeoutRef.current = setTimeout(() => {
-            if (webrtcReceiverRef.current) webrtcReceiverRef.current.close();
-            setScannerStatus('scanning');
-          }, 2500);
-
-          return;
+        if (res.complete) {
+          setScannerStatus('complete');
+          setAssembledFile(res.assembledFile);
         }
+
+        const now = performance.now();
+        fpsWindowRef.current.push(now);
+        if (fpsWindowRef.current.length > 25) fpsWindowRef.current.shift();
+        const windowLen = fpsWindowRef.current.length;
+        const scanFps = windowLen > 1 ? Math.round((windowLen - 1) * 1000 / (now - fpsWindowRef.current[0])) : 0;
+
+        const dec = decoderRef.current;
+        setProgressState({
+          fileName: dec.fileName,
+          fileSize: dec.fileSize,
+          solvedBlocks: dec.rank,
+          totalBlocks: dec.K,
+          progressRatio: dec.K > 0 ? dec.rank / dec.K : 0,
+          totalDroplets: dec.totalDropletsReceived,
+          scanFps,
+        });
       } catch {
-        // Standard Fountain packet
+        // Ignore parse error
       }
-
-      const res = decoderRef.current.processPacket(code.data);
-
-      if (res.complete) {
-        setScannerStatus('complete');
-        setAssembledFile(res.assembledFile);
-      }
-
-      const now = performance.now();
-      fpsWindowRef.current.push(now);
-      if (fpsWindowRef.current.length > 25) fpsWindowRef.current.shift();
-      const windowLen = fpsWindowRef.current.length;
-      const scanFps = windowLen > 1 ? Math.round((windowLen - 1) * 1000 / (now - fpsWindowRef.current[0])) : 0;
-
-      const dec = decoderRef.current;
-      setProgressState({
-        fileName: dec.fileName,
-        fileSize: dec.fileSize,
-        solvedBlocks: dec.rank,
-        totalBlocks: dec.K,
-        progressRatio: dec.K > 0 ? dec.rank / dec.K : 0,
-        totalDroplets: dec.totalDropletsReceived,
-        usefulDroplets: dec.usefulDropletsReceived,
-        duplicateDroplets: dec.totalDropletsReceived - dec.usefulDropletsReceived,
-        scanFps,
-      });
     }
 
     animFrameIdRef.current = requestAnimationFrame(scanLoop);
@@ -212,12 +147,9 @@ export default function QRReceiver({ onReset }) {
   }, [scanLoop]);
 
   const handleRestart = () => {
-    if (webrtcTimeoutRef.current) clearTimeout(webrtcTimeoutRef.current);
-    if (webrtcReceiverRef.current) webrtcReceiverRef.current.close();
     decoderRef.current.reset();
     setAssembledFile(null);
     setScannerStatus('scanning');
-    setWebrtcProgress(0);
     setProgressState({
       fileName: '',
       fileSize: 0,
@@ -225,8 +157,6 @@ export default function QRReceiver({ onReset }) {
       totalBlocks: 0,
       progressRatio: 0,
       totalDroplets: 0,
-      usefulDroplets: 0,
-      duplicateDroplets: 0,
       scanFps: 0,
     });
   };
@@ -301,23 +231,6 @@ export default function QRReceiver({ onReset }) {
             </button>
           </div>
         </div>
-      ) : scannerStatus === 'webrtc' ? (
-        <div className="glass-panel p-8 rounded-3xl space-y-6 border border-cyan-500/30 shadow-2xl max-w-md mx-auto text-center">
-          <div className="w-16 h-16 rounded-full bg-cyan-500/20 text-cyan-500 flex items-center justify-center mx-auto animate-pulse">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Connecting WebRTC P2P DataChannel</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Connecting peer-to-peer socket...</p>
-          </div>
-
-          <div className="w-full bg-gray-200 dark:bg-white/10 h-3 rounded-full overflow-hidden p-0.5">
-            <div className="bg-cyan-500 h-full rounded-full transition-all duration-200" style={{ width: `${webrtcProgress * 100}%` }} />
-          </div>
-          <span className="text-xs font-mono text-cyan-500">{Math.round(webrtcProgress * 100)}%</span>
-        </div>
       ) : (
         <div className="flex flex-col items-center space-y-6">
           <div className="relative w-full max-w-md aspect-video sm:aspect-square rounded-3xl overflow-hidden glass-panel border border-cyan-500/20 shadow-2xl bg-black flex items-center justify-center">
@@ -329,8 +242,6 @@ export default function QRReceiver({ onReset }) {
               muted
               className="w-full h-full object-cover"
             />
-
-            <canvas ref={overlayCanvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
 
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
               <div className="w-56 h-56 sm:w-64 sm:h-64 border-2 border-dashed border-cyan-400/60 rounded-3xl relative animate-pulse">
@@ -379,12 +290,12 @@ export default function QRReceiver({ onReset }) {
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[200px]">
-                  {progressState.fileName || 'Point Camera at AirPulse Stream'}
+                  {progressState.fileName || 'Point Camera at RGB Color Stream'}
                 </h4>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   {progressState.totalBlocks > 0 
                     ? `${progressState.solvedBlocks} of ${progressState.totalBlocks} Blocks Decoded`
-                    : 'Scanning AirPulse optical stream...'}
+                    : 'Scanning RGB color matrix stream...'}
                 </p>
               </div>
 
