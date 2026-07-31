@@ -1,7 +1,6 @@
 /**
  * AirPulse WebRTC P2P Engine
- * Uses dynamic PeerJS cloud signaling (wss://0.peerjs.com) for 100% reliable 6-digit room pairing.
- * Zero external bundle dependencies, zero CORS errors, 50-100 MB/s speed.
+ * Fixes ArrayBuffer slicing & DataChannel buffer flow control for 5MB+ files.
  */
 
 const PEERJS_CDN = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
@@ -75,7 +74,6 @@ export class WebRTCSenderManager {
 
       this.peer.on('error', (err) => {
         if (err.type === 'unavailable-id') {
-          // Retry with new code if code collision
           this.pairingCode = generatePairingCode();
           this.init();
         } else {
@@ -104,7 +102,7 @@ export class WebRTCSenderManager {
     if (!this.conn || !this.conn.open) return;
 
     const totalSize = this.fileBytes.length;
-    const chunkSize = 32768; // 32 KB
+    const chunkSize = 16384; // 16 KB chunks for high mobile WebRTC stability
     let offset = 0;
 
     // Send META packet
@@ -116,29 +114,34 @@ export class WebRTCSenderManager {
     });
 
     const sendNextChunk = () => {
+      if (!this.conn || !this.conn.open) return;
+
       while (offset < totalSize) {
         const end = Math.min(offset + chunkSize, totalSize);
-        const chunk = this.fileBytes.subarray(offset, end);
+        // Slices EXACT 16 KB ArrayBuffer slice
+        const chunkSlice = this.fileBytes.buffer.slice(offset, end);
 
         this.conn.send({
           type: 'CHUNK',
-          data: chunk.buffer,
+          data: chunkSlice,
         });
 
         offset = end;
         this.onProgress?.(offset / totalSize, offset, totalSize);
 
-        if (this.conn.dataChannel && this.conn.dataChannel.bufferedAmount > 262144) {
-          setTimeout(sendNextChunk, 10);
+        // Check dataChannel buffer backpressure
+        if (this.conn.dataChannel && this.conn.dataChannel.bufferedAmount > 65536) {
+          setTimeout(sendNextChunk, 15);
           return;
         }
       }
 
+      // Finish Transmission
       this.conn.send({ type: 'COMPLETE' });
       this.onComplete?.();
     };
 
-    setTimeout(sendNextChunk, 50);
+    setTimeout(sendNextChunk, 100);
   }
 
   close() {
