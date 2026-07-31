@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import jsQR from 'jsqr';
 import { LTDecoder } from '../lib/fountain';
-import { decodeRGBMatrixCanvas } from '../lib/rgbMatrixEngine';
 
 /**
- * QRReceiver — RGB Color Grid Matrix Receiver & Fountain Erasure Decoder
+ * QRReceiver — Camera Receiver & Fountain Erasure Decoder
+ * Instantly scans soft dark mode optical QR streams with zero eye strain.
  */
 export default function QRReceiver({ onReset }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const overlayCanvasRef = useRef(null);
 
   const [stream, setStream] = useState(null);
   const [facingMode, setFacingMode] = useState('environment');
@@ -96,44 +98,63 @@ export default function QRReceiver({ onReset }) {
 
     const video = videoRef.current;
     const canvas = canvasRef.current || document.createElement('canvas');
+    const overlayCanvas = overlayCanvasRef.current;
 
-    canvas.width = 340;
-    canvas.height = 340;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // Decode RGB Matrix Frame
-    const decodedFrame = decodeRGBMatrixCanvas(canvas, 14);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-    if (decodedFrame && decodedFrame.payloadBytes && decodedFrame.payloadBytes.length > 0) {
-      try {
-        const payloadStr = new TextDecoder().decode(decodedFrame.payloadBytes);
-        const res = decoderRef.current.processPacket(payloadStr);
+    // Attempt both normal and inverted colors for soft cyan on dark slate QR codes
+    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+      inversionAttempts: 'attemptBoth',
+    });
 
-        if (res.complete) {
-          setScannerStatus('complete');
-          setAssembledFile(res.assembledFile);
-        }
+    if (overlayCanvas) {
+      overlayCanvas.width = video.videoWidth;
+      overlayCanvas.height = video.videoHeight;
+      const oCtx = overlayCanvas.getContext('2d');
+      oCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
-        const now = performance.now();
-        fpsWindowRef.current.push(now);
-        if (fpsWindowRef.current.length > 25) fpsWindowRef.current.shift();
-        const windowLen = fpsWindowRef.current.length;
-        const scanFps = windowLen > 1 ? Math.round((windowLen - 1) * 1000 / (now - fpsWindowRef.current[0])) : 0;
-
-        const dec = decoderRef.current;
-        setProgressState({
-          fileName: dec.fileName,
-          fileSize: dec.fileSize,
-          solvedBlocks: dec.rank,
-          totalBlocks: dec.K,
-          progressRatio: dec.K > 0 ? dec.rank / dec.K : 0,
-          totalDroplets: dec.totalDropletsReceived,
-          scanFps,
-        });
-      } catch {
-        // Ignore parse error
+      if (code) {
+        oCtx.strokeStyle = '#38bdf8';
+        oCtx.lineWidth = 4;
+        oCtx.beginPath();
+        oCtx.moveTo(code.location.topLeftCorner.x, code.location.topLeftCorner.y);
+        oCtx.lineTo(code.location.topRightCorner.x, code.location.topRightCorner.y);
+        oCtx.lineTo(code.location.bottomRightCorner.x, code.location.bottomRightCorner.y);
+        oCtx.lineTo(code.location.bottomLeftCorner.x, code.location.bottomLeftCorner.y);
+        oCtx.closePath();
+        oCtx.stroke();
       }
+    }
+
+    if (code && code.data) {
+      const res = decoderRef.current.processPacket(code.data);
+
+      if (res.complete) {
+        setScannerStatus('complete');
+        setAssembledFile(res.assembledFile);
+      }
+
+      const now = performance.now();
+      fpsWindowRef.current.push(now);
+      if (fpsWindowRef.current.length > 25) fpsWindowRef.current.shift();
+      const windowLen = fpsWindowRef.current.length;
+      const scanFps = windowLen > 1 ? Math.round((windowLen - 1) * 1000 / (now - fpsWindowRef.current[0])) : 0;
+
+      const dec = decoderRef.current;
+      setProgressState({
+        fileName: dec.fileName,
+        fileSize: dec.fileSize,
+        solvedBlocks: dec.rank,
+        totalBlocks: dec.K,
+        progressRatio: dec.K > 0 ? dec.rank / dec.K : 0,
+        totalDroplets: dec.totalDropletsReceived,
+        scanFps,
+      });
     }
 
     animFrameIdRef.current = requestAnimationFrame(scanLoop);
@@ -243,6 +264,8 @@ export default function QRReceiver({ onReset }) {
               className="w-full h-full object-cover"
             />
 
+            <canvas ref={overlayCanvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+
             <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
               <div className="w-56 h-56 sm:w-64 sm:h-64 border-2 border-dashed border-cyan-400/60 rounded-3xl relative animate-pulse">
                 <div className="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-cyan-400 rounded-tl-xl" />
@@ -290,12 +313,12 @@ export default function QRReceiver({ onReset }) {
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[200px]">
-                  {progressState.fileName || 'Point Camera at RGB Color Stream'}
+                  {progressState.fileName || 'Point Camera at Soft Optical Stream'}
                 </h4>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   {progressState.totalBlocks > 0 
                     ? `${progressState.solvedBlocks} of ${progressState.totalBlocks} Blocks Decoded`
-                    : 'Scanning RGB color matrix stream...'}
+                    : 'Scanning soft optical stream...'}
                 </p>
               </div>
 
