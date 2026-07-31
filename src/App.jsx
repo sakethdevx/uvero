@@ -190,7 +190,6 @@ function AppContent() {
             <Route path="/toolbox" element={<ToolboxHome />} />
             <Route path="/clipboard" element={<Clipboard />} />
             <Route path="/file-transfer" element={<FileTransfer />} />
-            <Route path="/airpulse" element={<FileTransfer />} />
             <Route path="/clipboard/:boardId" element={<ClipboardBoard />} />
             <Route path="/c/:code" element={<PublicClipboard />} />
             <Route path="/cli" element={<ClipboardCli />} />

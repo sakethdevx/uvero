@@ -86,7 +86,7 @@ export default function VisualHome() {
           
           {/* Pillar 1: File Transfer */}
           <Link
-            to="/airpulse"
+            to="/file-transfer"
             className="glass-panel p-4 sm:p-5 rounded-2xl border border-[var(--border)] hover:border-cyan-500/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group flex flex-col gap-3"
           >
             <div className="flex items-start gap-3.5">

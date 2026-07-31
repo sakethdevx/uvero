@@ -198,13 +198,13 @@ export const SEARCH_INDEX = [
         priority: 95,
     },
     {
-        id: 'app-airpulse',
+        id: 'app-file-transfer',
         title: 'File Transfer',
         description: 'Direct browser-to-browser P2P WebRTC file transfer with 6-digit PIN code and static QR.',
         icon: '📡',
-        path: '/airpulse',
+        path: '/file-transfer',
         kind: KIND.TOOL,
-        keywords: toKeywords('airpulse', 'file', 'transfer', 'optical', 'qr', 'camera', 'beam', 'offline'),
+        keywords: toKeywords('p2p', 'file', 'transfer', 'webrtc', 'qr', 'camera', 'beam', 'share'),
         priority: 95,
     },
     {

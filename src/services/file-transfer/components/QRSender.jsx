@@ -37,7 +37,7 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
 
         // Render static pairing QR code
         if (canvasRef.current && code) {
-          const pairingUrl = `${window.location.origin}/airpulse?code=${code}`;
+          const pairingUrl = `${window.location.origin}/file-transfer?code=${code}`;
           QRCode.toCanvas(canvasRef.current, pairingUrl, {
             margin: 2,
             width: 260,
