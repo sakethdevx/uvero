@@ -11,15 +11,14 @@ for (let i = 0; i < testSize; i++) {
 const originalCRC = calculateCRC32(testBytes);
 console.log(`Original Size: ${testSize} bytes, CRC32: ${originalCRC}`);
 
-const blockSize = 300;
-const encoder = new LTEncoder(testBytes, 'test_document.bin', 'application/octet-stream', blockSize);
+const encoder = new LTEncoder(testBytes, 'test_document.bin', 'application/octet-stream', 'balanced');
 console.log(`K = ${encoder.K} blocks, Block Size = ${encoder.blockSize}`);
 
 const decoder = new LTDecoder();
 let totalSent = 0;
 let totalProcessed = 0;
 
-for (let i = 0; i < 800; i++) {
+for (let i = 0; i < 1200; i++) {
   const dropletJSON = encoder.nextDroplet();
   totalSent++;
 
@@ -28,7 +27,7 @@ for (let i = 0; i < 800; i++) {
   totalProcessed++;
   const res = decoder.processPacket(dropletJSON);
 
-  if (totalProcessed % 15 === 0 || res.complete) {
+  if (totalProcessed % 20 === 0 || res.complete) {
     console.log(`Processed: ${totalProcessed} | Rank: ${decoder.rank}/${encoder.K}`);
   }
 

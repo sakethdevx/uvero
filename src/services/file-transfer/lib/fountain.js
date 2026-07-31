@@ -1,8 +1,7 @@
 /**
  * AirPulse Fountain Code Engine
  * Advanced Luby Transform (LT) encoder with GF(2) Gaussian Elimination matrix solver.
- * Multi-pass shuffled systematic interleave + soliton fountain drops.
- * Features Adaptive Block Sizing & Automatic Stream Compression.
+ * Features Pre-Compression Stream + Optical QR Density Tuning.
  */
 
 export function calculateCRC32(bytes) {
@@ -72,50 +71,72 @@ export function getDropletDegreeAndIndices(K, seed) {
 }
 
 /**
- * Calculates adaptive block size to cap total blocks K between 20 and 800 blocks max.
+ * Calculates optical camera-friendly block size to prevent QR grid over-density.
+ * Maximum block size is capped at 180-260 bytes so camera sensors can resolve QR modules easily.
  */
-export function calculateAdaptiveBlockSize(fileSizeBytes, requestedPreset = 'balanced') {
-  let targetBlockCount = 300;
-  if (fileSizeBytes < 50000) {
-    targetBlockCount = 100;
-  } else if (fileSizeBytes < 500000) {
-    targetBlockCount = 300;
-  } else if (fileSizeBytes < 2000000) {
-    targetBlockCount = 500;
-  } else {
-    targetBlockCount = 800; // Cap at 800 blocks max even for 5MB+ files!
+export function calculateOpticalBlockSize(fileSizeBytes, requestedPreset = 'balanced') {
+  switch (requestedPreset) {
+    case 'reliable': return 130;
+    case 'turbo': return 260;
+    case 'balanced':
+    default: return 180;
   }
+}
 
-  let calculatedBlockSize = Math.ceil(fileSizeBytes / targetBlockCount);
-
-  // Apply preset scale bounds
-  if (requestedPreset === 'reliable') {
-    calculatedBlockSize = Math.min(calculatedBlockSize, 200);
-  } else if (requestedPreset === 'turbo') {
-    calculatedBlockSize = Math.max(calculatedBlockSize, 600);
+/**
+ * Asynchronous Compression Helper using browser native CompressionStream
+ */
+export async function compressPayloadIfBeneficial(rawBytes) {
+  if (typeof CompressionStream === 'undefined') {
+    return { data: rawBytes, isCompressed: false };
   }
+  try {
+    const stream = new Blob([rawBytes]).stream().pipeThrough(new CompressionStream('gzip'));
+    const compressedBuffer = await new Response(stream).arrayBuffer();
+    const compressedBytes = new Uint8Array(compressedBuffer);
 
-  return Math.max(120, Math.min(calculatedBlockSize, 1200));
+    // Only use compressed if it actually reduced the size
+    if (compressedBytes.length < rawBytes.length * 0.92) {
+      return { data: compressedBytes, isCompressed: true };
+    }
+  } catch {
+    // Compression fallback
+  }
+  return { data: rawBytes, isCompressed: false };
+}
+
+/**
+ * Asynchronous Decompression Helper using browser native DecompressionStream
+ */
+export async function decompressPayload(compressedBytes) {
+  if (typeof DecompressionStream === 'undefined') return compressedBytes;
+  try {
+    const stream = new Blob([compressedBytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+    const decompressedBuffer = await new Response(stream).arrayBuffer();
+    return new Uint8Array(decompressedBuffer);
+  } catch {
+    return compressedBytes;
+  }
 }
 
 /**
  * LTEncoder — Converts file Uint8Array into infinite droplet stream
  */
 export class LTEncoder {
-  constructor(fileBytes, fileName, fileType = 'application/octet-stream', requestedPreset = 'balanced') {
+  constructor(fileBytes, fileName, fileType = 'application/octet-stream', requestedPreset = 'balanced', isCompressed = false) {
     this.fileBytes = new Uint8Array(fileBytes);
     this.fileName = fileName || 'unnamed_file';
     this.fileType = fileType || 'application/octet-stream';
     this.fileSize = this.fileBytes.length;
     this.crc32 = calculateCRC32(this.fileBytes);
     this.fileId = (Math.floor(Math.random() * 0xFFFF)).toString(16).padStart(4, '0');
+    this.isCompressed = isCompressed;
     
-    // Calculate adaptive block size
-    this.blockSize = calculateAdaptiveBlockSize(this.fileSize, requestedPreset);
+    // Optical-friendly block size
+    this.blockSize = calculateOpticalBlockSize(this.fileSize, requestedPreset);
     this.K = Math.ceil(this.fileSize / this.blockSize);
     this.seedCounter = 1;
 
-    // Slice source blocks
     this.blocks = [];
     for (let i = 0; i < this.K; i++) {
       const start = i * this.blockSize;
@@ -154,6 +175,7 @@ export class LTEncoder {
       b: this.blockSize,
       c: this.crc32,
       s: seed,
+      gz: this.isCompressed ? 1 : 0,
       p: payloadBase64,
     };
 
@@ -177,6 +199,7 @@ export class LTDecoder {
     this.blockSize = 0;
     this.K = 0;
     this.expectedCRC = '';
+    this.isCompressed = false;
     this.receivedSeeds = new Set();
     this.pivotTable = [];
     this.rank = 0;
@@ -211,6 +234,7 @@ export class LTDecoder {
       this.blockSize = packet.b;
       this.K = packet.k;
       this.expectedCRC = packet.c;
+      this.isCompressed = packet.gz === 1;
       this.receivedSeeds.clear();
       this.pivotTable = new Array(this.K).fill(null);
       this.rank = 0;
@@ -267,7 +291,7 @@ export class LTDecoder {
     };
   }
 
-  finalizeFile() {
+  async finalizeFile() {
     for (let i = this.K - 1; i >= 0; i--) {
       const currentPivot = this.pivotTable[i];
       if (!currentPivot) continue;
@@ -291,15 +315,22 @@ export class LTDecoder {
     }
 
     const trimmedBuffer = rawBuffer.subarray(0, this.fileSize);
+    let finalBuffer = trimmedBuffer;
+
+    // Decompress if compressed flag was enabled
+    if (this.isCompressed) {
+      finalBuffer = await decompressPayload(trimmedBuffer);
+    }
+
     const actualCRC = calculateCRC32(trimmedBuffer);
 
     this.isComplete = true;
     this.assembledFile = {
       name: this.fileName,
       type: this.fileType,
-      size: this.fileSize,
-      data: trimmedBuffer,
-      blob: new Blob([trimmedBuffer], { type: this.fileType || 'application/octet-stream' }),
+      size: finalBuffer.length,
+      data: finalBuffer,
+      blob: new Blob([finalBuffer], { type: this.fileType || 'application/octet-stream' }),
       crcValid: actualCRC === this.expectedCRC,
       crc: actualCRC,
     };

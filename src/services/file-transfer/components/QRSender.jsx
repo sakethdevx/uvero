@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import QRCode from 'qrcode';
-import { LTEncoder } from '../lib/fountain';
+import { LTEncoder, compressPayloadIfBeneficial } from '../lib/fountain';
 
 /**
- * QRSender — Ultra-High FPS Animated QR Generator using HTML5 Canvas Throttling
+ * QRSender — Ultra-High FPS Animated QR Generator with Pre-Compression & Optical Optimization
  */
 export default function QRSender({ fileData, fileName, fileType, onReset }) {
   const canvasRef = useRef(null);
-  const [fps, setFps] = useState(60);
+  const [fps, setFps] = useState(30);
   const [density, setDensity] = useState('balanced');
   const [isPlaying, setIsPlaying] = useState(true);
+  const [compressionInfo, setCompressionInfo] = useState(null);
+
   const [stats, setStats] = useState({
     dropletsSent: 0,
     currentFps: 0,
@@ -24,28 +26,40 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
   const lastFrameTimeRef = useRef(0);
   const fpsWindowRef = useRef([]);
 
-  const getBlockSize = useCallback((preset) => {
-    switch (preset) {
-      case 'reliable': return 120;
-      case 'turbo': return 420;
-      case 'balanced':
-      default: return 240;
-    }
-  }, []);
-
   useEffect(() => {
     if (!fileData) return;
-    const enc = new LTEncoder(fileData, fileName, fileType, density);
-    encoderRef.current = enc;
 
-    setStats(prev => ({
-      ...prev,
-      dropletsSent: 0,
-      totalBlocks: enc.K,
-      blockSize: enc.blockSize,
-      crc32: enc.crc32,
-    }));
-  }, [fileData, fileName, fileType, density, getBlockSize]);
+    let isMounted = true;
+    compressPayloadIfBeneficial(fileData).then(({ data: payloadData, isCompressed }) => {
+      if (!isMounted) return;
+
+      if (isCompressed) {
+        const ratio = ((1 - payloadData.length / fileData.length) * 100).toFixed(0);
+        setCompressionInfo({
+          originalSize: fileData.length,
+          compressedSize: payloadData.length,
+          ratio,
+        });
+      } else {
+        setCompressionInfo(null);
+      }
+
+      const enc = new LTEncoder(payloadData, fileName, fileType, density, isCompressed);
+      encoderRef.current = enc;
+
+      setStats(prev => ({
+        ...prev,
+        dropletsSent: 0,
+        totalBlocks: enc.K,
+        blockSize: enc.blockSize,
+        crc32: enc.crc32,
+      }));
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fileData, fileName, fileType, density]);
 
   const renderLoop = useCallback((timestamp) => {
     if (!isPlaying || !encoderRef.current || !canvasRef.current) {
@@ -61,11 +75,12 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
 
       const dropletPacket = encoderRef.current.nextDroplet();
 
+      // Use errorCorrectionLevel 'L' for larger, camera-friendly module squares
       QRCode.toCanvas(
         canvasRef.current,
         dropletPacket,
         {
-          errorCorrectionLevel: 'M',
+          errorCorrectionLevel: 'L',
           margin: 2,
           width: 320,
           color: {
@@ -123,11 +138,20 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
             </svg>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[220px]">
-              {fileName}
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[220px]">
+                {fileName}
+              </h3>
+              {compressionInfo && (
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-bold">
+                  -{compressionInfo.ratio}% Compressed
+                </span>
+              )}
+            </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              {(fileData.byteLength / 1024).toFixed(1)} KB • {stats.totalBlocks} Blocks ({stats.blockSize}B/block)
+              {compressionInfo 
+                ? `${(compressionInfo.compressedSize / 1024).toFixed(1)} KB (was ${(compressionInfo.originalSize / 1024).toFixed(1)} KB)`
+                : `${(fileData.byteLength / 1024).toFixed(1)} KB`} • {stats.totalBlocks} Blocks ({stats.blockSize}B/block)
             </p>
           </div>
         </div>
@@ -191,11 +215,11 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
             </button>
 
             <div className="flex items-center bg-gray-100 dark:bg-white/5 p-1 rounded-xl border border-gray-200 dark:border-white/10">
-              {[15, 30, 60].map((rate) => (
+              {[15, 24, 30, 60].map((rate) => (
                 <button
                   key={rate}
                   onClick={() => setFps(rate)}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
                     fps === rate
                       ? 'bg-cyan-500 text-white shadow-md'
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -209,14 +233,14 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
 
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-gray-500 dark:text-gray-400 flex justify-between">
-              <span>QR Matrix Density Preset</span>
+              <span>Optical Density Mode</span>
               <span className="capitalize font-mono text-cyan-500">{density}</span>
             </label>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { id: 'reliable', label: 'High Reliability', desc: 'Easy scan' },
+                { id: 'reliable', label: 'High Reliability', desc: 'Largest QR pixels' },
                 { id: 'balanced', label: 'Balanced', desc: 'Recommended' },
-                { id: 'turbo', label: 'Turbo Mode', desc: 'Max speed' },
+                { id: 'turbo', label: 'Turbo Mode', desc: 'High density' },
               ].map((preset) => (
                 <button
                   key={preset.id}
