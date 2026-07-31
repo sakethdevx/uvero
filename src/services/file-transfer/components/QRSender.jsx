@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
+import { AIInlinePanel } from '../../../components/AIServiceLayout';
 import { WebRTCSenderManager } from '../lib/webrtcEngine';
 
 /**
- * QRSender — Pure WebRTC P2P Sender Component
- * Displays 1 static pairing QR code + 6-digit room code.
- * Zero optical canvas streaming, zero screen glare, 50-100 MB/s speed!
+ * QRSender — Streamlined Pure WebRTC Sender Component
+ * Matches official Uvero UI design language with glass-panel styling and light/dark theme support.
  */
 export default function QRSender({ fileData, fileName, fileType, onReset }) {
   const canvasRef = useRef(null);
@@ -35,12 +35,12 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
         setPairingCode(code);
         setStatus('ready');
 
-        // Render 1 static pairing QR code
+        // Render static pairing QR code
         if (canvasRef.current && code) {
           const pairingUrl = `${window.location.origin}/airpulse?code=${code}`;
           QRCode.toCanvas(canvasRef.current, pairingUrl, {
             margin: 2,
-            width: 280,
+            width: 260,
             color: { dark: '#0f172a', light: '#ffffff' },
           });
         }
@@ -89,8 +89,8 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
 
   return (
     <div className="space-y-6 max-w-xl mx-auto">
-      {/* Top File Meta Card */}
-      <div className="glass-panel p-4 rounded-2xl flex items-center justify-between gap-4">
+      {/* File Info Bar */}
+      <AIInlinePanel className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-cyan-500/10 text-cyan-500 font-bold border border-cyan-500/20">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,18 +113,18 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
         >
           Change File
         </button>
-      </div>
+      </AIInlinePanel>
 
       {/* Main Connection Status Container */}
-      <div className="glass-panel p-8 rounded-3xl border border-cyan-500/20 shadow-2xl flex flex-col items-center space-y-6 text-center">
+      <AIInlinePanel className="p-8 flex flex-col items-center space-y-6 text-center">
         {status === 'complete' ? (
-          <div className="space-y-4 py-4 animate-fade-in">
+          <div className="space-y-4 py-4 animate-state-in">
             <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center mx-auto">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Transfer Complete!</h3>
+            <h3 className="text-xl font-extrabold text-gray-900 dark:text-white">Transfer Complete!</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400">
               File delivered losslessly over WebRTC P2P DataChannel.
             </p>
@@ -163,16 +163,16 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
             </div>
 
             {/* Static Pairing QR Code */}
-            <div className="relative bg-white p-3 rounded-2xl shadow-inner">
+            <div className="relative bg-white p-3 rounded-2xl shadow-inner border border-gray-200 dark:border-white/10">
               <canvas ref={canvasRef} className="w-56 h-56 rounded-xl" />
             </div>
 
             <p className="text-xs text-gray-500 dark:text-gray-400 max-w-sm">
-              Scan the QR code once on your mobile phone OR enter the 6-digit pairing code to start WebRTC P2P direct transfer.
+              Scan the QR code once on your mobile phone OR enter the 6-digit pairing code on the receiving device to start instant WebRTC transfer.
             </p>
           </>
         )}
-      </div>
+      </AIInlinePanel>
     </div>
   );
 }

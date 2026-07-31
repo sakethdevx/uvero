@@ -12,8 +12,8 @@ export default function VisualHome() {
 
   useSEO({
     title: 'Uvero — Intelligent Digital Workspace',
-    description: 'Explore Uvero’s private digital tools: PDF editing, file conversion, QR generator, live clipboard, and Monaco compiler. 100% client-side.',
-    keywords: ['digital tools', 'PDF tools', 'file converter', 'QR generator', 'live clipboard', 'code compiler', 'browser WASM'],
+    description: 'Explore Uvero’s private digital tools: AirPulse file transfer, PDF editing, file conversion, QR generator, live clipboard, and Monaco compiler. 100% client-side.',
+    keywords: ['digital tools', 'AirPulse share', 'PDF tools', 'file converter', 'QR generator', 'live clipboard', 'code compiler', 'browser WASM'],
   });
 
   const handleIntentResolved = useCallback((intent) => {
@@ -29,7 +29,7 @@ export default function VisualHome() {
   }, []);
 
   return (
-    <div className="relative min-h-[calc(100dvh-8rem)] px-4 pt-16 sm:pt-24 pb-16 max-w-3xl mx-auto flex flex-col gap-10">
+    <div className="relative min-h-[calc(100dvh-8rem)] px-4 pt-16 sm:pt-24 pb-16 max-w-4xl mx-auto flex flex-col gap-10">
       
       {/* ── HERO SECTION ── */}
       <section className="relative z-10 flex flex-col items-center text-center gap-4">
@@ -54,7 +54,7 @@ export default function VisualHome() {
             Explore Uvero&apos;s Private Digital Workspace
           </h1>
           <p className="text-xs sm:text-sm leading-relaxed max-w-md mx-auto text-gray-500 dark:text-gray-400">
-            Convert files, generate QR codes, share encrypted text, and run code — 100% in your browser.
+            AirPulse file share, convert files, generate QR codes, share encrypted text, and run code — 100% in your browser.
           </p>
         </div>
 
@@ -74,7 +74,7 @@ export default function VisualHome() {
         </section>
       )}
 
-      {/* ── CORE SERVICES (2x2 Grid) ── */}
+      {/* ── CORE SERVICES ── */}
       <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-sm font-medium tracking-tight text-gray-500 dark:text-gray-400">
@@ -82,9 +82,29 @@ export default function VisualHome() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           
-          {/* Pillar 1: Toolbox */}
+          {/* Pillar 1: AirPulse Share */}
+          <Link
+            to="/airpulse"
+            className="glass-panel p-4 sm:p-5 rounded-2xl border border-[var(--border)] hover:border-cyan-500/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group flex flex-col gap-3"
+          >
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
+                📡
+              </div>
+              <div className="flex flex-col flex-1">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors flex items-center gap-1.5">
+                  <span>AirPulse P2P Share</span>
+                </h3>
+                <p className="text-xs leading-relaxed mt-1 text-gray-500 dark:text-gray-400">
+                  Instant browser-to-browser WebRTC file transfer. High-speed socket connection with 6-digit PIN & QR pairing.
+                </p>
+              </div>
+            </div>
+          </Link>
+
+          {/* Pillar 2: Toolbox */}
           <Link
             to="/toolbox"
             className="glass-panel p-4 sm:p-5 rounded-2xl border border-[var(--border)] hover:border-indigo-500/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group flex flex-col gap-3"
@@ -104,7 +124,7 @@ export default function VisualHome() {
             </div>
           </Link>
 
-          {/* Pillar 2: QR Tools */}
+          {/* Pillar 3: QR Tools */}
           <Link
             to="/qr-tools"
             className="glass-panel p-4 sm:p-5 rounded-2xl border border-[var(--border)] hover:border-violet-500/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group flex flex-col gap-3"
@@ -124,7 +144,7 @@ export default function VisualHome() {
             </div>
           </Link>
 
-          {/* Pillar 3: Clipboard */}
+          {/* Pillar 4: Clipboard */}
           <Link
             to="/clipboard"
             className="glass-panel p-4 sm:p-5 rounded-2xl border border-[var(--border)] hover:border-sky-500/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group flex flex-col gap-3"
@@ -144,7 +164,7 @@ export default function VisualHome() {
             </div>
           </Link>
 
-          {/* Pillar 4: Compiler */}
+          {/* Pillar 5: Compiler */}
           <Link
             to="/compiler"
             className="glass-panel p-4 sm:p-5 rounded-2xl border border-[var(--border)] hover:border-emerald-500/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group flex flex-col gap-3"
@@ -174,16 +194,9 @@ export default function VisualHome() {
             🛡️
           </div>
           <p className="leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            <span className="font-semibold text-gray-900 dark:text-white">100% In-Browser Privacy:</span> Files & code process locally on your device via WASM.
+            <span className="font-semibold text-gray-900 dark:text-white">100% In-Browser Privacy:</span> Files & code process locally on your device via WASM and P2P WebRTC.
           </p>
         </div>
-        <Link
-          to="/privacy"
-          className="text-primary-600 dark:text-primary-400 font-semibold hover:underline shrink-0 text-xs flex items-center gap-1 self-end sm:self-auto"
-        >
-          <span>Privacy Policy</span>
-          <span>→</span>
-        </Link>
       </section>
 
     </div>

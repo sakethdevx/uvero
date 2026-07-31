@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import jsQR from 'jsqr';
+import { AIInlinePanel } from '../../../components/AIServiceLayout';
 import { WebRTCReceiverManager } from '../lib/webrtcEngine';
 
 /**
- * QRReceiver — Pure WebRTC P2P Receiver Component
- * Bulletproof state management, zero infinite re-render loops, zero blank page crashes.
+ * QRReceiver — Streamlined Pure WebRTC Receiver Component
+ * Styled with official Uvero AIInlinePanel design system.
  */
 export default function QRReceiver({ onReset }) {
   const videoRef = useRef(null);
@@ -26,7 +27,6 @@ export default function QRReceiver({ onReset }) {
   const lastBytesRef = useRef(0);
   const cameraStreamRef = useRef(null);
 
-  // Check URL query code on mount
   useEffect(() => {
     try {
       const urlParams = new URLSearchParams(window.location.search);
@@ -113,7 +113,6 @@ export default function QRReceiver({ onReset }) {
             videoRef.current.play().catch(() => {});
           }
 
-          // Camera QR Scanner animation loop
           const scan = () => {
             if (!isMounted || !videoRef.current || videoRef.current.readyState !== 4) {
               animFrameIdRef.current = requestAnimationFrame(scan);
@@ -155,9 +154,7 @@ export default function QRReceiver({ onReset }) {
 
           animFrameIdRef.current = requestAnimationFrame(scan);
         })
-        .catch(() => {
-          // Camera permission error fallback
-        });
+        .catch(() => {});
 
       return () => {
         isMounted = false;
@@ -208,7 +205,7 @@ export default function QRReceiver({ onReset }) {
   return (
     <div className="space-y-6 max-w-xl mx-auto">
       {status === 'complete' && assembledFile ? (
-        <div className="glass-panel p-6 rounded-3xl space-y-6 border border-emerald-500/30 bg-emerald-500/5 shadow-2xl animate-fade-in">
+        <AIInlinePanel className="p-6 space-y-6 border border-emerald-500/30 bg-emerald-500/5 shadow-2xl animate-state-in">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center font-bold">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -248,9 +245,9 @@ export default function QRReceiver({ onReset }) {
               Receive Another File
             </button>
           </div>
-        </div>
+        </AIInlinePanel>
       ) : status === 'receiving' || status === 'connecting' ? (
-        <div className="glass-panel p-8 rounded-3xl space-y-6 border border-cyan-500/30 shadow-2xl text-center">
+        <AIInlinePanel className="p-8 space-y-6 text-center">
           <div className="w-16 h-16 rounded-full bg-cyan-500/20 text-cyan-500 flex items-center justify-center mx-auto animate-pulse">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -272,9 +269,9 @@ export default function QRReceiver({ onReset }) {
             />
           </div>
           <span className="text-xs font-mono text-cyan-500">{Math.round(progressRatio * 100)}%</span>
-        </div>
+        </AIInlinePanel>
       ) : (
-        <div className="glass-panel p-8 rounded-3xl border border-cyan-500/20 shadow-2xl flex flex-col items-center space-y-6 text-center">
+        <AIInlinePanel className="p-8 flex flex-col items-center space-y-6 text-center">
           <div className="flex justify-center w-full">
             <div className="glass-panel p-1 rounded-xl inline-flex gap-1 border border-gray-200 dark:border-white/10 text-xs">
               <button
@@ -328,7 +325,7 @@ export default function QRReceiver({ onReset }) {
               {errorMessage}
             </div>
           )}
-        </div>
+        </AIInlinePanel>
       )}
     </div>
   );
