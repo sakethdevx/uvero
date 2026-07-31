@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import QRCode from 'qrcode';
 import { LTEncoder, compressPayloadIfBeneficial } from '../lib/fountain';
+import { renderRGBMatrixFrame } from '../lib/rgbMatrixEngine';
 
 /**
- * QRSender — High-Performance Camera-Optimized Optical Stream Sender
- * Features Soft Stealth Dark Mode (Zero Eye Strain) + Instant Camera Detection.
+ * QRSender — Multi-Mode Optical Sender
+ * Mode 1: RGB Color Grid Matrix (Chromacode)
+ * Mode 2: Stealth Soft Cyan Dark Mode (Instant Camera Stream)
  */
 export default function QRSender({ fileData, fileName, fileType, onReset }) {
   const canvasRef = useRef(null);
 
   const [fps, setFps] = useState(24);
+  const [opticalMode, setOpticalMode] = useState('rgb'); // 'rgb' | 'cyan'
   const [density, setDensity] = useState('balanced');
   const [isPlaying, setIsPlaying] = useState(true);
   const [compressionInfo, setCompressionInfo] = useState(null);
@@ -64,7 +67,6 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
     };
   }, [fileData, fileName, fileType, density]);
 
-  // Camera-Optimized Animation Loop (Soft Cyan on Dark Slate)
   const renderLoop = useCallback((timestamp) => {
     if (!isPlaying || !encoderRef.current || !canvasRef.current) {
       animFrameIdRef.current = requestAnimationFrame(renderLoop);
@@ -78,47 +80,56 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
       lastFrameTimeRef.current = timestamp - (elapsed % targetInterval);
 
       const enc = encoderRef.current;
+      const frameSeq = enc.seedCounter;
       const dropletPacket = enc.nextDroplet();
 
-      QRCode.toCanvas(
-        canvasRef.current,
-        dropletPacket,
-        {
-          errorCorrectionLevel: 'L', // Low error correction = larger, ultra-clear module squares for instant scanning
-          margin: 2,
-          width: 340,
-          color: {
-            dark: '#38bdf8',  // Soft Cyan (Zero Eye Strain)
-            light: '#0f172a', // Dark Slate Background
+      if (opticalMode === 'rgb') {
+        const payloadBytes = new TextEncoder().encode(dropletPacket);
+        const frameHeader = {
+          fileId: parseInt(enc.fileId, 16) || 1001,
+          frameSeq,
+          totalFrames: enc.K,
+        };
+        renderRGBMatrixFrame(canvasRef.current, frameHeader, payloadBytes);
+      } else {
+        QRCode.toCanvas(
+          canvasRef.current,
+          dropletPacket,
+          {
+            errorCorrectionLevel: 'L',
+            margin: 2,
+            width: 340,
+            color: {
+              dark: '#38bdf8',  // Soft Cyan (Zero Eye Strain)
+              light: '#0f172a', // Dark Slate Background
+            },
           },
-        },
-        (err) => {
-          if (!err) {
-            const now = performance.now();
-            fpsWindowRef.current.push(now);
-            if (fpsWindowRef.current.length > 30) fpsWindowRef.current.shift();
-            
-            const windowLen = fpsWindowRef.current.length;
-            const actualFps = windowLen > 1 
-              ? Math.round((windowLen - 1) * 1000 / (now - fpsWindowRef.current[0])) 
-              : fps;
+          () => {}
+        );
+      }
 
-            const dropletsSent = enc.seedCounter - 1;
-            const bytesPerSec = (enc.blockSize * actualFps) / 1024;
+      const now = performance.now();
+      fpsWindowRef.current.push(now);
+      if (fpsWindowRef.current.length > 30) fpsWindowRef.current.shift();
+      
+      const windowLen = fpsWindowRef.current.length;
+      const actualFps = windowLen > 1 
+        ? Math.round((windowLen - 1) * 1000 / (now - fpsWindowRef.current[0])) 
+        : fps;
 
-            setStats(prev => ({
-              ...prev,
-              dropletsSent,
-              currentFps: actualFps,
-              transferRateKbps: bytesPerSec.toFixed(1),
-            }));
-          }
-        }
-      );
+      const dropletsSent = enc.seedCounter - 1;
+      const bytesPerSec = (enc.blockSize * actualFps) / 1024;
+
+      setStats(prev => ({
+        ...prev,
+        dropletsSent,
+        currentFps: actualFps,
+        transferRateKbps: bytesPerSec.toFixed(1),
+      }));
     }
 
     animFrameIdRef.current = requestAnimationFrame(renderLoop);
-  }, [fps, isPlaying]);
+  }, [fps, isPlaying, opticalMode]);
 
   useEffect(() => {
     animFrameIdRef.current = requestAnimationFrame(renderLoop);
@@ -162,11 +173,33 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
         </button>
       </div>
 
+      {/* Mode Switcher */}
+      <div className="flex justify-center">
+        <div className="glass-panel p-1 rounded-xl inline-flex gap-1 border border-gray-200 dark:border-white/10 text-xs">
+          <button
+            onClick={() => setOpticalMode('rgb')}
+            className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+              opticalMode === 'rgb' ? 'bg-gradient-to-r from-red-500 via-green-500 to-blue-500 text-white shadow-md' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+            }`}
+          >
+            🎨 RGB Color Grid Mode
+          </button>
+          <button
+            onClick={() => setOpticalMode('cyan')}
+            className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+              opticalMode === 'cyan' ? 'bg-cyan-500 text-white shadow-md' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+            }`}
+          >
+            ⚡ Soft Cyan Dark Mode
+          </button>
+        </div>
+      </div>
+
       {/* Main Display Canvas Container */}
       <div className="flex flex-col items-center justify-center space-y-4">
         <div className="relative group p-6 rounded-3xl border border-cyan-500/30 shadow-2xl flex flex-col items-center bg-[#090d16] text-white">
           <div className="relative p-2 rounded-2xl bg-[#0f172a] border border-cyan-500/20 shadow-inner">
-            <canvas ref={canvasRef} className="w-72 h-72 sm:w-96 sm:h-96 rounded-xl" />
+            <canvas ref={canvasRef} width={360} height={360} className="w-72 h-72 sm:w-96 sm:h-96 rounded-xl" />
           </div>
 
           <div className="mt-4 flex items-center gap-3 text-xs font-mono text-cyan-400 font-semibold tracking-wide">
@@ -175,7 +208,7 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
               <span>{isPlaying ? `${stats.currentFps} FPS` : 'PAUSED'}</span>
             </div>
             <span>•</span>
-            <span>Soft Optical Stream</span>
+            <span>{opticalMode === 'rgb' ? 'RGB Color Matrix' : 'Soft Cyan Stream'}</span>
             <span>•</span>
             <span>Frame #{stats.dropletsSent}</span>
           </div>
@@ -207,33 +240,6 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
                   }`}
                 >
                   {rate} FPS
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-gray-500 dark:text-gray-400 flex justify-between">
-              <span>Density Preset</span>
-              <span className="capitalize font-mono text-cyan-500">{density}</span>
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { id: 'reliable', label: 'High Reliability', desc: 'Largest QR pixels' },
-                { id: 'balanced', label: 'Balanced', desc: 'Recommended' },
-                { id: 'turbo', label: 'Turbo Mode', desc: 'High density' },
-              ].map((preset) => (
-                <button
-                  key={preset.id}
-                  onClick={() => setDensity(preset.id)}
-                  className={`p-2 rounded-xl text-left transition-all border ${
-                    density === preset.id
-                      ? 'border-cyan-500 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400'
-                      : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'
-                  }`}
-                >
-                  <div className="text-xs font-semibold">{preset.label}</div>
-                  <div className="text-[10px] text-gray-400">{preset.desc}</div>
                 </button>
               ))}
             </div>

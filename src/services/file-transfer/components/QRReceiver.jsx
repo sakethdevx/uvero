@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import jsQR from 'jsqr';
 import { LTDecoder } from '../lib/fountain';
+import { decodeRGBMatrixCanvas } from '../lib/rgbMatrixEngine';
 
 /**
- * QRReceiver — Camera Receiver & Fountain Erasure Decoder
- * Instantly scans soft dark mode optical QR streams with zero eye strain.
+ * QRReceiver — Hybrid Multi-Mode Receiver Component
+ * Decodes both RGB Color Grid Matrix & Soft Cyan Dark Mode streams
  */
 export default function QRReceiver({ onReset }) {
   const videoRef = useRef(null);
@@ -107,18 +108,20 @@ export default function QRReceiver({ onReset }) {
 
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-    // Attempt both normal and inverted colors for soft cyan on dark slate QR codes
-    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+    // Pass 1: Try jsQR for Soft Cyan Dark Mode stream
+    let code = jsQR(imageData.data, imageData.width, imageData.height, {
       inversionAttempts: 'attemptBoth',
     });
 
-    if (overlayCanvas) {
-      overlayCanvas.width = video.videoWidth;
-      overlayCanvas.height = video.videoHeight;
-      const oCtx = overlayCanvas.getContext('2d');
-      oCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+    let rawPayload = null;
 
-      if (code) {
+    if (code && code.data) {
+      rawPayload = code.data;
+      if (overlayCanvas) {
+        overlayCanvas.width = video.videoWidth;
+        overlayCanvas.height = video.videoHeight;
+        const oCtx = overlayCanvas.getContext('2d');
+        oCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
         oCtx.strokeStyle = '#38bdf8';
         oCtx.lineWidth = 4;
         oCtx.beginPath();
@@ -129,10 +132,20 @@ export default function QRReceiver({ onReset }) {
         oCtx.closePath();
         oCtx.stroke();
       }
+    } else {
+      // Pass 2: Try RGB Color Grid Matrix Engine
+      const decodedRGB = decodeRGBMatrixCanvas(canvas);
+      if (decodedRGB && decodedRGB.payloadBytes && decodedRGB.payloadBytes.length > 0) {
+        try {
+          rawPayload = new TextDecoder().decode(decodedRGB.payloadBytes);
+        } catch {
+          // Ignore parse error
+        }
+      }
     }
 
-    if (code && code.data) {
-      const res = decoderRef.current.processPacket(code.data);
+    if (rawPayload) {
+      const res = decoderRef.current.processPacket(rawPayload);
 
       if (res.complete) {
         setScannerStatus('complete');
@@ -313,12 +326,12 @@ export default function QRReceiver({ onReset }) {
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[200px]">
-                  {progressState.fileName || 'Point Camera at Soft Optical Stream'}
+                  {progressState.fileName || 'Point Camera at Optical Stream'}
                 </h4>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   {progressState.totalBlocks > 0 
                     ? `${progressState.solvedBlocks} of ${progressState.totalBlocks} Blocks Decoded`
-                    : 'Scanning soft optical stream...'}
+                    : 'Scanning optical stream...'}
                 </p>
               </div>
 
