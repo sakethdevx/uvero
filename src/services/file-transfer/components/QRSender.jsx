@@ -35,8 +35,7 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
 
   useEffect(() => {
     if (!fileData) return;
-    const blockSize = getBlockSize(density);
-    const enc = new LTEncoder(fileData, fileName, fileType, blockSize);
+    const enc = new LTEncoder(fileData, fileName, fileType, density);
     encoderRef.current = enc;
 
     setStats(prev => ({

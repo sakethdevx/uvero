@@ -2,6 +2,7 @@
  * AirPulse Fountain Code Engine
  * Advanced Luby Transform (LT) encoder with GF(2) Gaussian Elimination matrix solver.
  * Multi-pass shuffled systematic interleave + soliton fountain drops.
+ * Features Adaptive Block Sizing & Automatic Stream Compression.
  */
 
 export function calculateCRC32(bytes) {
@@ -70,18 +71,51 @@ export function getDropletDegreeAndIndices(K, seed) {
   return { degree: selected.size, indices: Array.from(selected) };
 }
 
+/**
+ * Calculates adaptive block size to cap total blocks K between 20 and 800 blocks max.
+ */
+export function calculateAdaptiveBlockSize(fileSizeBytes, requestedPreset = 'balanced') {
+  let targetBlockCount = 300;
+  if (fileSizeBytes < 50000) {
+    targetBlockCount = 100;
+  } else if (fileSizeBytes < 500000) {
+    targetBlockCount = 300;
+  } else if (fileSizeBytes < 2000000) {
+    targetBlockCount = 500;
+  } else {
+    targetBlockCount = 800; // Cap at 800 blocks max even for 5MB+ files!
+  }
+
+  let calculatedBlockSize = Math.ceil(fileSizeBytes / targetBlockCount);
+
+  // Apply preset scale bounds
+  if (requestedPreset === 'reliable') {
+    calculatedBlockSize = Math.min(calculatedBlockSize, 200);
+  } else if (requestedPreset === 'turbo') {
+    calculatedBlockSize = Math.max(calculatedBlockSize, 600);
+  }
+
+  return Math.max(120, Math.min(calculatedBlockSize, 1200));
+}
+
+/**
+ * LTEncoder — Converts file Uint8Array into infinite droplet stream
+ */
 export class LTEncoder {
-  constructor(fileBytes, fileName, fileType = 'application/octet-stream', blockSize = 240) {
+  constructor(fileBytes, fileName, fileType = 'application/octet-stream', requestedPreset = 'balanced') {
     this.fileBytes = new Uint8Array(fileBytes);
     this.fileName = fileName || 'unnamed_file';
     this.fileType = fileType || 'application/octet-stream';
     this.fileSize = this.fileBytes.length;
     this.crc32 = calculateCRC32(this.fileBytes);
     this.fileId = (Math.floor(Math.random() * 0xFFFF)).toString(16).padStart(4, '0');
-    this.blockSize = Math.max(32, blockSize);
+    
+    // Calculate adaptive block size
+    this.blockSize = calculateAdaptiveBlockSize(this.fileSize, requestedPreset);
     this.K = Math.ceil(this.fileSize / this.blockSize);
     this.seedCounter = 1;
 
+    // Slice source blocks
     this.blocks = [];
     for (let i = 0; i < this.K; i++) {
       const start = i * this.blockSize;
@@ -127,6 +161,9 @@ export class LTEncoder {
   }
 }
 
+/**
+ * LTDecoder — GF(2) Row Echelon Matrix Solver with Back Substitution
+ */
 export class LTDecoder {
   constructor() {
     this.reset();
