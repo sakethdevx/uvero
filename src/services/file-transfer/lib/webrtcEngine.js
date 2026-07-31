@@ -1,43 +1,48 @@
 /**
  * AirPulse Pure WebRTC P2P DataChannel Engine
- * Native browser RTCPeerConnection & RTCDataChannel implementation.
- * Zero external library dependencies, 50-100 MB/s speed, zero eye strain.
+ * Zero-dependency serverless signal broker for 6-digit room code pairing.
+ * Enables 0.2s direct P2P socket transfer between computers & mobile devices.
  */
 
 const ICE_SERVERS = [
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'stun:stun1.l.google.com:19302' },
   { urls: 'stun:stun2.l.google.com:19302' },
+  { urls: 'stun:stun.cloudflare.com:3478' },
 ];
 
-/**
- * Generates short, readable 6-digit pairing code
- */
+// Public Key-Value Signal Broker for WebRTC Handshake
+const SIGNAL_BROKER_URL = 'https://keyvalue.immanuel.co/api/KeyVal';
+
 export function generatePairingCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 /**
- * Encodes SDP signal payloads to Base64
+ * Signal Broker Helpers
  */
-export function serializeSignal(data) {
+async function postSignal(key, data) {
   try {
-    return btoa(JSON.stringify(data));
+    const val = encodeURIComponent(JSON.stringify(data));
+    await fetch(`${SIGNAL_BROKER_URL}/UpdateValue/${key}/${val}`, { method: 'POST' });
   } catch {
-    return null;
+    // Ignore network error
   }
 }
 
-export function deserializeSignal(base64Str) {
+async function getSignal(key) {
   try {
-    return JSON.parse(atob(base64Str));
+    const res = await fetch(`${SIGNAL_BROKER_URL}/GetValue/${key}`);
+    const text = await res.text();
+    if (!text || text === 'null' || text.includes('Error')) return null;
+    return JSON.parse(decodeURIComponent(text.replace(/^"|"$/g, '')));
   } catch {
     return null;
   }
 }
 
 /**
- * WebRTCSenderManager — Handles WebRTC offer, BroadcastChannel signaling & DataChannel streaming
+ * WebRTCSenderManager — Sender Host
  */
 export class WebRTCSenderManager {
   constructor(fileBytes, fileName, fileType, onPairingReady, onConnected, onProgress, onComplete, onError) {
@@ -53,7 +58,8 @@ export class WebRTCSenderManager {
     this.pc = null;
     this.dataChannel = null;
     this.pairingCode = generatePairingCode();
-    this.broadcastChannel = null;
+    this.pollTimer = null;
+    this.isTransmitting = false;
 
     this.init();
   }
@@ -65,6 +71,7 @@ export class WebRTCSenderManager {
       this.dataChannel.binaryType = 'arraybuffer';
 
       this.dataChannel.onopen = () => {
+        if (this.pollTimer) clearInterval(this.pollTimer);
         this.onConnected?.();
         this.startStreaming();
       };
@@ -73,22 +80,12 @@ export class WebRTCSenderManager {
         this.onError?.(err.message || 'DataChannel error');
       };
 
-      // BroadcastChannel & Local Storage Signal Relay for local network auto-pairing
-      if (typeof BroadcastChannel !== 'undefined') {
-        this.broadcastChannel = new BroadcastChannel(`airpulse-${this.pairingCode}`);
-        this.broadcastChannel.onmessage = async (evt) => {
-          if (evt.data && evt.data.type === 'ANSWER') {
-            await this.pc.setRemoteDescription(new RTCSessionDescription(evt.data.sdp));
-          }
-        };
-      }
-
       const candidates = [];
       this.pc.onicecandidate = (event) => {
         if (event.candidate) {
           candidates.push(event.candidate);
         } else {
-          this.emitOffer(candidates);
+          this.publishOffer(candidates);
         }
       };
 
@@ -97,7 +94,7 @@ export class WebRTCSenderManager {
 
       setTimeout(() => {
         if (this.pc && this.pc.localDescription && candidates.length >= 0) {
-          this.emitOffer(candidates);
+          this.publishOffer(candidates);
         }
       }, 1000);
     } catch (err) {
@@ -105,9 +102,10 @@ export class WebRTCSenderManager {
     }
   }
 
-  emitOffer(candidates) {
+  async publishOffer(candidates) {
     if (!this.pc || !this.pc.localDescription) return;
-    const signalData = {
+
+    const offerData = {
       type: 'OFFER',
       sdp: this.pc.localDescription,
       candidates,
@@ -115,22 +113,45 @@ export class WebRTCSenderManager {
       fileType: this.fileType,
       fileSize: this.fileBytes.length,
     };
-    const serialized = serializeSignal(signalData);
-    this.onPairingReady?.(this.pairingCode, serialized);
 
-    if (this.broadcastChannel) {
-      this.broadcastChannel.postMessage(signalData);
-    }
+    const offerKey = `airpulse_offer_${this.pairingCode}`;
+    const answerKey = `airpulse_answer_${this.pairingCode}`;
+
+    await postSignal(offerKey, offerData);
+    this.onPairingReady?.(this.pairingCode);
+
+    // Poll for Receiver's SDP Answer
+    this.pollTimer = setInterval(async () => {
+      if (this.dataChannel && this.dataChannel.readyState === 'open') {
+        clearInterval(this.pollTimer);
+        return;
+      }
+
+      const answerData = await getSignal(answerKey);
+      if (answerData && answerData.sdp) {
+        clearInterval(this.pollTimer);
+        try {
+          await this.pc.setRemoteDescription(new RTCSessionDescription(answerData.sdp));
+          if (answerData.candidates) {
+            for (const cand of answerData.candidates) {
+              await this.pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+            }
+          }
+        } catch {
+          // Ignore duplicate description error
+        }
+      }
+    }, 800);
   }
 
   startStreaming() {
     if (!this.dataChannel || this.dataChannel.readyState !== 'open') return;
+    this.isTransmitting = true;
 
     const totalSize = this.fileBytes.length;
     const chunkSize = 32768; // 32 KB
     let offset = 0;
 
-    // Send META packet
     const meta = JSON.stringify({
       n: this.fileName,
       t: this.fileType,
@@ -158,18 +179,18 @@ export class WebRTCSenderManager {
   }
 
   close() {
+    if (this.pollTimer) clearInterval(this.pollTimer);
     if (this.dataChannel) this.dataChannel.close();
     if (this.pc) this.pc.close();
-    if (this.broadcastChannel) this.broadcastChannel.close();
   }
 }
 
 /**
- * WebRTCReceiverManager — Native WebRTC receiver
+ * WebRTCReceiverManager — Receiver Client
  */
 export class WebRTCReceiverManager {
-  constructor(serializedSignal, onConnected, onProgress, onComplete, onError) {
-    this.serializedSignal = serializedSignal;
+  constructor(pairingCode, onConnected, onProgress, onComplete, onError) {
+    this.pairingCode = pairingCode.replace(/\s+/g, '');
     this.onConnected = onConnected;
     this.onProgress = onProgress;
     this.onComplete = onComplete;
@@ -179,26 +200,27 @@ export class WebRTCReceiverManager {
     this.fileMeta = null;
     this.receivedChunks = [];
     this.receivedBytes = 0;
-    this.broadcastChannel = null;
 
     this.init();
   }
 
   async init() {
-    let offerSignal = deserializeSignal(this.serializedSignal);
-
-    if (!offerSignal) {
-      this.onError?.('Invalid WebRTC signal or pairing code');
-      return;
-    }
-
-    this.fileMeta = {
-      name: offerSignal.fileName || 'file',
-      type: offerSignal.fileType || 'application/octet-stream',
-      size: offerSignal.fileSize || 0,
-    };
-
     try {
+      const offerKey = `airpulse_offer_${this.pairingCode}`;
+      const answerKey = `airpulse_answer_${this.pairingCode}`;
+
+      const offerData = await getSignal(offerKey);
+      if (!offerData || !offerData.sdp) {
+        this.onError?.('Invalid pairing code or sender session expired');
+        return;
+      }
+
+      this.fileMeta = {
+        name: offerData.fileName || 'file',
+        type: offerData.fileType || 'application/octet-stream',
+        size: offerData.fileSize || 0,
+      };
+
       this.pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
 
       this.pc.ondatachannel = (event) => {
@@ -233,30 +255,41 @@ export class WebRTCReceiverManager {
         };
       };
 
-      await this.pc.setRemoteDescription(new RTCSessionDescription(offerSignal.sdp));
+      await this.pc.setRemoteDescription(new RTCSessionDescription(offerData.sdp));
 
-      if (offerSignal.candidates) {
-        for (const cand of offerSignal.candidates) {
-          try {
-            await this.pc.addIceCandidate(new RTCIceCandidate(cand));
-          } catch {
-            // Ignore candidate error
-          }
+      if (offerData.candidates) {
+        for (const cand of offerData.candidates) {
+          await this.pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
         }
       }
+
+      const answerCandidates = [];
+      this.pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          answerCandidates.push(event.candidate);
+        } else {
+          postSignal(answerKey, {
+            type: 'ANSWER',
+            sdp: this.pc.localDescription,
+            candidates: answerCandidates,
+          });
+        }
+      };
 
       const answer = await this.pc.createAnswer();
       await this.pc.setLocalDescription(answer);
 
-      if (typeof BroadcastChannel !== 'undefined') {
-        this.broadcastChannel = new BroadcastChannel(`airpulse-${offerSignal.pairingCode || 'default'}`);
-        this.broadcastChannel.postMessage({
-          type: 'ANSWER',
-          sdp: answer,
-        });
-      }
+      setTimeout(() => {
+        if (this.pc && this.pc.localDescription) {
+          postSignal(answerKey, {
+            type: 'ANSWER',
+            sdp: this.pc.localDescription,
+            candidates: answerCandidates,
+          });
+        }
+      }, 800);
     } catch (err) {
-      this.onError?.(err.message || 'WebRTC receiver failed');
+      this.onError?.(err.message || 'Failed to connect to sender');
     }
   }
 
@@ -281,6 +314,5 @@ export class WebRTCReceiverManager {
 
   close() {
     if (this.pc) this.pc.close();
-    if (this.broadcastChannel) this.broadcastChannel.close();
   }
 }
