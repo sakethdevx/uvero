@@ -11,6 +11,7 @@
     "test:toolbox-runtime-status": "node scripts/test-toolbox-runtime-status.mjs",
     "test:toolbox-api": "node scripts/test-toolbox-api.mjs",
     "test:rar-to-zip": "node scripts/test-rar-to-zip-api.mjs",
+    "test:airpulse": "node scripts/test-airpulse-fountain.mjs",
     "prebuild": "npm run check:toolbox && npm run test:toolbox-routes && npm run generate:sitemap",
     "build": "vite build",
     "lint": "eslint .",

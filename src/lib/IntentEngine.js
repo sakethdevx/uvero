@@ -442,6 +442,21 @@ const CAPABILITIES = [
     description: () => 'Image → Transparent',
   },
   {
+    id: 'airpulse-transfer',
+    tier: 3,
+    handler: null,
+    navigateTo: '/airpulse',
+    label: 'AirPulse Optical Share',
+    icon: '📡',
+    patterns: [
+      /(?:airpulse|optical|qr|camera)\s+(?:transfer|file|share|send|beam)/i,
+      /(?:transfer|send|share|beam)\s+(?:file|photo|doc|pdf)\s+(?:via|using|with|offline|optical|qr)/i,
+      /(?:file|photo)\s+(?:transfer|share|beam)/i,
+    ],
+    extractParams: () => ({}),
+    description: () => 'Offline 60 FPS Optical File Transfer',
+  },
+  {
     id: 'qr-scan',
     tier: 1,
     handler: 'QRQuickPanel',

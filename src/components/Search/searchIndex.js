@@ -198,6 +198,16 @@ export const SEARCH_INDEX = [
         priority: 95,
     },
     {
+        id: 'app-airpulse',
+        title: 'AirPulse Optical Share',
+        description: 'Offline 60 FPS camera file transfer using fountain codes.',
+        icon: '📡',
+        path: '/airpulse',
+        kind: KIND.TOOL,
+        keywords: toKeywords('airpulse', 'file', 'transfer', 'optical', 'qr', 'camera', 'beam', 'offline'),
+        priority: 95,
+    },
+    {
         id: 'app-clipboard',
         title: 'Online Clipboard',
         description: 'Secure, real-time shared clipboard.',
