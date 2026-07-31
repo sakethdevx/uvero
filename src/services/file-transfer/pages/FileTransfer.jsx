@@ -5,18 +5,18 @@ import QRSender from '../components/QRSender';
 import QRReceiver from '../components/QRReceiver';
 
 /**
- * AirPulseTransfer — Pure WebRTC P2P Direct Share
- * Built with Uvero's official design system (AIServiceShell, CompactServiceHeader, AIInlinePanel)
+ * FileTransfer — Pure WebRTC P2P Direct File Transfer Page
+ * Matches standard Uvero max-w-7xl page width.
  */
-export default function AirPulseTransfer() {
+export default function FileTransfer() {
   const [activeTab, setActiveTab] = useState('send'); // 'send' | 'receive'
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileData, setFileData] = useState(null);
 
   useSEO({
-    title: 'AirPulse Share — Instant P2P File Transfer | Uvero',
+    title: 'File Transfer — Instant P2P Share | Uvero',
     description: 'Direct browser-to-browser WebRTC file transfer. Send large files instantly with 6-digit PIN code or QR scan. Zero server storage.',
-    keywords: ['AirPulse', 'file transfer', 'WebRTC P2P', 'browser share', 'Uvero tools'],
+    keywords: ['file transfer', 'P2P share', 'WebRTC transfer', 'browser file share', 'Uvero tools'],
   });
 
   const handleFileSelect = (e) => {
@@ -53,9 +53,9 @@ export default function AirPulseTransfer() {
   };
 
   const generateSampleText = () => {
-    const text = `--- AirPulse WebRTC Direct Share Sample Document ---\nGenerated: ${new Date().toISOString()}\n\nThis is a sample document testing lossless WebRTC P2P direct socket file transfer.`;
+    const text = `--- P2P Direct File Transfer Sample Document ---\nGenerated: ${new Date().toISOString()}\n\nThis is a sample document testing lossless WebRTC P2P direct socket file transfer.`;
     const blob = new Blob([text], { type: 'text/plain' });
-    const file = new File([blob], 'airpulse_sample_demo.txt', { type: 'text/plain' });
+    const file = new File([blob], 'sample_demo.txt', { type: 'text/plain' });
 
     setSelectedFile(file);
     const reader = new FileReader();
@@ -73,13 +73,13 @@ export default function AirPulseTransfer() {
   };
 
   return (
-    <AIServiceShell maxWidth="max-w-4xl">
+    <AIServiceShell maxWidth="max-w-7xl">
       <AIBackLink to="/">Home</AIBackLink>
 
       <CompactServiceHeader
         eyebrow="Direct P2P Transfer"
-        title="AirPulse Share"
-        description="Instant browser-to-browser WebRTC file transfer. High-speed direct socket connection with zero server storage."
+        title="File Transfer"
+        description="Instant browser-to-browser file sharing. High-speed direct socket connection with zero server storage."
         meta={
           <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-400 text-xs font-bold">
             WebRTC P2P
@@ -92,7 +92,7 @@ export default function AirPulseTransfer() {
         <div className="glass-panel p-1 rounded-2xl inline-flex gap-1 border border-gray-200 dark:border-white/10 text-xs sm:text-sm">
           <button
             onClick={() => setActiveTab('send')}
-            className={`px-5 py-2 rounded-xl font-semibold transition-all flex items-center gap-2 ${
+            className={`px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center gap-2 ${
               activeTab === 'send'
                 ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/20'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -106,7 +106,7 @@ export default function AirPulseTransfer() {
 
           <button
             onClick={() => setActiveTab('receive')}
-            className={`px-5 py-2 rounded-xl font-semibold transition-all flex items-center gap-2 ${
+            className={`px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center gap-2 ${
               activeTab === 'receive'
                 ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/20'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -123,7 +123,7 @@ export default function AirPulseTransfer() {
       {/* Main Content Area */}
       {activeTab === 'send' ? (
         !selectedFile || !fileData ? (
-          <AIInlinePanel className="max-w-xl mx-auto space-y-4 text-center">
+          <AIInlinePanel className="max-w-2xl mx-auto space-y-4 text-center">
             <div
               onDragOver={handleDragOver}
               onDrop={handleDrop}

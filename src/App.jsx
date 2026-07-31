@@ -20,7 +20,7 @@ import { InteractionProvider, useInteraction } from './lib/InteractionContext';
 import { useHomepagePreference } from './lib/useHomepagePreference';
 
 const VisualHome = lazy(() => import('./pages/VisualHome'));
-const AirPulseTransfer = lazy(() => import('./services/file-transfer/pages/AirPulseTransfer'));
+const FileTransfer = lazy(() => import('./services/file-transfer/pages/FileTransfer'));
 const CompilerHome = lazy(() => import('./services/compiler/pages/CompilerHome'));
 const ToolboxHome = lazy(() => import('./services/toolbox/pages/ToolboxHome'));
 const ToolPage = lazy(() => import('./services/toolbox/pages/ToolPage'));
@@ -189,8 +189,8 @@ function AppContent() {
             <Route path="/compiler" element={<CompilerHome />} />
             <Route path="/toolbox" element={<ToolboxHome />} />
             <Route path="/clipboard" element={<Clipboard />} />
-            <Route path="/file-transfer" element={<AirPulseTransfer />} />
-            <Route path="/airpulse" element={<AirPulseTransfer />} />
+            <Route path="/file-transfer" element={<FileTransfer />} />
+            <Route path="/airpulse" element={<FileTransfer />} />
             <Route path="/clipboard/:boardId" element={<ClipboardBoard />} />
             <Route path="/c/:code" element={<PublicClipboard />} />
             <Route path="/cli" element={<ClipboardCli />} />

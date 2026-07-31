@@ -199,8 +199,8 @@ export const SEARCH_INDEX = [
     },
     {
         id: 'app-airpulse',
-        title: 'AirPulse Optical Share',
-        description: 'Offline 60 FPS camera file transfer using fountain codes.',
+        title: 'File Transfer',
+        description: 'Direct browser-to-browser P2P WebRTC file transfer with 6-digit PIN code and static QR.',
         icon: '📡',
         path: '/airpulse',
         kind: KIND.TOOL,

@@ -12,8 +12,8 @@ export default function VisualHome() {
 
   useSEO({
     title: 'Uvero — Intelligent Digital Workspace',
-    description: 'Explore Uvero’s private digital tools: AirPulse file transfer, PDF editing, file conversion, QR generator, live clipboard, and Monaco compiler. 100% client-side.',
-    keywords: ['digital tools', 'AirPulse share', 'PDF tools', 'file converter', 'QR generator', 'live clipboard', 'code compiler', 'browser WASM'],
+    description: 'Explore Uvero’s private digital tools: File Transfer, PDF editing, file conversion, QR generator, live clipboard, and Monaco compiler. 100% client-side.',
+    keywords: ['digital tools', 'File Transfer', 'PDF tools', 'file converter', 'QR generator', 'live clipboard', 'code compiler', 'browser WASM'],
   });
 
   const handleIntentResolved = useCallback((intent) => {
@@ -29,7 +29,7 @@ export default function VisualHome() {
   }, []);
 
   return (
-    <div className="relative min-h-[calc(100dvh-8rem)] px-4 pt-16 sm:pt-24 pb-16 max-w-4xl mx-auto flex flex-col gap-10">
+    <div className="relative min-h-[calc(100dvh-8rem)] px-4 pt-16 sm:pt-24 pb-16 max-w-5xl mx-auto flex flex-col gap-10">
       
       {/* ── HERO SECTION ── */}
       <section className="relative z-10 flex flex-col items-center text-center gap-4">
@@ -54,7 +54,7 @@ export default function VisualHome() {
             Explore Uvero&apos;s Private Digital Workspace
           </h1>
           <p className="text-xs sm:text-sm leading-relaxed max-w-md mx-auto text-gray-500 dark:text-gray-400">
-            AirPulse file share, convert files, generate QR codes, share encrypted text, and run code — 100% in your browser.
+            P2P file transfer, convert files, generate QR codes, share encrypted text, and run code — 100% in your browser.
           </p>
         </div>
 
@@ -84,7 +84,7 @@ export default function VisualHome() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           
-          {/* Pillar 1: AirPulse Share */}
+          {/* Pillar 1: File Transfer */}
           <Link
             to="/airpulse"
             className="glass-panel p-4 sm:p-5 rounded-2xl border border-[var(--border)] hover:border-cyan-500/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group flex flex-col gap-3"
@@ -95,7 +95,7 @@ export default function VisualHome() {
               </div>
               <div className="flex flex-col flex-1">
                 <h3 className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors flex items-center gap-1.5">
-                  <span>AirPulse P2P Share</span>
+                  <span>File Transfer</span>
                 </h3>
                 <p className="text-xs leading-relaxed mt-1 text-gray-500 dark:text-gray-400">
                   Instant browser-to-browser WebRTC file transfer. High-speed socket connection with 6-digit PIN & QR pairing.

@@ -16,7 +16,7 @@ import { useHomepagePreference, HOMEPAGE_PREFS } from '../lib/useHomepagePrefere
 
 const ACTION_CHIPS = [
   { label: 'Convert files', icon: '⚡', path: '/toolbox', capability: 'file-convert' },
-  { label: 'AirPulse Share', icon: '📡', path: '/airpulse' },
+  { label: 'File transfer', icon: '📡', path: '/airpulse' },
   { label: 'Generate QR', icon: '🔳', path: '/qr-tools', capability: 'qr-generate-quick' },
   { label: 'Share text', icon: '📋', path: '/clipboard', capability: 'clipboard-share' },
   { label: 'Run code', icon: '💻', path: '/compiler' },
