@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import jsQR from 'jsqr';
 import { LTDecoder } from '../lib/fountain';
-import { decodeRGBMatrixCanvas } from '../lib/rgbMatrixEngine';
+import { decodeRGBMatrixFromCorners } from '../lib/rgbMatrixEngine';
 
 /**
- * QRReceiver — Hybrid Multi-Mode Receiver Component
- * Decodes both RGB Color Grid Matrix & Soft Cyan Dark Mode streams
+ * QRReceiver — Perspective-Calibrated Camera Receiver Engine
  */
 export default function QRReceiver({ onReset }) {
   const videoRef = useRef(null);
@@ -108,7 +107,7 @@ export default function QRReceiver({ onReset }) {
 
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-    // Pass 1: Try jsQR for Soft Cyan Dark Mode stream
+    // Pass 1: Try standard QR detector
     let code = jsQR(imageData.data, imageData.width, imageData.height, {
       inversionAttempts: 'attemptBoth',
     });
@@ -133,13 +132,15 @@ export default function QRReceiver({ onReset }) {
         oCtx.stroke();
       }
     } else {
-      // Pass 2: Try RGB Color Grid Matrix Engine
-      const decodedRGB = decodeRGBMatrixCanvas(canvas);
+      // Pass 2: Bilinear Corner Sampling for RGB Color Grid Matrix
+      const corners = code ? code.location : null;
+      const decodedRGB = decodeRGBMatrixFromCorners(imageData, corners);
+
       if (decodedRGB && decodedRGB.payloadBytes && decodedRGB.payloadBytes.length > 0) {
         try {
           rawPayload = new TextDecoder().decode(decodedRGB.payloadBytes);
         } catch {
-          // Ignore parse error
+          // Parse error
         }
       }
     }
@@ -326,12 +327,12 @@ export default function QRReceiver({ onReset }) {
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[200px]">
-                  {progressState.fileName || 'Point Camera at Optical Stream'}
+                  {progressState.fileName || 'Point Camera at AirPulse Stream'}
                 </h4>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   {progressState.totalBlocks > 0 
                     ? `${progressState.solvedBlocks} of ${progressState.totalBlocks} Blocks Decoded`
-                    : 'Scanning optical stream...'}
+                    : 'Scanning AirPulse optical stream...'}
                 </p>
               </div>
 
