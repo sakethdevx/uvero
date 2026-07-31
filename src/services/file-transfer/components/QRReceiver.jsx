@@ -4,8 +4,7 @@ import { LTDecoder } from '../lib/fountain';
 import { WebRTCReceiver } from '../lib/webrtcPeer';
 
 /**
- * QRReceiver — Dual-Engine Receiver Component
- * Ingests WebRTC P2P Bootstrap Offer + Fallback Fountain Droplets
+ * QRReceiver — Optical Camera Scanner with Stealth Dark Mode & WebRTC Fallback
  */
 export default function QRReceiver({ onReset }) {
   const videoRef = useRef(null);
@@ -39,6 +38,7 @@ export default function QRReceiver({ onReset }) {
   const webrtcReceiverRef = useRef(null);
   const animFrameIdRef = useRef(null);
   const fpsWindowRef = useRef([]);
+  const webrtcTimeoutRef = useRef(null);
 
   const startCamera = useCallback(async () => {
     setScannerStatus('initializing');
@@ -112,8 +112,10 @@ export default function QRReceiver({ onReset }) {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(imageData.data, imageData.width, imageData.height, {
-      inversionAttempts: 'dontInvert',
+
+    // Try scanning both normal and inverted colors (for dark mode soft cyan QR codes)
+    let code = jsQR(imageData.data, imageData.width, imageData.height, {
+      inversionAttempts: 'attemptBoth',
     });
 
     if (overlayCanvas) {
@@ -123,7 +125,7 @@ export default function QRReceiver({ onReset }) {
       oCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
       if (code) {
-        oCtx.strokeStyle = '#10b981';
+        oCtx.strokeStyle = '#38bdf8';
         oCtx.lineWidth = 4;
         oCtx.beginPath();
         oCtx.moveTo(code.location.topLeftCorner.x, code.location.topLeftCorner.y);
@@ -136,12 +138,12 @@ export default function QRReceiver({ onReset }) {
     }
 
     if (code && code.data) {
-      // Check if scanned QR is a WebRTC P2P Offer Bootstrap
+      // Check if scanned QR is a WebRTC Offer
       try {
         const parsed = JSON.parse(code.data);
         if (parsed && parsed.w === 1 && parsed.s) {
           setScannerStatus('webrtc');
-          
+
           const receiver = new WebRTCReceiver(
             parsed.s,
             () => {},
@@ -149,19 +151,27 @@ export default function QRReceiver({ onReset }) {
               setWebrtcProgress(progress);
             },
             (fileObj) => {
+              if (webrtcTimeoutRef.current) clearTimeout(webrtcTimeoutRef.current);
               setScannerStatus('complete');
               setAssembledFile(fileObj);
             },
             () => {
-              // WebRTC blocked by lab firewall $\rightarrow$ fall back to optical stream
+              if (webrtcTimeoutRef.current) clearTimeout(webrtcTimeoutRef.current);
               setScannerStatus('scanning');
             }
           );
           webrtcReceiverRef.current = receiver;
+
+          // Auto-fallback to optical stream if WebRTC P2P times out in 2.5s
+          webrtcTimeoutRef.current = setTimeout(() => {
+            if (webrtcReceiverRef.current) webrtcReceiverRef.current.close();
+            setScannerStatus('scanning');
+          }, 2500);
+
           return;
         }
       } catch {
-        // Standard packet string
+        // Standard Fountain packet
       }
 
       const res = decoderRef.current.processPacket(code.data);
@@ -202,6 +212,7 @@ export default function QRReceiver({ onReset }) {
   }, [scanLoop]);
 
   const handleRestart = () => {
+    if (webrtcTimeoutRef.current) clearTimeout(webrtcTimeoutRef.current);
     if (webrtcReceiverRef.current) webrtcReceiverRef.current.close();
     decoderRef.current.reset();
     setAssembledFile(null);
@@ -299,7 +310,7 @@ export default function QRReceiver({ onReset }) {
           </div>
           <div>
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">Connecting WebRTC P2P DataChannel</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Instant local socket transfer in progress...</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Connecting peer-to-peer socket...</p>
           </div>
 
           <div className="w-full bg-gray-200 dark:bg-white/10 h-3 rounded-full overflow-hidden p-0.5">
@@ -373,7 +384,7 @@ export default function QRReceiver({ onReset }) {
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   {progressState.totalBlocks > 0 
                     ? `${progressState.solvedBlocks} of ${progressState.totalBlocks} Blocks Decoded`
-                    : 'Scan QR for WebRTC Instant or Prism Stream...'}
+                    : 'Scanning AirPulse optical stream...'}
                 </p>
               </div>
 

@@ -2,22 +2,19 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import QRCode from 'qrcode';
 import { LTEncoder, compressPayloadIfBeneficial } from '../lib/fountain';
 import { WebRTCSender } from '../lib/webrtcPeer';
-import { renderPrismCanvas } from '../lib/prismColor';
 
 /**
- * QRSender — Dual-Engine Sender Component
- * Supports Instant WebRTC P2P + Prism 4-Color Pastel Stream Fallback
+ * QRSender — High-Performance Optical Stream + Auto-Fallback WebRTC Sender
  */
 export default function QRSender({ fileData, fileName, fileType, onReset }) {
   const canvasRef = useRef(null);
-  const prismCanvasRef = useRef(null);
 
   const [fps, setFps] = useState(30);
   const [density, setDensity] = useState('balanced');
-  const [renderMode, setRenderMode] = useState('webrtc'); // 'webrtc' | 'prism' | 'qr'
+  const [activeEngine, setActiveEngine] = useState('optical'); // 'optical' | 'webrtc'
   const [isPlaying, setIsPlaying] = useState(true);
   
-  const [webrtcStatus, setWebrtcStatus] = useState('initializing'); // 'initializing', 'ready', 'connected', 'fallback'
+  const [webrtcStatus, setWebrtcStatus] = useState('idle'); // 'idle', 'ready', 'connected'
   const [webrtcProgress, setWebrtcProgress] = useState(0);
   const [compressionInfo, setCompressionInfo] = useState(null);
 
@@ -36,7 +33,7 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
   const lastFrameTimeRef = useRef(0);
   const fpsWindowRef = useRef([]);
 
-  // Initialize WebRTC P2P Offer
+  // Initialize LTEncoder & WebRTC
   useEffect(() => {
     if (!fileData) return;
 
@@ -67,7 +64,7 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
         crc32: enc.crc32,
       }));
 
-      // Initialize WebRTC Sender
+      // Initialize WebRTC
       const sender = new WebRTCSender(
         fileData,
         fileName,
@@ -75,14 +72,13 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
         (serializedOffer) => {
           if (!isMounted) return;
           setWebrtcStatus('ready');
-          // Render 1 single QR offer for WebRTC bootstrap
-          if (canvasRef.current && serializedOffer) {
+          if (activeEngine === 'webrtc' && canvasRef.current && serializedOffer) {
             const qrPayload = JSON.stringify({ w: 1, s: serializedOffer });
             QRCode.toCanvas(canvasRef.current, qrPayload, {
               errorCorrectionLevel: 'L',
               margin: 2,
               width: 320,
-              color: { dark: '#0f172a', light: '#ffffff' },
+              color: { dark: '#38bdf8', light: '#0f172a' }, // Soft Cyan on Dark Slate
             });
           }
         },
@@ -96,8 +92,7 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
         },
         () => {
           if (!isMounted) return;
-          setWebrtcStatus('fallback');
-          setRenderMode('prism');
+          setActiveEngine('optical');
         }
       );
 
@@ -110,9 +105,9 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
     };
   }, [fileData, fileName, fileType, density]);
 
-  // Main Fallback Animation Loop (Prism 4-Color Pastel Matrix)
+  // Main Optical Stream Render Loop (Stealth Soft Dark Mode)
   const renderLoop = useCallback((timestamp) => {
-    if (!isPlaying || !encoderRef.current || renderMode === 'webrtc') {
+    if (!isPlaying || !encoderRef.current || activeEngine === 'webrtc') {
       animFrameIdRef.current = requestAnimationFrame(renderLoop);
       return;
     }
@@ -125,9 +120,7 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
 
       const dropletPacket = encoderRef.current.nextDroplet();
 
-      if (renderMode === 'prism' && prismCanvasRef.current) {
-        renderPrismCanvas(prismCanvasRef.current, dropletPacket);
-      } else if (canvasRef.current) {
+      if (canvasRef.current) {
         QRCode.toCanvas(
           canvasRef.current,
           dropletPacket,
@@ -135,31 +128,39 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
             errorCorrectionLevel: 'L',
             margin: 2,
             width: 320,
-            color: { dark: '#0f172a', light: '#ffffff' },
+            color: {
+              dark: '#38bdf8',  // Soft Cyan (Zero Eye Strain)
+              light: '#0f172a', // Dark Slate Background
+            },
           },
-          () => {}
+          (err) => {
+            if (!err) {
+              const now = performance.now();
+              fpsWindowRef.current.push(now);
+              if (fpsWindowRef.current.length > 30) fpsWindowRef.current.shift();
+              
+              const windowLen = fpsWindowRef.current.length;
+              const actualFps = windowLen > 1 
+                ? Math.round((windowLen - 1) * 1000 / (now - fpsWindowRef.current[0])) 
+                : fps;
+
+              const dropletsSent = encoderRef.current.seedCounter - 1;
+              const bytesPerSec = (encoderRef.current.blockSize * actualFps) / 1024;
+
+              setStats(prev => ({
+                ...prev,
+                dropletsSent,
+                currentFps: actualFps,
+                transferRateKbps: bytesPerSec.toFixed(1),
+              }));
+            }
+          }
         );
       }
-
-      const now = performance.now();
-      fpsWindowRef.current.push(now);
-      if (fpsWindowRef.current.length > 30) fpsWindowRef.current.shift();
-      
-      const windowLen = fpsWindowRef.current.length;
-      const actualFps = windowLen > 1 ? Math.round((windowLen - 1) * 1000 / (now - fpsWindowRef.current[0])) : fps;
-      const dropletsSent = encoderRef.current.seedCounter - 1;
-      const bytesPerSec = (encoderRef.current.blockSize * actualFps) / 1024;
-
-      setStats(prev => ({
-        ...prev,
-        dropletsSent,
-        currentFps: actualFps,
-        transferRateKbps: bytesPerSec.toFixed(1),
-      }));
     }
 
     animFrameIdRef.current = requestAnimationFrame(renderLoop);
-  }, [fps, isPlaying, renderMode]);
+  }, [fps, isPlaying, activeEngine]);
 
   useEffect(() => {
     animFrameIdRef.current = requestAnimationFrame(renderLoop);
@@ -170,7 +171,7 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
 
   return (
     <div className="space-y-6">
-      {/* Top File Meta Panel */}
+      {/* Top File Metadata Panel */}
       <div className="glass-panel p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-cyan-500/10 text-cyan-500 font-bold border border-cyan-500/20">
@@ -203,71 +204,112 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
         </button>
       </div>
 
-      {/* Primary / Fallback Mode Switcher Header */}
+      {/* Mode Switcher */}
       <div className="flex justify-center">
         <div className="glass-panel p-1 rounded-xl inline-flex gap-1 border border-gray-200 dark:border-white/10 text-xs">
           <button
-            onClick={() => setRenderMode('webrtc')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
-              renderMode === 'webrtc' ? 'bg-cyan-500 text-white shadow-md' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+            onClick={() => setActiveEngine('optical')}
+            className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+              activeEngine === 'optical' ? 'bg-cyan-500 text-white shadow-md' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
-            ⚡ WebRTC Instant (0.2s)
+            📡 Stealth Optical Stream (Recommended)
           </button>
           <button
-            onClick={() => setRenderMode('prism')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
-              renderMode === 'prism' ? 'bg-violet-500 text-white shadow-md' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+            onClick={() => setActiveEngine('webrtc')}
+            className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+              activeEngine === 'webrtc' ? 'bg-violet-500 text-white shadow-md' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
             }`}
           >
-            🎨 Prism Soft Colors (Fallback)
+            ⚡ WebRTC Direct P2P
           </button>
         </div>
       </div>
 
-      {/* Main Display Area */}
+      {/* Main Display Canvas */}
       <div className="flex flex-col items-center justify-center space-y-4">
-        {renderMode === 'webrtc' ? (
-          <div className="glass-panel p-6 rounded-3xl border border-cyan-500/20 shadow-2xl flex flex-col items-center space-y-4 max-w-md w-full text-center">
-            {webrtcStatus === 'connected' ? (
-              <div className="space-y-4 py-6 w-full">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center mx-auto animate-bounce">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <h4 className="text-base font-bold text-gray-900 dark:text-white">WebRTC P2P DataChannel Active</h4>
-                <div className="w-full bg-gray-200 dark:bg-white/10 h-3 rounded-full overflow-hidden p-0.5">
-                  <div className="bg-emerald-500 h-full rounded-full transition-all duration-200" style={{ width: `${webrtcProgress * 100}%` }} />
-                </div>
-                <p className="text-xs text-gray-500 font-mono">{Math.round(webrtcProgress * 100)}% Transferred via Local Socket</p>
-              </div>
-            ) : (
-              <>
-                <div className="relative bg-white p-3 rounded-2xl shadow-inner">
-                  <canvas ref={canvasRef} className="w-64 h-64 sm:w-80 sm:h-80 rounded-xl" />
-                </div>
-                <div className="space-y-1">
-                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">Scan 1 Time to Bootstrap Instant P2P</h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Transfers entire file in 0.2 seconds with 0 screen flashing & 0 eye strain.
-                  </p>
-                </div>
-              </>
-            )}
+        <div className="relative group p-4 glass-panel rounded-3xl border border-cyan-500/20 shadow-2xl flex flex-col items-center bg-[#0f172a]">
+          <div className="relative p-2 rounded-2xl">
+            <canvas ref={canvasRef} className="w-64 h-64 sm:w-80 sm:h-80 rounded-xl" />
           </div>
-        ) : (
-          /* Prism 4-Color Pastel Matrix Display */
-          <div className="relative group p-4 glass-panel rounded-3xl border border-violet-500/20 shadow-2xl flex flex-col items-center">
-            <div className="relative bg-[#0f172a] p-3 rounded-2xl shadow-inner">
-              <canvas ref={prismCanvasRef} width={320} height={320} className="w-64 h-64 sm:w-80 sm:h-80 rounded-xl" />
-            </div>
 
-            <div className="mt-4 flex items-center gap-3 text-xs font-mono text-gray-600 dark:text-gray-300">
-              <span className="w-2 h-2 rounded-full bg-violet-400 animate-ping" />
-              <span>Prism 4-Color Pastel Stream (2 bits/tile)</span>
+          {activeEngine === 'optical' ? (
+            <div className="mt-4 flex items-center gap-4 text-xs font-mono text-cyan-400">
+              <div className="flex items-center gap-1.5">
+                <span className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-cyan-400 animate-ping' : 'bg-amber-500'}`} />
+                <span>{isPlaying ? `${stats.currentFps} FPS` : 'PAUSED'}</span>
+              </div>
+              <span>•</span>
+              <span>~{stats.transferRateKbps} KB/s</span>
               <span>•</span>
               <span>Frame #{stats.dropletsSent}</span>
+            </div>
+          ) : (
+            <div className="mt-4 text-xs font-mono text-cyan-400">
+              {webrtcStatus === 'connected' 
+                ? `P2P Transfer: ${Math.round(webrtcProgress * 100)}%`
+                : 'Scan offer QR on mobile device'}
+            </div>
+          )}
+        </div>
+
+        {/* Sender Controls */}
+        {activeEngine === 'optical' && (
+          <div className="glass-panel p-4 rounded-2xl w-full max-w-md space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <button
+                onClick={() => setIsPlaying(prev => !prev)}
+                className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 shadow-lg ${
+                  isPlaying 
+                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/20' 
+                    : 'bg-cyan-500 text-white hover:bg-cyan-600 shadow-cyan-500/25'
+                }`}
+              >
+                {isPlaying ? 'Pause Stream' : 'Resume Stream'}
+              </button>
+
+              <div className="flex items-center bg-gray-100 dark:bg-white/5 p-1 rounded-xl border border-gray-200 dark:border-white/10">
+                {[15, 24, 30, 60].map((rate) => (
+                  <button
+                    key={rate}
+                    onClick={() => setFps(rate)}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
+                      fps === rate
+                        ? 'bg-cyan-500 text-white shadow-md'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                  >
+                    {rate} FPS
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-gray-500 dark:text-gray-400 flex justify-between">
+                <span>Density Preset</span>
+                <span className="capitalize font-mono text-cyan-500">{density}</span>
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 'reliable', label: 'High Reliability', desc: 'Largest QR pixels' },
+                  { id: 'balanced', label: 'Balanced', desc: 'Recommended' },
+                  { id: 'turbo', label: 'Turbo Mode', desc: 'High density' },
+                ].map((preset) => (
+                  <button
+                    key={preset.id}
+                    onClick={() => setDensity(preset.id)}
+                    className={`p-2 rounded-xl text-left transition-all border ${
+                      density === preset.id
+                        ? 'border-cyan-500 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400'
+                        : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    <div className="text-xs font-semibold">{preset.label}</div>
+                    <div className="text-[10px] text-gray-400">{preset.desc}</div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
