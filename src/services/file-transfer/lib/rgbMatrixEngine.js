@@ -1,10 +1,9 @@
 /**
  * AirPulse RGB Color Grid Matrix Engine
- * High-Density RGB Color Grid Encoding with Corner Reticle Alignment,
- * Explicit Frame Sequence Headers & Fountain/Reed-Solomon Erasure Correction.
+ * High-Density RGB Color Grid Encoding with Balanced Square Layout,
+ * Corner Reticle Alignment & Sequence Headers.
  */
 
-// 4-Color Primary Palette (2 Bits Per Module) for 100% camera white-balance immunity
 export const RGB_PALETTE = [
   { id: 0, bit: '00', name: 'RED', hex: '#ef4444', rgb: [239, 68, 68] },
   { id: 1, bit: '01', name: 'GREEN', hex: '#22c55e', rgb: [34, 197, 94] },
@@ -15,9 +14,9 @@ export const RGB_PALETTE = [
 const BG_COLOR = '#0f172a';
 
 /**
- * Render RGB Color Grid Frame onto HTML5 Canvas
+ * Render Symmetrical Square RGB Color Grid Frame onto HTML5 Canvas
  */
-export function renderRGBMatrixFrame(canvas, frameHeader, payloadBytes, gridCols = 14) {
+export function renderRGBMatrixFrame(canvas, frameHeader, payloadBytes) {
   if (!canvas) return;
 
   const ctx = canvas.getContext('2d');
@@ -38,7 +37,7 @@ export function renderRGBMatrixFrame(canvas, frameHeader, payloadBytes, gridCols
   fullFrameBytes.set(headerBytes, 0);
   fullFrameBytes.set(payloadBytes, headerBytes.length);
 
-  // Convert bytes to 2-bit dibit array
+  // Convert bytes to 2-bit dibits
   const dibits = [];
   for (let i = 0; i < fullFrameBytes.length; i++) {
     const b = fullFrameBytes[i];
@@ -48,14 +47,22 @@ export function renderRGBMatrixFrame(canvas, frameHeader, payloadBytes, gridCols
     dibits.push(b & 0x03);
   }
 
-  const gridRows = Math.ceil(dibits.length / gridCols);
-  const margin = 28;
-  const availSize = size - margin * 2;
-  const cellSize = availSize / Math.max(gridCols, gridRows);
+  // Calculate balanced square grid dimensions N x N
+  const gridDimension = Math.max(10, Math.ceil(Math.sqrt(dibits.length)));
+  const totalCells = gridDimension * gridDimension;
 
-  // Draw 4 Corner Finder Alignment Targets (Nested RGB Reticles)
+  // Pad remaining cells with default 0 dibit
+  while (dibits.length < totalCells) {
+    dibits.push(0);
+  }
+
+  const margin = 32;
+  const availSize = size - margin * 2;
+  const cellSize = availSize / gridDimension;
+
+  // Draw 4 Bold Corner Finder Reticle Targets
+  const r = Math.max(12, cellSize * 1.4);
   const drawCornerReticle = (cx, cy) => {
-    const r = cellSize * 0.8;
     ctx.fillStyle = '#ef4444'; // Red outer
     ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
     ctx.fillStyle = '#0f172a'; // Dark inner
@@ -64,16 +71,16 @@ export function renderRGBMatrixFrame(canvas, frameHeader, payloadBytes, gridCols
     ctx.fillRect(cx - r + 6, cy - r + 6, r * 2 - 12, r * 2 - 12);
   };
 
-  const cOffset = margin / 2;
-  drawCornerReticle(cOffset, cOffset);
-  drawCornerReticle(size - cOffset, cOffset);
-  drawCornerReticle(cOffset, size - cOffset);
-  drawCornerReticle(size - cOffset, size - cOffset);
+  const cPos = margin / 2;
+  drawCornerReticle(cPos, cPos);
+  drawCornerReticle(size - cPos, cPos);
+  drawCornerReticle(cPos, size - cPos);
+  drawCornerReticle(size - cPos, size - cPos);
 
-  // Draw RGB Color Grid Modules
+  // Draw Symmetrical RGB Color Grid
   for (let i = 0; i < dibits.length; i++) {
-    const col = i % gridCols;
-    const row = Math.floor(i / gridCols);
+    const col = i % gridDimension;
+    const row = Math.floor(i / gridDimension);
 
     const x = margin + col * cellSize;
     const y = margin + row * cellSize;
@@ -93,7 +100,6 @@ export function classifyRGBPixel(r, g, b) {
 
   for (const color of RGB_PALETTE) {
     const [pr, pg, pb] = color.rgb;
-    // Euclidean distance in RGB color space
     const dist = (r - pr) ** 2 + (g - pg) ** 2 + (b - pb) ** 2;
     if (dist < minDistance) {
       minDistance = dist;
@@ -105,25 +111,27 @@ export function classifyRGBPixel(r, g, b) {
 }
 
 /**
- * Parses RGB Color Grid Canvas Frame to extract frame header & payload bytes
+ * Parses RGB Color Grid Canvas Frame
  */
-export function decodeRGBMatrixCanvas(canvas, gridCols = 14) {
+export function decodeRGBMatrixCanvas(canvas) {
   if (!canvas) return null;
   const ctx = canvas.getContext('2d');
   const size = canvas.width;
   const imageData = ctx.getImageData(0, 0, size, size);
   const data = imageData.data;
 
-  const margin = 28;
+  // We read the grid based on sampling centers
+  const gridDimension = 16;
+  const margin = 32;
   const availSize = size - margin * 2;
-  const cellSize = availSize / gridCols;
+  const cellSize = availSize / gridDimension;
 
   const dibits = [];
-  const totalCells = gridCols * gridCols;
+  const totalCells = gridDimension * gridDimension;
 
   for (let i = 0; i < totalCells; i++) {
-    const col = i % gridCols;
-    const row = Math.floor(i / gridCols);
+    const col = i % gridDimension;
+    const row = Math.floor(i / gridDimension);
 
     const cx = Math.floor(margin + col * cellSize + cellSize / 2);
     const cy = Math.floor(margin + row * cellSize + cellSize / 2);
@@ -136,7 +144,6 @@ export function decodeRGBMatrixCanvas(canvas, gridCols = 14) {
     dibits.push(classifyRGBPixel(r, g, b));
   }
 
-  // Reassemble bytes from 2-bit dibits
   const totalBytes = Math.floor(dibits.length / 4);
   const frameBytes = new Uint8Array(totalBytes);
   for (let i = 0; i < totalBytes; i++) {

@@ -3,9 +3,7 @@ import { LTEncoder, compressPayloadIfBeneficial } from '../lib/fountain';
 import { renderRGBMatrixFrame } from '../lib/rgbMatrixEngine';
 
 /**
- * QRSender — RGB Color Grid Optical Matrix Sender
- * Features 4-Color RGB Matrix, Corner Alignment Markers, Frame Sequence Headers,
- * and Zero Eye Strain Soft RGB Canvas Rendering.
+ * QRSender — Premium Symmetrical RGB Matrix Display
  */
 export default function QRSender({ fileData, fileName, fileType, onReset }) {
   const canvasRef = useRef(null);
@@ -64,7 +62,6 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
     };
   }, [fileData, fileName, fileType]);
 
-  // RGB Color Grid Canvas Render Loop
   const renderLoop = useCallback((timestamp) => {
     if (!isPlaying || !encoderRef.current || !canvasRef.current) {
       animFrameIdRef.current = requestAnimationFrame(renderLoop);
@@ -88,8 +85,8 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
         totalFrames: enc.K,
       };
 
-      // Render RGB Color Grid Frame onto HTML5 Canvas
-      renderRGBMatrixFrame(canvasRef.current, frameHeader, payloadBytes, 14);
+      // Render Symmetrical RGB Color Grid Frame
+      renderRGBMatrixFrame(canvasRef.current, frameHeader, payloadBytes);
 
       const now = performance.now();
       fpsWindowRef.current.push(now);
@@ -156,16 +153,16 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
         </button>
       </div>
 
-      {/* Main Display Canvas */}
+      {/* Main Display Canvas Container */}
       <div className="flex flex-col items-center justify-center space-y-4">
-        <div className="relative group p-4 glass-panel rounded-3xl border border-cyan-500/20 shadow-2xl flex flex-col items-center bg-[#0f172a]">
-          <div className="relative p-2 rounded-2xl">
-            <canvas ref={canvasRef} width={340} height={340} className="w-64 h-64 sm:w-80 sm:h-80 rounded-xl" />
+        <div className="relative group p-6 rounded-3xl border border-cyan-500/30 shadow-2xl flex flex-col items-center bg-[#090d16] text-white">
+          <div className="relative p-2 rounded-2xl bg-[#0f172a] border border-cyan-500/20 shadow-inner">
+            <canvas ref={canvasRef} width={360} height={360} className="w-72 h-72 sm:w-96 sm:h-96 rounded-xl" />
           </div>
 
-          <div className="mt-4 flex items-center gap-4 text-xs font-mono text-cyan-400">
+          <div className="mt-4 flex items-center gap-3 text-xs font-mono text-cyan-400 font-semibold tracking-wide">
             <div className="flex items-center gap-1.5">
-              <span className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-cyan-400 animate-ping' : 'bg-amber-500'}`} />
+              <span className={`w-2.5 h-2.5 rounded-full ${isPlaying ? 'bg-cyan-400 animate-ping' : 'bg-amber-500'}`} />
               <span>{isPlaying ? `${stats.currentFps} FPS` : 'PAUSED'}</span>
             </div>
             <span>•</span>
