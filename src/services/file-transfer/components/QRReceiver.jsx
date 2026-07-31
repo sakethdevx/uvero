@@ -1,104 +1,93 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import jsQR from 'jsqr';
-import { LTDecoder } from '../lib/fountain';
-import { decodeRGBMatrixFromCorners } from '../lib/rgbMatrixEngine';
+import { WebRTCReceiverManager } from '../lib/webrtcEngine';
 
 /**
- * QRReceiver — Perspective-Calibrated Camera Receiver Engine
+ * QRReceiver — Pure WebRTC P2P Receiver Component
+ * Connects via 6-digit pairing code OR single static QR scan.
+ * Zero optical canvas streaming, zero eye strain, instant P2P speed!
  */
 export default function QRReceiver({ onReset }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const overlayCanvasRef = useRef(null);
 
-  const [stream, setStream] = useState(null);
-  const [facingMode, setFacingMode] = useState('environment');
-  const [isTorchOn, setIsTorchOn] = useState(false);
-  const [isTorchSupported, setIsTorchSupported] = useState(false);
+  const [inputCode, setInputCode] = useState('');
+  const [activeMode, setActiveMode] = useState('code'); // 'code' | 'camera'
+  const [status, setStatus] = useState('idle'); // 'idle', 'camera_scanning', 'connecting', 'receiving', 'complete', 'error'
   
-  const [scannerStatus, setScannerStatus] = useState('initializing'); // 'initializing', 'scanning', 'complete', 'error'
-
-  const [progressState, setProgressState] = useState({
-    fileName: '',
-    fileSize: 0,
-    solvedBlocks: 0,
-    totalBlocks: 0,
-    progressRatio: 0,
-    totalDroplets: 0,
-    scanFps: 0,
-  });
-
+  const [progressRatio, setProgressRatio] = useState(0);
+  const [receivedBytes, setReceivedBytes] = useState(0);
+  const [totalBytes, setTotalBytes] = useState(0);
+  const [transferSpeedMbps, setTransferSpeedMbps] = useState(0);
+  const [errorMessage, setErrorMessage] = useState('');
   const [assembledFile, setAssembledFile] = useState(null);
 
-  const decoderRef = useRef(new LTDecoder());
+  const receiverManagerRef = useRef(null);
   const animFrameIdRef = useRef(null);
-  const fpsWindowRef = useRef([]);
+  const lastTimeRef = useRef(performance.now());
+  const lastBytesRef = useRef(0);
 
-  const startCamera = useCallback(async () => {
-    setScannerStatus('initializing');
-
-    if (stream) {
-      stream.getTracks().forEach(t => t.stop());
-    }
-
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { ideal: facingMode },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-      });
-
-      setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        await videoRef.current.play();
-      }
-
-      const track = mediaStream.getVideoTracks()[0];
-      if (track && track.getCapabilities) {
-        setIsTorchSupported(!!track.getCapabilities().torch);
-      } else {
-        setIsTorchSupported(false);
-      }
-
-      setScannerStatus('scanning');
-    } catch {
-      setScannerStatus('error');
-    }
-  }, [facingMode]);
-
+  // URL Query Code Auto-Connect Check
   useEffect(() => {
-    startCamera();
-    return () => {
-      if (stream) stream.getTracks().forEach(t => t.stop());
-    };
-  }, [facingMode]);
-
-  const toggleTorch = async () => {
-    if (!stream || !isTorchSupported) return;
-    const track = stream.getVideoTracks()[0];
-    if (track) {
-      try {
-        const nextState = !isTorchOn;
-        await track.applyConstraints({ advanced: [{ torch: nextState }] });
-        setIsTorchOn(nextState);
-      } catch {
-        // Torch error
-      }
+    const urlParams = new URLSearchParams(window.location.search);
+    const codeParam = urlParams.get('code');
+    if (codeParam) {
+      setInputCode(codeParam);
+      connectWithCode(codeParam);
     }
+  }, []);
+
+  const connectWithCode = (codeToUse) => {
+    const code = codeToUse || inputCode;
+    if (!code || code.trim().length < 6) return;
+
+    setStatus('connecting');
+    setErrorMessage('');
+
+    const manager = new WebRTCReceiverManager(
+      code,
+      () => {
+        setStatus('receiving');
+        lastTimeRef.current = performance.now();
+        lastBytesRef.current = 0;
+      },
+      (progress, offset, total) => {
+        setProgressRatio(progress);
+        setReceivedBytes(offset);
+        setTotalBytes(total);
+
+        const now = performance.now();
+        const timeDiff = (now - lastTimeRef.current) / 1000;
+        if (timeDiff >= 0.3) {
+          const bytesDiff = offset - lastBytesRef.current;
+          const mbps = (bytesDiff / (1024 * 1024)) / timeDiff;
+          setTransferSpeedMbps(mbps.toFixed(1));
+          lastTimeRef.current = now;
+          lastBytesRef.current = offset;
+        }
+      },
+      (fileObj) => {
+        setStatus('complete');
+        setAssembledFile(fileObj);
+      },
+      (err) => {
+        setStatus('error');
+        setErrorMessage(err);
+      }
+    );
+
+    receiverManagerRef.current = manager;
   };
 
+  // Static Pairing QR Scanner Loop
   const scanLoop = useCallback(() => {
-    if (scannerStatus === 'complete' || !videoRef.current || videoRef.current.readyState !== 4) {
+    if (status !== 'camera_scanning' || !videoRef.current || videoRef.current.readyState !== 4) {
       animFrameIdRef.current = requestAnimationFrame(scanLoop);
       return;
     }
 
     const video = videoRef.current;
     const canvas = canvasRef.current || document.createElement('canvas');
-    const overlayCanvas = overlayCanvasRef.current;
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -106,94 +95,54 @@ export default function QRReceiver({ onReset }) {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-    // Pass 1: Try standard QR detector
-    let code = jsQR(imageData.data, imageData.width, imageData.height, {
-      inversionAttempts: 'attemptBoth',
-    });
-
-    let rawPayload = null;
+    const code = jsQR(imageData.data, imageData.width, imageData.height);
 
     if (code && code.data) {
-      rawPayload = code.data;
-      if (overlayCanvas) {
-        overlayCanvas.width = video.videoWidth;
-        overlayCanvas.height = video.videoHeight;
-        const oCtx = overlayCanvas.getContext('2d');
-        oCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-        oCtx.strokeStyle = '#38bdf8';
-        oCtx.lineWidth = 4;
-        oCtx.beginPath();
-        oCtx.moveTo(code.location.topLeftCorner.x, code.location.topLeftCorner.y);
-        oCtx.lineTo(code.location.topRightCorner.x, code.location.topRightCorner.y);
-        oCtx.lineTo(code.location.bottomRightCorner.x, code.location.bottomRightCorner.y);
-        oCtx.lineTo(code.location.bottomLeftCorner.x, code.location.bottomLeftCorner.y);
-        oCtx.closePath();
-        oCtx.stroke();
-      }
-    } else {
-      // Pass 2: Bilinear Corner Sampling for RGB Color Grid Matrix
-      const corners = code ? code.location : null;
-      const decodedRGB = decodeRGBMatrixFromCorners(imageData, corners);
-
-      if (decodedRGB && decodedRGB.payloadBytes && decodedRGB.payloadBytes.length > 0) {
-        try {
-          rawPayload = new TextDecoder().decode(decodedRGB.payloadBytes);
-        } catch {
-          // Parse error
+      try {
+        const url = new URL(code.data);
+        const codeParam = url.searchParams.get('code');
+        if (codeParam) {
+          setInputCode(codeParam);
+          connectWithCode(codeParam);
+          return;
+        }
+      } catch {
+        if (code.data.length === 6 && /^\d+$/.test(code.data)) {
+          setInputCode(code.data);
+          connectWithCode(code.data);
+          return;
         }
       }
     }
 
-    if (rawPayload) {
-      const res = decoderRef.current.processPacket(rawPayload);
+    animFrameIdRef.current = requestAnimationFrame(scanLoop);
+  }, [status]);
 
-      if (res.complete) {
-        setScannerStatus('complete');
-        setAssembledFile(res.assembledFile);
-      }
-
-      const now = performance.now();
-      fpsWindowRef.current.push(now);
-      if (fpsWindowRef.current.length > 25) fpsWindowRef.current.shift();
-      const windowLen = fpsWindowRef.current.length;
-      const scanFps = windowLen > 1 ? Math.round((windowLen - 1) * 1000 / (now - fpsWindowRef.current[0])) : 0;
-
-      const dec = decoderRef.current;
-      setProgressState({
-        fileName: dec.fileName,
-        fileSize: dec.fileSize,
-        solvedBlocks: dec.rank,
-        totalBlocks: dec.K,
-        progressRatio: dec.K > 0 ? dec.rank / dec.K : 0,
-        totalDroplets: dec.totalDropletsReceived,
-        scanFps,
+  useEffect(() => {
+    if (activeMode === 'camera' && status === 'idle') {
+      setStatus('camera_scanning');
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then((mediaStream) => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+          videoRef.current.play();
+        }
       });
     }
 
     animFrameIdRef.current = requestAnimationFrame(scanLoop);
-  }, [scannerStatus]);
-
-  useEffect(() => {
-    animFrameIdRef.current = requestAnimationFrame(scanLoop);
     return () => {
       if (animFrameIdRef.current) cancelAnimationFrame(animFrameIdRef.current);
     };
-  }, [scanLoop]);
+  }, [activeMode, status, scanLoop]);
 
   const handleRestart = () => {
-    decoderRef.current.reset();
+    if (receiverManagerRef.current) receiverManagerRef.current.close();
+    setStatus('idle');
     setAssembledFile(null);
-    setScannerStatus('scanning');
-    setProgressState({
-      fileName: '',
-      fileSize: 0,
-      solvedBlocks: 0,
-      totalBlocks: 0,
-      progressRatio: 0,
-      totalDroplets: 0,
-      scanFps: 0,
-    });
+    setInputCode('');
+    setProgressRatio(0);
+    setReceivedBytes(0);
+    setTotalBytes(0);
   };
 
   const renderPreview = () => {
@@ -223,9 +172,9 @@ export default function QRReceiver({ onReset }) {
   };
 
   return (
-    <div className="space-y-6">
-      {scannerStatus === 'complete' && assembledFile ? (
-        <div className="glass-panel p-6 rounded-3xl space-y-6 border border-emerald-500/30 bg-emerald-500/5 shadow-2xl animate-fade-in max-w-xl mx-auto">
+    <div className="space-y-6 max-w-xl mx-auto">
+      {status === 'complete' && assembledFile ? (
+        <div className="glass-panel p-6 rounded-3xl space-y-6 border border-emerald-500/30 bg-emerald-500/5 shadow-2xl animate-fade-in">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center font-bold">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,7 +185,7 @@ export default function QRReceiver({ onReset }) {
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-500">File Received Losslessly</span>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate max-w-xs">{assembledFile.name}</h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {(assembledFile.size / 1024).toFixed(1)} KB • CRC32: <span className="font-mono text-emerald-600 dark:text-emerald-400">{assembledFile.crc || 'Verified'}</span> ✓
+                {(assembledFile.size / (1024 * 1024)).toFixed(2)} MB • WebRTC P2P Direct
               </p>
             </div>
           </div>
@@ -262,94 +211,89 @@ export default function QRReceiver({ onReset }) {
               onClick={handleRestart}
               className="w-full sm:w-auto py-3 px-5 rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 font-semibold text-sm hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
             >
-              Scan Another File
+              Receive Another File
             </button>
           </div>
         </div>
-      ) : (
-        <div className="flex flex-col items-center space-y-6">
-          <div className="relative w-full max-w-md aspect-video sm:aspect-square rounded-3xl overflow-hidden glass-panel border border-cyan-500/20 shadow-2xl bg-black flex items-center justify-center">
-            <canvas ref={canvasRef} className="hidden" />
+      ) : status === 'receiving' || status === 'connecting' ? (
+        <div className="glass-panel p-8 rounded-3xl space-y-6 border border-cyan-500/30 shadow-2xl text-center">
+          <div className="w-16 h-16 rounded-full bg-cyan-500/20 text-cyan-500 flex items-center justify-center mx-auto animate-pulse">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+              {status === 'connecting' ? 'Connecting WebRTC Peer...' : 'Receiving File...'}
+            </h3>
+            <p className="text-xs font-mono text-cyan-500 mt-1">
+              {status === 'receiving' ? `${transferSpeedMbps} MB/s Direct Socket Speed` : 'Establishing P2P DataChannel...'}
+            </p>
+          </div>
 
-            <video
-              ref={videoRef}
-              playsInline
-              muted
-              className="w-full h-full object-cover"
+          <div className="w-full bg-gray-200 dark:bg-white/10 h-3 rounded-full overflow-hidden p-0.5">
+            <div
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 h-full rounded-full transition-all duration-200"
+              style={{ width: `${progressRatio * 100}%` }}
             />
-
-            <canvas ref={overlayCanvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
-
-            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div className="w-56 h-56 sm:w-64 sm:h-64 border-2 border-dashed border-cyan-400/60 rounded-3xl relative animate-pulse">
-                <div className="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-cyan-400 rounded-tl-xl" />
-                <div className="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-cyan-400 rounded-tr-xl" />
-                <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-cyan-400 rounded-bl-xl" />
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-cyan-400 rounded-br-xl" />
-              </div>
-            </div>
-
-            <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-auto">
-              <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-xs font-mono text-cyan-400">
-                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-                <span>{progressState.scanFps} FPS</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {isTorchSupported && (
-                  <button
-                    onClick={toggleTorch}
-                    className={`p-2 rounded-xl backdrop-blur-md border transition-all ${
-                      isTorchOn ? 'bg-amber-500 text-white border-amber-400' : 'bg-black/60 text-white/80 border-white/10 hover:bg-black/80'
-                    }`}
-                    title="Toggle Flashlight"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                    </svg>
-                  </button>
-                )}
-
-                <button
-                  onClick={() => setFacingMode(prev => prev === 'environment' ? 'user' : 'environment')}
-                  className="p-2 rounded-xl bg-black/60 backdrop-blur-md text-white/80 border border-white/10 hover:bg-black/80 transition-all"
-                  title="Switch Camera"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                </button>
-              </div>
+          </div>
+          <span className="text-xs font-mono text-cyan-500">{Math.round(progressRatio * 100)}%</span>
+        </div>
+      ) : (
+        <div className="glass-panel p-8 rounded-3xl border border-cyan-500/20 shadow-2xl flex flex-col items-center space-y-6 text-center">
+          <div className="flex justify-center w-full">
+            <div className="glass-panel p-1 rounded-xl inline-flex gap-1 border border-gray-200 dark:border-white/10 text-xs">
+              <button
+                onClick={() => setActiveMode('code')}
+                className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                  activeMode === 'code' ? 'bg-cyan-500 text-white shadow-md' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                🔢 6-Digit Pairing Code
+              </button>
+              <button
+                onClick={() => setActiveMode('camera')}
+                className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                  activeMode === 'camera' ? 'bg-cyan-500 text-white shadow-md' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                📷 Scan Static QR
+              </button>
             </div>
           </div>
 
-          <div className="glass-panel p-5 rounded-3xl w-full max-w-md space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[200px]">
-                  {progressState.fileName || 'Point Camera at AirPulse Stream'}
-                </h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {progressState.totalBlocks > 0 
-                    ? `${progressState.solvedBlocks} of ${progressState.totalBlocks} Blocks Decoded`
-                    : 'Scanning AirPulse optical stream...'}
-                </p>
-              </div>
-
-              <div className="text-right">
-                <span className="text-lg font-extrabold text-cyan-500 font-mono">
-                  {Math.round(progressState.progressRatio * 100)}%
-                </span>
-              </div>
-            </div>
-
-            <div className="w-full bg-gray-200 dark:bg-white/10 h-3 rounded-full overflow-hidden p-0.5 border border-gray-300/30 dark:border-white/5">
-              <div
-                className="bg-gradient-to-r from-cyan-500 to-blue-600 h-full rounded-full transition-all duration-300"
-                style={{ width: `${Math.max(2, progressState.progressRatio * 100)}%` }}
+          {activeMode === 'code' ? (
+            <div className="space-y-4 w-full max-w-xs">
+              <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">Enter Sender 6-Digit Code</label>
+              <input
+                type="text"
+                maxLength={6}
+                value={inputCode}
+                onChange={(e) => setInputCode(e.target.value.replace(/\D/g, ''))}
+                placeholder="123456"
+                className="w-full py-3 px-4 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10 text-center font-mono text-2xl font-bold tracking-widest text-gray-900 dark:text-white focus:outline-none focus:border-cyan-500"
               />
+
+              <button
+                onClick={() => connectWithCode()}
+                disabled={inputCode.length < 6}
+                className="w-full py-3 px-6 rounded-xl bg-cyan-500 hover:bg-cyan-600 disabled:opacity-40 text-white font-semibold text-sm transition-all shadow-lg shadow-cyan-500/25"
+              >
+                Connect & Receive File
+              </button>
             </div>
-          </div>
+          ) : (
+            <div className="relative w-full max-w-sm aspect-square rounded-2xl overflow-hidden glass-panel border border-cyan-500/20 bg-black flex items-center justify-center">
+              <canvas ref={canvasRef} className="hidden" />
+              <video ref={videoRef} playsInline muted className="w-full h-full object-cover" />
+            </div>
+          )}
+
+          {errorMessage && (
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-medium">
+              {errorMessage}
+            </div>
+          )}
         </div>
       )}
     </div>
