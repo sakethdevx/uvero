@@ -74,12 +74,15 @@ export default function FileTransfer() {
 
   return (
     <AIServiceShell maxWidth="max-w-7xl">
-      <AIBackLink to="/">Home</AIBackLink>
+      <div className="mb-2">
+        <AIBackLink to="/">Home</AIBackLink>
+      </div>
 
       <CompactServiceHeader
         eyebrow="Direct P2P Transfer"
         title="File Transfer"
         description="Instant browser-to-browser file sharing. High-speed direct socket connection with zero server storage."
+        className="mb-4"
         meta={
           <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-400 text-xs font-bold">
             WebRTC P2P
@@ -88,11 +91,11 @@ export default function FileTransfer() {
       />
 
       {/* Send / Receive Tab Navigation */}
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-4 sm:mb-5">
         <div className="glass-panel p-1 rounded-2xl inline-flex gap-1 border border-gray-200 dark:border-white/10 text-xs sm:text-sm">
           <button
             onClick={() => setActiveTab('send')}
-            className={`px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center gap-2 ${
+            className={`px-6 py-2 rounded-xl font-semibold transition-all flex items-center gap-2 ${
               activeTab === 'send'
                 ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/20'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -106,7 +109,7 @@ export default function FileTransfer() {
 
           <button
             onClick={() => setActiveTab('receive')}
-            className={`px-6 py-2.5 rounded-xl font-semibold transition-all flex items-center gap-2 ${
+            className={`px-6 py-2 rounded-xl font-semibold transition-all flex items-center gap-2 ${
               activeTab === 'receive'
                 ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/20'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
