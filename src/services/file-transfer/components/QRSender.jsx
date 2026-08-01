@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
 import { AIInlinePanel } from '../../../components/AIServiceLayout';
 import { WebRTCSenderManager } from '../lib/webrtcEngine';
+import AdvancedFilePreview from './AdvancedFilePreview';
 
 /**
  * QRSender — Streamlined Pure WebRTC Sender Component
@@ -16,6 +17,7 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
   const [transferredBytes, setTransferredBytes] = useState(0);
   const [transferSpeedMbps, setTransferSpeedMbps] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
 
   const senderManagerRef = useRef(null);
   const lastTimeRef = useRef(performance.now());
@@ -109,13 +111,27 @@ export default function QRSender({ fileData, fileName, fileType, onReset }) {
             </div>
           </div>
 
-          <button
-            onClick={onReset}
-            className="px-3 py-1.5 text-xs font-medium rounded-xl transition-all border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/5 text-gray-600 dark:text-gray-300 shrink-0"
-          >
-            Change File
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowPreview((v) => !v)}
+              className="px-3 py-1.5 text-xs font-semibold rounded-xl transition-all bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-500 border border-cyan-500/20 shrink-0 flex items-center gap-1.5"
+            >
+              <span>{showPreview ? '▲ Hide Preview' : '👁️ Preview File'}</span>
+            </button>
+            <button
+              onClick={onReset}
+              className="px-3 py-1.5 text-xs font-medium rounded-xl transition-all border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/5 text-gray-600 dark:text-gray-300 shrink-0"
+            >
+              Change File
+            </button>
+          </div>
         </div>
+
+        {showPreview && (
+          <div className="pb-4 border-b border-gray-200/80 dark:border-white/10 animate-state-in">
+            <AdvancedFilePreview file={{ name: fileName, type: fileType, data: fileData, byteLength: fileData.byteLength }} />
+          </div>
+        )}
 
         {/* Dynamic Status / QR Code Body */}
         {status === 'complete' ? (

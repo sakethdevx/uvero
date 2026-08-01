@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import jsQR from 'jsqr';
 import { AIInlinePanel } from '../../../components/AIServiceLayout';
 import { WebRTCReceiverManager } from '../lib/webrtcEngine';
+import AdvancedFilePreview from './AdvancedFilePreview';
 
 /**
  * QRReceiver — Streamlined Pure WebRTC Receiver Component
@@ -176,92 +177,6 @@ export default function QRReceiver({ onReset }) {
     setErrorMessage('');
   };
 
-  const renderPreview = () => {
-    if (!assembledFile) return null;
-    const { name, type, blob, data } = assembledFile;
-    const lowerName = name.toLowerCase();
-    const ext = lowerName.split('.').pop() || '';
-    const fileUrl = URL.createObjectURL(blob);
-
-    // 1. Image Preview
-    if (type.startsWith('image/') || ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'].includes(ext)) {
-      return (
-        <div className="flex flex-col items-center">
-          <img src={fileUrl} alt={name} className="max-h-72 rounded-xl object-contain border border-gray-200 dark:border-white/10 shadow-sm" />
-        </div>
-      );
-    }
-
-    // 2. PDF Document Preview
-    if (type === 'application/pdf' || ext === 'pdf') {
-      return (
-        <div className="w-full h-80 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-gray-900">
-          <iframe src={fileUrl} title={name} className="w-full h-full border-none" />
-        </div>
-      );
-    }
-
-    // 3. Audio Preview
-    if (type.startsWith('audio/') || ['mp3', 'wav', 'ogg', 'm4a', 'flac'].includes(ext)) {
-      return (
-        <div className="p-4 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex flex-col items-center gap-3">
-          <span className="text-2xl">🎵</span>
-          <audio controls src={fileUrl} className="w-full" />
-        </div>
-      );
-    }
-
-    // 4. Video Preview
-    if (type.startsWith('video/') || ['mp4', 'webm', 'mov', 'mkv'].includes(ext)) {
-      return (
-        <div className="w-full rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-black">
-          <video controls src={fileUrl} className="w-full max-h-72 object-contain" />
-        </div>
-      );
-    }
-
-    // 5. Plain Text & Source Code (excluding zip / docx / xlsx binary xml types)
-    const isBinaryZipOffice = ['docx', 'xlsx', 'pptx', 'doc', 'xls', 'ppt', 'zip', 'rar', '7z', 'gz'].includes(ext) ||
-                              type.includes('officedocument') || type.includes('zip') || type.includes('compressed');
-
-    if (!isBinaryZipOffice && (type.startsWith('text/') || type.includes('json') || type.includes('javascript') || ['txt', 'md', 'json', 'js', 'py', 'css', 'html'].includes(ext))) {
-      const text = new TextDecoder().decode(data);
-      return (
-        <pre className="max-h-56 overflow-y-auto p-3 text-xs font-mono rounded-xl bg-gray-900 text-cyan-300 border border-gray-800">
-          {text.slice(0, 3000)}
-          {text.length > 3000 ? '\n\n...[Truncated]' : ''}
-        </pre>
-      );
-    }
-
-    // 6. Office Documents & Binary Files Card Preview
-    const getDocumentBadge = () => {
-      if (['docx', 'doc'].includes(ext)) return { icon: '📄', label: 'Word Document', color: 'bg-blue-500/10 text-blue-500 border-blue-500/20' };
-      if (['xlsx', 'xls', 'csv'].includes(ext)) return { icon: '📊', label: 'Spreadsheet', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' };
-      if (['pptx', 'ppt'].includes(ext)) return { icon: '📊', label: 'Presentation', color: 'bg-amber-500/10 text-amber-500 border-amber-500/20' };
-      if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) return { icon: '📦', label: 'Archive Package', color: 'bg-purple-500/10 text-purple-500 border-purple-500/20' };
-      return { icon: '📁', label: 'Binary File', color: 'bg-gray-500/10 text-gray-500 border-gray-500/20' };
-    };
-
-    const docMeta = getDocumentBadge();
-
-    return (
-      <div className="p-6 rounded-2xl bg-gray-100/80 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex flex-col items-center text-center gap-3">
-        <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-500 flex items-center justify-center text-2xl font-bold">
-          {docMeta.icon}
-        </div>
-        <div>
-          <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border uppercase tracking-wider ${docMeta.color}`}>
-            {docMeta.label}
-          </span>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            Binary document verified & ready for instant local download.
-          </p>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="space-y-6 max-w-xl mx-auto">
       {status === 'complete' && assembledFile ? (
@@ -282,8 +197,8 @@ export default function QRReceiver({ onReset }) {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">File Preview</label>
-            {renderPreview()}
+            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">Interactive File Preview</label>
+            <AdvancedFilePreview file={assembledFile} />
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-3">
