@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import useSEO from '../../../hooks/useSEO';
-import { AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout';
+import { AIBackLink, AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout';
 
 const tools = [
     {
@@ -133,6 +133,9 @@ export default function QRToolsHome() {
 
     return (
         <AIServiceShell>
+            <div className="mb-2">
+                <AIBackLink to="/">Home</AIBackLink>
+            </div>
             <CompactServiceHeader
                 eyebrow="QR Tools"
                 title="Generate, scan, validate"

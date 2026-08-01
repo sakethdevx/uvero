@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import CliCommandList from '../components/CliCommandList'
 import { CLI_INSTALL_COMMAND, CLI_PAGE_COMMANDS } from '../cliCommands'
-import { AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout'
+import { AIBackLink, AIInlinePanel, AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout'
 
 const quickNotes = [
     'Share text straight from the terminal without opening the browser first.',
@@ -13,10 +13,9 @@ const quickNotes = [
 export default function ClipboardCli() {
     return (
         <AIServiceShell maxWidth="max-w-5xl">
-            <Link to="/clipboard" className="suggestion-chip mb-3">
-                <span>←</span>
-                <span>Clipboard</span>
-            </Link>
+            <div className="mb-2">
+                <AIBackLink to="/clipboard">Clipboard</AIBackLink>
+            </div>
             <CompactServiceHeader
                 eyebrow="Uvero CLI"
                 title="Terminal clipboard access"

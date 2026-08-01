@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import CliCommandList from '../components/CliCommandList'
 import { CLIPBOARD_PROMO_COMMANDS, CLI_INSTALL_COMMAND, getQuickShareCliCommands } from '../cliCommands'
-import { AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout'
+import { AIServiceShell, CompactServiceHeader, AIBackLink } from '../../../components/AIServiceLayout'
 
 const PRIVATE_FEATURES = [
     { icon: '🎨', title: 'Syntax Highlighting', desc: '50+ languages supported', classes: 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20' },
@@ -146,6 +146,9 @@ export default function Clipboard() {
 
     return (
         <AIServiceShell maxWidth="max-w-6xl">
+            <div className="mb-2">
+                <AIBackLink to="/">Home</AIBackLink>
+            </div>
             <CompactServiceHeader
                 eyebrow="Online Clipboard"
                 title="Share or open text"
