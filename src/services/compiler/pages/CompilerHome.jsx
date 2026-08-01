@@ -380,7 +380,10 @@ export default function CompilerHome() {
     }, []);
 
     const ideContent = (
-        <div className={isFullscreen ? "fixed inset-0 z-[9999] bg-white dark:bg-[#0d1117] h-dvh w-screen overflow-hidden flex flex-col animate-state-in text-gray-900 dark:text-white" : "relative rounded-2xl overflow-hidden"}>
+        <div
+            className={isFullscreen ? "fixed inset-0 z-[9999] bg-white dark:bg-[#0d1117] h-dvh w-screen overflow-hidden flex flex-col animate-state-in text-gray-900 dark:text-white" : "relative rounded-2xl overflow-hidden"}
+            style={isFullscreen ? { paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' } : undefined}
+        >
             {/* Glow border effect */}
             {!isFullscreen && (
                 <div className="absolute -inset-[1px] bg-gradient-to-r from-blue-500/30 via-violet-500/30 to-purple-500/30 dark:from-blue-500/20 dark:via-violet-500/20 dark:to-purple-500/20 rounded-2xl blur-sm" />
