@@ -54,6 +54,18 @@ export default function CompilerHome() {
     const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 1 });
     const [isDark, setIsDark] = useState(() => typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : true);
     const [historyOpen, setHistoryOpen] = useState(false);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    // Escape key listener for fullscreen mode
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && isFullscreen) {
+                setIsFullscreen(false);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isFullscreen]);
 
     // Share & fetch states
     const [isSharing, setIsSharing] = useState(false);
@@ -366,14 +378,16 @@ export default function CompilerHome() {
             {/* ─── IDE Layout ─── */}
             <section className="relative pb-4">
                 {/* Main IDE card with glow border */}
-                <div className="relative rounded-2xl overflow-hidden">
+                <div className={isFullscreen ? "fixed inset-0 z-50 bg-white dark:bg-[#0d1117] flex flex-col animate-state-in" : "relative rounded-2xl overflow-hidden"}>
                     {/* Glow border effect */}
-                    <div className="absolute -inset-[1px] bg-gradient-to-r from-blue-500/30 via-violet-500/30 to-purple-500/30 dark:from-blue-500/20 dark:via-violet-500/20 dark:to-purple-500/20 rounded-2xl blur-sm" />
+                    {!isFullscreen && (
+                        <div className="absolute -inset-[1px] bg-gradient-to-r from-blue-500/30 via-violet-500/30 to-purple-500/30 dark:from-blue-500/20 dark:via-violet-500/20 dark:to-purple-500/20 rounded-2xl blur-sm" />
+                    )}
 
-                    <div className="relative bg-white dark:bg-[#0d1117] rounded-2xl border border-gray-200/50 dark:border-white/[0.08] shadow-2xl shadow-black/5 dark:shadow-black/40 overflow-hidden">
-                        <div className="flex flex-col lg:flex-row">
+                    <div className={`relative bg-white dark:bg-[#0d1117] ${isFullscreen ? 'h-full flex flex-col' : 'rounded-2xl border border-gray-200/50 dark:border-white/[0.08] shadow-2xl shadow-black/5 dark:shadow-black/40 overflow-hidden'}`}>
+                        <div className={`flex flex-col lg:flex-row ${isFullscreen ? 'flex-1 min-h-0' : ''}`}>
                             {/* ─ Left: Editor ─ */}
-                            <div className="flex-1 min-w-0 flex flex-col">
+                            <div className="flex-1 min-w-0 flex flex-col min-h-0">
                                 {/* Toolbar */}
                                 <EditorToolbar
                                     language={language}
@@ -389,6 +403,8 @@ export default function CompilerHome() {
                                     onHistoryToggle={() => setHistoryOpen(true)}
                                     fontSize={fontSize}
                                     onFontSizeChange={setFontSize}
+                                    isFullscreen={isFullscreen}
+                                    onFullscreenToggle={() => setIsFullscreen((prev) => !prev)}
                                 />
 
                                 {fetchCodeError && (
@@ -405,7 +421,7 @@ export default function CompilerHome() {
                                         <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Retrieving shared code from Clipboard...</p>
                                     </div>
                                 ) : (
-                                    <div className="h-[350px] lg:h-auto lg:flex-1 lg:min-h-[520px]">
+                                    <div className={isFullscreen ? "flex-1 min-h-0 w-full" : "h-[350px] lg:h-auto lg:flex-1 lg:min-h-[520px]"}>
                                         <CodeEditor
                                             language={monacoLang}
                                             value={code}
@@ -431,7 +447,7 @@ export default function CompilerHome() {
                             <div className="lg:hidden h-px bg-gray-200/70 dark:bg-white/[0.06]" />
 
                             {/* ─ Right: Input + Output ─ */}
-                            <div className="w-full lg:w-[400px] xl:w-[440px] flex flex-col bg-gray-50/50 dark:bg-white/[0.01]">
+                            <div className={`w-full lg:w-[400px] xl:w-[440px] flex flex-col bg-gray-50/50 dark:bg-white/[0.01] ${isFullscreen ? 'h-full overflow-y-auto border-t lg:border-t-0 lg:border-l border-gray-200/70 dark:border-white/[0.06]' : ''}`}>
                                 {/* Stdin */}
                                 <StdinPanel value={stdin} onChange={setStdin} />
 
