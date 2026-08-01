@@ -56,6 +56,7 @@ export default function CompilerHome() {
     const [isDark, setIsDark] = useState(() => typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : true);
     const [historyOpen, setHistoryOpen] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [mobileTab, setMobileTab] = useState('code'); // 'code' | 'output'
 
     // Escape key listener & body scroll lock for fullscreen mode
     useEffect(() => {
@@ -240,6 +241,9 @@ export default function CompilerHome() {
         if (isLoading) return;
         setIsLoading(true);
         setOutput(null);
+        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+            setMobileTab('output');
+        }
         try {
             const result = await executeCode(language, code, stdin, 10, { analyze: true });
             setOutput(result);
@@ -376,16 +380,53 @@ export default function CompilerHome() {
     }, []);
 
     const ideContent = (
-        <div className={isFullscreen ? "fixed inset-0 z-[9999] bg-white dark:bg-[#0d1117] h-screen w-screen overflow-hidden flex flex-col animate-state-in text-gray-900 dark:text-white" : "relative rounded-2xl overflow-hidden"}>
+        <div className={isFullscreen ? "fixed inset-0 z-[9999] bg-white dark:bg-[#0d1117] h-dvh w-screen overflow-hidden flex flex-col animate-state-in text-gray-900 dark:text-white" : "relative rounded-2xl overflow-hidden"}>
             {/* Glow border effect */}
             {!isFullscreen && (
                 <div className="absolute -inset-[1px] bg-gradient-to-r from-blue-500/30 via-violet-500/30 to-purple-500/30 dark:from-blue-500/20 dark:via-violet-500/20 dark:to-purple-500/20 rounded-2xl blur-sm" />
             )}
 
             <div className={`relative bg-white dark:bg-[#0d1117] ${isFullscreen ? 'h-full w-full flex flex-col overflow-hidden' : 'rounded-2xl border border-gray-200/50 dark:border-white/[0.08] shadow-2xl shadow-black/5 dark:shadow-black/40 overflow-hidden'}`}>
+                {/* Fullscreen Mobile Tab Bar (< lg) */}
+                {isFullscreen && (
+                    <div className="flex lg:hidden items-center justify-center px-3 py-1.5 bg-gray-50 dark:bg-white/[0.03] border-b border-gray-200/70 dark:border-white/[0.06] shrink-0">
+                        <div className="flex items-center p-0.5 bg-gray-200/70 dark:bg-white/[0.08] rounded-xl w-full max-w-xs text-xs font-semibold">
+                            <button
+                                onClick={() => setMobileTab('code')}
+                                className={`flex-1 py-1.5 px-3 rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                                    mobileTab === 'code'
+                                        ? 'bg-white dark:bg-[#161b22] text-violet-600 dark:text-violet-400 shadow-sm font-bold'
+                                        : 'text-gray-500 dark:text-gray-400'
+                                }`}
+                            >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                                Code Editor
+                            </button>
+                            <button
+                                onClick={() => setMobileTab('output')}
+                                className={`flex-1 py-1.5 px-3 rounded-lg transition-all flex items-center justify-center gap-1.5 relative ${
+                                    mobileTab === 'output'
+                                        ? 'bg-white dark:bg-[#161b22] text-violet-600 dark:text-violet-400 shadow-sm font-bold'
+                                        : 'text-gray-500 dark:text-gray-400'
+                                }`}
+                            >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Output & Stdin
+                                {output && (
+                                    <span className={`w-2 h-2 rounded-full ${output.status === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 <div className={`flex flex-col lg:flex-row ${isFullscreen ? 'flex-1 min-h-0 h-full overflow-hidden' : ''}`}>
                     {/* ─ Left: Editor ─ */}
-                    <div className={`flex-1 min-w-0 flex flex-col ${isFullscreen ? 'h-full overflow-hidden' : ''}`}>
+                    <div className={`flex-1 min-w-0 flex flex-col ${isFullscreen ? 'h-full overflow-hidden' : ''} ${isFullscreen && mobileTab !== 'code' ? 'hidden lg:flex' : ''}`}>
                         {/* Toolbar */}
                         <EditorToolbar
                             language={language}
@@ -442,10 +483,10 @@ export default function CompilerHome() {
 
                     {/* ─ Vertical divider ─ */}
                     <div className="hidden lg:block w-px bg-gray-200/70 dark:bg-white/[0.06]" />
-                    <div className="lg:hidden h-px bg-gray-200/70 dark:bg-white/[0.06]" />
+                    {!isFullscreen && <div className="lg:hidden h-px bg-gray-200/70 dark:bg-white/[0.06]" />}
 
                     {/* ─ Right: Input + Output ─ */}
-                    <div className={`w-full lg:w-[400px] xl:w-[440px] flex flex-col bg-gray-50/50 dark:bg-white/[0.01] ${isFullscreen ? 'h-full overflow-y-auto border-t lg:border-t-0 lg:border-l border-gray-200/70 dark:border-white/[0.06]' : ''}`}>
+                    <div className={`w-full lg:w-[400px] xl:w-[440px] flex flex-col bg-gray-50/50 dark:bg-white/[0.01] ${isFullscreen ? 'h-full overflow-y-auto border-t lg:border-t-0 lg:border-l border-gray-200/70 dark:border-white/[0.06]' : ''} ${isFullscreen && mobileTab !== 'output' ? 'hidden lg:flex' : ''}`}>
                         {/* Stdin */}
                         <StdinPanel value={stdin} onChange={setStdin} />
 

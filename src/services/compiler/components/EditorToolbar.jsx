@@ -146,7 +146,7 @@ export default function EditorToolbar({
                 <button
                     onClick={onFullscreenToggle}
                     title={isFullscreen ? "Exit Fullscreen (Esc)" : "Fullscreen Editor Mode"}
-                    className={`relative px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 group ${
+                    className={`relative px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 sm:gap-1.5 shrink-0 group ${
                         isFullscreen
                             ? 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 border border-rose-500/30'
                             : 'text-gray-400 dark:text-gray-500 hover:text-cyan-500 dark:hover:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-500/10'
@@ -154,10 +154,10 @@ export default function EditorToolbar({
                 >
                     {isFullscreen ? (
                         <>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 9L4 4m0 0l5 0m-5 0l0 5m6 6l5 5m0 0l-5 0m5 0l0-5" />
+                            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
-                            <span className="hidden sm:inline font-bold">Exit Fullscreen</span>
+                            <span className="font-bold">Exit</span>
                         </>
                     ) : (
                         <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
