@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
 import CodeEditor from '../components/CodeEditor';
 import LanguageSelector from '../components/LanguageSelector';
@@ -12,7 +11,7 @@ import { LANGUAGES, getLanguageTemplate, getLanguageById } from '../data/languag
 import { executeCode } from '../api/executeCode';
 import useExecutionHistory from '../hooks/useExecutionHistory';
 import useShareableSnippet from '../hooks/useShareableSnippet';
-import { AIServiceShell, CompactServiceHeader, AIBackLink } from '../../../components/AIServiceLayout';
+import { AIServiceShell, CompactServiceHeader, AIBackLink, FullscreenOverlay } from '../../../components/AIServiceLayout';
 
 const STORAGE_KEY = 'uvero_compiler_prefs';
 const CODE_STORAGE_KEY = 'uvero_compiler_codes';
@@ -380,10 +379,7 @@ export default function CompilerHome() {
     }, []);
 
     const ideContent = (
-        <div
-            className={isFullscreen ? "fixed inset-0 z-[9999] bg-white dark:bg-[#0d1117] h-dvh w-screen overflow-hidden flex flex-col animate-state-in text-gray-900 dark:text-white" : "relative rounded-2xl overflow-hidden"}
-            style={isFullscreen ? { paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' } : undefined}
-        >
+        <div className={isFullscreen ? "h-full w-full flex flex-col overflow-hidden" : "relative rounded-2xl overflow-hidden"}>
             {/* Glow border effect */}
             {!isFullscreen && (
                 <div className="absolute -inset-[1px] bg-gradient-to-r from-blue-500/30 via-violet-500/30 to-purple-500/30 dark:from-blue-500/20 dark:via-violet-500/20 dark:to-purple-500/20 rounded-2xl blur-sm" />
@@ -514,7 +510,13 @@ export default function CompilerHome() {
 
             {/* ─── IDE Layout ─── */}
             <section className="relative pb-4">
-                {isFullscreen ? createPortal(ideContent, document.body) : ideContent}
+                {isFullscreen ? (
+                    <FullscreenOverlay isOpen={isFullscreen} onClose={() => setIsFullscreen(false)}>
+                        {ideContent}
+                    </FullscreenOverlay>
+                ) : (
+                    ideContent
+                )}
             </section>
 
             {/* History Panel */}

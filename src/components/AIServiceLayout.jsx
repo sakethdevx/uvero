@@ -54,3 +54,6 @@ export function AIInlinePanel({ children, className = '' }) {
     </div>
   );
 }
+
+export { default as FullscreenOverlay } from './FullscreenOverlay';
+
