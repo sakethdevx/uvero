@@ -442,6 +442,21 @@ const CAPABILITIES = [
     description: () => 'Image → Transparent',
   },
   {
+    id: 'file-transfer',
+    tier: 3,
+    handler: null,
+    navigateTo: '/file-transfer',
+    label: 'File Transfer',
+    icon: '📡',
+    patterns: [
+      /(?:p2p|webrtc|qr|camera)\s+(?:transfer|file|share|send|beam)/i,
+      /(?:transfer|send|share|beam)\s+(?:file|photo|doc|pdf)/i,
+      /(?:file|photo)\s+(?:transfer|share|beam)/i,
+    ],
+    extractParams: () => ({}),
+    description: () => 'Direct WebRTC P2P File Transfer',
+  },
+  {
     id: 'qr-scan',
     tier: 1,
     handler: 'QRQuickPanel',

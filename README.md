@@ -14,6 +14,7 @@ Uvero brings everyday digital utilities into one focused app: convert files, wor
 
 | Area | What is available now |
 |------|------------------------|
+| File Transfer | Instant WebRTC P2P direct browser-to-browser file sharing with static QR / 6-digit PIN pairing, desktop side-by-side layout, and advanced interactive file previewer |
 | Toolbox | Unified image, document, audio, and video conversion plus dedicated PDF/security/unit tools |
 | PDF Tools | Merge, split, rotate, delete pages, reorder pages, extract pages, compress, unlock, protect, watermark, clean metadata, convert images to PDF, and export PDF pages as images |
 | QR Tools | Generator, scanner, validator, bulk generator, dynamic QR manager, redirects, and analytics |
@@ -67,6 +68,22 @@ The compiler uses Monaco for editing and a server-side execution proxy.
 - Provides stdin, stdout, stderr, compile output, and execution history.
 - Shareable snippets are supported from the compiler UI.
 
+### Direct P2P File Transfer
+
+Uvero provides instant, serverless browser-to-browser file sharing powered by WebRTC P2P DataChannels.
+
+- **Zero Server Storage**: Files transfer directly between peer browser sockets with end-to-end WebRTC speed.
+- **PIN & Static QR Pairing**: Connect instantly with a 6-digit PIN code or by scanning a static QR code from mobile camera.
+- **Desktop-Optimized Layout**: Side-by-side card layout presents pairing PIN and QR code canvas above the fold on desktop viewports without requiring vertical scrolling.
+- **Advanced Interactive File Previewer (`AdvancedFilePreview`)**:
+  - **Images**: Real-time zoom (50%-300%), 90° rotation, transparency grid toggle, and natural pixel dimension overlay.
+  - **CSV Data Tables**: Parses `.csv` and `.tsv` files into an interactive data grid with row filtering, sticky headers, and line metrics.
+  - **ZIP Archives**: Unpacks `.zip` files client-side via `JSZip` to show an interactive archive tree with file size metrics.
+  - **Word DOCX Reader**: Renders `.docx` documents directly to formatted HTML via `mammoth`.
+  - **Code & Text**: Monospaced editor view with line numbers, truncation controls, and 1-click copy.
+  - **Audio & Video**: Custom media playback cards with visualizers and resolution controls.
+  - **Fullscreen Lightbox**: Expand any document or media preview into a distraction-free frosted glass modal.
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -78,6 +95,7 @@ The compiler uses Monaco for editing and a server-side execution proxy.
 | Auth/Data | Supabase Auth, Postgres, RLS |
 | Backend | Vercel Serverless Functions with a shared API router |
 | File Engines | Web Workers, FFmpeg WASM, ImageMagick WASM, Pandoc WASM, qpdf-wasm, pdf-lib, pdfjs |
+| P2P Transfer | WebRTC DataChannel, JSZip, Mammoth, qrcode, jsQR |
 | QR | qrcode, jsQR, html2canvas, jsPDF |
 | Storage | GitHub Contents API for clipboard boards |
 | Deployment | Vercel |
@@ -106,6 +124,7 @@ uvero/
 │   └── services/
 │       ├── clipboard/                   # Clipboard pages, APIs, CLI commands, GitHub storage
 │       ├── compiler/                    # Online compiler UI, language data, execution API
+│       ├── file-transfer/               # WebRTC P2P direct transfer, QR/PIN pairing, AdvancedFilePreview
 │       ├── qr-tools/                    # QR generator, scanner, dynamic codes, analytics
 │       └── toolbox/                     # Unified converter, PDF tools, utilities, processors
 ├── supabase/                            # SQL schemas for profiles, clipboard, and QR tools
@@ -119,6 +138,7 @@ uvero/
 | Route | Purpose |
 |-------|---------|
 | `/` | Command-first services home |
+| `/file-transfer` | Direct WebRTC P2P file sharing with QR scanning, PIN pairing, and interactive previews |
 | `/toolbox` | Unified file converter, embedded PDF workspaces, and utility hub |
 | `/toolbox?to=<tool-id>` | Deep link into a unified converter action, such as `/toolbox?to=merge-pdf` or `/toolbox?to=pdf-to-image` |
 | `/:toolId` | Standalone utility tools, such as `/password-generator`, `/hash-generator`, and `/unit-converter` |
