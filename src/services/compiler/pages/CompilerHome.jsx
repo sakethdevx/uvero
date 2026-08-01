@@ -385,7 +385,7 @@ export default function CompilerHome() {
             <div className={`relative bg-white dark:bg-[#0d1117] ${isFullscreen ? 'h-full w-full flex flex-col overflow-hidden' : 'rounded-2xl border border-gray-200/50 dark:border-white/[0.08] shadow-2xl shadow-black/5 dark:shadow-black/40 overflow-hidden'}`}>
                 <div className={`flex flex-col lg:flex-row ${isFullscreen ? 'flex-1 min-h-0 h-full overflow-hidden' : ''}`}>
                     {/* ─ Left: Editor ─ */}
-                    <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
+                    <div className={`flex-1 min-w-0 flex flex-col ${isFullscreen ? 'h-full overflow-hidden' : ''}`}>
                         {/* Toolbar */}
                         <EditorToolbar
                             language={language}
@@ -414,12 +414,12 @@ export default function CompilerHome() {
 
                         {/* Monaco Editor */}
                         {isFetchingCode ? (
-                            <div className="h-[350px] lg:h-auto lg:flex-1 lg:min-h-[520px] flex flex-col items-center justify-center bg-gray-50/50 dark:bg-white/[0.01]">
+                            <div className="h-[450px] lg:h-[540px] flex flex-col items-center justify-center bg-gray-50/50 dark:bg-white/[0.01]">
                                 <div className="w-8 h-8 border-4 border-violet-500/30 border-t-violet-500 rounded-full animate-spin mb-4" />
                                 <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Retrieving shared code from Clipboard...</p>
                             </div>
                         ) : (
-                            <div className={isFullscreen ? "flex-1 min-h-0 w-full h-full relative overflow-hidden" : "h-[350px] lg:h-auto lg:flex-1 lg:min-h-[520px]"}>
+                            <div className={isFullscreen ? "flex-1 min-h-0 w-full h-full relative overflow-hidden" : "h-[450px] sm:h-[500px] lg:h-[540px] w-full relative overflow-hidden"}>
                                 <CodeEditor
                                     language={monacoLang}
                                     value={code}
