@@ -56,15 +56,23 @@ export default function CompilerHome() {
     const [historyOpen, setHistoryOpen] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
 
-    // Escape key listener for fullscreen mode
+    // Escape key listener & body scroll lock for fullscreen mode
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === 'Escape' && isFullscreen) {
                 setIsFullscreen(false);
             }
         };
+        if (isFullscreen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        return () => {
+            document.body.style.overflow = '';
+            window.removeEventListener('keydown', handleKeyDown);
+        };
     }, [isFullscreen]);
 
     // Share & fetch states
@@ -378,16 +386,16 @@ export default function CompilerHome() {
             {/* ─── IDE Layout ─── */}
             <section className="relative pb-4">
                 {/* Main IDE card with glow border */}
-                <div className={isFullscreen ? "fixed inset-0 z-50 bg-white dark:bg-[#0d1117] flex flex-col animate-state-in" : "relative rounded-2xl overflow-hidden"}>
+                <div className={isFullscreen ? "fixed inset-0 z-[9999] bg-white dark:bg-[#0d1117] h-screen w-screen overflow-hidden flex flex-col animate-state-in" : "relative rounded-2xl overflow-hidden"}>
                     {/* Glow border effect */}
                     {!isFullscreen && (
                         <div className="absolute -inset-[1px] bg-gradient-to-r from-blue-500/30 via-violet-500/30 to-purple-500/30 dark:from-blue-500/20 dark:via-violet-500/20 dark:to-purple-500/20 rounded-2xl blur-sm" />
                     )}
 
-                    <div className={`relative bg-white dark:bg-[#0d1117] ${isFullscreen ? 'h-full flex flex-col' : 'rounded-2xl border border-gray-200/50 dark:border-white/[0.08] shadow-2xl shadow-black/5 dark:shadow-black/40 overflow-hidden'}`}>
-                        <div className={`flex flex-col lg:flex-row ${isFullscreen ? 'flex-1 min-h-0' : ''}`}>
+                    <div className={`relative bg-white dark:bg-[#0d1117] ${isFullscreen ? 'h-full w-full flex flex-col overflow-hidden' : 'rounded-2xl border border-gray-200/50 dark:border-white/[0.08] shadow-2xl shadow-black/5 dark:shadow-black/40 overflow-hidden'}`}>
+                        <div className={`flex flex-col lg:flex-row ${isFullscreen ? 'flex-1 min-h-0 h-full overflow-hidden' : ''}`}>
                             {/* ─ Left: Editor ─ */}
-                            <div className="flex-1 min-w-0 flex flex-col min-h-0">
+                            <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
                                 {/* Toolbar */}
                                 <EditorToolbar
                                     language={language}
@@ -421,7 +429,7 @@ export default function CompilerHome() {
                                         <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Retrieving shared code from Clipboard...</p>
                                     </div>
                                 ) : (
-                                    <div className={isFullscreen ? "flex-1 min-h-0 w-full" : "h-[350px] lg:h-auto lg:flex-1 lg:min-h-[520px]"}>
+                                    <div className={isFullscreen ? "flex-1 min-h-0 w-full h-full relative overflow-hidden" : "h-[350px] lg:h-auto lg:flex-1 lg:min-h-[520px]"}>
                                         <CodeEditor
                                             language={monacoLang}
                                             value={code}

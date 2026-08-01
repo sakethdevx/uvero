@@ -146,16 +146,19 @@ export default function EditorToolbar({
                 <button
                     onClick={onFullscreenToggle}
                     title={isFullscreen ? "Exit Fullscreen (Esc)" : "Fullscreen Editor Mode"}
-                    className={`relative p-1.5 sm:p-2 rounded-lg transition-all group ${
+                    className={`relative px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 group ${
                         isFullscreen
-                            ? 'bg-cyan-500/20 text-cyan-500 border border-cyan-500/30'
+                            ? 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 border border-rose-500/30'
                             : 'text-gray-400 dark:text-gray-500 hover:text-cyan-500 dark:hover:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-500/10'
                     }`}
                 >
                     {isFullscreen ? (
-                        <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 9L4 4m0 0l5 0m-5 0l0 5m6 6l5 5m0 0l-5 0m5 0l0-5" />
-                        </svg>
+                        <>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 9L4 4m0 0l5 0m-5 0l0 5m6 6l5 5m0 0l-5 0m5 0l0-5" />
+                            </svg>
+                            <span className="hidden sm:inline font-bold">Exit Fullscreen</span>
+                        </>
                     ) : (
                         <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
