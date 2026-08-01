@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
 import CodeEditor from '../components/CodeEditor';
 import LanguageSelector from '../components/LanguageSelector';
@@ -374,6 +375,90 @@ export default function CompilerHome() {
         setHistoryOpen(false);
     }, []);
 
+    const ideContent = (
+        <div className={isFullscreen ? "fixed inset-0 z-[9999] bg-white dark:bg-[#0d1117] h-screen w-screen overflow-hidden flex flex-col animate-state-in text-gray-900 dark:text-white" : "relative rounded-2xl overflow-hidden"}>
+            {/* Glow border effect */}
+            {!isFullscreen && (
+                <div className="absolute -inset-[1px] bg-gradient-to-r from-blue-500/30 via-violet-500/30 to-purple-500/30 dark:from-blue-500/20 dark:via-violet-500/20 dark:to-purple-500/20 rounded-2xl blur-sm" />
+            )}
+
+            <div className={`relative bg-white dark:bg-[#0d1117] ${isFullscreen ? 'h-full w-full flex flex-col overflow-hidden' : 'rounded-2xl border border-gray-200/50 dark:border-white/[0.08] shadow-2xl shadow-black/5 dark:shadow-black/40 overflow-hidden'}`}>
+                <div className={`flex flex-col lg:flex-row ${isFullscreen ? 'flex-1 min-h-0 h-full overflow-hidden' : ''}`}>
+                    {/* ─ Left: Editor ─ */}
+                    <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
+                        {/* Toolbar */}
+                        <EditorToolbar
+                            language={language}
+                            onLanguageChange={handleLanguageChange}
+                            isLoading={isLoading}
+                            isSharing={isSharing}
+                            onRun={handleRun}
+                            onReset={handleReset}
+                            onCopy={handleCopy}
+                            onDownload={handleDownload}
+                            onShare={handleShare}
+                            onRetrieveClick={() => setShowRetrieveModal(true)}
+                            onHistoryToggle={() => setHistoryOpen(true)}
+                            fontSize={fontSize}
+                            onFontSizeChange={setFontSize}
+                            isFullscreen={isFullscreen}
+                            onFullscreenToggle={() => setIsFullscreen((prev) => !prev)}
+                        />
+
+                        {fetchCodeError && (
+                            <div className="mx-4 mt-4 px-4 py-3 bg-red-500/10 border border-red-500/20 text-red-500 dark:text-red-400 text-xs rounded-xl flex items-center justify-between">
+                                <span>Error loading shared code: {fetchCodeError}</span>
+                                <button onClick={() => setFetchCodeError('')} className="font-bold hover:underline">Dismiss</button>
+                            </div>
+                        )}
+
+                        {/* Monaco Editor */}
+                        {isFetchingCode ? (
+                            <div className="h-[350px] lg:h-auto lg:flex-1 lg:min-h-[520px] flex flex-col items-center justify-center bg-gray-50/50 dark:bg-white/[0.01]">
+                                <div className="w-8 h-8 border-4 border-violet-500/30 border-t-violet-500 rounded-full animate-spin mb-4" />
+                                <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Retrieving shared code from Clipboard...</p>
+                            </div>
+                        ) : (
+                            <div className={isFullscreen ? "flex-1 min-h-0 w-full h-full relative overflow-hidden" : "h-[350px] lg:h-auto lg:flex-1 lg:min-h-[520px]"}>
+                                <CodeEditor
+                                    language={monacoLang}
+                                    value={code}
+                                    onChange={setCode}
+                                    isDark={isDark}
+                                    fontSize={fontSize}
+                                    onRun={handleRun}
+                                />
+                            </div>
+                        )}
+
+                        {/* Status bar */}
+                        <StatusBar
+                            cursorPosition={cursorPosition}
+                            charCount={charCount}
+                            lineCount={lineCount}
+                            lastExecTime={output?.execution_time_ms}
+                        />
+                    </div>
+
+                    {/* ─ Vertical divider ─ */}
+                    <div className="hidden lg:block w-px bg-gray-200/70 dark:bg-white/[0.06]" />
+                    <div className="lg:hidden h-px bg-gray-200/70 dark:bg-white/[0.06]" />
+
+                    {/* ─ Right: Input + Output ─ */}
+                    <div className={`w-full lg:w-[400px] xl:w-[440px] flex flex-col bg-gray-50/50 dark:bg-white/[0.01] ${isFullscreen ? 'h-full overflow-y-auto border-t lg:border-t-0 lg:border-l border-gray-200/70 dark:border-white/[0.06]' : ''}`}>
+                        {/* Stdin */}
+                        <StdinPanel value={stdin} onChange={setStdin} />
+
+                        {/* Output */}
+                        <div className="flex-1 min-h-[280px] lg:min-h-0">
+                            <OutputPanel output={output} isLoading={isLoading} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+
     return (
         <AIServiceShell>
             <AIBackLink to="/">Back to Hub</AIBackLink>
@@ -385,88 +470,7 @@ export default function CompilerHome() {
 
             {/* ─── IDE Layout ─── */}
             <section className="relative pb-4">
-                {/* Main IDE card with glow border */}
-                <div className={isFullscreen ? "fixed inset-0 z-[9999] bg-white dark:bg-[#0d1117] h-screen w-screen overflow-hidden flex flex-col animate-state-in" : "relative rounded-2xl overflow-hidden"}>
-                    {/* Glow border effect */}
-                    {!isFullscreen && (
-                        <div className="absolute -inset-[1px] bg-gradient-to-r from-blue-500/30 via-violet-500/30 to-purple-500/30 dark:from-blue-500/20 dark:via-violet-500/20 dark:to-purple-500/20 rounded-2xl blur-sm" />
-                    )}
-
-                    <div className={`relative bg-white dark:bg-[#0d1117] ${isFullscreen ? 'h-full w-full flex flex-col overflow-hidden' : 'rounded-2xl border border-gray-200/50 dark:border-white/[0.08] shadow-2xl shadow-black/5 dark:shadow-black/40 overflow-hidden'}`}>
-                        <div className={`flex flex-col lg:flex-row ${isFullscreen ? 'flex-1 min-h-0 h-full overflow-hidden' : ''}`}>
-                            {/* ─ Left: Editor ─ */}
-                            <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
-                                {/* Toolbar */}
-                                <EditorToolbar
-                                    language={language}
-                                    onLanguageChange={handleLanguageChange}
-                                    isLoading={isLoading}
-                                    isSharing={isSharing}
-                                    onRun={handleRun}
-                                    onReset={handleReset}
-                                    onCopy={handleCopy}
-                                    onDownload={handleDownload}
-                                    onShare={handleShare}
-                                    onRetrieveClick={() => setShowRetrieveModal(true)}
-                                    onHistoryToggle={() => setHistoryOpen(true)}
-                                    fontSize={fontSize}
-                                    onFontSizeChange={setFontSize}
-                                    isFullscreen={isFullscreen}
-                                    onFullscreenToggle={() => setIsFullscreen((prev) => !prev)}
-                                />
-
-                                {fetchCodeError && (
-                                    <div className="mx-4 mt-4 px-4 py-3 bg-red-500/10 border border-red-500/20 text-red-500 dark:text-red-400 text-xs rounded-xl flex items-center justify-between">
-                                        <span>Error loading shared code: {fetchCodeError}</span>
-                                        <button onClick={() => setFetchCodeError('')} className="font-bold hover:underline">Dismiss</button>
-                                    </div>
-                                )}
-
-                                {/* Monaco Editor */}
-                                {isFetchingCode ? (
-                                    <div className="h-[350px] lg:h-auto lg:flex-1 lg:min-h-[520px] flex flex-col items-center justify-center bg-gray-50/50 dark:bg-white/[0.01]">
-                                        <div className="w-8 h-8 border-4 border-violet-500/30 border-t-violet-500 rounded-full animate-spin mb-4" />
-                                        <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Retrieving shared code from Clipboard...</p>
-                                    </div>
-                                ) : (
-                                    <div className={isFullscreen ? "flex-1 min-h-0 w-full h-full relative overflow-hidden" : "h-[350px] lg:h-auto lg:flex-1 lg:min-h-[520px]"}>
-                                        <CodeEditor
-                                            language={monacoLang}
-                                            value={code}
-                                            onChange={setCode}
-                                            isDark={isDark}
-                                            fontSize={fontSize}
-                                            onRun={handleRun}
-                                        />
-                                    </div>
-                                )}
-
-                                {/* Status bar */}
-                                <StatusBar
-                                    cursorPosition={cursorPosition}
-                                    charCount={charCount}
-                                    lineCount={lineCount}
-                                    lastExecTime={output?.execution_time_ms}
-                                />
-                            </div>
-
-                            {/* ─ Vertical divider ─ */}
-                            <div className="hidden lg:block w-px bg-gray-200/70 dark:bg-white/[0.06]" />
-                            <div className="lg:hidden h-px bg-gray-200/70 dark:bg-white/[0.06]" />
-
-                            {/* ─ Right: Input + Output ─ */}
-                            <div className={`w-full lg:w-[400px] xl:w-[440px] flex flex-col bg-gray-50/50 dark:bg-white/[0.01] ${isFullscreen ? 'h-full overflow-y-auto border-t lg:border-t-0 lg:border-l border-gray-200/70 dark:border-white/[0.06]' : ''}`}>
-                                {/* Stdin */}
-                                <StdinPanel value={stdin} onChange={setStdin} />
-
-                                {/* Output */}
-                                <div className="flex-1 min-h-[280px] lg:min-h-0">
-                                    <OutputPanel output={output} isLoading={isLoading} />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {isFullscreen ? createPortal(ideContent, document.body) : ideContent}
             </section>
 
             {/* History Panel */}
