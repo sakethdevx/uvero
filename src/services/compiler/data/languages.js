@@ -115,6 +115,8 @@ console.log("Sorted:", bubbleSort(numbers));`,
         templates: {
             hello: `// Welcome to Uvero Compiler — C (GCC)
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 int main() {
     printf("Hello, World!\\n");
@@ -123,6 +125,8 @@ int main() {
 }`,
             algorithm: `// C — Bubble Sort
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 void bubbleSort(int arr[], int n) {
     for (int i = 0; i < n - 1; i++)
@@ -145,6 +149,8 @@ int main() {
 }`,
             io: `// C — stdin / stdout
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 int main() {
     char name[100];
@@ -168,7 +174,9 @@ int main() {
         templates: {
             hello: `// Welcome to Uvero Compiler — C++ (G++)
 #include <iostream>
+#include <vector>
 #include <string>
+#include <algorithm>
 using namespace std;
 
 int main() {
@@ -179,6 +187,8 @@ int main() {
             dataStructures: `// C++ — STL Containers
 #include <iostream>
 #include <vector>
+#include <string>
+#include <algorithm>
 #include <map>
 using namespace std;
 
@@ -204,6 +214,8 @@ int main() {
         extension: '.java',
         templates: {
             hello: `// Welcome to Uvero Compiler — Java
+import java.util.*;
+
 public class Main {
     public static void main(String[] args) {
         System.out.println("Hello, World!");
