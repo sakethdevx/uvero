@@ -1,10 +1,13 @@
 import UnifiedConverter from './UnifiedConverter';
 import OtherToolsHub from './OtherToolsHub';
-import { AIServiceShell, CompactServiceHeader } from '../../../components/AIServiceLayout';
+import { AIServiceShell, CompactServiceHeader, AIBackLink } from '../../../components/AIServiceLayout';
 
 export default function ToolboxHome() {
     return (
         <AIServiceShell>
+            <div className="mb-2">
+                <AIBackLink to="/">Home</AIBackLink>
+            </div>
             <CompactServiceHeader
                 eyebrow="Toolbox"
                 title="Convert, edit, and package files"
