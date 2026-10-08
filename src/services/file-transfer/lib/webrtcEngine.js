@@ -121,6 +121,7 @@ export class WebRTCSenderManager {
             name: file.name,
             mimeType: file.type,
             size: file.bytes.length,
+            totalSize,
           });
         }
 
@@ -177,6 +178,8 @@ export class WebRTCReceiverManager {
     this.receivedFiles = [];
     this.receivedChunks = [];
     this.receivedBytes = 0;
+    this.completedBytes = 0;
+    this.transferTotalSize = 0;
 
     this.init();
   }
@@ -231,6 +234,7 @@ export class WebRTCReceiverManager {
           type: data.mimeType || 'application/octet-stream',
           size: data.size,
         };
+        this.transferTotalSize = data.totalSize || this.transferTotalSize || data.size;
         this.receivedChunks = [];
         this.receivedBytes = 0;
       } else if (data.type === 'CHUNK') {
@@ -238,9 +242,10 @@ export class WebRTCReceiverManager {
         this.receivedChunks.push(chunk);
         this.receivedBytes += chunk.length;
 
-        const totalSize = this.fileMeta ? this.fileMeta.size : this.receivedBytes;
-        const progress = totalSize > 0 ? this.receivedBytes / totalSize : 0;
-        this.onProgress?.(progress, this.receivedBytes, totalSize);
+        const totalSize = this.transferTotalSize || this.fileMeta?.size || this.receivedBytes;
+        const transferredBytes = this.completedBytes + this.receivedBytes;
+        const progress = totalSize > 0 ? Math.min(1, transferredBytes / totalSize) : 0;
+        this.onProgress?.(progress, transferredBytes, totalSize);
       } else if (data.type === 'COMPLETE_FILE') {
         this.finalizeFile();
       } else if (data.type === 'COMPLETE') {
@@ -270,6 +275,7 @@ export class WebRTCReceiverManager {
     };
 
     this.receivedFiles.push(assembledFile);
+    this.completedBytes += this.receivedBytes;
   }
 
   close() {
