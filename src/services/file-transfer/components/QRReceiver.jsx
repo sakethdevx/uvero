@@ -225,14 +225,14 @@ export default function QRReceiver() {
                 {assembledFiles.map((file, index) => (
                   <div
                     key={`${file.name}-${file.size}-${index}`}
-                    className={`flex items-center gap-2 rounded-xl border p-2 transition ${
+                    className={`flex min-w-0 items-center gap-2 overflow-hidden rounded-xl border p-2 transition ${
                       index === selectedFileIndex
                         ? 'border-emerald-500/40 bg-emerald-500/10'
                         : 'border-gray-200/80 dark:border-white/10'
                     }`}
                   >
-                    <button onClick={() => setSelectedFileIndex(index)} className="min-w-0 flex-1 text-left">
-                      <span className="block truncate text-xs font-bold text-gray-900 dark:text-white">{file.name}</span>
+                    <button onClick={() => setSelectedFileIndex(index)} className="min-w-0 flex-1 overflow-hidden text-left">
+                      <span className="block truncate text-xs font-bold text-gray-900 dark:text-white" title={file.name}>{file.name}</span>
                       <span className="mt-1 block text-[11px] text-gray-500 dark:text-gray-400">
                         {(file.size / (1024 * 1024)).toFixed(2)} MB
                       </span>
