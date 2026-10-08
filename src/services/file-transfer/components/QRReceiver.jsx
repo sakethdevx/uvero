@@ -8,7 +8,7 @@ import AdvancedFilePreview from './AdvancedFilePreview';
  * QRReceiver — Streamlined Pure WebRTC Receiver Component
  * Styled with official Uvero AIInlinePanel design system with enhanced document & image previews.
  */
-export default function QRReceiver({ onReset }) {
+export default function QRReceiver() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -17,10 +17,9 @@ export default function QRReceiver({ onReset }) {
   const [status, setStatus] = useState('idle'); // 'idle', 'connecting', 'receiving', 'complete', 'error'
   
   const [progressRatio, setProgressRatio] = useState(0);
-  const [receivedBytes, setReceivedBytes] = useState(0);
   const [transferSpeedMbps, setTransferSpeedMbps] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
-  const [assembledFile, setAssembledFile] = useState(null);
+  const [assembledFiles, setAssembledFiles] = useState([]);
 
   const receiverManagerRef = useRef(null);
   const animFrameIdRef = useRef(null);
@@ -59,7 +58,6 @@ export default function QRReceiver({ onReset }) {
         },
         (progress, offset, total) => {
           setProgressRatio(progress);
-          setReceivedBytes(offset);
 
           const now = performance.now();
           const timeDiff = (now - lastTimeRef.current) / 1000;
@@ -73,7 +71,7 @@ export default function QRReceiver({ onReset }) {
         },
         (fileObj) => {
           setStatus('complete');
-          setAssembledFile(fileObj);
+          setAssembledFiles(fileObj);
         },
         (err) => {
           setStatus('error');
@@ -170,16 +168,15 @@ export default function QRReceiver({ onReset }) {
     if (receiverManagerRef.current) receiverManagerRef.current.close();
     stopCamera();
     setStatus('idle');
-    setAssembledFile(null);
+    setAssembledFiles([]);
     setInputCode('');
     setProgressRatio(0);
-    setReceivedBytes(0);
     setErrorMessage('');
   };
 
   return (
     <div className="space-y-6 max-w-xl mx-auto">
-      {status === 'complete' && assembledFile ? (
+      {status === 'complete' && assembledFiles.length ? (
         <AIInlinePanel className="p-6 space-y-6 border border-emerald-500/30 bg-emerald-500/5 shadow-2xl animate-state-in">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center font-bold">
@@ -188,30 +185,33 @@ export default function QRReceiver({ onReset }) {
               </svg>
             </div>
             <div className="min-w-0 flex-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-500">File Received Losslessly</span>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">{assembledFile.name}</h3>
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-500">Files Received Losslessly</span>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">{assembledFiles.length} file{assembledFiles.length === 1 ? '' : 's'}</h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {(assembledFile.size / (1024 * 1024)).toFixed(2)} MB • WebRTC P2P Direct
+                {(assembledFiles.reduce((sum, file) => sum + file.size, 0) / (1024 * 1024)).toFixed(2)} MB • WebRTC P2P Direct
               </p>
             </div>
           </div>
 
           <div className="space-y-2">
             <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">Interactive File Preview</label>
-            <AdvancedFilePreview file={assembledFile} />
+            {assembledFiles.length === 1 && <AdvancedFilePreview file={assembledFiles[0]} />}
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <a
-              href={URL.createObjectURL(assembledFile.blob)}
-              download={assembledFile.name}
-              className="w-full sm:flex-1 py-3 px-6 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              <span>Download File</span>
-            </a>
+          <div className="flex flex-col gap-3">
+            {assembledFiles.map((file) => (
+              <a
+                key={`${file.name}-${file.size}`}
+                href={URL.createObjectURL(file.blob)}
+                download={file.name}
+                className="w-full py-3 px-6 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 transition-all"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>Download {file.name}</span>
+              </a>
+            ))}
 
             <button
               onClick={handleRestart}

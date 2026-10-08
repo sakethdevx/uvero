@@ -31,10 +31,11 @@ export function generatePairingCode() {
  * WebRTCSenderManager — Sender Host
  */
 export class WebRTCSenderManager {
-  constructor(fileBytes, fileName, fileType, onPairingReady, onConnected, onProgress, onComplete, onError) {
-    this.fileBytes = new Uint8Array(fileBytes);
-    this.fileName = fileName;
-    this.fileType = fileType;
+  constructor(files, onPairingReady, onConnected, onProgress, onComplete, onError) {
+    this.files = files.map((file) => ({
+      ...file,
+      bytes: new Uint8Array(file.data),
+    }));
     this.onPairingReady = onPairingReady;
     this.onConnected = onConnected;
     this.onProgress = onProgress;
@@ -102,37 +103,48 @@ export class WebRTCSenderManager {
   startStreaming() {
     if (!this.conn || !this.conn.open) return;
 
-    const totalSize = this.fileBytes.length;
     const chunkSize = 16384; // 16 KB chunks for high mobile WebRTC stability
-    let offset = 0;
-
-    // Send META packet
-    this.conn.send({
-      type: 'META',
-      name: this.fileName,
-      mimeType: this.fileType,
-      size: totalSize,
-    });
+    const totalSize = this.files.reduce((sum, file) => sum + file.bytes.length, 0);
+    let fileIndex = 0;
+    let fileOffset = 0;
+    let transferred = 0;
 
     const sendNextChunk = () => {
       if (!this.conn || !this.conn.open) return;
 
-      while (offset < totalSize) {
-        const end = Math.min(offset + chunkSize, totalSize);
-        const chunkSlice = this.fileBytes.buffer.slice(offset, end);
-
-        this.conn.send({
-          type: 'CHUNK',
-          data: chunkSlice,
-        });
-
-        offset = end;
-        this.onProgress?.(offset / totalSize, offset, totalSize);
-
-        if (this.conn.dataChannel && this.conn.dataChannel.bufferedAmount > 65536) {
-          setTimeout(sendNextChunk, 15);
-          return;
+      while (fileIndex < this.files.length) {
+        const file = this.files[fileIndex];
+        if (fileOffset === 0) {
+          this.conn.send({
+            type: 'META',
+            index: fileIndex,
+            name: file.name,
+            mimeType: file.type,
+            size: file.bytes.length,
+          });
         }
+
+        while (fileOffset < file.bytes.length) {
+          const end = Math.min(fileOffset + chunkSize, file.bytes.length);
+          const chunkSizeBytes = end - fileOffset;
+          this.conn.send({
+            type: 'CHUNK',
+            data: file.bytes.buffer.slice(fileOffset, end),
+          });
+
+          fileOffset = end;
+          transferred += chunkSizeBytes;
+          this.onProgress?.(transferred / totalSize, transferred, totalSize);
+
+          if (this.conn.dataChannel && this.conn.dataChannel.bufferedAmount > 65536) {
+            setTimeout(sendNextChunk, 15);
+            return;
+          }
+        }
+
+        this.conn.send({ type: 'COMPLETE_FILE', index: fileIndex });
+        fileIndex += 1;
+        fileOffset = 0;
       }
 
       this.conn.send({ type: 'COMPLETE' });
@@ -162,6 +174,7 @@ export class WebRTCReceiverManager {
     this.peer = null;
     this.conn = null;
     this.fileMeta = null;
+    this.receivedFiles = [];
     this.receivedChunks = [];
     this.receivedBytes = 0;
 
@@ -213,10 +226,13 @@ export class WebRTCReceiverManager {
 
       if (data.type === 'META') {
         this.fileMeta = {
+          index: data.index,
           name: data.name,
           type: data.mimeType || 'application/octet-stream',
           size: data.size,
         };
+        this.receivedChunks = [];
+        this.receivedBytes = 0;
       } else if (data.type === 'CHUNK') {
         const chunk = new Uint8Array(data.data);
         this.receivedChunks.push(chunk);
@@ -225,8 +241,10 @@ export class WebRTCReceiverManager {
         const totalSize = this.fileMeta ? this.fileMeta.size : this.receivedBytes;
         const progress = totalSize > 0 ? this.receivedBytes / totalSize : 0;
         this.onProgress?.(progress, this.receivedBytes, totalSize);
-      } else if (data.type === 'COMPLETE') {
+      } else if (data.type === 'COMPLETE_FILE') {
         this.finalizeFile();
+      } else if (data.type === 'COMPLETE') {
+        this.onComplete?.(this.receivedFiles);
       }
     });
 
@@ -251,7 +269,7 @@ export class WebRTCReceiverManager {
       blob: new Blob([fullBuffer], { type: this.fileMeta ? this.fileMeta.type : 'application/octet-stream' }),
     };
 
-    this.onComplete?.(assembledFile);
+    this.receivedFiles.push(assembledFile);
   }
 
   close() {

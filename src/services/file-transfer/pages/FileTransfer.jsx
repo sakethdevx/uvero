@@ -10,8 +10,8 @@ import QRReceiver from '../components/QRReceiver';
  */
 export default function FileTransfer() {
   const [activeTab, setActiveTab] = useState('send'); // 'send' | 'receive'
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [fileData, setFileData] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [fileError, setFileError] = useState('');
 
   useSEO({
     title: 'File Transfer — Instant P2P Share | Uvero',
@@ -19,18 +19,38 @@ export default function FileTransfer() {
     keywords: ['file transfer', 'P2P share', 'WebRTC transfer', 'browser file share', 'Uvero tools'],
   });
 
-  const handleFileSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const loadFiles = (files) => {
+    const fileList = Array.from(files || []);
+    if (!fileList.length) return;
+    setFileError('');
 
-    setSelectedFile(file);
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      if (evt.target?.result) {
-        setFileData(evt.target.result);
-      }
-    };
-    reader.readAsArrayBuffer(file);
+    Promise.all(
+      fileList.map((file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          data: reader.result,
+        });
+        reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
+        reader.readAsArrayBuffer(file);
+      }))
+    ).then((loadedFiles) => {
+      setSelectedFiles((currentFiles) => {
+        const existingKeys = new Set(currentFiles.map((file) => `${file.name}:${file.size}`));
+        return [
+          ...currentFiles,
+          ...loadedFiles.filter((file) => !existingKeys.has(`${file.name}:${file.size}`)),
+        ];
+      });
+    }).catch((error) => {
+      setFileError(error.message || 'Failed to read the selected files');
+    });
+  };
+
+  const handleFileSelect = (e) => {
+    loadFiles(e.target.files);
   };
 
   const handleDragOver = (e) => {
@@ -39,17 +59,7 @@ export default function FileTransfer() {
 
   const handleDrop = (e) => {
     e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (!file) return;
-
-    setSelectedFile(file);
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      if (evt.target?.result) {
-        setFileData(evt.target.result);
-      }
-    };
-    reader.readAsArrayBuffer(file);
+    loadFiles(e.dataTransfer.files);
   };
 
   const generateSampleText = () => {
@@ -57,19 +67,16 @@ export default function FileTransfer() {
     const blob = new Blob([text], { type: 'text/plain' });
     const file = new File([blob], 'sample_demo.txt', { type: 'text/plain' });
 
-    setSelectedFile(file);
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      if (evt.target?.result) {
-        setFileData(evt.target.result);
-      }
-    };
-    reader.readAsArrayBuffer(file);
+    loadFiles([file]);
   };
 
   const handleReset = () => {
-    setSelectedFile(null);
-    setFileData(null);
+    setSelectedFiles([]);
+    setFileError('');
+  };
+
+  const handleRemoveFile = (fileIndex) => {
+    setSelectedFiles((currentFiles) => currentFiles.filter((_, index) => index !== fileIndex));
   };
 
   return (
@@ -125,8 +132,13 @@ export default function FileTransfer() {
 
       {/* Main Content Area */}
       {activeTab === 'send' ? (
-        !selectedFile || !fileData ? (
+        !selectedFiles.length ? (
           <AIInlinePanel className="max-w-2xl mx-auto space-y-4 text-center">
+            {fileError && (
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-medium">
+                {fileError}
+              </div>
+            )}
             <div
               onDragOver={handleDragOver}
               onDrop={handleDrop}
@@ -134,6 +146,7 @@ export default function FileTransfer() {
             >
               <input
                 type="file"
+                multiple
                 onChange={handleFileSelect}
                 className="absolute inset-0 opacity-0 cursor-pointer"
               />
@@ -145,7 +158,7 @@ export default function FileTransfer() {
               </div>
 
               <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                Drop your file here or <span className="text-cyan-500">browse</span>
+                Drop your files here or <span className="text-cyan-500">browse</span>
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Supports any file format (Documents, Images, Archives, Videos, Audio) up to 2 GB
@@ -163,14 +176,14 @@ export default function FileTransfer() {
           </AIInlinePanel>
         ) : (
           <QRSender
-            fileData={fileData}
-            fileName={selectedFile.name}
-            fileType={selectedFile.type}
+            files={selectedFiles}
             onReset={handleReset}
+            onAddFiles={loadFiles}
+            onRemoveFile={handleRemoveFile}
           />
         )
       ) : (
-        <QRReceiver onReset={handleReset} />
+        <QRReceiver />
       )}
     </AIServiceShell>
   );

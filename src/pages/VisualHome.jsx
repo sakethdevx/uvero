@@ -155,7 +155,7 @@ export default function VisualHome() {
               </div>
               <div className="flex flex-col flex-1">
                 <h3 className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors flex items-center gap-1.5">
-                  <span>Live Clipboard</span>
+                  <span>Clipboard</span>
                 </h3>
                 <p className="text-xs leading-relaxed mt-1 text-gray-500 dark:text-gray-400">
                   Share text across devices privately with password lock, burn-after-read, auto expiry & CLI access.
