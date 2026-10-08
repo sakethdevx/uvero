@@ -8,7 +8,7 @@ import AdvancedFilePreview from './AdvancedFilePreview';
  * QRReceiver — Streamlined Pure WebRTC Receiver Component
  * Styled with official Uvero AIInlinePanel design system with enhanced document & image previews.
  */
-export default function QRReceiver({ onReset }) {
+export default function QRReceiver() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -17,14 +17,14 @@ export default function QRReceiver({ onReset }) {
   const [status, setStatus] = useState('idle'); // 'idle', 'connecting', 'receiving', 'complete', 'error'
   
   const [progressRatio, setProgressRatio] = useState(0);
-  const [receivedBytes, setReceivedBytes] = useState(0);
   const [transferSpeedMbps, setTransferSpeedMbps] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
-  const [assembledFile, setAssembledFile] = useState(null);
+  const [assembledFiles, setAssembledFiles] = useState([]);
+  const [selectedFileIndex, setSelectedFileIndex] = useState(0);
 
   const receiverManagerRef = useRef(null);
   const animFrameIdRef = useRef(null);
-  const lastTimeRef = useRef(performance.now());
+  const lastTimeRef = useRef(0);
   const lastBytesRef = useRef(0);
   const cameraStreamRef = useRef(null);
 
@@ -57,15 +57,14 @@ export default function QRReceiver({ onReset }) {
           lastTimeRef.current = performance.now();
           lastBytesRef.current = 0;
         },
-        (progress, offset, total) => {
+        (progress, offset) => {
           setProgressRatio(progress);
-          setReceivedBytes(offset);
 
           const now = performance.now();
           const timeDiff = (now - lastTimeRef.current) / 1000;
-          if (timeDiff >= 0.3) {
+          if (timeDiff >= 0.25 && offset >= lastBytesRef.current) {
             const bytesDiff = offset - lastBytesRef.current;
-            const mbps = (bytesDiff / (1024 * 1024)) / timeDiff;
+            const mbps = Math.max(0, (bytesDiff / (1024 * 1024)) / timeDiff);
             setTransferSpeedMbps(mbps.toFixed(1));
             lastTimeRef.current = now;
             lastBytesRef.current = offset;
@@ -73,7 +72,8 @@ export default function QRReceiver({ onReset }) {
         },
         (fileObj) => {
           setStatus('complete');
-          setAssembledFile(fileObj);
+          setAssembledFiles(fileObj);
+          setSelectedFileIndex(0);
         },
         (err) => {
           setStatus('error');
@@ -170,56 +170,112 @@ export default function QRReceiver({ onReset }) {
     if (receiverManagerRef.current) receiverManagerRef.current.close();
     stopCamera();
     setStatus('idle');
-    setAssembledFile(null);
+    setAssembledFiles([]);
+    setSelectedFileIndex(0);
     setInputCode('');
     setProgressRatio(0);
-    setReceivedBytes(0);
     setErrorMessage('');
   };
 
+  const handleDownload = (file) => {
+    const url = URL.createObjectURL(file.blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = file.name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const totalReceivedSize = assembledFiles.reduce((sum, file) => sum + file.size, 0);
+  const selectedFile = assembledFiles[selectedFileIndex] || assembledFiles[0];
+
   return (
-    <div className="space-y-6 max-w-xl mx-auto">
-      {status === 'complete' && assembledFile ? (
-        <AIInlinePanel className="p-6 space-y-6 border border-emerald-500/30 bg-emerald-500/5 shadow-2xl animate-state-in">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center font-bold">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
+    <div className="space-y-6 max-w-4xl mx-auto">
+      {status === 'complete' && assembledFiles.length ? (
+        <AIInlinePanel className="space-y-5 border border-emerald-500/30 bg-emerald-500/5 p-4 shadow-2xl animate-state-in sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-emerald-500/15 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-500">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-500">Transfer complete</p>
+                <h3 className="text-xl font-black text-gray-900 dark:text-white">
+                  {assembledFiles.length} file{assembledFiles.length === 1 ? '' : 's'} received
+                </h3>
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-500">File Received Losslessly</span>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">{assembledFile.name}</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {(assembledFile.size / (1024 * 1024)).toFixed(2)} MB • WebRTC P2P Direct
-              </p>
+            <div className="text-right text-xs text-gray-500 dark:text-gray-400">
+              <p className="font-semibold text-gray-700 dark:text-gray-200">{(totalReceivedSize / (1024 * 1024)).toFixed(2)} MB total</p>
+              <p>Lossless WebRTC P2P transfer</p>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">Interactive File Preview</label>
-            <AdvancedFilePreview file={assembledFile} />
+          <div className="grid items-start gap-4 lg:grid-cols-[minmax(240px,0.8fr)_minmax(0,1.2fr)]">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold text-gray-900 dark:text-white">Received files</p>
+                <span className="text-[11px] text-gray-500">{assembledFiles.length} items</span>
+              </div>
+              <div className="max-h-80 space-y-2 overflow-y-auto pr-1">
+                {assembledFiles.map((file, index) => (
+                  <div
+                    key={`${file.name}-${file.size}-${index}`}
+                    className={`flex min-w-0 items-center gap-2 overflow-hidden rounded-xl border p-2 transition ${
+                      index === selectedFileIndex
+                        ? 'border-emerald-500/40 bg-emerald-500/10'
+                        : 'border-gray-200/80 dark:border-white/10'
+                    }`}
+                  >
+                    <button onClick={() => setSelectedFileIndex(index)} className="min-w-0 flex-1 overflow-hidden text-left">
+                      <span className="block truncate text-xs font-bold text-gray-900 dark:text-white" title={file.name}>{file.name}</span>
+                      <span className="mt-1 block text-[11px] text-gray-500 dark:text-gray-400">
+                        {(file.size / (1024 * 1024)).toFixed(2)} MB
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => handleDownload(file)}
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500 text-white transition hover:bg-emerald-600"
+                      aria-label={`Download ${file.name}`}
+                      title={`Download ${file.name}`}
+                    >
+                      ↓
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => assembledFiles.forEach(handleDownload)}
+                className="w-full rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2.5 text-xs font-bold text-emerald-600 transition hover:bg-emerald-500/20 dark:text-emerald-400"
+              >
+                Download all files
+              </button>
+            </div>
+
+            <div className="min-w-0 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-gray-900 dark:text-white">Preview</p>
+                  <p className="truncate text-[11px] text-gray-500 dark:text-gray-400">{selectedFile?.name}</p>
+                </div>
+                <span className="text-[11px] text-gray-500">{selectedFileIndex + 1} / {assembledFiles.length}</span>
+              </div>
+              <div className="max-h-96 min-h-[16rem] overflow-y-auto rounded-2xl border border-gray-200/80 bg-white/40 p-3 dark:border-white/10 dark:bg-white/5">
+                {selectedFile && <AdvancedFilePreview key={`${selectedFile.name}-${selectedFile.size}`} file={selectedFile} />}
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <a
-              href={URL.createObjectURL(assembledFile.blob)}
-              download={assembledFile.name}
-              className="w-full sm:flex-1 py-3 px-6 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              <span>Download File</span>
-            </a>
-
-            <button
-              onClick={handleRestart}
-              className="w-full sm:w-auto py-3 px-5 rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 font-semibold text-sm hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
-            >
-              Receive Another File
-            </button>
-          </div>
+          <button
+            onClick={handleRestart}
+            className="w-full rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5"
+          >
+            Receive more files
+          </button>
         </AIInlinePanel>
       ) : status === 'receiving' || status === 'connecting' ? (
         <AIInlinePanel className="p-8 space-y-6 text-center">

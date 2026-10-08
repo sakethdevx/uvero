@@ -201,6 +201,8 @@ SUPABASE_URL=your_project_url
 SUPABASE_SERVICE_KEY=your_service_role_key
 ```
 
+The frontend can still start locally without the `VITE_SUPABASE_*` variables, but authentication and profile features remain disabled until they are configured. Restart the Vite dev server after changing `.env`.
+
 ### Clipboard Storage
 
 ```env

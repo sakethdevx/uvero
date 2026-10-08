@@ -34,7 +34,7 @@ export default function AdvancedFilePreview({ file, className = '', maxPreviewHe
   const objectUrlRef = useRef(null);
 
   useEffect(() => {
-    if (!file) return;
+    if (!file) return undefined;
 
     let isMounted = true;
     setLoading(true);
@@ -131,6 +131,10 @@ export default function AdvancedFilePreview({ file, className = '', maxPreviewHe
 
     return () => {
       isMounted = false;
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+        objectUrlRef.current = null;
+      }
     };
   }, [file]);
 
