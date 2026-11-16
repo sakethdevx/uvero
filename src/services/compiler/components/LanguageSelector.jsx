@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { LANGUAGES, CATEGORIES } from '../data/languages';
 
 const MAX_DROPDOWN_WIDTH = 320;
@@ -8,8 +9,10 @@ const VIEWPORT_PADDING = 12;
 export default function LanguageSelector({ selectedLanguage, onLanguageChange }) {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
-    const [maxDropdownWidth, setMaxDropdownWidth] = useState(MAX_DROPDOWN_WIDTH);
+    const [pos, setPos] = useState({ top: 0, left: 0, width: MAX_DROPDOWN_WIDTH, maxHeight: 480 });
     const dropdownRef = useRef(null);
+    const triggerRef = useRef(null);
+    const menuRef = useRef(null);
     const searchRef = useRef(null);
 
     const current = LANGUAGES.find(l => l.id === selectedLanguage);
@@ -25,13 +28,19 @@ export default function LanguageSelector({ selectedLanguage, onLanguageChange })
     // Close on outside click
     useEffect(() => {
         const handleClick = (e) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+            const inTrigger = dropdownRef.current && dropdownRef.current.contains(e.target);
+            const inMenu = menuRef.current && menuRef.current.contains(e.target);
+            if (!inTrigger && !inMenu) {
                 setIsOpen(false);
                 setSearch('');
             }
         };
         document.addEventListener('mousedown', handleClick);
-        return () => document.removeEventListener('mousedown', handleClick);
+        document.addEventListener('touchstart', handleClick, { passive: true });
+        return () => {
+            document.removeEventListener('mousedown', handleClick);
+            document.removeEventListener('touchstart', handleClick);
+        };
     }, []);
 
     // Focus search on open
@@ -41,14 +50,29 @@ export default function LanguageSelector({ selectedLanguage, onLanguageChange })
         }
     }, [isOpen]);
 
-    // Recalculate available horizontal space when dropdown opens to prevent viewport overflow
-    useEffect(() => {
-        if (isOpen && dropdownRef.current) {
-            const rect = dropdownRef.current.getBoundingClientRect();
-            const available = Math.floor(window.innerWidth - rect.left - VIEWPORT_PADDING);
-            setMaxDropdownWidth(Math.min(MAX_DROPDOWN_WIDTH, Math.max(MIN_DROPDOWN_WIDTH, available)));
-        }
-    }, [isOpen]);
+    // Position the portaled dropdown under the trigger, clamped to the viewport
+    const updatePosition = useCallback(() => {
+        if (!triggerRef.current) return;
+        const rect = triggerRef.current.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const width = Math.min(MAX_DROPDOWN_WIDTH, Math.max(MIN_DROPDOWN_WIDTH, vw - VIEWPORT_PADDING * 2));
+        const left = Math.max(VIEWPORT_PADDING, Math.min(rect.left, vw - width - VIEWPORT_PADDING));
+        const top = rect.bottom + 8;
+        const maxHeight = Math.max(240, vh - top - VIEWPORT_PADDING);
+        setPos({ top, left, width, maxHeight });
+    }, []);
+
+    useLayoutEffect(() => {
+        if (!isOpen) return;
+        updatePosition();
+        window.addEventListener('resize', updatePosition);
+        window.addEventListener('scroll', updatePosition, true);
+        return () => {
+            window.removeEventListener('resize', updatePosition);
+            window.removeEventListener('scroll', updatePosition, true);
+        };
+    }, [isOpen, updatePosition]);
 
     // Handle keyboard in search
     function handleKeyDown(e) {
@@ -68,6 +92,7 @@ export default function LanguageSelector({ selectedLanguage, onLanguageChange })
         <div className="relative inline-block" ref={dropdownRef}>
             {/* Compact Trigger for Status Bar */}
             <button
+                ref={triggerRef}
                 onClick={() => setIsOpen(!isOpen)}
                 className={`flex items-center gap-1 sm:gap-2 px-1.5 sm:px-2 py-1 rounded-md transition-all duration-200 group ${
                     isOpen 
@@ -83,10 +108,10 @@ export default function LanguageSelector({ selectedLanguage, onLanguageChange })
             </button>
 
             {/* Dropdown */}
-            {isOpen && (
-                <div style={{ maxWidth: `${maxDropdownWidth}px` }} className="absolute top-full left-0 mt-3 w-80 bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl shadow-black/20 z-50 overflow-hidden animate-pop-in origin-top-left">
+            {isOpen && createPortal(
+                <div ref={menuRef} style={{ position: 'fixed', top: pos.top, left: pos.left, width: pos.width, maxHeight: pos.maxHeight }} className="flex flex-col bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl shadow-black/20 z-[10001] overflow-hidden animate-pop-in origin-top-left">
                     {/* Search */}
-                    <div className="p-4 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/[0.02]">
+                    <div className="p-3 sm:p-4 shrink-0 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/[0.02]">
                         <div className="relative group">
                             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -104,7 +129,7 @@ export default function LanguageSelector({ selectedLanguage, onLanguageChange })
                     </div>
 
                     {/* Language List */}
-                    <div className="max-h-[60vh] sm:max-h-[400px] overflow-y-auto py-2 custom-scrollbar">
+                    <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-2 custom-scrollbar">
                         {filtered ? (
                             // Search results
                             filtered.length > 0 ? (
@@ -137,7 +162,8 @@ export default function LanguageSelector({ selectedLanguage, onLanguageChange })
                             ))
                         )}
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             <style>{`
@@ -170,8 +196,8 @@ function LangItem({ lang, isSelected, onSelect }) {
             }`}>
                 {lang.icon}
             </div>
-            <div className="flex-1">
-                <p className="text-sm font-bold tracking-tight">{lang.name}</p>
+            <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold tracking-tight truncate">{lang.name}</p>
                 <p className="text-[10px] font-mono text-gray-400 dark:text-gray-500">{lang.extension}</p>
             </div>
             {isSelected && (
