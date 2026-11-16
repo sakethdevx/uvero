@@ -23,7 +23,7 @@ const STATUS_CONFIG = {
     cancelled: { icon: '🚫', color: 'text-gray-400', bg: 'bg-gray-400/10' },
 };
 
-export default function HistoryPanel({ isOpen, onClose, runs, onLoadRun, onDeleteRun, onClearHistory }) {
+export default function HistoryPanel({ isOpen, onClose, fullscreen = false, runs, onLoadRun, onDeleteRun, onClearHistory }) {
     const [confirmClear, setConfirmClear] = useState(false);
 
     if (!isOpen) return null;
@@ -44,15 +44,15 @@ export default function HistoryPanel({ isOpen, onClose, runs, onLoadRun, onDelet
         <>
             {/* Backdrop */}
             <div
-                className="fixed left-0 right-0 bottom-0 z-[60] bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in"
-                style={{ top: 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}
+                className="fixed left-0 right-0 bottom-0 z-[10000] bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in"
+                style={{ top: fullscreen ? 0 : 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}
                 onClick={onClose}
             />
 
             {/* Panel */}
             <div 
-                className="fixed right-0 bottom-0 z-[70] w-full sm:w-[460px] glass-panel rounded-none sm:rounded-l-3xl sm:rounded-r-none flex flex-col animate-panel-in"
-                style={{ top: 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}
+                className="fixed right-0 bottom-0 z-[10001] w-full sm:w-[460px] glass-panel rounded-none sm:rounded-l-3xl sm:rounded-r-none flex flex-col animate-panel-in"
+                style={{ top: fullscreen ? 0 : 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}
             >
                 {/* Header */}
                 <div className="relative px-6 pt-6 pb-4">

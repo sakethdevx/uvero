@@ -57,25 +57,6 @@ export default function CompilerHome() {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [mobileTab, setMobileTab] = useState('code'); // 'code' | 'output'
 
-    // Escape key listener & body scroll lock for fullscreen mode
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (e.key === 'Escape' && isFullscreen) {
-                setIsFullscreen(false);
-            }
-        };
-        if (isFullscreen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = '';
-        }
-        window.addEventListener('keydown', handleKeyDown);
-        return () => {
-            document.body.style.overflow = '';
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [isFullscreen]);
-
     // Share & fetch states
     const [isSharing, setIsSharing] = useState(false);
     const [shareError, setShareError] = useState('');
@@ -454,7 +435,7 @@ export default function CompilerHome() {
 
                         {/* Monaco Editor */}
                         {isFetchingCode ? (
-                            <div className="h-[450px] lg:h-[540px] flex flex-col items-center justify-center bg-gray-50/50 dark:bg-white/[0.01]">
+                            <div className={`${isFullscreen ? 'flex-1 min-h-0' : 'h-[450px] lg:h-[540px]'} flex flex-col items-center justify-center bg-gray-50/50 dark:bg-white/[0.01]`}>
                                 <div className="w-8 h-8 border-4 border-violet-500/30 border-t-violet-500 rounded-full animate-spin mb-4" />
                                 <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Retrieving shared code from Clipboard...</p>
                             </div>
@@ -485,12 +466,12 @@ export default function CompilerHome() {
                     {!isFullscreen && <div className="lg:hidden h-px bg-gray-200/70 dark:bg-white/[0.06]" />}
 
                     {/* ─ Right: Input + Output ─ */}
-                    <div className={`w-full lg:w-[400px] xl:w-[440px] flex flex-col bg-gray-50/50 dark:bg-white/[0.01] ${isFullscreen ? 'h-full overflow-y-auto border-t lg:border-t-0 lg:border-l border-gray-200/70 dark:border-white/[0.06]' : ''} ${isFullscreen && mobileTab !== 'output' ? 'hidden lg:flex' : ''}`}>
+                    <div className={`w-full lg:w-[400px] xl:w-[440px] flex flex-col bg-gray-50/50 dark:bg-white/[0.01] ${isFullscreen ? 'flex-1 min-h-0 lg:flex-none lg:h-full overflow-y-auto border-t lg:border-t-0 lg:border-l border-gray-200/70 dark:border-white/[0.06]' : ''} ${isFullscreen && mobileTab !== 'output' ? 'hidden lg:flex' : ''}`}>
                         {/* Stdin */}
                         <StdinPanel value={stdin} onChange={setStdin} />
 
                         {/* Output */}
-                        <div className="flex-1 min-h-[280px] lg:min-h-0">
+                        <div className={`flex-1 flex flex-col ${isFullscreen ? 'min-h-0 overflow-hidden' : 'min-h-[280px] lg:min-h-0'}`}>
                             <OutputPanel output={output} isLoading={isLoading} />
                         </div>
                     </div>
@@ -523,6 +504,7 @@ export default function CompilerHome() {
             <HistoryPanel
                 isOpen={historyOpen}
                 onClose={() => setHistoryOpen(false)}
+                fullscreen={isFullscreen}
                 runs={runs}
                 onLoadRun={handleLoadRun}
                 onDeleteRun={deleteRun}
@@ -531,7 +513,7 @@ export default function CompilerHome() {
 
             {/* Share Modal */}
             {showShareModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
                     {/* Backdrop */}
                     <div 
                         className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in"
@@ -628,7 +610,7 @@ export default function CompilerHome() {
 
             {/* Retrieve Modal */}
             {showRetrieveModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
                     {/* Backdrop */}
                     <div 
                         className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-fade-in"
